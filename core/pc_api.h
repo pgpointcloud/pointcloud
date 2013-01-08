@@ -7,10 +7,6 @@
 *
 ***********************************************************************/
 
-/* PostgreSQL types and functions */
-#include "postgres.h"
-
-
 /**********************************************************************
 * DATA STRUCTURES
 */
@@ -27,14 +23,6 @@ enum COMPRESSIONS
 {
 	PC_NONE = 0,
 	PC_GHT = 1
-};
-
-/**
-* Map compression enum to strings for human consumption/creation.
-*/
-static char *PCCOMPRESSIONSTR[PCCOMPRESSIONTYPES] = {
-	"NONE",
-	"GHT"
 };
 
 /**
@@ -61,7 +49,7 @@ enum INTERPRETATIONS {
 /**
 * Point type for clouds. Variable length, because there can be 
 * an arbitrary number of dimensions. The pcid is a foreign key 
-* reference to the POINTCLOUD_FORMATS table, where
+* reference to the POINTCLOUD_SCHEMAS table, where
 * the underlying structure of the data is described in XML, 
 * the spatial reference system is indicated, and the data
 * packing scheme is indicated.
@@ -80,7 +68,7 @@ typedef struct
 * Variable length, because there can be 
 * an arbitrary number of points encoded within.
 * The pcid is a foriegn key reference to the 
-* POINTCLOUD_FORMATS table, where
+* POINTCLOUD_SCHEMAS table, where
 * the underlying structure of the data is described in XML, 
 * the spatial reference system is indicated, and the data
 * packing scheme is indicated.
@@ -116,7 +104,7 @@ typedef struct
 	uint32 pcid;
 	uint32 ndims;
 	PCDIMENSION *dims;
-} PCFORMAT;
+} PCSCHEMA;
 
 
 
@@ -125,7 +113,9 @@ typedef struct
 */
 
 /* Utility */
-void pc_format_free(PCFORMAT *pcf);
+void pc_schema_free(PCSCHEMA *pcf);
+PCSCHEMA* pc_schema_construct(const char *xmlstr);
+
 
 /* Accessors */
 int8   pc_point_get_int8   (const PCPOINT *pt, uint32 dim);

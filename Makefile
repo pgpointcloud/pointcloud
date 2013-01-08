@@ -1,7 +1,7 @@
 # pointcloud
 
 MODULE_big = pointcloud
-OBJS = pc_core.o
+OBJS = pc_core.a
 
 EXTENSION = pointcloud
 DATA = pointcloud--1.0.sql
@@ -14,3 +14,6 @@ SHLIB_LINK += $(filter -lm, $(LIBS))
 PG_CONFIG = pg_config
 PGXS := $(shell $(PG_CONFIG) --pgxs)
 include $(PGXS)
+
+
+pg_core.a: pc_core.o
