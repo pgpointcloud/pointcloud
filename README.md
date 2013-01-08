@@ -17,12 +17,12 @@ In order to preserve some compactness in dump files and network transmissions, t
 Human-Readable Text
 -------------------
 
-  PCPOINT( <pcid> : <dim1>, <dim2>, <dim3>, <dim4> )
+    PCPOINT( <pcid> : <dim1>, <dim2>, <dim3>, <dim4> )
 
-  PCPATCH( <pcid> : 
-          (<dim1>, <dim2>, <dim3>, <dim4>), 
-          (<dim1>, <dim2>, <dim3>, <dim4>) 
-         )
+    PCPATCH( <pcid> : ( <dim1>, <dim2>, <dim3>, <dim4> ), 
+                      ( <dim1>, <dim2>, <dim3>, <dim4> ), 
+                      ( <dim1>, <dim2>, <dim3>, <dim4> ) 
+           )
          
 Uncompressed Binary
 -------------------
