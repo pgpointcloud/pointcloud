@@ -7,6 +7,9 @@
 *
 ***********************************************************************/
 
+#include <stdio.h>
+#include <stdlib.h>
+
 /**********************************************************************
 * DATA STRUCTURES
 */
@@ -108,16 +111,36 @@ typedef struct
 	PCDIMENSION *dims;
 } PCSCHEMA;
 
-
+/* Global functions for memory/logging handlers. */
+typedef void* (*pc_allocator)(size_t size);
+typedef void* (*pc_reallocator)(void *mem, size_t size);
+typedef void  (*pc_deallocator)(void *mem);
+typedef void  (*pc_message_handler)(const char *string, va_list ap);
 
 /**********************************************************************
-* FUNTION PROTOTYPES
+* FUNCTION PROTOTYPES
 */
+
+/* Memory management and logging */
+void* pcalloc(size_t size);
+void* pcrealloc(void* mem, size_t size);
+void  pcfree(void* mem);
+void  pcerror(const char *fmt, ...);
+void  pcinfo(const char *fmt, ...);
+void  pcwarn(const char *fmt, ...);
+
+/* Set allocators and messaging */
+void pc_set_handlers(pc_allocator allocator, pc_reallocator reallocator,
+                     pc_deallocator deallocator, pc_message_handler error_handler,
+                     pc_message_handler info_handler, pc_message_handler warning_handler);
+
+/* Use system allocators and messaging */
+void pc_install_default_handlers(void);
+
 
 /* Utility */
 void pc_schema_free(PCSCHEMA *pcf);
 PCSCHEMA* pc_schema_construct(const char *xmlstr);
-
 
 /* Accessors */
 int8   pc_point_get_int8   (const PCPOINT *pt, uint32 dim);

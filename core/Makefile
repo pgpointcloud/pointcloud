@@ -1,4 +1,10 @@
-OBJS = pc_core.o
+
+
+
+OBJS = 	pc_core.o \
+		pc_mem.o
+
+
 LIB = pc_lib.a
 
 all: $(LIB)
