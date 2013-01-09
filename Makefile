@@ -1,19 +1,19 @@
-# pointcloud
+SUBDIRS = core postgis
 
-MODULE_big = pointcloud
-OBJS = pc_core.a
+all install uninstall noop clean distclean check:
+	for s in $(SUBDIRS); do \
+		$(MAKE) -C $${s} $@ || exit 1; \
+	done;
+	@if test x"$@" = xall; then \
+		echo "PointCloud was built successfully. Ready to install."; \
+	fi
 
-EXTENSION = pointcloud
-DATA = pointcloud--1.0.sql
+astyle:
+	find . \
+	  -name "*.c" \
+	  -type f \
+	  -or \
+	  -name "*.h" \
+	  -type f \
+	  -exec astyle --style=ansi --indent=tab --suffix=none {} ';'
 
-REGRESS = pointcloud
-
-SHLIB_LINK += $(filter -lm, $(LIBS))
-
-# We are going to use PGXS for sure
-PG_CONFIG = pg_config
-PGXS := $(shell $(PG_CONFIG) --pgxs)
-include $(PGXS)
-
-
-pg_core.a: pc_core.o

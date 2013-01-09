@@ -1,10 +1,11 @@
 OBJS = pc_core.o
+LIB = pc_lib.a
 
-all: liblwgeom.a
+all: $(LIB)
 
-liblwgeom.a: $(OBJS)
+$(LIB): $(OBJS)
 	ar rs $@ $^
 
 clean:
-	@rm -f *.o *.a *.so
+	@rm -f $(OBJS) $(LIB)
 
