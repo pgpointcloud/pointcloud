@@ -1,12 +1,10 @@
-SUBDIRS = core postgis
 
-all install uninstall noop clean distclean check:
-	for s in $(SUBDIRS); do \
-		$(MAKE) -C $${s} $@ || exit 1; \
-	done;
-	@if test x"$@" = xall; then \
-		echo "PointCloud was built successfully. Ready to install."; \
-	fi
+all install uninstall noop clean distclean:
+	$(MAKE) -C core $@
+	$(MAKE) -C postgis $@
+
+check:
+	$(MAKE) -C core $@
 
 astyle:
 	find . \

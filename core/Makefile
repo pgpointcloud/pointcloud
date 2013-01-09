@@ -1,9 +1,7 @@
 
-
-
-OBJS = 	pc_core.o \
-		pc_mem.o
-
+OBJS = \
+	pc_core.o \
+	pc_mem.o
 
 LIB = pc_lib.a
 
@@ -14,4 +12,7 @@ $(LIB): $(OBJS)
 
 clean:
 	@rm -f $(OBJS) $(LIB)
+	$(MAKE) -C cunit $@
 
+check:
+	$(MAKE) -C cunit $@

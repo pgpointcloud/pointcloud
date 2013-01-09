@@ -1,3 +1,5 @@
+#include <stdarg.h>
+
 #include "pc_c.h"
 #include "pc_api.h"
 
