@@ -20,7 +20,7 @@
 #define PCCOMPRESSIONTYPES 2
 
 /**
-* How can PCPOINTS in a PCPATCH be compressed?
+* Compression types for PCPOINTS in a PCPATCH
 */
 enum COMPRESSIONS
 {
@@ -29,7 +29,7 @@ enum COMPRESSIONS
 };
 
 /**
-* We will need to flag endianness for inter-architecture
+* Flags of endianness for inter-architecture
 * data transfers.
 */
 enum ENDIANS
@@ -39,7 +39,7 @@ enum ENDIANS
 };
 
 /**
-* We need interpretation types for our dimension descriptions
+* Interpretation types for our dimension descriptions
 */
 enum INTERPRETATIONS
 {
@@ -111,7 +111,7 @@ typedef struct
 	PCDIMENSION *dims;
 } PCSCHEMA;
 
-/* Global functions for memory/logging handlers. */
+/* Global function signatures for memory/logging handlers. */
 typedef void* (*pc_allocator)(size_t size);
 typedef void* (*pc_reallocator)(void *mem, size_t size);
 typedef void  (*pc_deallocator)(void *mem);
@@ -121,31 +121,42 @@ typedef void  (*pc_message_handler)(const char *string, va_list ap);
 * FUNCTION PROTOTYPES
 */
 
-/* Memory management and logging */
+/** Allocate memory using the appropriate means (system/db) */
 void* pcalloc(size_t size);
+/** Reallocate memory using the appropriate means (system/db) */
 void* pcrealloc(void* mem, size_t size);
+/** Free memory using the appropriate means (system/db) */
 void  pcfree(void* mem);
+/** Emit an error message using the appropriate means (system/db) */
 void  pcerror(const char *fmt, ...);
+/** Emit an info message using the appropriate means (system/db) */
 void  pcinfo(const char *fmt, ...);
+/** Emit a warning message using the appropriate means (system/db) */
 void  pcwarn(const char *fmt, ...);
 
-/* Set allocators and messaging */
+/** Set custom memory allocators and messaging (used by PgSQL module) */
 void pc_set_handlers(pc_allocator allocator, pc_reallocator reallocator,
                      pc_deallocator deallocator, pc_message_handler error_handler,
                      pc_message_handler info_handler, pc_message_handler warning_handler);
 
-/* Use system allocators and messaging */
+/** Set program to use system memory allocators and messaging */
 void pc_install_default_handlers(void);
 
-
-/* Utility */
+/** Release the memory in a schema structure */
 void pc_schema_free(PCSCHEMA *pcf);
+/** Build a schema structure from the XML serialisation */
 PCSCHEMA* pc_schema_construct(const char *xmlstr);
 
-/* Accessors */
+/** Read the value of a dimension, as an int8 */
 int8   pc_point_get_int8   (const PCPOINT *pt, uint32 dim);
+/** Read the value of a dimension, as an unsigned int8 */
 uint8  pc_point_get_uint8  (const PCPOINT *pt, uint32 dim);
+/** Read the value of a dimension, as an int16 */
 int16  pc_point_get_int16  (const PCPOINT *pt, uint32 dim);
+/** Read the value of a dimension, as an unsigned int16 */
 uint16 pc_point_get_uint16 (const PCPOINT *pt, uint32 dim);
+/** Read the value of a dimension, as an int32 */
 int32  pc_point_get_int32  (const PCPOINT *pt, uint32 dim);
+/** Read the value of a dimension, as an unsigned int32 */
 uint32 pc_point_get_uint32 (const PCPOINT *pt, uint32 dim);
+

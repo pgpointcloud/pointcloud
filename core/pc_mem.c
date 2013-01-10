@@ -1,3 +1,14 @@
+/***********************************************************************
+* pc_mem.c
+*
+* Memory and message management routines.
+* Allow this library to be used both inside and outside a 
+* PgSQL backend.
+*
+* Portions Copyright (c) 2012, OpenGeo
+*
+***********************************************************************/
+
 #include <stdarg.h>
 
 #include "pc_c.h"
