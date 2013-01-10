@@ -1,9 +1,18 @@
 
-PC_LIB = ../pc_lib.a
-PC_INC = -I../
+PC_CPPFLAGS = -I../
+PC_LIB = ../libpc.a
 
+XML2_CPPFLAGS = -I/opt/local/include/libxml2
+XML2_LDFLAGS = -lxml2
+
+CUNIT_CPPFLAGS = -I/usr/local/include
 CUNIT_LDFLAGS = -L/usr/local/lib -lcunit
-CUNIT_CPPFLAGS = -I/usr/local/include -I..
+
+CC = gcc
+CPPFLAGS = $(PC_CPPFLAGS) $(XML2_CPPFLAGS) $(CUNIT_CPPFLAGS)
+LDFLAGS = $(XML2_LDFLAGS) $(CUNIT_LDFLAGS)
+
+EXE = cu_tester
 
 # ADD YOUR NEW TEST FILE HERE (1/1)
 OBJS =	\
@@ -17,29 +26,29 @@ check: requirements_not_met_cunit
 else
 
 # Build the unit tester
-all: cu_tester
+all: $(EXE)
 
 # Build and run the unit tester
-check: cu_tester
-	@./cu_tester
+check: $(EXE)
+	@./$(EXE)
 
 endif
 
 # Build the main unit test executable
-cu_tester: $(OBJS) $(PC_LIB)
-	$(CC) $(CUNIT_LDFLAGS) -o $@ $^
+$(EXE): $(OBJS) $(PC_LIB)
+	$(CC) $(LDFLAGS) -o $@ $^
 
 # Command to build each of the .o files
 $(OBJS): %.o: %.c
-	$(CC) $(CFLAGS) $(CUNIT_CPPFLAGS) -c -o $@ $<
+	$(CC) $(CPPFLAGS) -c -o $@ $<
 
 $(PC_LIB):
-	$(MAKE) -C ../ pc_lib.a
+	$(MAKE) -C .. libpc.a
 
 # Clean target
 clean:
 	@rm -f $(OBJS)
-	@rm -f cu_tester
+	@rm -f $(EXE)
 
 
 # Requirements message
