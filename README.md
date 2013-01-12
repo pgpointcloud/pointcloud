@@ -33,7 +33,8 @@ PCPOINT
     byte:     endianness (1 = NDR, 0 = XDR)
     uint32:   pcid (key to POINTCLOUD_SCHEMAS)
     uchar[]:  data (interpret relative to pcid)
-    
+
+
 PCPATCH
 ~~~~~~~
 
@@ -42,4 +43,3 @@ PCPATCH
     uint32:   npoints
     uchar[]:  data (interpret relative to pcid)
 
-    
