@@ -23,20 +23,18 @@ Human-Readable Text
                       ( <dim1>, <dim2>, <dim3>, <dim4> ), 
                       ( <dim1>, <dim2>, <dim3>, <dim4> ) 
            )
-         
+
 Uncompressed Binary
 -------------------
 
-PCPOINT
-~~~~~~~
+    PCPOINT
     
     byte:     endianness (1 = NDR, 0 = XDR)
     uint32:   pcid (key to POINTCLOUD_SCHEMAS)
     uchar[]:  data (interpret relative to pcid)
 
 
-PCPATCH
-~~~~~~~
+    PCPATCH
 
     byte:     endianness (1 = NDR, 0 = XDR)
     uint32:   pcid (key to POINTCLOUD_SCHEMAS)
