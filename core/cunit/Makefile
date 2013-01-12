@@ -9,6 +9,7 @@ CUNIT_CPPFLAGS = -I/usr/local/include
 CUNIT_LDFLAGS = -L/usr/local/lib -lcunit
 
 CC = gcc
+CFLAGS = -g -O0
 CPPFLAGS = $(PC_CPPFLAGS) $(XML2_CPPFLAGS) $(CUNIT_CPPFLAGS)
 LDFLAGS = $(XML2_LDFLAGS) $(CUNIT_LDFLAGS)
 
@@ -37,10 +38,6 @@ endif
 # Build the main unit test executable
 $(EXE): $(OBJS) $(PC_LIB)
 	$(CC) $(LDFLAGS) -o $@ $^
-
-# Command to build each of the .o files
-$(OBJS): %.o: %.c
-	$(CC) $(CPPFLAGS) -c -o $@ $<
 
 $(PC_LIB):
 	$(MAKE) -C .. libpc.a

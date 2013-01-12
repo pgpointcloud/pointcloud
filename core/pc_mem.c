@@ -1,27 +1,25 @@
 /***********************************************************************
 * pc_mem.c
 *
-* Memory and message management routines.
-* Allow this library to be used both inside and outside a 
-* PgSQL backend.
+*  Memory and message management routines.
+*  Allow this library to be used both inside and outside a 
+*  PgSQL backend.
 *
 * Portions Copyright (c) 2012, OpenGeo
 *
 ***********************************************************************/
 
 #include <stdarg.h>
-
-#include "pc_c.h"
 #include "pc_api.h"
 
 struct pc_context_t 
 {
-    pc_allocator alloc;
-    pc_reallocator realloc;
-    pc_deallocator free;
-    pc_message_handler err;
-    pc_message_handler warn;
-    pc_message_handler info;
+	pc_allocator alloc;
+	pc_reallocator realloc;
+	pc_deallocator free;
+	pc_message_handler err;
+	pc_message_handler warn;
+	pc_message_handler info;
 };
 
 static struct pc_context_t pc_context;
@@ -37,8 +35,7 @@ static struct pc_context_t pc_context;
 static void *
 default_allocator(size_t size)
 {
-	void *mem = malloc(size);
-	return mem;
+	return malloc(size);
 }
 
 static void
@@ -50,23 +47,22 @@ default_freeor(void *mem)
 static void *
 default_reallocator(void *mem, size_t size)
 {
-	void *ret = realloc(mem, size);
-	return ret;
+	return realloc(mem, size);
 }
 
 static void
 default_msg_handler(const char *label, const char *fmt, va_list ap)
 {
-    char newfmt[1024] = {0};
-    snprintf(newfmt, 1024, "%s%s\n", label, fmt);
-    newfmt[1023] = '\0';
-    vprintf(newfmt, ap);
+	char newfmt[1024] = {0};
+	snprintf(newfmt, 1024, "%s%s\n", label, fmt);
+	newfmt[1023] = '\0';
+	vprintf(newfmt, ap);
 }
 
 static void
 default_info_handler(const char *fmt, va_list ap)
 {
-	default_msg_handler("INFO: ", fmt, ap);
+	// default_msg_handler("INFO: ", fmt, ap);
 }
 
 static void

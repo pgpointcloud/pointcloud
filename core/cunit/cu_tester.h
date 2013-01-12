@@ -1,15 +1,12 @@
-/**********************************************************************
- * $Id$
- *
- * PostGIS - Spatial Types for PostgreSQL
- * http://postgis.refractions.net
- *
- * This is free software; you can redistribute and/or modify it under
- * the terms of the GNU General Public Licence. See the COPYING file.
- *
- **********************************************************************/
+/***********************************************************************
+* cu_tester.h
+*
+*        Testing harness for PgSQL PointClouds header
+*
+* Portions Copyright (c) 2012, OpenGeo
+*
+***********************************************************************/
 
-#include "pc_c.h"
 #include "pc_api.h"
 
 #define PG_TEST(test_func) { #test_func, test_func }

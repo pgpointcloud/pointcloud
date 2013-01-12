@@ -1,12 +1,19 @@
 
 CC = gcc
-CFLAGS = -I/opt/local/include/libxml2
-LDFLAGS = -lxml2
+CFLAGS = -g -O0
+
+XML_CPPFLAGS = -I/opt/local/include/libxml2
+XML_LDFLAGS = -lxml2
+
+CPPFLAGS = $(XML_CPPFLAGS)
+LDFLAGS = $(XML_LDFLAGS)
 
 OBJS = \
 	pc_core.o \
 	pc_mem.o \
-	pc_schema.o
+	pc_schema.o \
+	stringbuffer.o \
+	hashtable.o
 
 LIB = libpc.a
 
@@ -22,3 +29,4 @@ clean:
 
 check:
 	$(MAKE) -C cunit $@
+
