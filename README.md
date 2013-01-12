@@ -39,7 +39,6 @@ PCPATCH
 
     byte:     endianness (1 = NDR, 0 = XDR)
     uint32:   pcid (key to POINTCLOUD_SCHEMAS)
-    float[4]: xmin, xmax, ymin, ymax
     uint32:   npoints
     uchar[]:  data (interpret relative to pcid)
 
