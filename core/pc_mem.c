@@ -106,7 +106,9 @@ void pc_set_handlers(pc_allocator allocator, pc_reallocator reallocator,
 void *
 pcalloc(size_t size) 
 {
-	return pc_context.alloc(size);
+	void *mem = pc_context.alloc(size);
+	memset(mem, 0, size); /* Force it to be clean */
+	return mem;
 }
 
 

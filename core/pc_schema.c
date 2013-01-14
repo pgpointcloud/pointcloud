@@ -79,7 +79,6 @@ static PCDIMENSION*
 pc_dimension_new()
 {
 	PCDIMENSION *pcd = pcalloc(sizeof(PCDIMENSION));
-	memset(pcd, 0, sizeof(PCDIMENSION));
 	return pcd;
 }
 
@@ -99,13 +98,8 @@ static PCSCHEMA*
 pc_schema_new(uint32_t ndims)
 {
 	PCSCHEMA *pcs = pcalloc(sizeof(PCSCHEMA));
-	memset(pcs, 0, sizeof(PCSCHEMA));
-	
-	pcs->dims = pcalloc(sizeof(PCDIMENSION*) * ndims);
-	memset(pcs->dims, 0, sizeof(PCDIMENSION*) * ndims);
-	
+	pcs->dims = pcalloc(sizeof(PCDIMENSION*) * ndims);	
 	pcs->namehash = create_string_hashtable();
-	
 	pcs->ndims = ndims;
 	return pcs;
 }
