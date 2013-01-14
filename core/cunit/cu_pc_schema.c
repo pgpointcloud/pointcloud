@@ -10,10 +10,27 @@
 #include "CUnit/Basic.h"
 #include "cu_tester.h"
 
-/* GLOBALS for this suite */
+/* GLOBALS ************************************************************/
+
 PCSCHEMA *pcs = NULL;
 const char *xmlfile = "data/pdal-schema.xml";
 
+/* Setup/teardown for this suite */
+static int 
+init_schema_suite(void)
+{
+	pcs = NULL;
+	return 0;
+}
+
+static int 
+clean_schema_suite(void)
+{
+	pc_schema_free(pcs);
+	return 0;
+}
+
+/* UTILITY ************************************************************/
 
 static char*
 file_to_str(const char *fname)
@@ -42,21 +59,32 @@ file_to_str(const char *fname)
 	return str;
 }
 
-static void test_schema_from_xml() 
+/* TESTS **************************************************************/
+
+static void 
+test_schema_from_xml() 
 {
 	char *xmlstr = file_to_str(xmlfile);
 	pcs = pc_schema_construct_from_xml(xmlstr);
 	pcfree(xmlstr);
 
-//	char *pcsstr = pc_schema_to_json(pcs);
-//	printf("ndims %d\n", pcs->ndims);
-//	printf("name0 %s\n", pcs->dims[0]->name);
-//	printf("%s\n", pcsstr);
+	// char *pcsstr = pc_schema_to_json(pcs);
+	// printf("ndims %d\n", pcs->ndims);
+	// printf("name0 %s\n", pcs->dims[0]->name);
+	// printf("%s\n", pcsstr);
 	
 	CU_ASSERT(pcs != NULL);
 }
 
-static void test_dimension_get() 
+static void 
+test_schema_size() 
+{
+	size_t sz = pc_schema_get_size(pcs);
+	CU_ASSERT_EQUAL(sz, 37);
+}
+
+static void 
+test_dimension_get() 
 {
 	PCDIMENSION *d;
 	
@@ -80,18 +108,21 @@ static void test_dimension_get()
 	CU_ASSERT_STRING_EQUAL(d->name, "Z");
 
 	d = pc_schema_get_dimension_by_name(pcs, "y");
-//	printf("name %s\n", d->name);
-//	printf("position %d\n", d->position);
+	// printf("name %s\n", d->name);
+	// printf("position %d\n", d->position);
 	CU_ASSERT_EQUAL(d->position, 1);
 	CU_ASSERT_STRING_EQUAL(d->name, "Y");
-
-	pc_schema_free(pcs);
 }
 
-/* register tests */
+
+
+/* REGISTER ***********************************************************/
+
 CU_TestInfo schema[] = {
 	PG_TEST(test_schema_from_xml),
+	PG_TEST(test_schema_size),
 	PG_TEST(test_dimension_get),
 	CU_TEST_INFO_NULL
 };
-CU_SuiteInfo schema_suite = {"schema",  NULL,  NULL, schema};
+
+CU_SuiteInfo schema_suite = {"schema", init_schema_suite, clean_schema_suite, schema};

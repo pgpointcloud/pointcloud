@@ -48,6 +48,8 @@ enum ENDIANS
 /**
 * Interpretation types for our dimension descriptions
 */
+#define NUM_INTERPRETATIONS 11
+
 enum INTERPRETATIONS
 {
 	PC_UNKNOWN = 0,
@@ -58,7 +60,7 @@ enum INTERPRETATIONS
 	PC_DOUBLE, PC_FLOAT
 };
 
-static char *INTERPRETATION_STRINGS[] =
+static char *INTERPRETATION_STRINGS[NUM_INTERPRETATIONS] =
 {
 	"unknown",
 	"int8_t",  "uint8_t",
@@ -68,44 +70,15 @@ static char *INTERPRETATION_STRINGS[] =
 	"double",  "float"
 };
 
-
-
-
-/**
-* Point type for clouds. Variable length, because there can be
-* an arbitrary number of dimensions. The pcid is a foreign key
-* reference to the POINTCLOUD_SCHEMAS table, where
-* the underlying structure of the data is described in XML,
-* the spatial reference system is indicated, and the data
-* packing scheme is indicated.
-*/
-typedef struct
+static size_t INTERPRETATION_SIZES[NUM_INTERPRETATIONS] =
 {
-	uint32_t size; /* PgSQL VARSIZE */
-	uint32_t pcid;
-	uint8_t  data[1];
-} PCPOINT;
-
-
-
-/**
-* PgSQL patch type (collection of points) for clouds.
-* Variable length, because there can be
-* an arbitrary number of points encoded within.
-* The pcid is a foriegn key reference to the
-* POINTCLOUD_SCHEMAS table, where
-* the underlying structure of the data is described in XML,
-* the spatial reference system is indicated, and the data
-* packing scheme is indicated.
-*/
-typedef struct
-{
-	uint32_t size; /* PgSQL VARSIZE */
-	float xmin, xmax, ymin, ymax;
-	uint32_t npoints;
-	uint32_t pcid;
-	uint8_t  data[1];
-} PCPATCH;
+	-1,    /* PC_UNKNOWN */
+	1, 1,  /* PC_INT8, PC_UINT8, */
+	2, 2,  /* PC_INT16, PC_UINT16 */
+	4, 4,  /* PC_INT32, PC_UINT32 */
+	8, 8,  /* PC_INT64, PC_UINT64 */
+	8, 4   /* PC_DOUBLE, PC_FLOAT */
+};
 
 
 /**
@@ -126,12 +99,13 @@ typedef struct
 
 typedef struct
 {
-	uint32_t pcid;
-	uint32_t ndims;
-	PCDIMENSION **dims;
-	uint32_t srid;
-	uint32_t compression;
-	struct hashtable *namehash;
+	uint32_t pcid;        /* Unique ID for schema */
+	uint32_t ndims;       /* How many dimensions does this schema have? */
+	size_t size;          /* How wide (bytes) is a point with this schema? */
+	PCDIMENSION **dims;   /* Array of dimension pointers */
+	uint32_t srid;        /* Foreign key reference to SPATIAL_REF_SYS */
+	uint32_t compression; /* Compression type applied to the data */
+	hashtable *namehash;  /* Look-up from dimension name to pointer */
 } PCSCHEMA;
 
 
@@ -144,11 +118,10 @@ typedef struct
 */
 typedef struct
 {
-	size_t size;
 	int32_t readonly;
 	PCSCHEMA *schema;
-	uint8_t  *data;
-} MEMPOINT;
+	uint8_t *data;
+} PCPOINT;
 
 
 /**
@@ -160,14 +133,51 @@ typedef struct
 */
 typedef struct
 {
-	size_t size;
-	size_t capacity;
 	int32_t readonly;
-	float xmin, xmax, ymin, ymax;
-	uint32_t npoints;
+	size_t npoints; /* How many points we have */
+	size_t maxpoints; /* How man points we can hold (or 0 for read-only) */
 	PCSCHEMA *schema;
-	uint8_t  *data;
-} MEMPATCH;
+	float xmin, xmax, ymin, ymax;
+	uint8_t *data;
+} PCPATCH;
+
+
+
+/**
+* Point type for clouds. Variable length, because there can be
+* an arbitrary number of dimensions. The pcid is a foreign key
+* reference to the POINTCLOUD_SCHEMAS table, where
+* the underlying structure of the data is described in XML,
+* the spatial reference system is indicated, and the data
+* packing scheme is indicated.
+*/
+// typedef struct
+// {
+// 	uint32_t size; /* PgSQL VARSIZE */
+// 	uint32_t pcid;
+// 	uint8_t data[1];
+// } PCPOINT;
+
+/**
+* PgSQL patch type (collection of points) for clouds.
+* Variable length, because there can be
+* an arbitrary number of points encoded within.
+* The pcid is a foriegn key reference to the
+* POINTCLOUD_SCHEMAS table, where
+* the underlying structure of the data is described in XML,
+* the spatial reference system is indicated, and the data
+* packing scheme is indicated.
+*/
+// typedef struct
+// {
+// 	uint32_t size; /* PgSQL VARSIZE */
+// 	float xmin, xmax, ymin, ymax;
+// 	uint32_t pcid;
+// 	uint32_t npoints;
+// 	uint8_t data[1];
+// } PCPATCH;
+
+
 
 
 /* Global function signatures for memory/logging handlers. */
@@ -219,6 +229,8 @@ char* pc_schema_to_json(const PCSCHEMA *pcs);
 PCDIMENSION *pc_schema_get_dimension(const PCSCHEMA *s, uint32_t dim);
 /** Extract dimension information by name */
 PCDIMENSION *pc_schema_get_dimension_by_name(const PCSCHEMA *s, const char *name);
+/** Width of the data buffer for schema, in bytes */
+size_t pc_schema_get_size(const PCSCHEMA *s);
 
 
 
@@ -226,8 +238,28 @@ PCDIMENSION *pc_schema_get_dimension_by_name(const PCSCHEMA *s, const char *name
 * PCPOINT
 */
 
+typedef struct {
+	uint32_t interp;
+	union {
+		uint8_t  uint8_val;
+		uint16_t uint16_val;
+		uint32_t uint32_val;
+		uint64_t uint64_val;
+		int8_t   int8_val;
+		int16_t  int16_val;
+		int32_t  int32_val;
+		int64_t  int64_val;
+		float    float_val;
+		double   double_val;
+		} val;
+} PCVAL;
+
 /** Create a new PCPOINT */
 PCPOINT* pc_point_new(const PCSCHEMA *s);
+/** Read the value of a dimension */
+PCVAL    pc_point_get_val(const PCPOINT *pt, uint32_t dim);
+
+
 /** Read the value of a dimension, as an int8 */
 int8_t   pc_point_get_int8_t   (const PCPOINT *pt, uint32_t dim);
 /** Read the value of a dimension, as an unsigned int8 */

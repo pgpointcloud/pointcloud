@@ -16,6 +16,17 @@
 
 
 /** Convert XML string token to type interpretation number */
+static const char * 
+pc_interpretation_string(uint32_t interp)
+{
+	if ( interp >= 0 && interp < NUM_INTERPRETATIONS )
+		return INTERPRETATION_STRINGS[interp];
+	else
+		return "unknown";
+}
+
+
+/** Convert XML string token to type interpretation number */
 static int 
 pc_interpretation_number(const char *str)
 {
@@ -53,14 +64,14 @@ pc_interpretation_number(const char *str)
 		return PC_UNKNOWN;
 }
 
-/** Convert type interpretation number to XML string token */
-static const char *
-pc_interpretation_string(int interp)
+/** Convert type interpretation number size in bytes */
+static size_t
+pc_interpretation_size(uint32_t interp)
 {
-	if ( interp >= 0 && interp <= 10 )
-		return INTERPRETATION_STRINGS[interp];
+	if ( interp >= 0 && interp < NUM_INTERPRETATIONS )
+		return INTERPRETATION_SIZES[interp];
 	else
-		return "unknown";
+		return 0;
 }
 
 /** Allocate clean memory for a PCDIMENSION struct */
@@ -272,6 +283,8 @@ PCSCHEMA* pc_schema_construct_from_xml(const char *xml_str)
 				if ( d->position >= 0 && d->position < ndims )
 				{
 					s->dims[d->position] = d;
+					d->size = pc_interpretation_size(d->interpretation);
+					s->size += d->size;
 					hashtable_insert(s->namehash, strdup(d->name), d);
 				}
 				else
@@ -294,6 +307,12 @@ pc_schema_get_dimension(const PCSCHEMA *s, uint32_t dim)
 		return s->dims[dim];
 	}
 	return NULL;
+}
+
+size_t
+pc_schema_get_size(const PCSCHEMA *s)
+{
+	return s->size;
 }
 
 PCDIMENSION *
