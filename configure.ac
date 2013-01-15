@@ -7,7 +7,6 @@ dnl * Copyright (c) 2012, OpenGeo
 dnl *
 dnl ***********************************************************************/
 
-
 AC_INIT()
 AC_CONFIG_MACRO_DIR([macros])
 
@@ -17,7 +16,7 @@ dnl
 AC_PROG_CC
 
 dnl
-dnl Define executable suffix for use with the loader Makefiles
+dnl Define executable suffix to use for utility programs
 dnl
 EXESUFFIX="$ac_cv_exeext"
 AC_SUBST([EXESUFFIX])
@@ -25,7 +24,6 @@ AC_SUBST([EXESUFFIX])
 dnl
 dnl Search for flex/bison to build the parser
 dnl
-
 AC_PROG_LEX
 AC_PROG_YACC
 AC_SUBST([LEX])
@@ -33,21 +31,20 @@ AC_SUBST([YACC])
 
 
 dnl ===========================================================================
-dnl Detect CUnit if it is installed (used for unit testing)
-dnl
-dnl Note that we pass any specified CPPFLAGS and LDFLAGS into the Makefile 
-dnl as CUnit is the only compile-time dependency that cannot obtain any 
-dnl specialised flags using a --with-X parameter, and so we allow this 
-dnl information to be passed in if required.
+dnl Detect CUnit if it is installed 
 dnl ===========================================================================
 
 CUNIT_LDFLAGS=""
 AC_CHECK_HEADER([CUnit/CUnit.h], [
 	CUNIT_CPPFLAGS="$CPPFLAGS"
-	AC_CHECK_LIB([cunit], [CU_initialize_registry], [CUNIT_LDFLAGS="$LDFLAGS -lcunit"], [AC_MSG_WARN([could not locate CUnit required for unit tests])])
+	AC_CHECK_LIB([cunit], 
+	  [CU_initialize_registry], 
+	  [CUNIT_LDFLAGS="$LDFLAGS -lcunit"], 
+	  [AC_MSG_ERROR([could not locate CUnit required for unit tests])]
+	  )
 	],
 	[
-	AC_MSG_WARN([could not locate CUnit required for unit tests])
+	AC_MSG_ERROR([could not locate CUnit required for unit tests])
 	])
 	
 AC_SUBST([CUNIT_CPPFLAGS])
@@ -97,7 +94,6 @@ if test ! -f $PGXS; then
 fi
 
 AC_SUBST([PGXS])
-
 
 dnl Extract the version information from pg_config
 dnl Note: we extract the major & minor separately, ensure they are numeric, and then combine to give
@@ -237,7 +233,7 @@ AC_SUBST([PROJ_CPPFLAGS])
 AC_SUBST([PROJ_LDFLAGS])
 
 dnl Ensure that we are using PROJ >= 4.6.0 (requires pj_set_searchpath) 
-if test ! "$PROJ_VERSION" -ge 46; then
+if test ! "$PC_PROJ_VERSION" -ge 46; then
 	AC_MSG_ERROR([PointCloud requires PROJ >= 4.6.0])
 fi
 
@@ -249,7 +245,6 @@ AC_CHECK_LIB([proj], [pj_get_release],
 	[AC_MSG_ERROR([could not find libproj - you may need to specify the directory of a PROJ.4 installation using --with-projdir])],
 	[])
 LIBS="$LIBS_SAVE"
-
 
 dnl ===========================================================================
 dnl Output the relevant files

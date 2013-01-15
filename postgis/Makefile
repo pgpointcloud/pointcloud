@@ -1,5 +1,7 @@
 # pointcloud
 
+include ../makeglobals.mk
+
 MODULE_big = pointcloud
 OBJS = \
 	pc_functions.o
@@ -9,7 +11,7 @@ DATA = pointcloud--1.0.sql
 
 REGRESS = pointcloud
 
-SHLIB_LINK += $(filter -lm, $(LIBS)) ../libpc/libpc.a
+SHLIB_LINK += $(filter -lm, $(LIBS)) ../libpc/$(LIBPC_A)
 
 # We are going to use PGXS for sure
 PG_CONFIG = pg_config

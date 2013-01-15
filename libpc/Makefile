@@ -1,12 +1,8 @@
 
-CC = gcc
-CFLAGS = -g -O0
+include ../makeglobals.mk
 
-XML_CPPFLAGS = -I/opt/local/include/libxml2
-XML_LDFLAGS = -lxml2
-
-CPPFLAGS = $(XML_CPPFLAGS)
-LDFLAGS = $(XML_LDFLAGS)
+CPPFLAGS = $(XML2_CPPFLAGS)
+LDFLAGS = $(XML2_LDFLAGS)
 
 OBJS = \
 	pc_core.o \
@@ -17,16 +13,14 @@ OBJS = \
 	stringbuffer.o \
 	hashtable.o
 
-LIB = libpc.a
-
-all: $(LIB)
+all: $(LIBPC_A)
 	$(MAKE) -C cunit $@
 
-$(LIB): $(OBJS)
+$(LIBPC_A): $(OBJS)
 	ar rs $@ $^
 
 clean:
-	@rm -f $(OBJS) $(LIB)
+	@rm -f $(OBJS) $(LIBPC_A)
 	$(MAKE) -C cunit $@
 
 check:
