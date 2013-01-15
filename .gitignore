@@ -1,3 +1,7 @@
 *.o
 *.a
 *.so
+autom4te.cache
+configure
+config.log
+confdefs.h

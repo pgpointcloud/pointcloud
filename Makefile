@@ -1,10 +1,10 @@
 
 all install uninstall noop clean distclean:
-	$(MAKE) -C core $@
+	$(MAKE) -C libpc $@
 	$(MAKE) -C postgis $@
 
 check:
-	$(MAKE) -C core $@
+	$(MAKE) -C libpc $@
 
 astyle:
 	find . \
