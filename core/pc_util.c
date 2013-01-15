@@ -7,7 +7,7 @@
 *
 ***********************************************************************/
 
-#include "pc_api.h"
+#include "pc_api_internal.h"
 
 /* Our static character->number map. Anything > 15 is invalid */
 static uint8_t hex2char[256] = {

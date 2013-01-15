@@ -10,7 +10,7 @@
 ***********************************************************************/
 
 #include <stdarg.h>
-#include "pc_api.h"
+#include "pc_api_internal.h"
 
 struct pc_context_t 
 {
@@ -107,7 +107,7 @@ void *
 pcalloc(size_t size) 
 {
 	void *mem = pc_context.alloc(size);
-	memset(mem, 0, size); /* Force it to be clean */
+	memset(mem, 0, size); /* Always clean memory */
 	return mem;
 }
 

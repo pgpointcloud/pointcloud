@@ -11,7 +11,9 @@ LDFLAGS = $(XML_LDFLAGS)
 OBJS = \
 	pc_core.o \
 	pc_mem.o \
+	pc_val.o \
 	pc_schema.o \
+	pc_point.o \
 	stringbuffer.o \
 	hashtable.o
 

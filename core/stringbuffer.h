@@ -48,7 +48,7 @@
 #define free pcfree
 #define realloc pcrealloc
 
-#include "pc_api.h"
+#include "pc_api_internal.h"
 
 #define STRINGBUFFER_STARTSIZE 128
 

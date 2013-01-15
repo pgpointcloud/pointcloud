@@ -114,7 +114,30 @@ test_dimension_get()
 	CU_ASSERT_STRING_EQUAL(d->name, "Y");
 }
 
-
+static void 
+test_dimension_byteoffsets() 
+{
+	PCDIMENSION *d;
+	int i;
+	int prev_byteoffset;
+	int prev_size;
+	int pc_size;
+	
+	for ( i = 0; i < pcs->ndims; i++ )
+	{
+		d = pc_schema_get_dimension(pcs, i);
+		// printf("d=%d name='%s' size=%d byteoffset=%d\n", i, d->name, d->size, d->byteoffset);
+		if ( i > 0 )
+		{
+			CU_ASSERT_EQUAL(prev_size, pc_size);
+			CU_ASSERT_EQUAL(prev_size, d->byteoffset - prev_byteoffset);
+		}
+		prev_byteoffset = d->byteoffset;
+		prev_size = d->size;
+		pc_size = pc_interpretation_size(d->interpretation);
+	}
+	
+}
 
 /* REGISTER ***********************************************************/
 
@@ -122,6 +145,7 @@ CU_TestInfo schema[] = {
 	PG_TEST(test_schema_from_xml),
 	PG_TEST(test_schema_size),
 	PG_TEST(test_dimension_get),
+	PG_TEST(test_dimension_byteoffsets),
 	CU_TEST_INFO_NULL
 };
 

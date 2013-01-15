@@ -22,6 +22,14 @@
 */
 
 /**
+* Utility defines
+*/
+#define PC_TRUE 1
+#define PC_FALSE 0
+#define PC_SUCCESS 1
+#define PC_FAILURE 0
+
+/**
 * How many compression types do we support?
 */
 #define PCCOMPRESSIONTYPES 2
@@ -82,7 +90,7 @@ static size_t INTERPRETATION_SIZES[NUM_INTERPRETATIONS] =
 
 
 /**
-* We need to hold a cached in-memory version of the formats
+* We need to hold a cached in-memory version of the format's
 * XML structure for speed, and this is it.
 */
 typedef struct
@@ -91,9 +99,10 @@ typedef struct
 	char *description;
 	uint32_t position;
 	uint32_t size;
-	uint32_t offset;
+	uint32_t byteoffset;
 	uint32_t interpretation;
 	double scale;
+	double offset;
 	uint8_t active;
 } PCDIMENSION;
 
@@ -119,7 +128,7 @@ typedef struct
 typedef struct
 {
 	int32_t readonly;
-	PCSCHEMA *schema;
+	const PCSCHEMA *schema;
 	uint8_t *data;
 } PCPOINT;
 
@@ -136,7 +145,7 @@ typedef struct
 	int32_t readonly;
 	size_t npoints; /* How many points we have */
 	size_t maxpoints; /* How man points we can hold (or 0 for read-only) */
-	PCSCHEMA *schema;
+	const PCSCHEMA *schema;
 	float xmin, xmax, ymin, ymax;
 	uint8_t *data;
 } PCPATCH;
@@ -238,39 +247,19 @@ size_t pc_schema_get_size(const PCSCHEMA *s);
 * PCPOINT
 */
 
-typedef struct {
-	uint32_t interp;
-	union {
-		uint8_t  uint8_val;
-		uint16_t uint16_val;
-		uint32_t uint32_val;
-		uint64_t uint64_val;
-		int8_t   int8_val;
-		int16_t  int16_val;
-		int32_t  int32_val;
-		int64_t  int64_val;
-		float    float_val;
-		double   double_val;
-		} val;
-} PCVAL;
-
 /** Create a new PCPOINT */
 PCPOINT* pc_point_new(const PCSCHEMA *s);
-/** Read the value of a dimension */
-PCVAL    pc_point_get_val(const PCPOINT *pt, uint32_t dim);
+/** Create a new PCPOINT on top of a data buffer */
+PCPOINT* pc_point_new_from_data(const PCSCHEMA *s, uint8_t *data);
+/** Casts named dimension value to double and scale/offset appropriately before returning */
+double pc_point_get_double_by_name(const PCPOINT *pt, const char *name);
+/** Casts dimension value to double and scale/offset appropriately before returning */
+double pc_point_get_double_by_idx(const PCPOINT *pt, uint32_t idx);
+/** Scales/offsets double, casts to appropriate dimension type, and writes into point */
+int pc_point_set_double_by_idx(PCPOINT *pt, uint32_t idx, double val);
+/** Scales/offsets double, casts to appropriate dimension type, and writes into point */
+int pc_point_set_double_by_name(PCPOINT *pt, const char *name, double val);
 
 
-/** Read the value of a dimension, as an int8 */
-int8_t   pc_point_get_int8_t   (const PCPOINT *pt, uint32_t dim);
-/** Read the value of a dimension, as an unsigned int8 */
-uint8_t  pc_point_get_uint8_t  (const PCPOINT *pt, uint32_t dim);
-/** Read the value of a dimension, as an int16 */
-int16_t  pc_point_get_int16_t  (const PCPOINT *pt, uint32_t dim);
-/** Read the value of a dimension, as an unsigned int16 */
-uint16_t pc_point_get_uint16_t (const PCPOINT *pt, uint32_t dim);
-/** Read the value of a dimension, as an int32_t */
-int32_t  pc_point_get_int32_t  (const PCPOINT *pt, uint32_t dim);
-/** Read the value of a dimension, as an unsigned int32_t */
-uint32_t pc_point_get_uint32_t (const PCPOINT *pt, uint32_t dim);
 
-#endif
+#endif /* _PC_API_H */

@@ -7,7 +7,7 @@
 *
 ***********************************************************************/
 
-#include "pc_api.h"
+#include "pc_api_internal.h"
 
 #define PG_TEST(test_func) { #test_func, test_func }
 #define MAX_CUNIT_MSG_LENGTH 512
@@ -17,4 +17,3 @@ char cu_error_msg[MAX_CUNIT_MSG_LENGTH+1];
 
 /* Resets cu_error_msg back to blank. */
 //void cu_error_msg_reset(void);
-

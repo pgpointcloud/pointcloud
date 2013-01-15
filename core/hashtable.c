@@ -9,7 +9,7 @@
 
 /* Use appropriate allocators for this deployment */
 /* Remove this for use in other contexts */
-#include "pc_api.h"
+#include "pc_api_internal.h"
 #define malloc pcalloc
 #define free pcfree
 #define realloc pcrealloc

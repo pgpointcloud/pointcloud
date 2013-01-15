@@ -8,12 +8,13 @@
 *
 ***********************************************************************/
 
-#include "pc_api.h"
+#include "pc_api_internal.h"
 
-PCPOINT* pc_point_new(const PCSCHEMA *s, uint8_t *data)
+
+PCPOINT * 
+pc_point_new(const PCSCHEMA *s)
 {
-	int i;
-	size_t sz = 0;
+	size_t sz;
 	PCPOINT *pt;
 	
 	if ( ! s )
@@ -22,19 +23,119 @@ PCPOINT* pc_point_new(const PCSCHEMA *s, uint8_t *data)
 		return NULL;
 	}
 	
-	/* Calculate total data width of the PCPOINT */
-	for ( i = 0; i < s->ndims; i++ )
+	/* Width of the data area */
+	sz = pc_schema_get_size(s);
+	if ( ! sz )
 	{
-		if ( s->ndims[i] )
-			sz += s->dims[i]->size;
+		pcerror("invalid size calculation in pc_point_new");
+		return NULL;
 	}
 	
-	/* PCPOINT struct already has 1 byte alloc'ed for data */
-	pt = pcalloc(sizeof(PCPOINT) + (sz - 1)); 
+	/* Make our own data area */
+	pt = pcalloc(sizeof(PCPOINT)); 
+	pt->data = pcalloc(sz);
 	
 	/* Set up basic info */
-	pt->pcid = s->pcid;
-
-	
+	pt->schema = s;
+	pt->readonly = PC_FALSE;
+	return pt;
 };
+
+PCPOINT * 
+pc_point_new_from_data(const PCSCHEMA *s, uint8_t *data)
+{
+	size_t sz;
+	PCPOINT *pt;
+	
+	if ( ! s )
+	{
+		pcerror("null schema passed into pc_point_new_from_data");
+		return NULL;
+	}
+
+	/* Reference the external data */
+	pt = pcalloc(sizeof(PCPOINT)); 
+	pt->data = data;
+	
+	/* Set up basic info */
+	pt->schema = s;
+	pt->readonly = PC_TRUE;
+	return pt;
+}
+
+
+static double
+pc_point_get_double(const PCPOINT *pt, const PCDIMENSION *d)
+{
+	uint8_t *ptr;
+	double val;
+	
+	/* Read raw value from byte buffer */
+	ptr = pt->data + d->byteoffset;
+	val = pc_double_from_ptr(ptr, d->interpretation);
+
+	/* Scale value */
+	if ( d->scale )
+		val *= d->scale;
+
+	/* Offset value */
+	if ( d->offset )
+		val += d->offset;
+	
+	return val;
+}
+
+double
+pc_point_get_double_by_name(const PCPOINT *pt, const char *name)
+{
+	PCDIMENSION *d;
+	d = pc_schema_get_dimension_by_name(pt->schema, name);
+	return pc_point_get_double(pt, d);
+}
+
+double
+pc_point_get_double_by_idx(const PCPOINT *pt, uint32_t idx)
+{
+	PCDIMENSION *d;
+	d = pc_schema_get_dimension(pt->schema, idx);
+	return pc_point_get_double(pt, d);
+}
+
+int 
+pc_point_set_double(PCPOINT *pt, const PCDIMENSION *d, double val)
+{
+	uint8_t *ptr;
+	
+
+	/* Offset value */
+	if ( d->offset )
+		val -= d->offset;
+
+	/* Scale value */
+	if ( d->scale )
+		val /= d->scale;
+
+	/* Get pointer into byte buffer */
+	ptr = pt->data + d->byteoffset;
+	
+	return pc_double_to_ptr(ptr, d->interpretation, val);
+}
+
+int 
+pc_point_set_double_by_idx(PCPOINT *pt, uint32_t idx, double val)
+{
+	PCDIMENSION *d;
+	d = pc_schema_get_dimension(pt->schema, idx);
+	return pc_point_set_double(pt, d, val);
+}
+
+int 
+pc_point_set_double_by_name(PCPOINT *pt, const char *name, double val)
+{
+	PCDIMENSION *d;
+	d = pc_schema_get_dimension_by_name(pt->schema, name);
+	return pc_point_set_double(pt, d, val);
+}
+
+
 

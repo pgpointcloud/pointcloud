@@ -11,7 +11,7 @@
 #include <libxml/parser.h>
 #include <libxml/xpath.h>
 
-#include "pc_api.h"
+#include "pc_api_internal.h"
 #include "stringbuffer.h"
 
 
@@ -65,7 +65,7 @@ pc_interpretation_number(const char *str)
 }
 
 /** Convert type interpretation number size in bytes */
-static size_t
+size_t
 pc_interpretation_size(uint32_t interp)
 {
 	if ( interp >= 0 && interp < NUM_INTERPRETATIONS )
@@ -162,9 +162,10 @@ pc_schema_to_json(const PCSCHEMA *pcs)
 					stringbuffer_aprintf(sb, "  \"description\" : \"%s\",\n", d->description);
 
 				stringbuffer_aprintf(sb, "  \"size\" : %d,\n", d->size);
-				stringbuffer_aprintf(sb, "  \"offset\" : %d,\n", d->offset);
+				stringbuffer_aprintf(sb, "  \"byteoffset\" : %d,\n", d->byteoffset);
 				stringbuffer_aprintf(sb, "  \"scale\" : %g,\n", d->scale);
 				stringbuffer_aprintf(sb, "  \"interpretation\" : \"%s\",\n", pc_interpretation_string(d->interpretation));
+				stringbuffer_aprintf(sb, "  \"offset\" : %g,\n", d->offset);
 
 				stringbuffer_aprintf(sb, "  \"active\" : %d\n", d->active);
 				stringbuffer_append(sb, " }");
@@ -180,16 +181,16 @@ pc_schema_to_json(const PCSCHEMA *pcs)
 
 /** Complete the byte offsets of dimensions from the ordered sizes */
 static void
-pc_schema_calculate_offsets(const PCSCHEMA *pcs)
+pc_schema_calculate_byteoffsets(const PCSCHEMA *pcs)
 {
 	int i;
-	size_t offset = 0;
+	size_t byteoffset = 0;
 	for ( i = 0; i < pcs->ndims; i++ )
 	{
 		if ( pcs->dims[i] )
 		{
-			pcs->dims[i]->offset = offset;
-			offset += pcs->dims[i]->size;
+			pcs->dims[i]->byteoffset = byteoffset;
+			byteoffset += pc_interpretation_size(pcs->dims[i]->interpretation);
 		}
 	}
 }
@@ -287,7 +288,7 @@ PCSCHEMA* pc_schema_construct_from_xml(const char *xml_str)
 		}
 		
 		/* Complete the byte offsets of dimensions from the ordered sizes */
-		pc_schema_calculate_offsets(s);
+		pc_schema_calculate_byteoffsets(s);
 		return s;
 	}
 	return NULL;
