@@ -5,3 +5,5 @@ autom4te.cache
 configure
 config.log
 confdefs.h
+aclocal.m4
+config.status

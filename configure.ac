@@ -1,7 +1,7 @@
 dnl **********************************************************************
 dnl * configure.ac
 dnl *
-dnl *  Pointclound buildb configuration.
+dnl *  Pointclound build configuration.
 dnl *
 dnl * Copyright (c) 2012, OpenGeo
 dnl *
@@ -9,7 +9,6 @@ dnl ***********************************************************************/
 
 
 AC_INIT()
-dnl AC_CONFIG_HEADERS([postgis_config.h])
 AC_CONFIG_MACRO_DIR([macros])
 
 dnl
@@ -229,9 +228,9 @@ CPPFLAGS="$PROJ_CPPFLAGS"
 AC_CHECK_HEADER([proj_api.h], [], [AC_MSG_ERROR([could not find proj_api.h - you may need to specify the directory of a PROJ.4 installation using --with-projdir])])	
 
 dnl Return the PROJ.4 version number
-AC_PROJ_VERSION([PROJ_VERSION])
-AC_DEFINE_UNQUOTED([PROJ_VERSION], [$PROJ_VERSION], [PROJ library version])
-AC_SUBST([PROJ_VERSION])
+AC_PROJ_VERSION([PC_PROJ_VERSION])
+AC_DEFINE_UNQUOTED([PC_PROJ_VERSION], [$PC_PROJ_VERSION], [PROJ library version])
+AC_SUBST([PC_PROJ_VERSION])
 CPPFLAGS="$CPPFLAGS_SAVE"
 
 AC_SUBST([PROJ_CPPFLAGS])
@@ -257,8 +256,8 @@ dnl Output the relevant files
 dnl ===========================================================================
 
 AC_OUTPUT([ 
-   core/Makefile
-   core/cunit/Makefile 
+   libpc/Makefile
+   libpc/cunit/Makefile 
 ])
     
 dnl ===========================================================================
