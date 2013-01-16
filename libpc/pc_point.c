@@ -12,22 +12,22 @@
 
 
 PCPOINT * 
-pc_point_new(const PCSCHEMA *s)
+pc_point_make(const PCSCHEMA *s)
 {
 	size_t sz;
 	PCPOINT *pt;
 	
 	if ( ! s )
 	{
-		pcerror("null schema passed into pc_point_new");
+		pcerror("null schema passed into pc_point_make");
 		return NULL;
 	}
 	
 	/* Width of the data area */
-	sz = pc_schema_get_size(s);
+	sz = s->size;
 	if ( ! sz )
 	{
-		pcerror("invalid size calculation in pc_point_new");
+		pcerror("invalid size calculation in pc_point_make");
 		return NULL;
 	}
 	
@@ -42,14 +42,14 @@ pc_point_new(const PCSCHEMA *s)
 };
 
 PCPOINT * 
-pc_point_new_from_data(const PCSCHEMA *s, uint8_t *data)
+pc_point_make_from_data(const PCSCHEMA *s, uint8_t *data)
 {
 	size_t sz;
 	PCPOINT *pt;
 	
 	if ( ! s )
 	{
-		pcerror("null schema passed into pc_point_new_from_data");
+		pcerror("null schema passed into pc_point_make_from_data");
 		return NULL;
 	}
 
@@ -63,6 +63,15 @@ pc_point_new_from_data(const PCSCHEMA *s, uint8_t *data)
 	return pt;
 }
 
+void
+pc_point_free(PCPOINT *pt)
+{
+	if ( ! pt->readonly )
+	{
+		pcfree(pt->data);
+	}
+	pcfree(pt);
+}
 
 static double
 pc_point_get_double(const PCPOINT *pt, const PCDIMENSION *d)
@@ -94,7 +103,7 @@ pc_point_get_double_by_name(const PCPOINT *pt, const char *name)
 }
 
 double
-pc_point_get_double_by_idx(const PCPOINT *pt, uint32_t idx)
+pc_point_get_double_by_index(const PCPOINT *pt, uint32_t idx)
 {
 	PCDIMENSION *d;
 	d = pc_schema_get_dimension(pt->schema, idx);
@@ -105,7 +114,6 @@ int
 pc_point_set_double(PCPOINT *pt, const PCDIMENSION *d, double val)
 {
 	uint8_t *ptr;
-	
 
 	/* Offset value */
 	if ( d->offset )
@@ -122,7 +130,7 @@ pc_point_set_double(PCPOINT *pt, const PCDIMENSION *d, double val)
 }
 
 int 
-pc_point_set_double_by_idx(PCPOINT *pt, uint32_t idx, double val)
+pc_point_set_double_by_index(PCPOINT *pt, uint32_t idx, double val)
 {
 	PCDIMENSION *d;
 	d = pc_schema_get_dimension(pt->schema, idx);

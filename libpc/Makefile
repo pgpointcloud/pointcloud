@@ -7,9 +7,10 @@ LDFLAGS = $(XML2_LDFLAGS)
 OBJS = \
 	pc_core.o \
 	pc_mem.o \
-	pc_val.o \
-	pc_schema.o \
+	pc_patch.o \
 	pc_point.o \
+	pc_schema.o \
+	pc_val.o \
 	stringbuffer.o \
 	hashtable.o
 

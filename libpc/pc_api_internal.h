@@ -13,6 +13,7 @@
 
 #include "pc_api.h"
 
+#define PCPATCH_DEFAULT_MAXPOINTS 64
 
 /** Read interpretation type from buffer and cast to double */
 double pc_double_from_ptr(const uint8_t *ptr, uint32_t interpretation);

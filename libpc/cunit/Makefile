@@ -11,7 +11,7 @@ EXE = cu_tester
 # ADD YOUR NEW TEST FILE HERE (1/1)
 OBJS =	\
 	cu_tester.o \
-	cu_pc_schema.o 
+	cu_pc_schema.o
 
 # Build the unit tester
 all: $(EXE)

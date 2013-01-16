@@ -127,7 +127,7 @@ typedef struct
 */
 typedef struct
 {
-	int32_t readonly;
+	int8_t readonly;
 	const PCSCHEMA *schema;
 	uint8_t *data;
 } PCPOINT;
@@ -142,7 +142,7 @@ typedef struct
 */
 typedef struct
 {
-	int32_t readonly;
+	int8_t readonly;
 	size_t npoints; /* How many points we have */
 	size_t maxpoints; /* How man points we can hold (or 0 for read-only) */
 	const PCSCHEMA *schema;
@@ -153,7 +153,7 @@ typedef struct
 
 
 /**
-* Point type for clouds. Variable length, because there can be
+* Serialized point type for clouds. Variable length, because there can be
 * an arbitrary number of dimensions. The pcid is a foreign key
 * reference to the POINTCLOUD_SCHEMAS table, where
 * the underlying structure of the data is described in XML,
@@ -165,7 +165,7 @@ typedef struct
 // 	uint32_t size; /* PgSQL VARSIZE */
 // 	uint32_t pcid;
 // 	uint8_t data[1];
-// } PCPOINT;
+// } SERPOINT;
 
 /**
 * PgSQL patch type (collection of points) for clouds.
@@ -184,7 +184,7 @@ typedef struct
 // 	uint32_t pcid;
 // 	uint32_t npoints;
 // 	uint8_t data[1];
-// } PCPATCH;
+// } SERPATCH;
 
 
 
@@ -231,15 +231,13 @@ void pc_install_default_handlers(void);
 /** Release the memory in a schema structure */
 void pc_schema_free(PCSCHEMA *pcs);
 /** Build a schema structure from the XML serialisation */
-PCSCHEMA* pc_schema_construct_from_xml(const char *xmlstr);
+PCSCHEMA* pc_schema_from_xml(const char *xmlstr);
 /** Print out JSON readable format of schema */
 char* pc_schema_to_json(const PCSCHEMA *pcs);
 /** Extract dimension information by position */
-PCDIMENSION *pc_schema_get_dimension(const PCSCHEMA *s, uint32_t dim);
+PCDIMENSION* pc_schema_get_dimension(const PCSCHEMA *s, uint32_t dim);
 /** Extract dimension information by name */
-PCDIMENSION *pc_schema_get_dimension_by_name(const PCSCHEMA *s, const char *name);
-/** Width of the data buffer for schema, in bytes */
-size_t pc_schema_get_size(const PCSCHEMA *s);
+PCDIMENSION* pc_schema_get_dimension_by_name(const PCSCHEMA *s, const char *name);
 
 
 
@@ -248,17 +246,28 @@ size_t pc_schema_get_size(const PCSCHEMA *s);
 */
 
 /** Create a new PCPOINT */
-PCPOINT* pc_point_new(const PCSCHEMA *s);
+PCPOINT* pc_point_make(const PCSCHEMA *s);
 /** Create a new PCPOINT on top of a data buffer */
-PCPOINT* pc_point_new_from_data(const PCSCHEMA *s, uint8_t *data);
+PCPOINT* pc_point_make_from_data(const PCSCHEMA *s, uint8_t *data);
+/** Frees the PTPOINT and data (if not readonly) does not free referenced schema */
+void pc_point_free(PCPOINT *pt);
 /** Casts named dimension value to double and scale/offset appropriately before returning */
 double pc_point_get_double_by_name(const PCPOINT *pt, const char *name);
 /** Casts dimension value to double and scale/offset appropriately before returning */
-double pc_point_get_double_by_idx(const PCPOINT *pt, uint32_t idx);
+double pc_point_get_double_by_index(const PCPOINT *pt, uint32_t idx);
 /** Scales/offsets double, casts to appropriate dimension type, and writes into point */
-int pc_point_set_double_by_idx(PCPOINT *pt, uint32_t idx, double val);
+int pc_point_set_double_by_index(PCPOINT *pt, uint32_t idx, double val);
 /** Scales/offsets double, casts to appropriate dimension type, and writes into point */
 int pc_point_set_double_by_name(PCPOINT *pt, const char *name, double val);
+
+/**********************************************************************
+* PCPATCH
+*/
+
+/** Create a new PCPATCH */
+PCPATCH* pc_patch_make(const PCSCHEMA *s);
+/** Add a point to read/write PCPATCH */
+int pc_patch_add_point(PCPATCH *c, const PCPOINT *p);
 
 
 

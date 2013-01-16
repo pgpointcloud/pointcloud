@@ -65,7 +65,7 @@ static void
 test_schema_from_xml() 
 {
 	char *xmlstr = file_to_str(xmlfile);
-	pcs = pc_schema_construct_from_xml(xmlstr);
+	pcs = pc_schema_from_xml(xmlstr);
 	pcfree(xmlstr);
 
 	// char *pcsstr = pc_schema_to_json(pcs);
@@ -79,7 +79,7 @@ test_schema_from_xml()
 static void 
 test_schema_size() 
 {
-	size_t sz = pc_schema_get_size(pcs);
+	size_t sz = pcs->size;
 	CU_ASSERT_EQUAL(sz, 37);
 }
 
@@ -139,6 +139,61 @@ test_dimension_byteoffsets()
 	
 }
 
+static void 
+test_point_access() 
+{
+	PCPOINT *pt;
+	int rv;
+	double a1, a2, a3, a4, b1, b2, b3, b4;
+	int idx = 0;
+	
+	pt = pc_point_make(pcs);
+	CU_ASSERT( pt != NULL );
+
+	/* One at a time */
+	idx = 0;
+	a1 = 1.5;
+	rv = pc_point_set_double_by_index(pt, idx, a1);
+	b1 = pc_point_get_double_by_index(pt, idx);
+	// printf("d1=%g, d2=%g\n", a1, b1);
+	CU_ASSERT_DOUBLE_EQUAL(a1, b1, 0.0000001);
+
+	idx = 2;
+	a2 = 1501500.12;
+	rv = pc_point_set_double_by_index(pt, idx, a2);
+	b2 = pc_point_get_double_by_index(pt, idx);
+	CU_ASSERT_DOUBLE_EQUAL(a2, b2, 0.0000001);
+
+	a3 = 91;
+	rv = pc_point_set_double_by_name(pt, "NumberOfReturns", a3);
+	b3 = pc_point_get_double_by_name(pt, "NumberOfReturns");
+	CU_ASSERT_DOUBLE_EQUAL(a3, b3, 0.0000001);
+	
+	pc_point_free(pt);
+	
+	/* All at once */
+	pt = pc_point_make(pcs);
+	a1 = 1.5;
+	a2 = 1501500.12;
+	a3 = 91;
+	a4 = 200;
+	rv = pc_point_set_double_by_index(pt, 0, a1);
+	rv = pc_point_set_double_by_index(pt, 2, a2);
+	rv = pc_point_set_double_by_name(pt, "NumberOfReturns", a3);
+	rv = pc_point_set_double_by_name(pt, "UserData", a4);
+	b1 = pc_point_get_double_by_index(pt, 0);
+	b2 = pc_point_get_double_by_index(pt, 2);
+	b3 = pc_point_get_double_by_name(pt, "NumberOfReturns");
+	b4 = pc_point_get_double_by_name(pt, "UserData");
+	CU_ASSERT_DOUBLE_EQUAL(a1, b1, 0.0000001);
+	CU_ASSERT_DOUBLE_EQUAL(a2, b2, 0.0000001);
+	CU_ASSERT_DOUBLE_EQUAL(a3, b3, 0.0000001);
+	CU_ASSERT_DOUBLE_EQUAL(a4, b4, 0.0000001);
+	
+	pc_point_free(pt);
+	
+}
+
 /* REGISTER ***********************************************************/
 
 CU_TestInfo schema[] = {
@@ -146,6 +201,7 @@ CU_TestInfo schema[] = {
 	PG_TEST(test_schema_size),
 	PG_TEST(test_dimension_get),
 	PG_TEST(test_dimension_byteoffsets),
+	PG_TEST(test_point_access),
 	CU_TEST_INFO_NULL
 };
 

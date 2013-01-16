@@ -196,7 +196,7 @@ pc_schema_calculate_byteoffsets(const PCSCHEMA *pcs)
 }
 
 /** Population a PCSCHEMA struct from the XML representation */
-PCSCHEMA* pc_schema_construct_from_xml(const char *xml_str)
+PCSCHEMA* pc_schema_from_xml(const char *xml_str)
 {
 	xmlDocPtr xml_doc = NULL;
 	xmlNodePtr xml_root = NULL;
@@ -302,12 +302,6 @@ pc_schema_get_dimension(const PCSCHEMA *s, uint32_t dim)
 		return s->dims[dim];
 	}
 	return NULL;
-}
-
-size_t
-pc_schema_get_size(const PCSCHEMA *s)
-{
-	return s->size;
 }
 
 PCDIMENSION *
