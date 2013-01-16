@@ -145,5 +145,23 @@ pc_point_set_double_by_name(PCPOINT *pt, const char *name, double val)
 	return pc_point_set_double(pt, d, val);
 }
 
-
+int 
+pc_point_get_box(const PCPOINT *pt, PCBOX *box)
+{
+	double x, y;
+	if ( ! ( pc_schema_has_name(pt->schema, "X") && pc_schema_has_name(pt->schema, "Y") ) )
+	{
+		return PC_FAILURE;
+	}
+	
+	x = pc_point_get_double_by_name(pt, "X");
+	y = pc_point_get_double_by_name(pt, "Y");
+	
+	if ( box->xmin > x ) box->xmin = x;
+	if ( box->xmax < x ) box->xmax = x;
+	if ( box->ymin > y ) box->ymin = y;
+	if ( box->ymax < y ) box->ymax = y;
+	
+	return PC_SUCCESS;
+}
 

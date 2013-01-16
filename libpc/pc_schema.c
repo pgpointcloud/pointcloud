@@ -312,3 +312,13 @@ pc_schema_get_dimension_by_name(const PCSCHEMA *s, const char *name)
 
 	return hashtable_search(s->namehash, name);
 }
+
+int
+pc_schema_has_name(const PCSCHEMA *s, const char *name)
+{
+	if ( hashtable_search(s->namehash, name) )
+	{
+		return PC_TRUE;
+	}
+	return PC_FALSE;
+}

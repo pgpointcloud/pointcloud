@@ -132,6 +132,10 @@ typedef struct
 	uint8_t *data;
 } PCPOINT;
 
+typedef struct
+{
+	float xmin, xmax, ymin, ymax;
+} PCBOX;
 
 /**
 * Uncompressed Structure for in-memory handling
@@ -146,7 +150,7 @@ typedef struct
 	size_t npoints; /* How many points we have */
 	size_t maxpoints; /* How man points we can hold (or 0 for read-only) */
 	const PCSCHEMA *schema;
-	float xmin, xmax, ymin, ymax;
+	PCBOX box;
 	uint8_t *data;
 } PCPATCH;
 

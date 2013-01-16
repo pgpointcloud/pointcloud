@@ -16,6 +16,10 @@ pc_patch_make(const PCSCHEMA *s)
 {
 	PCPATCH *pch;
 	uint32_t maxpoints = PCPATCH_DEFAULT_MAXPOINTS;
+	PCBOX box;
+	
+	box.xmin = box.ymin = MAXFLOAT;
+	box.xmax = box.ymax = -1 * MAXFLOAT;
 	
 	if ( ! s )
 	{
@@ -39,9 +43,17 @@ pc_patch_make(const PCSCHEMA *s)
 	pch->npoints = 0;
 	pch->maxpoints = maxpoints;
 	pch->schema = s;
-	pch->xmin = pch->ymin = MAXFLOAT;
-	pch->xmax = pch->ymax = -1 * MAXFLOAT;
+	pch->box = box;
 	return pch;
+}
+
+static void
+pc_box_merge(const PCBOX *a, PCBOX *b)
+{
+	if ( b->xmin > a->xmin ) b->xmin = a->xmin;
+	if ( b->ymin > a->ymin ) b->ymin = a->ymin;
+	if ( b->xmax < a->xmax ) b->xmax = a->xmax;
+	if ( b->ymax < a->ymax ) b->ymax = a->ymax;
 }
 
 int 
@@ -49,6 +61,7 @@ pc_patch_add_point(PCPATCH *c, const PCPOINT *p)
 {
 	size_t sz;
 	uint8_t *ptr;
+	PCBOX box;
 	
 	if ( ! ( c && p ) )
 	{
@@ -80,6 +93,12 @@ pc_patch_add_point(PCPATCH *c, const PCPOINT *p)
 	ptr = c->data + sz * c->npoints;
 	memcpy(ptr, p->data, sz);
 	c->npoints += 1;
+
+	if ( PC_FAILURE == pc_point_get_box(p, &box) )
+	{
+		lwerror("unable to extract coordinate information from point");
+	}
+	pc_box_merge(&box, &(c->box));
 	
 	return PC_SUCCESS;	
 }
