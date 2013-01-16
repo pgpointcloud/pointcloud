@@ -17,12 +17,11 @@ In order to preserve some compactness in dump files and network transmissions, t
 Human-Readable Text
 -------------------
 
-    PCPOINT( <pcid> : <dim1>, <dim2>, <dim3>, <dim4> )
+    ( <pcid> : <dim1>, <dim2>, <dim3>, <dim4> )
 
-    PCPATCH( <pcid> : ( <dim1>, <dim2>, <dim3>, <dim4> ), 
-                      ( <dim1>, <dim2>, <dim3>, <dim4> ), 
-                      ( <dim1>, <dim2>, <dim3>, <dim4> ) 
-           )
+    [ <pcid> : ( <dim1>, <dim2>, <dim3>, <dim4> ), 
+               ( <dim1>, <dim2>, <dim3>, <dim4> ), 
+               ( <dim1>, <dim2>, <dim3>, <dim4> ) ]
 
 Uncompressed Binary
 -------------------
@@ -40,4 +39,3 @@ Uncompressed Binary
     uint32:   pcid (key to POINTCLOUD_SCHEMAS)
     uint32:   npoints
     uchar[]:  data (interpret relative to pcid)
-
