@@ -3,6 +3,7 @@
 
 Datum pcpoint_in(PG_FUNCTION_ARGS);
 Datum pcpoint_out(PG_FUNCTION_ARGS);
+Datum pcschema_is_valid(PG_FUNCTION_ARGS);
 
 
 
@@ -37,3 +38,20 @@ Datum pcpoint_out(PG_FUNCTION_ARGS);
 // 		ereport(ERROR,(errmsg("parse error - support for text format not yet implemented")));
 // 	}
 // 
+
+PG_FUNCTION_INFO_V1(pcschema_is_valid);
+Datum pcschema_is_valid(PG_FUNCTION_ARGS)
+{
+	bool valid;
+	text *xml = PG_GETARG_TEXT_P(0);
+	char *xmlstr = text_to_cstring(xml);
+	PCSCHEMA *schema = pc_schema_from_xml(xmlstr);
+	pfree(xmlstr);
+	
+	if ( ! schema )
+		PG_RETURN_BOOL(FALSE);
+		
+	valid = pc_schema_is_valid(schema);
+	PG_RETURN_BOOL(valid);
+}
+
