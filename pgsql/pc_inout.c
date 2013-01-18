@@ -1,13 +1,4 @@
 
-#include "postgres.h"
-
-#include "utils/elog.h"
-#include "utils/array.h"
-#include "utils/builtins.h"  /* for pg_atoi */
-#include "lib/stringinfo.h"  /* For binary input */
-#include "catalog/pg_type.h" /* for CSTRINGOID */
-
-#include "pc_api.h"         /* For uncompressed pointcloud data. */
 #include "pc_pgsql.h"      /* Common PgSQL support for our type */
 
 Datum pcpoint_in(PG_FUNCTION_ARGS);
