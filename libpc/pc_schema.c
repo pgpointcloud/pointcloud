@@ -101,6 +101,8 @@ pc_schema_new(uint32_t ndims)
 	pcs->dims = pcalloc(sizeof(PCDIMENSION*) * ndims);	
 	pcs->namehash = create_string_hashtable();
 	pcs->ndims = ndims;
+	pcs->x_position = -1;
+	pcs->y_position = -1;
 	return pcs;
 }
 
@@ -249,6 +251,7 @@ PCSCHEMA* pc_schema_from_xml(const char *xml_str)
 				xmlNodePtr child;
 				int position = -1;
 				PCDIMENSION *d = pc_dimension_new();
+				int is_x = 0, is_y = 0;
 				
 				/* These are the values of the dimension */
 				for ( child = cur->children; child; child = child->next )
@@ -256,7 +259,21 @@ PCSCHEMA* pc_schema_from_xml(const char *xml_str)
 					if( child->type == XML_ELEMENT_NODE )
 					{
 						if ( strcmp(child->name, "name") == 0 )
+						{
+							if ( strcasecmp(child->children->content, "X") == 0 ||
+							     strcasecmp(child->children->content, "Longitude") ||
+							     strcasecmp(child->children->content, "Lon") )
+							{
+								is_x = 1;
+							}
+							if ( strcasecmp(child->children->content, "Y") == 0 ||
+							     strcasecmp(child->children->content, "Latitude") ||
+							     strcasecmp(child->children->content, "Lat") )
+							{
+								is_y = 1;
+							}
 							d->name = strdup(child->children->content);
+						}
 						else if ( strcmp(child->name, "description") == 0 )
 							d->description = strdup(child->children->content);
 						else if ( strcmp(child->name, "size") == 0 )
@@ -280,6 +297,8 @@ PCSCHEMA* pc_schema_from_xml(const char *xml_str)
 					s->dims[d->position] = d;
 					d->size = pc_interpretation_size(d->interpretation);
 					s->size += d->size;
+					if ( is_x ) { s->x_position = d->position; }
+					if ( is_y ) { s->y_position = d->position; }
 					hashtable_insert(s->namehash, strdup(d->name), d);
 				}
 				else
@@ -292,6 +311,41 @@ PCSCHEMA* pc_schema_from_xml(const char *xml_str)
 		return s;
 	}
 	return NULL;
+}
+
+uint32_t
+pc_schema_is_valid(const PCSCHEMA *s)
+{
+	int i;
+	
+	if ( s->x_position < 0 )
+	{
+		pcwarn("schema does not include X coordinate");
+		return PC_FALSE;
+	}
+
+	if ( s->y_position < 0 )
+	{
+		pcwarn("schema does not include Y coordinate");
+		return PC_FALSE;
+	}
+	
+	if ( ! s->ndims )
+	{
+		pcwarn("schema has no dimensions");
+		return PC_FALSE;
+	}
+	
+	for ( i = 0; i < s->ndims; i++ )
+	{
+		if ( ! s->dims[i] )
+		{
+			pcwarn("schema has null dimension at position %d", i);
+			return PC_FALSE;
+		}
+	}
+	
+	return PC_TRUE;
 }
 
 PCDIMENSION *

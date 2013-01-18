@@ -10,7 +10,6 @@
 
 #include "pc_api_internal.h"
 
-
 PCPOINT * 
 pc_point_make(const PCSCHEMA *s)
 {
@@ -145,23 +144,69 @@ pc_point_set_double_by_name(PCPOINT *pt, const char *name, double val)
 	return pc_point_set_double(pt, d, val);
 }
 
-int 
-pc_point_get_box(const PCPOINT *pt, PCBOX *box)
+double
+pc_point_get_x(const PCPOINT *pt)
 {
-	double x, y;
-	if ( ! ( pc_schema_has_name(pt->schema, "X") && pc_schema_has_name(pt->schema, "Y") ) )
-	{
-		return PC_FAILURE;
-	}
-	
-	x = pc_point_get_double_by_name(pt, "X");
-	y = pc_point_get_double_by_name(pt, "Y");
-	
-	if ( box->xmin > x ) box->xmin = x;
-	if ( box->xmax < x ) box->xmax = x;
-	if ( box->ymin > y ) box->ymin = y;
-	if ( box->ymax < y ) box->ymax = y;
-	
-	return PC_SUCCESS;
+	return pc_point_get_double_by_index(pt, pt->schema->x_position);
 }
 
+double 
+pc_point_get_y(const PCPOINT *pt)
+{
+	return pc_point_get_double_by_index(pt, pt->schema->y_position);
+}
+
+SERPOINT *
+pc_serpoint_from_point(const PCPOINT *pt, size_t *sersize)
+{
+	/*
+	byte:     endianness (1 = NDR, 0 = XDR)
+	uint32:   pcid (key to POINTCLOUD_SCHEMAS)
+	uchar[]:  data (interpret relative to pcid)
+	*/
+	char endian = pc_machine_endian();
+	SERPOINT *spt;
+	*sersize = sizeof(SERPOINT) + pt->schema->size - 1;
+	spt = pcalloc(*sersize);
+	spt->pcid = pt->schema->pcid;
+	memcpy(spt->data, pt->data, pt->schema->size);
+	return spt;	
+}
+
+PCPOINT * 
+pc_point_make_from_double_array(const PCSCHEMA *s, double *array, uint32_t nelems)
+{
+	int i;
+	PCPOINT *pt;
+
+	if ( ! s )
+	{
+		pcerror("null schema passed into pc_point_make_from_double_array");
+		return NULL;
+	}
+	
+	if ( s->ndims != nelems )
+	{
+		pcerror("number of elements in schema and array differ in pc_point_make_from_double_array");
+		return NULL;
+	}
+
+	/* Reference the external data */
+	pt = pcalloc(sizeof(PCPOINT)); 
+	pt->data = pcalloc(s->size);
+	pt->schema = s;
+	pt->readonly = PC_FALSE;
+	
+	for ( i = 0; i < nelems; i++ )
+	{
+		if ( PC_FAILURE == pc_point_set_double_by_index(pt, i, array[i]) )
+		{
+			pcerror("failed to write value into dimension %d in pc_point_make_from_double_array", i);
+			return NULL;
+		}
+	}
+	
+	return pt;
+}	
+
+	

@@ -12,21 +12,21 @@
 
 /* GLOBALS ************************************************************/
 
-PCSCHEMA *pcs = NULL;
-const char *xmlfile = "data/pdal-schema.xml";
+static PCSCHEMA *schema = NULL;
+static const char *xmlfile = "data/pdal-schema.xml";
 
 /* Setup/teardown for this suite */
 static int 
-init_schema_suite(void)
+init_suite(void)
 {
-	pcs = NULL;
+	schema = NULL;
 	return 0;
 }
 
 static int 
-clean_schema_suite(void)
+clean_suite(void)
 {
-	pc_schema_free(pcs);
+	pc_schema_free(schema);
 	return 0;
 }
 
@@ -55,6 +55,7 @@ file_to_str(const char *fname)
 		memcpy(ptr, ln, lnsz);
 		ptr += lnsz;		
 	}
+	fclose(fr);
 	
 	return str;
 }
@@ -65,21 +66,21 @@ static void
 test_schema_from_xml() 
 {
 	char *xmlstr = file_to_str(xmlfile);
-	pcs = pc_schema_from_xml(xmlstr);
+	schema = pc_schema_from_xml(xmlstr);
 	pcfree(xmlstr);
 
-	// char *pcsstr = pc_schema_to_json(pcs);
-	// printf("ndims %d\n", pcs->ndims);
-	// printf("name0 %s\n", pcs->dims[0]->name);
-	// printf("%s\n", pcsstr);
+	// char *schemastr = pc_schema_to_json(schema);
+	// printf("ndims %d\n", schema->ndims);
+	// printf("name0 %s\n", schema->dims[0]->name);
+	// printf("%s\n", schemastr);
 	
-	CU_ASSERT(pcs != NULL);
+	CU_ASSERT(schema != NULL);
 }
 
 static void 
 test_schema_size() 
 {
-	size_t sz = pcs->size;
+	size_t sz = schema->size;
 	CU_ASSERT_EQUAL(sz, 37);
 }
 
@@ -88,26 +89,26 @@ test_dimension_get()
 {
 	PCDIMENSION *d;
 	
-	d = pc_schema_get_dimension(pcs, 0);
+	d = pc_schema_get_dimension(schema, 0);
 	CU_ASSERT_EQUAL(d->position, 0);
 	CU_ASSERT_STRING_EQUAL(d->name, "X");
 
-	d = pc_schema_get_dimension(pcs, 1);
+	d = pc_schema_get_dimension(schema, 1);
 	CU_ASSERT_EQUAL(d->position, 1);
 	CU_ASSERT_STRING_EQUAL(d->name, "Y");
 
-	d = pc_schema_get_dimension_by_name(pcs, "nothinghere");
+	d = pc_schema_get_dimension_by_name(schema, "nothinghere");
 	CU_ASSERT_EQUAL(d, NULL);
 
-	d = pc_schema_get_dimension_by_name(pcs, "Z");
+	d = pc_schema_get_dimension_by_name(schema, "Z");
 	CU_ASSERT_EQUAL(d->position, 2);
 	CU_ASSERT_STRING_EQUAL(d->name, "Z");
 
-	d = pc_schema_get_dimension_by_name(pcs, "z");
+	d = pc_schema_get_dimension_by_name(schema, "z");
 	CU_ASSERT_EQUAL(d->position, 2);
 	CU_ASSERT_STRING_EQUAL(d->name, "Z");
 
-	d = pc_schema_get_dimension_by_name(pcs, "y");
+	d = pc_schema_get_dimension_by_name(schema, "y");
 	// printf("name %s\n", d->name);
 	// printf("position %d\n", d->position);
 	CU_ASSERT_EQUAL(d->position, 1);
@@ -123,9 +124,9 @@ test_dimension_byteoffsets()
 	int prev_size;
 	int pc_size;
 	
-	for ( i = 0; i < pcs->ndims; i++ )
+	for ( i = 0; i < schema->ndims; i++ )
 	{
-		d = pc_schema_get_dimension(pcs, i);
+		d = pc_schema_get_dimension(schema, i);
 		// printf("d=%d name='%s' size=%d byteoffset=%d\n", i, d->name, d->size, d->byteoffset);
 		if ( i > 0 )
 		{
@@ -147,7 +148,7 @@ test_point_access()
 	double a1, a2, a3, a4, b1, b2, b3, b4;
 	int idx = 0;
 	
-	pt = pc_point_make(pcs);
+	pt = pc_point_make(schema);
 	CU_ASSERT( pt != NULL );
 
 	/* One at a time */
@@ -172,7 +173,7 @@ test_point_access()
 	pc_point_free(pt);
 	
 	/* All at once */
-	pt = pc_point_make(pcs);
+	pt = pc_point_make(schema);
 	a1 = 1.5;
 	a2 = 1501500.12;
 	a3 = 91;
@@ -196,7 +197,7 @@ test_point_access()
 
 /* REGISTER ***********************************************************/
 
-CU_TestInfo schema[] = {
+CU_TestInfo schema_tests[] = {
 	PG_TEST(test_schema_from_xml),
 	PG_TEST(test_schema_size),
 	PG_TEST(test_dimension_get),
@@ -205,4 +206,4 @@ CU_TestInfo schema[] = {
 	CU_TEST_INFO_NULL
 };
 
-CU_SuiteInfo schema_suite = {"schema", init_schema_suite, clean_schema_suite, schema};
+CU_SuiteInfo schema_suite = {"schema", init_suite, clean_suite, schema_tests};

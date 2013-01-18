@@ -10,6 +10,7 @@ OBJS = \
 	pc_patch.o \
 	pc_point.o \
 	pc_schema.o \
+	pc_util.o \
 	pc_val.o \
 	stringbuffer.o \
 	hashtable.o

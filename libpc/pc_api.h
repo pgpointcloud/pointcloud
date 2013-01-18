@@ -22,19 +22,6 @@
 */
 
 /**
-* Utility defines
-*/
-#define PC_TRUE 1
-#define PC_FALSE 0
-#define PC_SUCCESS 1
-#define PC_FAILURE 0
-
-/**
-* How many compression types do we support?
-*/
-#define PCCOMPRESSIONTYPES 2
-
-/**
 * Compression types for PCPOINTS in a PCPATCH
 */
 enum COMPRESSIONS
@@ -53,40 +40,6 @@ enum ENDIANS
 	PC_XDR  /* Big */
 };
 
-/**
-* Interpretation types for our dimension descriptions
-*/
-#define NUM_INTERPRETATIONS 11
-
-enum INTERPRETATIONS
-{
-	PC_UNKNOWN = 0,
-	PC_INT8,   PC_UINT8,
-	PC_INT16,  PC_UINT16,
-	PC_INT32,  PC_UINT32,
-	PC_INT64,  PC_UINT64,
-	PC_DOUBLE, PC_FLOAT
-};
-
-static char *INTERPRETATION_STRINGS[NUM_INTERPRETATIONS] =
-{
-	"unknown",
-	"int8_t",  "uint8_t",
-	"int16_t", "uint16_t",
-	"int32_t", "uint32_t",
-	"int64_t", "uint64_t",
-	"double",  "float"
-};
-
-static size_t INTERPRETATION_SIZES[NUM_INTERPRETATIONS] =
-{
-	-1,    /* PC_UNKNOWN */
-	1, 1,  /* PC_INT8, PC_UINT8, */
-	2, 2,  /* PC_INT16, PC_UINT16 */
-	4, 4,  /* PC_INT32, PC_UINT32 */
-	8, 8,  /* PC_INT64, PC_UINT64 */
-	8, 4   /* PC_DOUBLE, PC_FLOAT */
-};
 
 
 /**
@@ -113,6 +66,8 @@ typedef struct
 	size_t size;          /* How wide (bytes) is a point with this schema? */
 	PCDIMENSION **dims;   /* Array of dimension pointers */
 	uint32_t srid;        /* Foreign key reference to SPATIAL_REF_SYS */
+	int32_t x_position;  /* What entry is the x coordinate at? */
+	int32_t y_position;  /* What entry is the y coordinate at? */
 	uint32_t compression; /* Compression type applied to the data */
 	hashtable *namehash;  /* Look-up from dimension name to pointer */
 } PCSCHEMA;
@@ -132,11 +87,6 @@ typedef struct
 	uint8_t *data;
 } PCPOINT;
 
-typedef struct
-{
-	float xmin, xmax, ymin, ymax;
-} PCBOX;
-
 /**
 * Uncompressed Structure for in-memory handling
 * of patches. A read-only PgSQL patch can be wrapped in
@@ -150,7 +100,7 @@ typedef struct
 	size_t npoints; /* How many points we have */
 	size_t maxpoints; /* How man points we can hold (or 0 for read-only) */
 	const PCSCHEMA *schema;
-	PCBOX box;
+	double xmin, xmax, ymin, ymax;
 	uint8_t *data;
 } PCPATCH;
 
@@ -164,12 +114,12 @@ typedef struct
 * the spatial reference system is indicated, and the data
 * packing scheme is indicated.
 */
-// typedef struct
-// {
-// 	uint32_t size; /* PgSQL VARSIZE */
-// 	uint32_t pcid;
-// 	uint8_t data[1];
-// } SERPOINT;
+typedef struct
+{
+	uint32_t size; /* PgSQL VARSIZE */
+	uint32_t pcid;
+	uint8_t data[1];
+} SERPOINT;
 
 /**
 * PgSQL patch type (collection of points) for clouds.
@@ -181,14 +131,14 @@ typedef struct
 * the spatial reference system is indicated, and the data
 * packing scheme is indicated.
 */
-// typedef struct
-// {
-// 	uint32_t size; /* PgSQL VARSIZE */
-// 	float xmin, xmax, ymin, ymax;
-// 	uint32_t pcid;
-// 	uint32_t npoints;
-// 	uint8_t data[1];
-// } SERPATCH;
+typedef struct
+{
+	uint32_t size; /* PgSQL VARSIZE */
+	float xmin, xmax, ymin, ymax;
+	uint32_t pcid;
+	uint32_t npoints;
+	uint8_t data[1];
+} SERPATCH;
 
 
 
@@ -242,6 +192,8 @@ char* pc_schema_to_json(const PCSCHEMA *pcs);
 PCDIMENSION* pc_schema_get_dimension(const PCSCHEMA *s, uint32_t dim);
 /** Extract dimension information by name */
 PCDIMENSION* pc_schema_get_dimension_by_name(const PCSCHEMA *s, const char *name);
+/** Check if the schema has all the information we need to work with data */
+uint32_t pc_schema_is_valid(const PCSCHEMA *s);
 
 
 
@@ -253,6 +205,8 @@ PCDIMENSION* pc_schema_get_dimension_by_name(const PCSCHEMA *s, const char *name
 PCPOINT* pc_point_make(const PCSCHEMA *s);
 /** Create a new PCPOINT on top of a data buffer */
 PCPOINT* pc_point_make_from_data(const PCSCHEMA *s, uint8_t *data);
+/** Create a new PCPOINT on top of a data buffer */
+PCPOINT* pc_point_make_from_double_array(const PCSCHEMA *s, double *array, uint32_t nelems);
 /** Frees the PTPOINT and data (if not readonly) does not free referenced schema */
 void pc_point_free(PCPOINT *pt);
 /** Casts named dimension value to double and scale/offset appropriately before returning */
@@ -263,13 +217,21 @@ double pc_point_get_double_by_index(const PCPOINT *pt, uint32_t idx);
 int pc_point_set_double_by_index(PCPOINT *pt, uint32_t idx, double val);
 /** Scales/offsets double, casts to appropriate dimension type, and writes into point */
 int pc_point_set_double_by_name(PCPOINT *pt, const char *name, double val);
+/** Returns X coordinate */
+double pc_point_get_x(const PCPOINT *pt);
+/** Returns Y coordinate */
+double pc_point_get_y(const PCPOINT *pt);
+/** Returns serialized form of point */
+SERPOINT *pc_serpoint_from_point(const PCPOINT *pt, size_t *sersize);
 
 /**********************************************************************
 * PCPATCH
 */
 
-/** Create a new PCPATCH */
+/** Create new empty PCPATCH */
 PCPATCH* pc_patch_make(const PCSCHEMA *s);
+/** Create new PCPATCH from a PCPOINT set. Copies data, doesn't take ownership of points */
+PCPATCH* pc_patch_make_from_points(const PCPOINT **pts, uint32_t numpts);
 /** Add a point to read/write PCPATCH */
 int pc_patch_add_point(PCPATCH *c, const PCPOINT *p);
 
