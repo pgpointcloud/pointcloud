@@ -10,8 +10,6 @@
 #include "CUnit/Basic.h"
 #include "cu_tester.h"
 
-static char* file_to_str(const char *fname);
-
 /* GLOBALS ************************************************************/
 
 static PCSCHEMA *schema = NULL;
@@ -34,42 +32,48 @@ clean_suite(void)
 	return 0;
 }
 
-/* UTILITY ************************************************************/
-
-static char*
-file_to_str(const char *fname)
-{
-	FILE *fr;
-	size_t lnsz;
-	size_t sz = 8192;
-	char *str = pcalloc(sz);
-	char *ptr = str;
-	char *ln;
-	
-	fr = fopen (fname, "rt");
-	while( ln = fgetln(fr, &lnsz) )
-	{
-		if ( ptr - str + lnsz > sz )
-		{
-			size_t bsz = ptr - str;
-			sz *= 2;
-			str = pcrealloc(str, sz);
-			ptr = str + bsz;
-		}
-		memcpy(ptr, ln, lnsz);
-		ptr += lnsz;		
-	}
-	fclose(fr);
-	return str;
-}
 
 /* TESTS **************************************************************/
 
 static void 
 test_endian_flip() 
 {
-	size_t sz = schema->size;
-	CU_ASSERT_EQUAL(sz, 37);
+	PCPOINT *pt;
+	double a1, a2, a3, a4, b1, b2, b3, b4;
+	int rv;
+	uint8_t *ptr;
+	
+	/* All at once */
+	pt = pc_point_make(schema);
+	a1 = 1.5;
+	a2 = 1501500.12;
+	a3 = 19112;
+	a4 = 200;
+	rv = pc_point_set_double_by_name(pt, "X", a1);
+	rv = pc_point_set_double_by_name(pt, "Z", a2);
+	rv = pc_point_set_double_by_name(pt, "Intensity", a3);
+	rv = pc_point_set_double_by_name(pt, "UserData", a4);
+	b1 = pc_point_get_double_by_name(pt, "X");
+	b2 = pc_point_get_double_by_name(pt, "Z");
+	b3 = pc_point_get_double_by_name(pt, "Intensity");
+	b4 = pc_point_get_double_by_name(pt, "UserData");
+	CU_ASSERT_DOUBLE_EQUAL(a1, b1, 0.0000001);
+	CU_ASSERT_DOUBLE_EQUAL(a2, b2, 0.0000001);
+	CU_ASSERT_DOUBLE_EQUAL(a3, b3, 0.0000001);
+	CU_ASSERT_DOUBLE_EQUAL(a4, b4, 0.0000001);	
+	
+	ptr = bytes_flip_endian(pt->data, schema, 1);
+	pcfree(pt->data);
+	pt->data = bytes_flip_endian(ptr, schema, 1);
+	
+	b1 = pc_point_get_double_by_name(pt, "X");
+	b2 = pc_point_get_double_by_name(pt, "Z");
+	b3 = pc_point_get_double_by_name(pt, "Intensity");
+	b4 = pc_point_get_double_by_name(pt, "UserData");
+	CU_ASSERT_DOUBLE_EQUAL(a1, b1, 0.0000001);
+	CU_ASSERT_DOUBLE_EQUAL(a2, b2, 0.0000001);
+	CU_ASSERT_DOUBLE_EQUAL(a3, b3, 0.0000001);
+	CU_ASSERT_DOUBLE_EQUAL(a4, b4, 0.0000001);		
 }
 
 

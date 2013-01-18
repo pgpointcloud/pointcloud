@@ -76,7 +76,10 @@ size_t pc_interpretation_size(uint32_t interp);
 int pc_schema_has_name(const PCSCHEMA *s, const char *name);
 
 /** Returns 1 for little (NDR) and 0 for big (XDR) */
-char pc_machine_endian(void);
+char machine_endian(void);
+
+/** Force a byte array into the machine endianness */
+uint8_t* bytes_flip_endian(const uint8_t *bytebuf, const PCSCHEMA *schema, uint32_t npoints);
 
 /** Read a hex string into binary buffer */
 uint8_t* bytes_from_hexbytes(const char *hexbuf, size_t hexsize);
@@ -84,8 +87,6 @@ uint8_t* bytes_from_hexbytes(const char *hexbuf, size_t hexsize);
 /** Turn a binary buffer into a hex string */
 char* hexbytes_from_bytes(const uint8_t *bytebuf, size_t bytesize);
 
-/** Force a byte array into the machine endianness */
-uint8_t* bytes_flip_endian(const uint8_t *bytebuf, const PCSCHEMA *schema, uint32_t npoints);
 
 
 #endif /* _PC_API_INTERNAL_H */

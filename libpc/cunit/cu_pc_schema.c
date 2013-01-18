@@ -30,35 +30,6 @@ clean_suite(void)
 	return 0;
 }
 
-/* UTILITY ************************************************************/
-
-static char*
-file_to_str(const char *fname)
-{
-	FILE *fr;
-	size_t lnsz;
-	size_t sz = 8192;
-	char *str = pcalloc(sz);
-	char *ptr = str;
-	char *ln;
-	
-	fr = fopen (fname, "rt");
-	while( ln = fgetln(fr, &lnsz) )
-	{
-		if ( ptr - str + lnsz > sz )
-		{
-			size_t bsz = ptr - str;
-			sz *= 2;
-			str = pcrealloc(str, sz);
-			ptr = str + bsz;
-		}
-		memcpy(ptr, ln, lnsz);
-		ptr += lnsz;		
-	}
-	fclose(fr);
-	
-	return str;
-}
 
 /* TESTS **************************************************************/
 

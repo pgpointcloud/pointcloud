@@ -1,5 +1,5 @@
 
-include ../makeglobals.mk
+include ../config.mk
 
 CPPFLAGS = $(XML2_CPPFLAGS)
 LDFLAGS = $(XML2_LDFLAGS)

@@ -2,7 +2,6 @@
 -- complain if script is sourced in psql, rather than via CREATE EXTENSION
 \echo Use "CREATE EXTENSION pointcloud" to load this file. \quit
 
-
 -- Metadata table describing contents of pcpoints
 CREATE TABLE pointcloud_formats (
     pcid INTEGER PRIMARY KEY,

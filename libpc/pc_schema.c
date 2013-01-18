@@ -308,7 +308,7 @@ PCSCHEMA* pc_schema_from_xml(const char *xml_str)
 		
 		/* Complete the byte offsets of dimensions from the ordered sizes */
 		pc_schema_calculate_byteoffsets(s);
-		return s;
+		
 	}
 	return NULL;
 }
@@ -376,3 +376,4 @@ pc_schema_has_name(const PCSCHEMA *s, const char *name)
 	}
 	return PC_FALSE;
 }
+

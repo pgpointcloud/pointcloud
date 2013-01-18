@@ -87,15 +87,13 @@ hexbytes_from_bytes(const uint8_t *bytebuf, size_t bytesize)
 }
 
 char
-pc_machine_endian(void)
+machine_endian(void)
 {
 	static int check_int = 1; /* dont modify this!!! */
 	return *((char *) &check_int); /* 0 = big endian | xdr,
 	                               * 1 = little endian | ndr
 	                               */
 }
-
-
 
 uint8_t* 
 bytes_flip_endian(const uint8_t *bytebuf, const PCSCHEMA *schema, uint32_t npoints)
@@ -126,3 +124,37 @@ bytes_flip_endian(const uint8_t *bytebuf, const PCSCHEMA *schema, uint32_t npoin
 	return buf;
 }
 
+int32_t
+int32_flip_endian(int32_t val)
+{
+	int i;
+	uint8_t tmp;
+	uint8_t b[4];
+	memcpy(b, &val, 4);
+	for ( i = 0; i < 2; i++ )
+	{
+		tmp = b[i];
+		b[i] = b[3-i];
+		b[3-i] = tmp;
+	}
+	memcpy(&val, b, 4);
+	return val;
+}
+
+uint32_t
+bytes_get_pcid(uint8_t *bytes)
+{
+	/* We expect the bytes to be in WKB format for PCPOINT/PCPATCH */
+	/* byte 0:   endian */
+	/* byte 1-4: pcid */
+	/* ...data... */
+	
+	uint8_t endian = bytes[0];
+	uint32_t pcid;
+	memcpy(&pcid, bytes + 1, 4);
+	if ( endian != machine_endian() )
+	{
+		pcid = int32_flip_endian(pcid);
+	}
+	return pcid;
+}

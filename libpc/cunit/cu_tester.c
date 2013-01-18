@@ -176,3 +176,33 @@ static void cu_error_reporter(const char *fmt, va_list ap)
 void cu_error_msg_reset() {
 	memset(cu_error_msg, '\0', MAX_CUNIT_MSG_LENGTH);
 }
+
+/* UTILITY ************************************************************/
+
+char*
+file_to_str(const char *fname)
+{
+	FILE *fr;
+	size_t lnsz;
+	size_t sz = 8192;
+	char *str = pcalloc(sz);
+	char *ptr = str;
+	char *ln;
+	
+	fr = fopen (fname, "rt");
+	while( ln = fgetln(fr, &lnsz) )
+	{
+		if ( ptr - str + lnsz > sz )
+		{
+			size_t bsz = ptr - str;
+			sz *= 2;
+			str = pcrealloc(str, sz);
+			ptr = str + bsz;
+		}
+		memcpy(ptr, ln, lnsz);
+		ptr += lnsz;		
+	}
+	fclose(fr);
+	
+	return str;
+}

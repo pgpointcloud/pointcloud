@@ -1,9 +1,10 @@
 # pointcloud
 
-include ../makeglobals.mk
+include ../config.mk
 
 MODULE_big = pointcloud
 OBJS = \
+	pc_inout.o \
 	pc_functions.o
 
 EXTENSION = pointcloud
@@ -11,6 +12,8 @@ DATA = pointcloud--1.0.sql
 
 REGRESS = pointcloud
 
+# Add in build/link flags for libpc
+PG_CPPFLAGS += -I../libpc
 SHLIB_LINK += $(filter -lm, $(LIBS)) ../libpc/$(LIBPC_A)
 
 # We are going to use PGXS for sure

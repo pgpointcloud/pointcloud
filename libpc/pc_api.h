@@ -203,8 +203,10 @@ uint32_t pc_schema_is_valid(const PCSCHEMA *s);
 
 /** Create a new PCPOINT */
 PCPOINT* pc_point_make(const PCSCHEMA *s);
-/** Create a new PCPOINT on top of a data buffer */
-PCPOINT* pc_point_make_from_data(const PCSCHEMA *s, uint8_t *data);
+/** Create a new readonly PCPOINT on top of a data buffer */
+PCPOINT* pc_point_from_bytes(const PCSCHEMA *s, uint8_t *data);
+/** Create a new readwrite PCPOINT from a hex string */
+PCPOINT* pc_point_from_hexbytes(const PCSCHEMA *s, const char *data);
 /** Create a new PCPOINT on top of a data buffer */
 PCPOINT* pc_point_make_from_double_array(const PCSCHEMA *s, double *array, uint32_t nelems);
 /** Frees the PTPOINT and data (if not readonly) does not free referenced schema */
@@ -222,7 +224,7 @@ double pc_point_get_x(const PCPOINT *pt);
 /** Returns Y coordinate */
 double pc_point_get_y(const PCPOINT *pt);
 /** Returns serialized form of point */
-SERPOINT *pc_serpoint_from_point(const PCPOINT *pt, size_t *sersize);
+uint8_t* pc_bytes_from_point(const PCPOINT *pt, size_t *bytesize);
 
 /**********************************************************************
 * PCPATCH

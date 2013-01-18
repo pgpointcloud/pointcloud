@@ -1,5 +1,5 @@
 
-include ../../makeglobals.mk
+include ../../config.mk
 
 LIBPC = ../$(LIBPC_A)
 
