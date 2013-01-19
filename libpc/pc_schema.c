@@ -206,6 +206,7 @@ PCSCHEMA* pc_schema_from_xml(const char *xml_str)
 	xmlXPathContextPtr xpath_ctx; 
 	xmlXPathObjectPtr xpath_obj; 
 	xmlNodeSetPtr nodes;
+	PCSCHEMA *s = NULL;
 	
 	size_t xml_size = strlen(xml_str);
 	static xmlChar *xpath_str = "/pc:PointCloudSchema/pc:dimension";
@@ -214,7 +215,10 @@ PCSCHEMA* pc_schema_from_xml(const char *xml_str)
 	xmlInitParser();
 	xml_doc = xmlReadMemory(xml_str, xml_size, NULL, NULL, 0);
 	if ( ! xml_doc )
-		pcerror("Unable to parse XML");
+	{
+		xmlCleanupParser();
+		pcerror("unable to parse schema XML");
+	}
 	
 	/* Capture the namespace */
 	xml_root = xmlDocGetRootElement(xml_doc);
@@ -224,7 +228,11 @@ PCSCHEMA* pc_schema_from_xml(const char *xml_str)
 	/* Create xpath evaluation context */
 	xpath_ctx = xmlXPathNewContext(xml_doc);
 	if( ! xpath_ctx )
-		pcerror("Unable to create new XPath context");
+	{
+		xmlFreeDoc(xml_doc);
+		xmlCleanupParser();
+		pcerror("unable to create new XPath context to read schema XML");
+	}
 
 	/* Register the root namespace if there is one */
 	if ( xml_ns )
@@ -233,14 +241,19 @@ PCSCHEMA* pc_schema_from_xml(const char *xml_str)
 	/* Evaluate xpath expression */
 	xpath_obj = xmlXPathEvalExpression(xpath_str, xpath_ctx);
 	if( ! xpath_obj )
-		pcerror("Unable to evaluate xpath expression \"%s\"", xpath_str);
+	{
+	    xmlXPathFreeContext(xpath_ctx); 
+		xmlFreeDoc(xml_doc);
+		xmlCleanupParser();
+		pcerror("unable to evaluate xpath expression \"%s\" against schema XML", xpath_str);
+	}
 
 	/* Iterate on the dimensions we found */
 	if ( nodes = xpath_obj->nodesetval )
 	{
 		int ndims = nodes->nodeNr;
 		int i;
-		PCSCHEMA *s = pc_schema_new(ndims);
+		s = pc_schema_new(ndims);
 				
 		for ( i = 0; i < ndims; i++ )
 		{
@@ -249,7 +262,6 @@ PCSCHEMA* pc_schema_from_xml(const char *xml_str)
 			{
 				xmlNodePtr cur = nodes->nodeTab[i];
 				xmlNodePtr child;
-				int position = -1;
 				PCDIMENSION *d = pc_dimension_new();
 				int is_x = 0, is_y = 0;
 				
@@ -272,10 +284,10 @@ PCSCHEMA* pc_schema_from_xml(const char *xml_str)
 							{
 								is_y = 1;
 							}
-							d->name = strdup(child->children->content);
+							d->name = pcstrdup(child->children->content);
 						}
 						else if ( strcmp(child->name, "description") == 0 )
-							d->description = strdup(child->children->content);
+							d->description = pcstrdup(child->children->content);
 						else if ( strcmp(child->name, "size") == 0 )
 							d->size = atoi(child->children->content);
 						else if ( strcmp(child->name, "active") == 0 )
@@ -287,22 +299,32 @@ PCSCHEMA* pc_schema_from_xml(const char *xml_str)
 						else if ( strcmp(child->name, "scale") == 0 )
 							d->scale = atof(child->children->content);
 						else
-							pcinfo("Unhandled schema type element \"%s\" encountered", child->name);
+							pcinfo("unhandled schema type element \"%s\" encountered", child->name);
 					}
 				}
 				
 				/* Store the dimension in the schema */
 				if ( d->position >= 0 && d->position < ndims )
 				{
+					if ( s->dims[d->position] )
+					{
+						xmlXPathFreeObject(xpath_obj);
+					    xmlXPathFreeContext(xpath_ctx); 
+						xmlFreeDoc(xml_doc);
+						xmlCleanupParser();
+						pcerror("schema dimension at position \"%d\" is declared twice", d->position + 1, ndims);
+					}
 					s->dims[d->position] = d;
 					d->size = pc_interpretation_size(d->interpretation);
 					s->size += d->size;
 					if ( is_x ) { s->x_position = d->position; }
 					if ( is_y ) { s->y_position = d->position; }
-					hashtable_insert(s->namehash, strdup(d->name), d);
+					hashtable_insert(s->namehash, pcstrdup(d->name), d);
 				}
 				else
-					pcwarn("Dimension at position \"%d\" discarded", position);
+				{
+					pcwarn("schema dimension states position \"%d\", but number of XML dimensions is \"%d\"", d->position + 1, ndims);
+				}
 			}
 		}
 		
@@ -310,7 +332,13 @@ PCSCHEMA* pc_schema_from_xml(const char *xml_str)
 		pc_schema_calculate_byteoffsets(s);
 		
 	}
-	return NULL;
+	
+	xmlXPathFreeObject(xpath_obj);
+    xmlXPathFreeContext(xpath_ctx); 
+	xmlFreeDoc(xml_doc);
+	xmlCleanupParser();
+	
+	return s;
 }
 
 uint32_t
@@ -320,13 +348,13 @@ pc_schema_is_valid(const PCSCHEMA *s)
 	
 	if ( s->x_position < 0 )
 	{
-		pcwarn("schema does not include X coordinate");
+		pcwarn("schema does not include an X coordinate");
 		return PC_FALSE;
 	}
 
 	if ( s->y_position < 0 )
 	{
-		pcwarn("schema does not include Y coordinate");
+		pcwarn("schema does not include a Y coordinate");
 		return PC_FALSE;
 	}
 	
@@ -340,7 +368,7 @@ pc_schema_is_valid(const PCSCHEMA *s)
 	{
 		if ( ! s->dims[i] )
 		{
-			pcwarn("schema has null dimension at position %d", i);
+			pcwarn("schema is missing a dimension at position %d", i);
 			return PC_FALSE;
 		}
 	}

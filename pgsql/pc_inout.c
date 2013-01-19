@@ -1,9 +1,12 @@
 
 #include "pc_pgsql.h"      /* Common PgSQL support for our type */
 
+/* In/out functions */
 Datum pcpoint_in(PG_FUNCTION_ARGS);
 Datum pcpoint_out(PG_FUNCTION_ARGS);
-Datum pcschema_is_valid(PG_FUNCTION_ARGS);
+
+/* Other SQL functions */
+Datum PC_SchemaIsValid(PG_FUNCTION_ARGS);
 
 
 
@@ -39,8 +42,8 @@ Datum pcschema_is_valid(PG_FUNCTION_ARGS);
 // 	}
 // 
 
-PG_FUNCTION_INFO_V1(pcschema_is_valid);
-Datum pcschema_is_valid(PG_FUNCTION_ARGS)
+PG_FUNCTION_INFO_V1(PC_SchemaIsValid);
+Datum PC_SchemaIsValid(PG_FUNCTION_ARGS)
 {
 	bool valid;
 	text *xml = PG_GETARG_TEXT_P(0);
@@ -49,7 +52,10 @@ Datum pcschema_is_valid(PG_FUNCTION_ARGS)
 	pfree(xmlstr);
 	
 	if ( ! schema )
+	{
+		elog(NOTICE, "pc_schema_from_xml returned NULL");
 		PG_RETURN_BOOL(FALSE);
+	}
 		
 	valid = pc_schema_is_valid(schema);
 	PG_RETURN_BOOL(valid);

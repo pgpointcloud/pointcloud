@@ -14,12 +14,15 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
+#include <stdarg.h>
 
 #include "hashtable.h"
 
 /**********************************************************************
 * DATA STRUCTURES
 */
+
+#define POINTCLOUD_VERSION "1.0"
 
 /**
 * Compression types for PCPOINTS in a PCPATCH

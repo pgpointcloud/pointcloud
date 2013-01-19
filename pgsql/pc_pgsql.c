@@ -2,6 +2,85 @@
 #include "pc_pgsql.h"
 #include "executor/spi.h"
 
+PG_MODULE_MAGIC;
+
+
+static void *
+pgsql_alloc(size_t size)
+{
+	void * result;
+	result = palloc(size);
+
+	if ( ! result )
+	{
+		ereport(ERROR, (errmsg_internal("Out of virtual memory")));
+		return NULL;
+	}
+	return result;
+}
+
+static void *
+pgsql_realloc(void *mem, size_t size)
+{
+	void * result;
+	result = repalloc(mem, size);
+	return result;
+}
+
+static void
+pgsql_free(void *ptr)
+{
+	pfree(ptr);
+}
+
+static void
+pgsql_msg_handler(int sig, const char *fmt, va_list ap)
+{
+#define MSG_MAXLEN 1024
+	char msg[MSG_MAXLEN] = {0};
+	vsnprintf(msg, MSG_MAXLEN, fmt, ap);
+	msg[MSG_MAXLEN-1] = '\0';
+	ereport(sig, (errmsg_internal("%s", msg)));
+}
+
+static void
+pgsql_error(const char *fmt, va_list ap)
+{
+	pgsql_msg_handler(ERROR, fmt, ap);
+}
+
+static void
+pgsql_warn(const char *fmt, va_list ap)
+{
+	pgsql_msg_handler(WARNING, fmt, ap);
+}
+
+static void
+pgsql_info(const char *fmt, va_list ap)
+{
+	pgsql_msg_handler(NOTICE, fmt, ap);
+}
+
+/* Module loading callback */
+void _PG_init(void);
+void
+_PG_init(void)
+{
+	elog(LOG, "Pointcloud (%s) module loaded", POINTCLOUD_VERSION);
+	pc_set_handlers(pgsql_alloc, pgsql_realloc,
+	                pgsql_free, pgsql_error,
+					pgsql_info, pgsql_warn);
+}
+
+/* Module unload callback */
+void _PG_fini(void);
+void
+_PG_fini(void)
+{
+	elog(LOG, "Pointcloud (%s) module unloaded", POINTCLOUD_VERSION);
+}
+
+
 /**
 * TODO: Back this routine with a statement level memory cache.
 */

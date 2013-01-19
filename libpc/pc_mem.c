@@ -62,7 +62,7 @@ default_msg_handler(const char *label, const char *fmt, va_list ap)
 static void
 default_info_handler(const char *fmt, va_list ap)
 {
-	// default_msg_handler("INFO: ", fmt, ap);
+	default_msg_handler("INFO: ", fmt, ap);
 }
 
 static void
@@ -111,6 +111,14 @@ pcalloc(size_t size)
 	return mem;
 }
 
+char *
+pcstrdup(const char *str)
+{
+	size_t len = strlen(str);
+	char *newstr = pcalloc(len + 1);
+	memcpy(newstr, str, len + 1);
+	return newstr;
+}
 
 void *
 pcrealloc(void * mem, size_t size)

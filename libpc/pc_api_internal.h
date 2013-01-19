@@ -87,6 +87,8 @@ uint8_t* bytes_from_hexbytes(const char *hexbuf, size_t hexsize);
 /** Turn a binary buffer into a hex string */
 char* hexbytes_from_bytes(const uint8_t *bytebuf, size_t bytesize);
 
+/** Copy a string within the global memory management context */
+char* pcstrdup(const char *str);
 
 
 #endif /* _PC_API_INTERNAL_H */
