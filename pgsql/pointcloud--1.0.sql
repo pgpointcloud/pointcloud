@@ -19,6 +19,9 @@ CREATE TABLE pointcloud_formats (
 -- Register pointcloud_formats table so the contents are included in pg_dump output
 SELECT pg_catalog.pg_extension_config_dump('pointcloud_formats', '');
 
+CREATE OR REPLACE FUNCTION PC_SchemaGetNDims(pcid integer)
+	RETURNS integer AS 'MODULE_PATHNAME','PC_SchemaGetNDims'
+    LANGUAGE 'c' IMMUTABLE STRICT;
 
 
 -- Sample data

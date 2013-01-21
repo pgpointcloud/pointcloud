@@ -180,6 +180,21 @@ void pc_set_handlers(pc_allocator allocator, pc_reallocator reallocator,
 void pc_install_default_handlers(void);
 
 
+/**********************************************************************
+* UTILITY
+*/
+
+/** Read a hex string into binary buffer */
+uint8_t* bytes_from_hexbytes(const char *hexbuf, size_t hexsize);
+/** Read the the PCID from WKB form of a POINT */
+uint32_t wkb_get_pcid(uint8_t *bytes);
+/** Get a pointer to the data buffer of the WKB form of a point */
+uint8_t* wkb_point_get_data_ptr(uint8_t *bytes);
+
+/** Force a byte array into the machine endianness */
+uint8_t* bytes_flip_endian(const uint8_t *bytebuf, const PCSCHEMA *schema, uint32_t npoints);
+
+
 
 /**********************************************************************
 * SCHEMAS
@@ -207,11 +222,11 @@ uint32_t pc_schema_is_valid(const PCSCHEMA *s);
 /** Create a new PCPOINT */
 PCPOINT* pc_point_make(const PCSCHEMA *s);
 /** Create a new readonly PCPOINT on top of a data buffer */
-PCPOINT* pc_point_from_bytes(const PCSCHEMA *s, uint8_t *data);
-/** Create a new readwrite PCPOINT from a hex string */
-PCPOINT* pc_point_from_hexbytes(const PCSCHEMA *s, const char *data);
-/** Create a new PCPOINT on top of a data buffer */
-PCPOINT* pc_point_make_from_double_array(const PCSCHEMA *s, double *array, uint32_t nelems);
+PCPOINT* pc_point_from_data(const PCSCHEMA *s, uint8_t *data);
+/** Create a new read/write PCPOINT on top of a data buffer */
+PCPOINT* pc_point_from_data_rw(const PCSCHEMA *s, uint8_t *data);
+/** Create a new read/write PCPOINT from a double array */
+PCPOINT* pc_point_from_double_array(const PCSCHEMA *s, double *array, uint32_t nelems);
 /** Frees the PTPOINT and data (if not readonly) does not free referenced schema */
 void pc_point_free(PCPOINT *pt);
 /** Casts named dimension value to double and scale/offset appropriately before returning */
@@ -226,8 +241,8 @@ int pc_point_set_double_by_name(PCPOINT *pt, const char *name, double val);
 double pc_point_get_x(const PCPOINT *pt);
 /** Returns Y coordinate */
 double pc_point_get_y(const PCPOINT *pt);
-/** Returns serialized form of point */
-uint8_t* pc_bytes_from_point(const PCPOINT *pt, size_t *bytesize);
+
+
 
 /**********************************************************************
 * PCPATCH
