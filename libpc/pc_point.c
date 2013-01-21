@@ -42,7 +42,7 @@ pc_point_make(const PCSCHEMA *s)
 };
 
 PCPOINT * 
-pc_point_from_data(const PCSCHEMA *s, uint8_t *data)
+pc_point_from_data(const PCSCHEMA *s, const uint8_t *data)
 {
 	size_t sz;
 	PCPOINT *pt;
@@ -56,7 +56,7 @@ pc_point_from_data(const PCSCHEMA *s, uint8_t *data)
 	
 	/* Reference the external data */
 	pt = pcalloc(sizeof(PCPOINT));
-	pt->data = data;
+	pt->data = (uint8_t*)data;
 	
 	/* Set up basic info */
 	pt->schema = s;

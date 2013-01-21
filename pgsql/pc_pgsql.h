@@ -36,10 +36,10 @@ SERIALIZED_PATCH;
 PCSCHEMA* pc_schema_get_by_id(uint32_t pcid);
 
 /** Turn a PCPOINT into a byte buffer suitable for saving in PgSQL */
-SERIALIZED_POINT* pc_point_serialize(PCPOINT *pcpt);
+SERIALIZED_POINT* pc_point_serialize(const PCPOINT *pcpt);
 
 /** Turn a byte buffer into a PCPOINT for processing */
-PCPOINT* pc_point_deserialize(SERIALIZED_POINT *serpt);
+PCPOINT* pc_point_deserialize(const SERIALIZED_POINT *serpt);
 
 /** Returns 1 for little (NDR) and 0 for big (XDR) */
 char machine_endian(void);

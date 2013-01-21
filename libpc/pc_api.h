@@ -222,7 +222,7 @@ uint32_t pc_schema_is_valid(const PCSCHEMA *s);
 /** Create a new PCPOINT */
 PCPOINT* pc_point_make(const PCSCHEMA *s);
 /** Create a new readonly PCPOINT on top of a data buffer */
-PCPOINT* pc_point_from_data(const PCSCHEMA *s, uint8_t *data);
+PCPOINT* pc_point_from_data(const PCSCHEMA *s, const uint8_t *data);
 /** Create a new read/write PCPOINT on top of a data buffer */
 PCPOINT* pc_point_from_data_rw(const PCSCHEMA *s, uint8_t *data);
 /** Create a new read/write PCPOINT from a double array */

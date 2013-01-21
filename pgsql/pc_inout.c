@@ -27,7 +27,7 @@ Datum pcpoint_in(PG_FUNCTION_ARGS)
 	/* Empty string. */
 	if ( str[0] == '\0' )
 	{
-		ereport(ERROR,(errmsg("parse error - invalid pcpoint")));
+		ereport(ERROR,(errmsg("pcpoint parse error - empty string")));
 	}
 
 	/* Binary or text form? Let's find out. */
@@ -44,6 +44,22 @@ Datum pcpoint_in(PG_FUNCTION_ARGS)
 	}
 
 	PG_RETURN_POINTER(serpt);
+}
+
+PG_FUNCTION_INFO_V1(pcpoint_out);
+Datum pcpoint_out(PG_FUNCTION_ARGS)
+{
+	PCPOINT *pcpt = NULL;
+	SERIALIZED_POINT *serpt = NULL;
+	uint8_t *wkb = NULL;
+	size_t wkb_size = 0;
+	char *hexwkb = NULL;
+
+	serpt = (SERIALIZED_POINT*)PG_DETOAST_DATUM(PG_GETARG_DATUM(0));
+	pcpt = pc_point_deserialize(serpt);
+	wkb = wkb_from_point(pcpt, &wkb_size);
+	hexwkb = hexbytes_from_bytes(wkb, wkb_size);
+	PG_RETURN_CSTRING(hexwkb);
 }
 
 

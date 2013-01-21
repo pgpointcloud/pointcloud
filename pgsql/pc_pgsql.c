@@ -379,7 +379,7 @@ pc_schema_get_by_id(uint32_t pcid)
 */
 
 SERIALIZED_POINT * 
-pc_point_serialize(PCPOINT *pcpt)
+pc_point_serialize(const PCPOINT *pcpt)
 {
 	size_t serpt_size = sizeof(SERIALIZED_POINT) - 1 + pcpt->schema->size;
 	SERIALIZED_POINT *serpt = palloc(serpt_size);
@@ -388,4 +388,14 @@ pc_point_serialize(PCPOINT *pcpt)
 	SET_VARSIZE(serpt, serpt_size);
 	return serpt;
 }
+
+PCPOINT * 
+pc_point_deserialize(const SERIALIZED_POINT *serpt)
+{
+	PCPOINT *pcpt;
+	PCSCHEMA *schema = pc_schema_get_by_id(serpt->pcid);
+	pcpt = pc_point_from_data(schema, serpt->data);
+	return pcpt;
+}
+
 
