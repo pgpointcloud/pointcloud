@@ -24,6 +24,9 @@ clean:
 	@rm -f $(OBJS) $(LIBPC_A)
 	$(MAKE) -C cunit $@
 
+install:
+	@echo "No install target in libpc"
+
 check:
 	$(MAKE) -C cunit $@
 

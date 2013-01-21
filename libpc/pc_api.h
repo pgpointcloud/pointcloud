@@ -188,7 +188,7 @@ void pc_install_default_handlers(void);
 /** Release the memory in a schema structure */
 void pc_schema_free(PCSCHEMA *pcs);
 /** Build a schema structure from the XML serialisation */
-PCSCHEMA* pc_schema_from_xml(const char *xmlstr);
+int pc_schema_from_xml(const char *xmlstr, PCSCHEMA **schema);
 /** Print out JSON readable format of schema */
 char* pc_schema_to_json(const PCSCHEMA *pcs);
 /** Extract dimension information by position */

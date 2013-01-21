@@ -48,15 +48,15 @@ Datum PC_SchemaIsValid(PG_FUNCTION_ARGS)
 	bool valid;
 	text *xml = PG_GETARG_TEXT_P(0);
 	char *xmlstr = text_to_cstring(xml);
-	PCSCHEMA *schema = pc_schema_from_xml(xmlstr);
+	PCSCHEMA *schema;
+	int err = pc_schema_from_xml(xmlstr, &schema);
 	pfree(xmlstr);
 	
-	if ( ! schema )
+	if ( ! err )
 	{
-		elog(NOTICE, "pc_schema_from_xml returned NULL");
 		PG_RETURN_BOOL(FALSE);
 	}
-		
+
 	valid = pc_schema_is_valid(schema);
 	PG_RETURN_BOOL(valid);
 }

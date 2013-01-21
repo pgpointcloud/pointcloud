@@ -37,7 +37,7 @@ static void
 test_schema_from_xml() 
 {
 	char *xmlstr = file_to_str(xmlfile);
-	schema = pc_schema_from_xml(xmlstr);
+	int rv = pc_schema_from_xml(xmlstr, &schema);
 	pcfree(xmlstr);
 
 	// char *schemastr = pc_schema_to_json(schema);

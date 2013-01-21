@@ -136,11 +136,12 @@ pc_get_schema_by_id(uint32_t pcid)
 	SPI_finish();
 
 	/* Build the schema object */
-	schema = pc_schema_from_xml(xml);
+	err = pc_schema_from_xml(xml, &schema);
 	
-	if ( ! schema )
+	if ( ! err )
 	{
 		elog(ERROR, "unable to parse XML representation of schema");
+		return NULL;
 	}
 	
 	return schema;
