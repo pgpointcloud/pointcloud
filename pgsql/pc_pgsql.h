@@ -15,6 +15,14 @@
 
 #define PG_GETARG_SERPOINT_P(datum) (SERIALIZED_POINT*)PG_DETOAST_DATUM(PG_GETARG_DATUM(datum))
 
+/**
+* Serialized point type for clouds. Variable length, because there can be
+* an arbitrary number of dimensions. The pcid is a foreign key
+* reference to the POINTCLOUD_SCHEMAS table, where
+* the underlying structure of the data is described in XML,
+* the spatial reference system is indicated, and the data
+* packing scheme is indicated.
+*/
 typedef struct 
 {
 	uint32_t size;
@@ -23,14 +31,26 @@ typedef struct
 }
 SERIALIZED_POINT;
 
+/**
+* PgSQL patch type (collection of points) for clouds.
+* Variable length, because there can be
+* an arbitrary number of points encoded within.
+* The pcid is a foriegn key reference to the
+* POINTCLOUD_SCHEMAS table, where
+* the underlying structure of the data is described in XML,
+* the spatial reference system is indicated, and the data
+* packing scheme is indicated.
+*/
 typedef struct 
 {
 	uint32_t size;
 	uint32_t pcid;
 	uint32_t npoints;
+	double xmin, xmax, ymin, ymax;
 	uint8_t data[1];
 }
 SERIALIZED_PATCH;
+
 
 /* PGSQL / POINTCLOUD UTILITY FUNCTIONS */
 
@@ -58,3 +78,8 @@ PCPOINT* pc_point_from_hexwkb(const char *hexwkb, size_t hexlen);
 /** Returns serialized form of point */
 uint8_t* wkb_from_point(const PCPOINT *pt, size_t *wkbsize);
 
+/** Turn a PCPATCH into a byte buffer suitable for saving in PgSQL */
+SERIALIZED_PATCH* pc_patch_serialize(const PCPATCH *pcpch);
+
+/** Turn a byte buffer into a PCPATCH for processing */
+PCPATCH* pc_patch_deserlialize(const SERIALIZED_PATCH *serpatch);

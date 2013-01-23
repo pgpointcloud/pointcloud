@@ -108,44 +108,6 @@ typedef struct
 } PCPATCH;
 
 
-
-/**
-* Serialized point type for clouds. Variable length, because there can be
-* an arbitrary number of dimensions. The pcid is a foreign key
-* reference to the POINTCLOUD_SCHEMAS table, where
-* the underlying structure of the data is described in XML,
-* the spatial reference system is indicated, and the data
-* packing scheme is indicated.
-*/
-typedef struct
-{
-	uint32_t size; /* PgSQL VARSIZE */
-	uint32_t pcid;
-	uint8_t data[1];
-} SERPOINT;
-
-/**
-* PgSQL patch type (collection of points) for clouds.
-* Variable length, because there can be
-* an arbitrary number of points encoded within.
-* The pcid is a foriegn key reference to the
-* POINTCLOUD_SCHEMAS table, where
-* the underlying structure of the data is described in XML,
-* the spatial reference system is indicated, and the data
-* packing scheme is indicated.
-*/
-typedef struct
-{
-	uint32_t size; /* PgSQL VARSIZE */
-	float xmin, xmax, ymin, ymax;
-	uint32_t pcid;
-	uint32_t npoints;
-	uint8_t data[1];
-} SERPATCH;
-
-
-
-
 /* Global function signatures for memory/logging handlers. */
 typedef void* (*pc_allocator)(size_t size);
 typedef void* (*pc_reallocator)(void *mem, size_t size);

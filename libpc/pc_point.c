@@ -50,7 +50,7 @@ pc_point_from_data(const PCSCHEMA *s, const uint8_t *data)
 	
 	if ( ! s )
 	{
-		pcerror("null schema passed into pc_point_from_wkb");
+		pcerror("null schema passed into pc_point_from_data");
 		return NULL;
 	}
 	

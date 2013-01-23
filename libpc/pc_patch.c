@@ -46,6 +46,12 @@ pc_patch_make(const PCSCHEMA *s)
 	return pch;
 }
 
+static int
+pc_patch_compute_extent(PCPATCH *patch)
+{
+	return PC_FAILURE;
+}
+
 int 
 pc_patch_add_point(PCPATCH *c, const PCPOINT *p)
 {

@@ -9,6 +9,7 @@ Datum PC_Get(PG_FUNCTION_ARGS);
 
 /**
 * Read a named dimension from a PCPOINT
+* PC_Get(point pcpoint, dimname text) returns Numeric
 */
 PG_FUNCTION_INFO_V1(PC_Get);
 Datum PC_Get(PG_FUNCTION_ARGS)

@@ -97,6 +97,7 @@ _PG_fini(void)
 */
 
 
+
 /* Our static character->number map. Anything > 15 is invalid */
 static uint8_t hex2char[256] = {
 	/* not Hex characters */
@@ -343,7 +344,7 @@ pc_schema_get_by_id(uint32_t pcid)
 	if ( ! ( xml_spi && srid_spi ) )
 	{
 		SPI_finish();
-		elog(ERROR, "unable to read row from \"%s\" for PCID (%d)", POINTCLOUD_FORMATS, pcid);
+		elog(ERROR, "unable to read row from \"%s\" for pcid = %d", POINTCLOUD_FORMATS, pcid);
 		return NULL;
 	}
 
@@ -363,7 +364,7 @@ pc_schema_get_by_id(uint32_t pcid)
 	
 	if ( ! err )
 	{
-		elog(ERROR, "unable to parse XML of PCID (%d) in \"%s\"", pcid, POINTCLOUD_FORMATS);
+		elog(ERROR, "unable to parse XML of pcid = %d in \"%s\"", pcid, POINTCLOUD_FORMATS);
 		return NULL;
 	}
 	
@@ -394,8 +395,62 @@ pc_point_deserialize(const SERIALIZED_POINT *serpt)
 {
 	PCPOINT *pcpt;
 	PCSCHEMA *schema = pc_schema_get_by_id(serpt->pcid);
+	size_t pgsize = VARSIZE(serpt) - 8; /* on-disk size - size:int32 - pcid:int32 == point data size */
+	/* 
+	* Big problem, the size on disk doesn't match what we expect, 
+	* so we cannot reliably interpret the contents.
+	*/
+	if ( schema->size != pgsize )
+	{
+		elog(ERROR, "schema size and disk size mismatch, repair the schema");
+		return NULL;
+	}
 	pcpt = pc_point_from_data(schema, serpt->data);
 	return pcpt;
 }
 
+SERIALIZED_PATCH * 
+pc_patch_serialize(const PCPATCH *pcpch)
+{
+	size_t serpch_size = sizeof(SERIALIZED_PATCH) - 1 + pcpch->schema->size * pcpch->npoints;
+	SERIALIZED_PATCH *serpch = palloc(serpch_size);
+	serpch->pcid = pcpch->schema->pcid;
+	serpch->npoints = pcpch->npoints;
+	serpch->xmin = pcpch->xmin;
+	serpch->ymin = pcpch->ymin;
+	serpch->xmax = pcpch->xmax;
+	serpch->ymax = pcpch->ymax;
+	memcpy(serpch->data, pcpch->data, pcpch->npoints * pcpch->schema->size);
+	SET_VARSIZE(serpch, serpch_size);
+	return serpch;
+}
+
+PCPATCH *
+pc_patch_deserlialize(const SERIALIZED_PATCH *serpatch)
+{
+	PCPATCH *patch;
+	PCSCHEMA *schema = pc_schema_get_by_id(serpatch->pcid);
+	/* on-disk size - size:int32 - pcid:int32 - npoints:int32 - 4*minmax:double = patch data size */
+	size_t pgsize = VARSIZE(serpatch) - 3*4 - 4*8; 
+	if ( schema->size*serpatch->npoints != pgsize )
+	{
+		elog(ERROR, "schema size and disk size mismatch, repair the schema");
+		return NULL;
+	}
+	
+	/* Reference the external data */
+	patch = pcalloc(sizeof(PCPATCH));
+	patch->data = (uint8_t*)serpatch->data;
+	
+	/* Set up basic info */
+	patch->schema = schema;
+	patch->readonly = true;
+	patch->npoints = serpatch->npoints;
+	patch->xmin = serpatch->xmin;
+	patch->ymin = serpatch->ymin;
+	patch->xmax = serpatch->xmax;
+	patch->ymax = serpatch->ymax;	
+
+	return patch;
+}
 

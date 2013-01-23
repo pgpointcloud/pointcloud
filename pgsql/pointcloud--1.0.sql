@@ -55,9 +55,13 @@ CREATE TYPE pcpoint (
 	storage = main
 );
 
-CREATE OR REPLACE FUNCTION PC_Get(point pcpoint, dimname text)
+CREATE OR REPLACE FUNCTION PC_Get(pt pcpoint, dimname text)
 	RETURNS numeric AS 'MODULE_PATHNAME', 'PC_Get'
     LANGUAGE 'c' IMMUTABLE STRICT;
+
+CREATE OR REPLACE FUNCTION PC_MakePoint(pcid integer, vals float8[])
+	RETURNS pcpoint AS 'MODULE_PATHNAME', 'PC_MakePointFromArray'
+	LANGUAGE 'c' IMMUTABLE STRICT;
 
 
 -- Sample data

@@ -9,6 +9,17 @@ Requires
 - PostgreSQL 9.1+ (support for extensions)
 - PostgreSQL compiled --with-xml
 
+
+Build/Install
+=============
+
+- Requires PostgreSQL dev packages (pg_config and server headers), usually 'postgresql-dev' or 'postgresql-devel'
+- Edit config.mk and update paths to libxml2 and cunit
+- make
+- sudo make install
+- create a database
+- run 'CREATE EXTENSION pointcloud'
+
 Formats
 =======
 
