@@ -3,6 +3,10 @@
 \echo Use "CREATE EXTENSION pointcloud" to load this file. \quit
 
 
+-------------------------------------------------------------------
+--  METADATA and SCHEMA
+-------------------------------------------------------------------
+
 -- Confirm the XML representation of a schema has everything we need
 CREATE OR REPLACE FUNCTION PC_SchemaIsValid(xml text)
 	RETURNS boolean AS 'MODULE_PATHNAME','PC_SchemaIsValid'
@@ -21,6 +25,38 @@ SELECT pg_catalog.pg_extension_config_dump('pointcloud_formats', '');
 
 CREATE OR REPLACE FUNCTION PC_SchemaGetNDims(pcid integer)
 	RETURNS integer AS 'MODULE_PATHNAME','PC_SchemaGetNDims'
+    LANGUAGE 'c' IMMUTABLE STRICT;
+
+
+
+-------------------------------------------------------------------
+--  PCPOINT
+-------------------------------------------------------------------
+
+CREATE OR REPLACE FUNCTION pcpoint_in(cstring)
+	RETURNS pcpoint AS 'MODULE_PATHNAME', 'pcpoint_in'
+	LANGUAGE 'c' IMMUTABLE STRICT;
+
+CREATE OR REPLACE FUNCTION pcpoint_out(pcpoint)
+	RETURNS cstring AS 'MODULE_PATHNAME', 'pcpoint_out'
+	LANGUAGE 'c' IMMUTABLE STRICT;
+	
+CREATE TYPE pcpoint (
+	internallength = variable,
+	input = pcpoint_in,
+	output = pcpoint_out,
+	-- send = geometry_send,
+	-- receive = geometry_recv,
+	-- typmod_in = geometry_typmod_in,
+	-- typmod_out = geometry_typmod_out,
+	-- delimiter = ':',
+	-- alignment = double,
+	-- analyze = geometry_analyze,
+	storage = main
+);
+
+CREATE OR REPLACE FUNCTION PC_Get(point pcpoint, dimname text)
+	RETURNS numeric AS 'MODULE_PATHNAME', 'PC_Get'
     LANGUAGE 'c' IMMUTABLE STRICT;
 
 

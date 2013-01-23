@@ -5,6 +5,7 @@ include ../config.mk
 MODULE_big = pointcloud
 OBJS = \
 	pc_inout.o \
+	pc_access.o \
 	pc_pgsql.o
 
 EXTENSION = pointcloud

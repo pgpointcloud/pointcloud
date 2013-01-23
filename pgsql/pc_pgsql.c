@@ -162,7 +162,7 @@ hexbytes_from_bytes(const uint8_t *bytebuf, size_t bytesize)
 	
 	for ( i = 0; i < bytesize; i++ )
 	{
-		int incr = snprintf(ptr, 2, "%X", bytebuf[i]);
+		int incr = snprintf(ptr, 3, "%02X", bytebuf[i]);
 		if ( incr < 0 )
 		{
 			pcerror("write failure in hexbytes_from_bytes");
@@ -331,7 +331,7 @@ pc_schema_get_by_id(uint32_t pcid)
 	if (SPI_processed <= 0)
 	{
 		SPI_finish();
-		elog(ERROR, "no entry in \"%s\" for PCID (%d)", POINTCLOUD_FORMATS, pcid);
+		elog(ERROR, "no entry in \"%s\" for pcid = %d", POINTCLOUD_FORMATS, pcid);
 		return NULL;
 	}
 

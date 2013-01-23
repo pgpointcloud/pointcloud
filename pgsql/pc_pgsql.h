@@ -13,6 +13,8 @@
 #define POINTCLOUD_FORMATS_XML "schema"
 #define POINTCLOUD_FORMATS_SRID "srid"
 
+#define PG_GETARG_SERPOINT_P(datum) (SERIALIZED_POINT*)PG_DETOAST_DATUM(PG_GETARG_DATUM(datum))
+
 typedef struct 
 {
 	uint32_t size;
