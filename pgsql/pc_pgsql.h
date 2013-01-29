@@ -14,6 +14,7 @@
 #define POINTCLOUD_FORMATS_SRID "srid"
 
 #define PG_GETARG_SERPOINT_P(datum) (SERIALIZED_POINT*)PG_DETOAST_DATUM(PG_GETARG_DATUM(datum))
+#define PG_GETARG_SERPATCH_P(datum) (SERIALIZED_PATCH*)PG_DETOAST_DATUM(PG_GETARG_DATUM(datum))
 
 /**
 * Serialized point type for clouds. Variable length, because there can be
@@ -63,23 +64,21 @@ SERIALIZED_POINT* pc_point_serialize(const PCPOINT *pcpt);
 /** Turn a byte buffer into a PCPOINT for processing */
 PCPOINT* pc_point_deserialize(const SERIALIZED_POINT *serpt);
 
-/** Returns 1 for little (NDR) and 0 for big (XDR) */
-char machine_endian(void);
-
-/** Turn a binary buffer into a hex string */
-char* hexbytes_from_bytes(const uint8_t *bytebuf, size_t bytesize);
-
-/** Create a new readwrite PCPOINT from a hex byte array */
-PCPOINT* pc_point_from_wkb(uint8_t *wkb, size_t wkbsize);
-
 /** Create a new readwrite PCPOINT from a hex string */
 PCPOINT* pc_point_from_hexwkb(const char *hexwkb, size_t hexlen);
 
-/** Returns serialized form of point */
-uint8_t* wkb_from_point(const PCPOINT *pt, size_t *wkbsize);
+/** Create a hex representation of a PCPOINT */
+char* pc_point_to_hexwkb(const PCPOINT *pt);
+
 
 /** Turn a PCPATCH into a byte buffer suitable for saving in PgSQL */
-SERIALIZED_PATCH* pc_patch_serialize(const PCPATCH *pcpch);
+SERIALIZED_PATCH* pc_patch_serialize(const PCPATCH *patch);
 
 /** Turn a byte buffer into a PCPATCH for processing */
-PCPATCH* pc_patch_deserlialize(const SERIALIZED_PATCH *serpatch);
+PCPATCH* pc_patch_deserialize(const SERIALIZED_PATCH *serpatch);
+
+/** Create a new readwrite PCPATCH from a hex string */
+PCPATCH* pc_patch_from_hexwkb(const char *hexwkb, size_t hexlen);
+
+/** Create a hex representation of a PCPOINT */
+char* pc_patch_to_hexwkb(const PCPATCH *patch);

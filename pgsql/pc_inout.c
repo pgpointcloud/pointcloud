@@ -4,11 +4,15 @@
 /* In/out functions */
 Datum pcpoint_in(PG_FUNCTION_ARGS);
 Datum pcpoint_out(PG_FUNCTION_ARGS);
+Datum pcpatch_in(PG_FUNCTION_ARGS);
+Datum pcpatch_out(PG_FUNCTION_ARGS);
 
 /* Other SQL functions */
 Datum PC_SchemaIsValid(PG_FUNCTION_ARGS);
 Datum PC_SchemaGetNDims(PG_FUNCTION_ARGS);
 Datum PC_MakePointFromArray(PG_FUNCTION_ARGS);
+Datum PC_PointAsText(PG_FUNCTION_ARGS);
+Datum PC_PatchAsText(PG_FUNCTION_ARGS);
 
 PG_FUNCTION_INFO_V1(pcpoint_in);
 Datum pcpoint_in(PG_FUNCTION_ARGS)
@@ -51,17 +55,65 @@ Datum pcpoint_out(PG_FUNCTION_ARGS)
 {
 	PCPOINT *pcpt = NULL;
 	SERIALIZED_POINT *serpt = NULL;
-	uint8_t *wkb = NULL;
-	size_t wkb_size = 0;
 	char *hexwkb = NULL;
 
 	serpt = (SERIALIZED_POINT*)PG_DETOAST_DATUM(PG_GETARG_DATUM(0));
 	pcpt = pc_point_deserialize(serpt);
-	wkb = wkb_from_point(pcpt, &wkb_size);
-	hexwkb = hexbytes_from_bytes(wkb, wkb_size);
+	hexwkb = pc_point_to_hexwkb(pcpt);
+	pc_point_free(pcpt);
 	PG_RETURN_CSTRING(hexwkb);
 }
 
+
+PG_FUNCTION_INFO_V1(pcpatch_in);
+Datum pcpatch_in(PG_FUNCTION_ARGS)
+{
+	char *str = PG_GETARG_CSTRING(0);
+	/* Datum geog_oid = PG_GETARG_OID(1); Not needed. */
+	int32 pc_typmod = -1;
+	PCPATCH *patch;
+	SERIALIZED_PATCH *serpatch;
+	
+	if ( (PG_NARGS()>2) && (!PG_ARGISNULL(2)) ) 
+	{
+		pc_typmod = PG_GETARG_INT32(2);
+	}
+
+	/* Empty string. */
+	if ( str[0] == '\0' )
+	{
+		ereport(ERROR,(errmsg("pcpatch parse error - empty string")));
+	}
+
+	/* Binary or text form? Let's find out. */
+	if ( str[0] == '0' )
+	{		
+		/* Hex-encoded binary */
+		patch = pc_patch_from_hexwkb(str, strlen(str));
+		serpatch = pc_patch_serialize(patch);
+		pc_patch_free(patch);
+	}
+	else
+	{
+		ereport(ERROR,(errmsg("parse error - support for text format not yet implemented")));
+	}
+
+	PG_RETURN_POINTER(serpatch);
+}
+
+PG_FUNCTION_INFO_V1(pcpatch_out);
+Datum pcpatch_out(PG_FUNCTION_ARGS)
+{
+	PCPATCH *patch = NULL;
+	SERIALIZED_PATCH *serpatch = NULL;
+	char *hexwkb = NULL;
+
+	serpatch = (SERIALIZED_PATCH*)PG_DETOAST_DATUM(PG_GETARG_DATUM(0));
+	patch = pc_patch_deserialize(serpatch);
+	hexwkb = pc_patch_to_hexwkb(patch);
+	pc_patch_free(patch);
+	PG_RETURN_CSTRING(hexwkb);
+}
 
 PG_FUNCTION_INFO_V1(PC_SchemaIsValid);
 Datum PC_SchemaIsValid(PG_FUNCTION_ARGS)
@@ -79,6 +131,7 @@ Datum PC_SchemaIsValid(PG_FUNCTION_ARGS)
 	}
 
 	valid = pc_schema_is_valid(schema);
+	pc_schema_free(schema);
 	PG_RETURN_BOOL(valid);
 }
 
@@ -141,5 +194,40 @@ Datum PC_MakePointFromArray(PG_FUNCTION_ARGS)
 	
 	serpt = pc_point_serialize(pt);
 	pc_point_free(pt);
+	pc_schema_free(schema);
 	PG_RETURN_POINTER(serpt);
+}
+
+PG_FUNCTION_INFO_V1(PC_PointAsText);
+Datum PC_PointAsText(PG_FUNCTION_ARGS)
+{
+	SERIALIZED_POINT *serpt = PG_GETARG_SERPOINT_P(0);
+	text *txt;
+	char *str;
+	PCPOINT *pt = pc_point_deserialize(serpt);
+	if ( ! pt ) 
+		PG_RETURN_NULL();	
+	
+	str = pc_point_to_string(pt);
+	pc_point_free(pt);
+	txt = cstring_to_text(str);
+	pfree(str);
+	PG_RETURN_TEXT_P(txt);
+}
+
+PG_FUNCTION_INFO_V1(PC_PatchAsText);
+Datum PC_PatchAsText(PG_FUNCTION_ARGS)
+{
+	SERIALIZED_PATCH *serpatch = PG_GETARG_SERPATCH_P(0);
+	text *txt;
+	char *str;
+	PCPATCH *patch = pc_patch_deserialize(serpatch);
+	if ( ! patch ) 
+		PG_RETURN_NULL();	
+	
+	str = pc_patch_to_string(patch);
+	pc_patch_free(patch);
+	txt = cstring_to_text(str);
+	pfree(str);
+	PG_RETURN_TEXT_P(txt);
 }

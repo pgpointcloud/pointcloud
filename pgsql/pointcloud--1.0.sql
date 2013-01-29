@@ -63,8 +63,47 @@ CREATE OR REPLACE FUNCTION PC_MakePoint(pcid integer, vals float8[])
 	RETURNS pcpoint AS 'MODULE_PATHNAME', 'PC_MakePointFromArray'
 	LANGUAGE 'c' IMMUTABLE STRICT;
 
+CREATE OR REPLACE FUNCTION PC_AsText(p pcpoint)
+	RETURNS text AS 'MODULE_PATHNAME', 'PC_PointAsText'
+	LANGUAGE 'c' IMMUTABLE STRICT;
 
--- Sample data
+-------------------------------------------------------------------
+--  PCPATCH
+-------------------------------------------------------------------
+
+CREATE OR REPLACE FUNCTION pcpatch_in(cstring)
+	RETURNS pcpatch AS 'MODULE_PATHNAME', 'pcpatch_in'
+	LANGUAGE 'c' IMMUTABLE STRICT;
+
+CREATE OR REPLACE FUNCTION pcpatch_out(pcpatch)
+	RETURNS cstring AS 'MODULE_PATHNAME', 'pcpatch_out'
+	LANGUAGE 'c' IMMUTABLE STRICT;
+	
+CREATE TYPE pcpatch (
+	internallength = variable,
+	input = pcpatch_in,
+	output = pcpatch_out,
+	-- send = geometry_send,
+	-- receive = geometry_recv,
+	-- typmod_in = geometry_typmod_in,
+	-- typmod_out = geometry_typmod_out,
+	-- delimiter = ':',
+	-- alignment = double,
+	-- analyze = geometry_analyze,
+	storage = main
+);
+
+CREATE OR REPLACE FUNCTION PC_AsText(p pcpatch)
+	RETURNS text AS 'MODULE_PATHNAME', 'PC_PatchAsText'
+	LANGUAGE 'c' IMMUTABLE STRICT;
+
+
+
+
+-------------------------------------------------------------------
+--  SAMPLE DATA
+--
+
 INSERT INTO pointcloud_formats (pcid, srid, schema) VALUES (1, 4326, '<?xml version="1.0" encoding="UTF-8"?>
 <pc:PointCloudSchema xmlns:pc="http://pointcloud.org/schemas/PC/1.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <pc:dimension>

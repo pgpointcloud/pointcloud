@@ -8,8 +8,6 @@
     <pc:interpretation>int32_t</pc:interpretation>
     <pc:scale>0.01</pc:scale>
     <pc:active>true</pc:active>
-    <pc:uuid>2ee118d1-119e-4906-99c3-42934203f872</pc:uuid>
-    <pc:parent_uuid>00000000-0000-0000-0000-000000000000</pc:parent_uuid>
   </pc:dimension>
   <pc:dimension>
     <pc:position>2</pc:position>
@@ -19,8 +17,6 @@
     <pc:interpretation>int32_t</pc:interpretation>
     <pc:scale>0.01</pc:scale>
     <pc:active>true</pc:active>
-    <pc:uuid>87707eee-2f30-4979-9987-8ef747e30275</pc:uuid>
-    <pc:parent_uuid>00000000-0000-0000-0000-000000000000</pc:parent_uuid>
   </pc:dimension>
   <pc:dimension>
     <pc:position>3</pc:position>
@@ -30,8 +26,6 @@
     <pc:interpretation>int32_t</pc:interpretation>
     <pc:scale>0.01</pc:scale>
     <pc:active>true</pc:active>
-    <pc:uuid>e74b5e41-95e6-4cf2-86ad-e3f5a996da5d</pc:uuid>
-    <pc:parent_uuid>00000000-0000-0000-0000-000000000000</pc:parent_uuid>
   </pc:dimension>
   <pc:dimension>
     <pc:position>4</pc:position>
@@ -41,8 +35,6 @@
     <pc:interpretation>uint16_t</pc:interpretation>
     <pc:scale>1</pc:scale>
     <pc:active>true</pc:active>
-    <pc:uuid>61e90c9a-42fc-46c7-acd3-20d67bd5626f</pc:uuid>
-    <pc:parent_uuid>00000000-0000-0000-0000-000000000000</pc:parent_uuid>
   </pc:dimension>
   <pc:dimension>
     <pc:position>5</pc:position>
@@ -52,8 +44,6 @@
     <pc:interpretation>uint8_t</pc:interpretation>
     <pc:scale>1</pc:scale>
     <pc:active>true</pc:active>
-    <pc:uuid>ffe5e5f8-4cec-4560-abf0-448008f7b89e</pc:uuid>
-    <pc:parent_uuid>00000000-0000-0000-0000-000000000000</pc:parent_uuid>
   </pc:dimension>
   <pc:dimension>
     <pc:position>6</pc:position>
@@ -63,8 +53,6 @@
     <pc:interpretation>uint8_t</pc:interpretation>
     <pc:scale>1</pc:scale>
     <pc:active>true</pc:active>
-    <pc:uuid>7c28bfd4-a9ed-4fb2-b07f-931c076fbaf0</pc:uuid>
-    <pc:parent_uuid>00000000-0000-0000-0000-000000000000</pc:parent_uuid>
   </pc:dimension>
   <pc:dimension>
     <pc:position>7</pc:position>
@@ -74,8 +62,6 @@
     <pc:interpretation>uint8_t</pc:interpretation>
     <pc:scale>1</pc:scale>
     <pc:active>true</pc:active>
-    <pc:uuid>13019a2c-cf88-480d-a995-0162055fe5f9</pc:uuid>
-    <pc:parent_uuid>00000000-0000-0000-0000-000000000000</pc:parent_uuid>
   </pc:dimension>
   <pc:dimension>
     <pc:position>8</pc:position>
@@ -85,8 +71,6 @@
     <pc:interpretation>uint8_t</pc:interpretation>
     <pc:scale>1</pc:scale>
     <pc:active>true</pc:active>
-    <pc:uuid>108c18f2-5cc0-4669-ae9a-f41eb4006ea5</pc:uuid>
-    <pc:parent_uuid>00000000-0000-0000-0000-000000000000</pc:parent_uuid>
   </pc:dimension>
   <pc:dimension>
     <pc:position>9</pc:position>
@@ -96,8 +80,6 @@
     <pc:interpretation>uint8_t</pc:interpretation>
     <pc:scale>1</pc:scale>
     <pc:active>true</pc:active>
-    <pc:uuid>b4c67de9-cef1-432c-8909-7c751b2a4e0b</pc:uuid>
-    <pc:parent_uuid>00000000-0000-0000-0000-000000000000</pc:parent_uuid>
   </pc:dimension>
   <pc:dimension>
     <pc:position>10</pc:position>
@@ -107,8 +89,6 @@
     <pc:interpretation>int8_t</pc:interpretation>
     <pc:scale>1</pc:scale>
     <pc:active>true</pc:active>
-    <pc:uuid>aaadaf77-e0c9-4df0-81a7-27060794cd69</pc:uuid>
-    <pc:parent_uuid>00000000-0000-0000-0000-000000000000</pc:parent_uuid>
   </pc:dimension>
   <pc:dimension>
     <pc:position>11</pc:position>
@@ -118,8 +98,6 @@
     <pc:interpretation>uint8_t</pc:interpretation>
     <pc:scale>1</pc:scale>
     <pc:active>true</pc:active>
-    <pc:uuid>70eb558e-63d4-4804-b1db-fc2fd716927c</pc:uuid>
-    <pc:parent_uuid>00000000-0000-0000-0000-000000000000</pc:parent_uuid>
   </pc:dimension>
   <pc:dimension>
     <pc:position>12</pc:position>
@@ -129,8 +107,6 @@
     <pc:interpretation>uint16_t</pc:interpretation>
     <pc:scale>1</pc:scale>
     <pc:active>true</pc:active>
-    <pc:uuid>4e42e96a-6af0-4fdd-81cb-6216ff47bf6b</pc:uuid>
-    <pc:parent_uuid>00000000-0000-0000-0000-000000000000</pc:parent_uuid>
   </pc:dimension>
   <pc:dimension>
     <pc:position>13</pc:position>

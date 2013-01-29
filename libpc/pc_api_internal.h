@@ -63,6 +63,12 @@ static size_t INTERPRETATION_SIZES[NUM_INTERPRETATIONS] =
 	8, 4   /* PC_DOUBLE, PC_FLOAT */
 };
 
+/** What is the endianness of this system? */
+char machine_endian(void);
+
+/** Force a byte array into the machine endianness */
+uint8_t* uncompressed_bytes_flip_endian(const uint8_t *bytebuf, const PCSCHEMA *schema, uint32_t npoints);
+
 /** Read interpretation type from buffer and cast to double */
 double pc_double_from_ptr(const uint8_t *ptr, uint32_t interpretation);
 

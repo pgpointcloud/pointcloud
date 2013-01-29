@@ -34,19 +34,39 @@ Human-Readable Text
                ( <dim1>, <dim2>, <dim3>, <dim4> ), 
                ( <dim1>, <dim2>, <dim3>, <dim4> ) ]
 
-Uncompressed Binary
--------------------
+Point Binary
+------------
 
-    PCPOINT
+    byte:     endianness (1 = NDR, 0 = XDR)
+    uint32:   pcid (key to POINTCLOUD_SCHEMAS)
+    uchar[]:  pointdata (interpret relative to pcid)
+
+Patch Binary
+------------
+
+    byte:     endianness (1 = NDR, 0 = XDR)
+    uint32:   pcid (key to POINTCLOUD_SCHEMAS)
+    uint32:   compression (0 = no compression, 1 = dimensional, 2 = GHT)
+    uchar[]:  data (interpret relative to pcid and compression)
+
+Patch Binary (Uncompressed)
+---------------------------
+
+    byte:         endianness (1 = NDR, 0 = XDR)
+    uint32:       pcid (key to POINTCLOUD_SCHEMAS)
+    uint32:       0 = no compression
+    uint32:       npoints
+    pointdata[]:  interpret relative to pcid
+
+Patch Binary (Dimensional)
+--------------------------
+
+    byte:          endianness (1 = NDR, 0 = XDR)
+    uint32:        pcid (key to POINTCLOUD_SCHEMAS)
+    uint32:        1 = dimensional compression
+    dimensional[]: dimensionally compressed data for each dimension
+
+    /* dimensional compression */
+    byte:          dimensional compression type (0 = none, 1 = significant bits, 2 = deflate, 3 = run-length)
     
-    byte:     endianness (1 = NDR, 0 = XDR)
-    uint32:   pcid (key to POINTCLOUD_SCHEMAS)
-    uchar[]:  data (interpret relative to pcid)
-
-
-    PCPATCH
-
-    byte:     endianness (1 = NDR, 0 = XDR)
-    uint32:   pcid (key to POINTCLOUD_SCHEMAS)
-    uint32:   npoints
-    uchar[]:  data (interpret relative to pcid)
+    /* TO DO, more on dimensional compression contents */

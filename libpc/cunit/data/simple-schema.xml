@@ -17,7 +17,7 @@
     <pc:scale>0.01</pc:scale>
   </pc:dimension>
   <pc:dimension>
-    <pc:position>2</pc:position>
+    <pc:position>3</pc:position>
     <pc:size>4</pc:size>
     <pc:description>Z coordinate as a long integer. You must use the scale and offset information of the header to determine the double value.</pc:description>
     <pc:name>Z</pc:name>

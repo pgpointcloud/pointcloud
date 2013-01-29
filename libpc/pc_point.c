@@ -64,14 +64,6 @@ pc_point_from_data(const PCSCHEMA *s, const uint8_t *data)
 	return pt;
 }
 
-PCPOINT * 
-pc_point_from_data_rw(const PCSCHEMA *s, uint8_t *data)
-{
-	PCPOINT *pt = pc_point_from_data(s, data);
-	pt->readonly = PC_FALSE;
-	return pt;
-}
-
 
 void
 pc_point_free(PCPOINT *pt)
@@ -168,7 +160,7 @@ pc_point_get_y(const PCPOINT *pt)
 }
 
 char *
-pc_text_from_point(const PCPOINT *pt, size_t *sersize)
+pc_point_to_string(const PCPOINT *pt)
 {
 	/* ( <pcid> : <dim1>, <dim2>, <dim3>, <dim4> )*/
 	stringbuffer_t *sb = stringbuffer_create();
@@ -223,6 +215,65 @@ pc_point_from_double_array(const PCSCHEMA *s, double *array, uint32_t nelems)
 	}
 	
 	return pt;
-}	
+}
 
+PCPOINT *
+pc_point_from_wkb(const PCSCHEMA *schema, uint8_t *wkb, size_t wkblen)
+{
+	/*
+	byte:     endianness (1 = NDR, 0 = XDR)
+	uint32:   pcid (key to POINTCLOUD_SCHEMAS)
+	uchar[]:  data (interpret relative to pcid)
+	*/
+	const size_t hdrsz = 1+4; /* endian + pcid */
+	uint8_t wkb_endian;
+	uint32_t pcid;
+	uint8_t *data;
+	PCPOINT *pt;
 	
+	if ( ! wkblen )
+	{
+		pcerror("pc_point_from_wkb: zero length wkb");
+	}
+	
+	wkb_endian = wkb[0];
+	pcid = wkb_get_pcid(wkb);
+	
+	if ( (wkblen-hdrsz) != schema->size )
+	{
+		pcerror("pc_point_from_wkb: wkb size inconsistent with schema size");
+	}
+	
+	if ( wkb_endian != machine_endian() )
+	{
+		/* uncompressed_bytes_flip_endian creates a flipped copy */
+		data = uncompressed_bytes_flip_endian(wkb+hdrsz, schema, 1);
+	}
+	else
+	{
+		data = pcalloc(schema->size);
+		memcpy(data, wkb+hdrsz, wkblen-hdrsz);
+	}
+
+	pt = pc_point_from_data(schema, data);
+	pt->readonly = PC_FALSE;
+	return pt;
+}
+
+uint8_t *
+pc_point_to_wkb(const PCPOINT *pt, size_t *wkbsize)
+{
+	/*
+	byte:     endianness (1 = NDR, 0 = XDR)
+	uint32:   pcid (key to POINTCLOUD_SCHEMAS)
+	uchar[]:  data (interpret relative to pcid)
+	*/
+	char endian = machine_endian();
+	size_t size = 1 + 4 + pt->schema->size;
+	uint8_t *wkb = pcalloc(size);
+	wkb[0] = endian; /* Write endian flag */
+	memcpy(wkb + 1, &(pt->schema->pcid), 4); /* Write PCID */
+	memcpy(wkb + 5, pt->data, pt->schema->size); /* Write data */
+	if ( wkbsize ) *wkbsize = size;
+	return wkb;
+}

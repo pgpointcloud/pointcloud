@@ -93,205 +93,69 @@ _PG_fini(void)
 
 
 /**********************************************************************************
-* WKB AND ENDIANESS UTILITIES
+* PCPOINT WKB Handling
 */
-
-
-
-/* Our static character->number map. Anything > 15 is invalid */
-static uint8_t hex2char[256] = {
-	/* not Hex characters */
-	20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,
-	20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,
-	20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,
-	/* 0-9 */
-	0,1,2,3,4,5,6,7,8,9,20,20,20,20,20,20,
-	/* A-F */
-	20,10,11,12,13,14,15,20,20,20,20,20,20,20,20,20,
-	/* not Hex characters */
-	20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,
-	/* a-f */
-	20,10,11,12,13,14,15,20,20,20,20,20,20,20,20,20,
-	20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,
-	/* not Hex characters (upper 128 characters) */
-	20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,
-	20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,
-	20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,
-	20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,
-	20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,
-	20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,
-	20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,
-	20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20
-};
-
-
-uint8_t* 
-bytes_from_hexbytes(const char *hexbuf, size_t hexsize)
-{
-	uint8_t *buf = NULL;
-	register uint8_t h1, h2;
-	int i;
-
-	if( hexsize % 2 )
-		pcerror("Invalid hex string, length (%d) has to be a multiple of two!", hexsize);
-
-	buf = palloc(hexsize/2);
-
-	if( ! buf )
-		pcerror("Unable to allocate memory buffer.");
-
-	for( i = 0; i < hexsize/2; i++ )
-	{
-		h1 = hex2char[(int)hexbuf[2*i]];
-		h2 = hex2char[(int)hexbuf[2*i+1]];
-		if( h1 > 15 )
-			pcerror("Invalid hex character (%c) encountered", hexbuf[2*i]);
-		if( h2 > 15 )
-			pcerror("Invalid hex character (%c) encountered", hexbuf[2*i+1]);
-		/* First character is high bits, second is low bits */
-		buf[i] = ((h1 & 0x0F) << 4) | (h2 & 0x0F);
-	}
-	return buf;
-}
-
-char* 
-hexbytes_from_bytes(const uint8_t *bytebuf, size_t bytesize)
-{
-	char *buf = palloc(2*bytesize + 1); /* 2 chars per byte + null terminator */
-	int i;
-	char *ptr = buf;
-	
-	for ( i = 0; i < bytesize; i++ )
-	{
-		int incr = snprintf(ptr, 3, "%02X", bytebuf[i]);
-		if ( incr < 0 )
-		{
-			pcerror("write failure in hexbytes_from_bytes");
-			return NULL;
-		}
-		ptr += incr;
-	}
-	
-	return buf;
-}
-
-char
-machine_endian(void)
-{
-	static int check_int = 1; /* dont modify this!!! */
-	return *((char *) &check_int); /* 0 = big endian | xdr,
-	                               * 1 = little endian | ndr
-	                               */
-}
-
-static int32_t
-int32_flip_endian(int32_t val)
-{
-	int i;
-	uint8_t tmp;
-	uint8_t b[4];
-	memcpy(b, &val, 4);
-	for ( i = 0; i < 2; i++ )
-	{
-		tmp = b[i];
-		b[i] = b[3-i];
-		b[3-i] = tmp;
-	}
-	memcpy(&val, b, 4);
-	return val;
-}
-
-uint32_t
-wkb_get_pcid(uint8_t *wkb)
-{
-	/* We expect the bytes to be in WKB format for PCPOINT/PCPATCH */
-	/* byte 0:   endian */
-	/* byte 1-4: pcid */
-	/* ...data... */
-	
-	uint8_t wkb_endian = wkb[0];
-	uint32_t pcid;
-	memcpy(&pcid, wkb + 1, 4);
-	if ( wkb_endian != machine_endian() )
-	{
-		pcid = int32_flip_endian(pcid);
-	}
-	return pcid;
-}
 
 PCPOINT *
 pc_point_from_hexwkb(const char *hexwkb, size_t hexlen)
 {
 	PCPOINT *pt;
+	PCSCHEMA *schema;
+	uint32_t pcid;
 	uint8_t *wkb = bytes_from_hexbytes(hexwkb, hexlen);
 	size_t wkblen = hexlen/2;
-	pt = pc_point_from_wkb(wkb, wkblen);
+	pcid = wkb_get_pcid(wkb);	
+	schema = pc_schema_get_by_id(pcid);
+	pt = pc_point_from_wkb(schema, wkb, wkblen);	
 	pfree(wkb);
 	return pt;
 }
 
-PCPOINT *
-pc_point_from_wkb(uint8_t *wkb, size_t wkblen)
+char *
+pc_point_to_hexwkb(const PCPOINT *pt)
 {
-	/*
-	byte:     endianness (1 = NDR, 0 = XDR)
-	uint32:   pcid (key to POINTCLOUD_SCHEMAS)
-	uchar[]:  data (interpret relative to pcid)
-	*/
-	const size_t hdrsz = 1+4; /* endian + pcid */
-	uint8_t wkb_endian;
-	uint32_t pcid;
-	uint8_t *data;
+	uint8_t *wkb;
+	size_t wkb_size;
+	char *hexwkb;
+	
+	wkb = pc_point_to_wkb(pt, &wkb_size);
+	hexwkb = hexbytes_from_bytes(wkb, wkb_size);
+	pfree(wkb);
+	return hexwkb;
+}
+
+
+/**********************************************************************************
+* PCPATCH WKB Handling
+*/
+
+PCPATCH *
+pc_patch_from_hexwkb(const char *hexwkb, size_t hexlen)
+{
+	PCPATCH *patch;
 	PCSCHEMA *schema;
-	PCPOINT *pt;
-	
-	if ( ! wkblen )
-	{
-		elog(ERROR, "pc_point_from_wkb: zero length wkb");
-	}
-	
-	wkb_endian = wkb[0];
-	pcid = wkb_get_pcid(wkb);
+	uint32_t pcid;
+	uint8_t *wkb = bytes_from_hexbytes(hexwkb, hexlen);
+	size_t wkblen = hexlen/2;
+	pcid = wkb_get_pcid(wkb);	
 	schema = pc_schema_get_by_id(pcid);
-	
-	if ( (wkblen-hdrsz) != schema->size )
-	{
-		elog(ERROR, "pc_point_from_wkb: wkb size inconsistent with schema size");
-	}
-	
-	if ( wkb_endian != machine_endian() )
-	{
-		/* bytes_flip_endian creates a flipped copy */
-		data = bytes_flip_endian(wkb+hdrsz, schema, 1);
-	}
-	else
-	{
-		data = palloc(schema->size);
-		memcpy(data, wkb+hdrsz, wkblen-hdrsz);
-	}
-
-	pt = pc_point_from_data_rw(schema, data);
-	return pt;
+	patch = pc_patch_from_wkb(schema, wkb, wkblen);	
+	pfree(wkb);
+	return patch;
 }
 
-uint8_t *
-wkb_from_point(const PCPOINT *pt, size_t *wkbsize)
+char *
+pc_patch_to_hexwkb(const PCPATCH *patch)
 {
-	/*
-	byte:     endianness (1 = NDR, 0 = XDR)
-	uint32:   pcid (key to POINTCLOUD_SCHEMAS)
-	uchar[]:  data (interpret relative to pcid)
-	*/
-	char endian = machine_endian();
-	size_t size = 1 + 4 + pt->schema->size;
-	uint8_t *wkb = palloc(size);
-	wkb[0] = endian; /* Write endian flag */
-	memcpy(wkb + 1, &(pt->schema->pcid), 4); /* Write PCID */
-	memcpy(wkb + 5, pt->data, pt->schema->size); /* Write data */
-	*wkbsize = size;
-	return wkb;
+	uint8_t *wkb;
+	size_t wkb_size;
+	char *hexwkb;
+	
+	wkb = pc_patch_to_wkb(patch, &wkb_size);
+	hexwkb = hexbytes_from_bytes(wkb, wkb_size);
+	pfree(wkb);
+	return hexwkb;
 }
-
 
 
 /**********************************************************************************
@@ -409,43 +273,49 @@ pc_point_deserialize(const SERIALIZED_POINT *serpt)
 	return pcpt;
 }
 
+
 SERIALIZED_PATCH * 
 pc_patch_serialize(const PCPATCH *pcpch)
 {
-	size_t serpch_size = sizeof(SERIALIZED_PATCH) - 1 + pcpch->schema->size * pcpch->npoints;
-	SERIALIZED_PATCH *serpch = palloc(serpch_size);
-	serpch->pcid = pcpch->schema->pcid;
-	serpch->npoints = pcpch->npoints;
-	serpch->xmin = pcpch->xmin;
-	serpch->ymin = pcpch->ymin;
-	serpch->xmax = pcpch->xmax;
-	serpch->ymax = pcpch->ymax;
-	memcpy(serpch->data, pcpch->data, pcpch->npoints * pcpch->schema->size);
+	size_t serpch_size;
+	PCPATCH *patch;
+	SERIALIZED_PATCH *serpch;
+	
+	/* Compress uncompressed patches before saving */
+	patch = pc_patch_compress(pcpch);
+	
+	/* Allocate */
+	serpch_size = sizeof(SERIALIZED_PATCH) - 1 + patch->datasize;
+	serpch = palloc(serpch_size);
+	
+	/* Copy */
+	serpch->pcid = patch->schema->pcid;
+	serpch->npoints = patch->npoints;
+	serpch->xmin = patch->xmin;
+	serpch->ymin = patch->ymin;
+	serpch->xmax = patch->xmax;
+	serpch->ymax = patch->ymax;
+	memcpy(serpch->data, patch->data, patch->datasize);
 	SET_VARSIZE(serpch, serpch_size);
 	return serpch;
 }
 
 PCPATCH *
-pc_patch_deserlialize(const SERIALIZED_PATCH *serpatch)
+pc_patch_deserialize(const SERIALIZED_PATCH *serpatch)
 {
 	PCPATCH *patch;
 	PCSCHEMA *schema = pc_schema_get_by_id(serpatch->pcid);
-	/* on-disk size - size:int32 - pcid:int32 - npoints:int32 - 4*minmax:double = patch data size */
-	size_t pgsize = VARSIZE(serpatch) - 3*4 - 4*8; 
-	if ( schema->size*serpatch->npoints != pgsize )
-	{
-		elog(ERROR, "schema size and disk size mismatch, repair the schema");
-		return NULL;
-	}
 	
 	/* Reference the external data */
 	patch = pcalloc(sizeof(PCPATCH));
 	patch->data = (uint8_t*)serpatch->data;
-	
+
 	/* Set up basic info */
 	patch->schema = schema;
 	patch->readonly = true;
+	patch->compressed = true;
 	patch->npoints = serpatch->npoints;
+	patch->maxpoints = 0;
 	patch->xmin = serpatch->xmin;
 	patch->ymin = serpatch->ymin;
 	patch->xmax = serpatch->xmax;

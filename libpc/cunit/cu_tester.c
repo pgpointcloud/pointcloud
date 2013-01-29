@@ -15,6 +15,7 @@
 /* ADD YOUR SUITE HERE (1 of 2) */
 extern CU_SuiteInfo schema_suite;
 extern CU_SuiteInfo patch_suite;
+extern CU_SuiteInfo point_suite;
 
 /*
 ** The main() function for setting up and running the tests.
@@ -28,6 +29,7 @@ int main(int argc, char *argv[])
 	{
 		schema_suite,
 		patch_suite,
+		point_suite,
 		CU_SUITE_INFO_NULL
 	};
 
