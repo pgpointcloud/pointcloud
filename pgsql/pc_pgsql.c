@@ -246,7 +246,7 @@ pc_schema_get_by_id(uint32_t pcid)
 SERIALIZED_POINT * 
 pc_point_serialize(const PCPOINT *pcpt)
 {
-	size_t serpt_size = sizeof(SERIALIZED_POINT) - 1 + pcpt->schema->size;
+	size_t serpt_size = 4 + 4 + pcpt->schema->size;
 	SERIALIZED_POINT *serpt = palloc(serpt_size);
 	serpt->pcid = pcpt->schema->pcid;
 	memcpy(serpt->data, pcpt->data, pcpt->schema->size);
@@ -259,7 +259,7 @@ pc_point_deserialize(const SERIALIZED_POINT *serpt)
 {
 	PCPOINT *pcpt;
 	PCSCHEMA *schema = pc_schema_get_by_id(serpt->pcid);
-	size_t pgsize = VARSIZE(serpt) - 8; /* on-disk size - size:int32 - pcid:int32 == point data size */
+	size_t pgsize = VARSIZE(serpt) - 4 - 4; /* on-disk size - size:int32 - pcid:int32 == point data size */
 	/* 
 	* Big problem, the size on disk doesn't match what we expect, 
 	* so we cannot reliably interpret the contents.
