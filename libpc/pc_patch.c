@@ -163,39 +163,49 @@ pc_patch_add_point(PCPATCH *c, const PCPOINT *p)
 
 
 PCPATCH * 
-pc_patch_from_points(const PCPOINT **pts, uint32_t numpts)
+pc_patch_from_points(const PCPOINTLIST *pl)
 {
 	PCPATCH *pch;
 	const PCSCHEMA *s;
 	uint8_t *ptr;
 	int i;
+	uint32_t numpts;
 	
-	if ( ! numpts )
+	if ( ! pl )
 	{
-		pcerror("zero point count passed into pc_patch_from_points");
+		pcerror("null PCPOINTLIST passed into pc_patch_from_points");
 		return NULL;
 	}
 
-	if ( ! pts )
+	numpts = pl->npoints;
+	if ( ! numpts )
 	{
-		pcerror("null point array passed into pc_patch_from_points");
+		pcerror("zero size PCPOINTLIST passed into pc_patch_from_points");
 		return NULL;
 	}
-	
+
 	/* Assume the first PCSCHEMA is the same as the rest for now */
 	/* We will check this as we go along */
-	s = pts[0]->schema;
+	s = pl->points[0]->schema;
+
+	/* Confirm we have a schema pointer */
+	if ( ! s )
+	{
+		pcerror("pc_patch_from_points: null schema encountered");
+		return NULL;
+	}
 	
 	/* Confirm width of a point data buffer */
 	if ( ! s->size )
 	{
-		pcerror("invalid point size in pc_patch_from_points");
+		pcerror("pc_patch_from_points: invalid point size");
 		return NULL;
 	}
 
 	/* Make our own data area */
 	pch = pcalloc(sizeof(PCPATCH)); 
-	pch->data = pcalloc(s->size * numpts);
+	pch->datasize = s->size * numpts;
+	pch->data = pcalloc(pch->datasize);
 	ptr = pch->data;
 
 	/* Initialize bounds */
@@ -211,21 +221,27 @@ pc_patch_from_points(const PCPOINT **pts, uint32_t numpts)
 
 	for ( i = 0; i < numpts; i++ )
 	{
-		if ( pts[i] )
+		if ( pl->points[i] )
 		{
-			if ( pts[i]->schema != s )
+			if ( pl->points[i]->schema != s )
 			{
-				pcerror("points do not share a schema in pc_patch_from_points");
+				pcerror("pc_patch_from_points: points do not share a schema");
 				return NULL;
 			}
-			memcpy(ptr, pts[i]->data, s->size);
+			memcpy(ptr, pl->points[i]->data, s->size);
 			pch->npoints++;
 			ptr += s->size;
 		}
 		else
 		{
-			pcwarn("encountered null point in pc_patch_from_points");
+			pcwarn("pc_patch_from_points: encountered null point");
 		}
+	}
+
+	if ( ! pc_patch_compute_extent(pch) )
+	{
+		pcerror("pc_patch_from_points: failed to compute patch extent");
+		return NULL;
 	}
 
 	return pch;	
@@ -411,10 +427,10 @@ pc_patch_from_wkb(const PCSCHEMA *s, uint8_t *wkb, size_t wkbsize)
 	pcid = wkb_get_pcid(wkb);
 	compression = wkb_get_compression(wkb);
 
-	if ( compression != s->compression )
-	{
-		pcerror("pc_patch_from_wkb: wkb compression (%d) not consistent with schema compression (%d)", compression, s->compression);
-	}
+	// if ( compression != s->compression )
+	// {
+	// 	pcerror("pc_patch_from_wkb: wkb compression (%d) not consistent with schema compression (%d)", compression, s->compression);
+	// }
 	if ( pcid != s->pcid )
 	{
 		pcerror("pc_patch_from_wkb: wkb pcid (%d) not consistent with schema pcid (%d)", pcid, s->pcid);
@@ -443,6 +459,32 @@ pc_patch_from_wkb(const PCSCHEMA *s, uint8_t *wkb, size_t wkbsize)
 	return NULL;
 }
 
+static uint8_t *
+pc_patch_to_wkb_uncompressed(const PCPATCH *patch, size_t *wkbsize)
+{
+	/*
+    byte:     endianness (1 = NDR, 0 = XDR)
+    uint32:   pcid (key to POINTCLOUD_SCHEMAS)
+    uint32:   compression (0 = no compression, 1 = dimensional, 2 = GHT)
+    uint32:   npoints
+    uchar[]:  data (interpret relative to pcid)
+	*/
+	char endian = machine_endian();
+	/* endian + pcid + compression + npoints + datasize */
+	size_t size = 1 + 4 + 4 + 4 + patch->datasize;
+	uint8_t *wkb = pcalloc(size);
+	uint32_t compression = patch->schema->compression;
+	uint32_t npoints = patch->npoints;
+	uint32_t pcid = patch->schema->pcid;
+	wkb[0] = endian; /* Write endian flag */
+	memcpy(wkb + 1, &pcid,        4); /* Write PCID */
+	memcpy(wkb + 5, &compression, 4); /* Write compression */
+	memcpy(wkb + 9, &npoints,     4); /* Write npoints */
+	memcpy(wkb + 13, patch->data, patch->datasize); /* Write data */
+	if ( wkbsize ) *wkbsize = size;
+	return wkb;	
+}
+
 uint8_t *
 pc_patch_to_wkb(const PCPATCH *patch, size_t *wkbsize)
 {
@@ -452,14 +494,26 @@ pc_patch_to_wkb(const PCPATCH *patch, size_t *wkbsize)
     uint32:   compression (0 = no compression, 1 = dimensional, 2 = GHT)
     uchar[]:  data (interpret relative to pcid and compression)
 	*/
-	char endian = machine_endian();
-	size_t size = 1 + 4 + 4 + patch->datasize;
-	uint8_t *wkb = pcalloc(size);
-	wkb[0] = endian; /* Write endian flag */
-	memcpy(wkb + 1, &(patch->schema->pcid), 4); /* Write PCID */
-	memcpy(wkb + 5, patch->data, patch->datasize); /* Write data */
-	if ( wkbsize ) *wkbsize = size;
-	return wkb;
+
+	switch ( patch->schema->compression )
+	{
+		case PC_NONE:
+		{
+			return pc_patch_to_wkb_uncompressed(patch, wkbsize);
+		}
+		case PC_GHT:
+		{
+			pcerror("pc_patch_to_wkb: GHT compression not yet supported");
+			return NULL;
+		}
+		case PC_DIMENSIONAL:
+		{
+			pcerror("pc_patch_to_wkb: Dimensional compression not yet supported");
+			return NULL;
+		}
+	}	
+	pcerror("pc_patch_to_wkb: unknown compression requested '%d'", patch->schema->compression);
+	return NULL;
 }
 
 char *

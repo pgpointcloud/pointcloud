@@ -97,7 +97,7 @@ machine_endian(void)
 	static int check_int = 1; /* dont modify this!!! */
 	return *((char *) &check_int); /* 0 = big endian | xdr,
 	                               * 1 = little endian | ndr
-	                               */
+                                   */
 }
 
 int32_t
@@ -171,7 +171,7 @@ wkb_get_npoints(uint8_t *wkb)
 	/* byte 0:   endian */
 	/* byte 1-4: pcid */
 	/* byte 5-8: compression */
-	/* byte 9-12: compression */
+	/* byte 9-12: npoints */
 	/* ...data... */
 	uint32_t npoints;
 	memcpy(&npoints, wkb+1+4+4, 4);

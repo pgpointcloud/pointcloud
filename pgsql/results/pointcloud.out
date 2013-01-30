@@ -1,0 +1,78 @@
+CREATE EXTENSION pointcloud;
+INSERT INTO pointcloud_formats (pcid, srid, schema)
+VALUES (1, 0, 
+'<?xml version="1.0" encoding="UTF-8"?>
+<pc:PointCloudSchema xmlns:pc="http://pointcloud.org/schemas/PC/1.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <pc:dimension>
+    <pc:position>1</pc:position>
+    <pc:size>4</pc:size>
+    <pc:description>X coordinate as a long integer. You must use the scale and offset information of the header to determine the double value.</pc:description>
+    <pc:name>X</pc:name>
+    <pc:interpretation>int32_t</pc:interpretation>
+    <pc:scale>0.01</pc:scale>
+  </pc:dimension>
+  <pc:dimension>
+    <pc:position>2</pc:position>
+    <pc:size>4</pc:size>
+    <pc:description>Y coordinate as a long integer. You must use the scale and offset information of the header to determine the double value.</pc:description>
+    <pc:name>Y</pc:name>
+    <pc:interpretation>int32_t</pc:interpretation>
+    <pc:scale>0.01</pc:scale>
+  </pc:dimension>
+  <pc:dimension>
+    <pc:position>3</pc:position>
+    <pc:size>4</pc:size>
+    <pc:description>Z coordinate as a long integer. You must use the scale and offset information of the header to determine the double value.</pc:description>
+    <pc:name>Z</pc:name>
+    <pc:interpretation>int32_t</pc:interpretation>
+    <pc:scale>0.01</pc:scale>
+  </pc:dimension>
+  <pc:dimension>
+    <pc:position>4</pc:position>
+    <pc:size>2</pc:size>
+    <pc:description>The intensity value is the integer representation of the pulse return magnitude. This value is optional and system specific. However, it should always be included if available.</pc:description>
+    <pc:name>Intensity</pc:name>
+    <pc:interpretation>uint16_t</pc:interpretation>
+    <pc:scale>1</pc:scale>
+  </pc:dimension>
+  <pc:metadata>
+    <Metadata name="compression"></Metadata>
+    <Metadata name="ght_xmin"></Metadata>
+    <Metadata name="ght_ymin"></Metadata>
+    <Metadata name="ght_xmax"></Metadata>
+    <Metadata name="ght_ymax"></Metadata>
+    <Metadata name="ght_keylength"></Metadata>
+    <Metadata name="ght_depth"></Metadata>
+    <Metadata name="spatialreference" type="id">4326</Metadata>
+  </pc:metadata>
+</pc:PointCloudSchema>'
+);
+CREATE TABLE pt_test (
+	pt PCPOINT
+);
+INSERT INTO pt_test (pt) VALUES ('00000000010000000100000002000000030004');
+INSERT INTO pt_test (pt) VALUES ('00000000010000000200000003000000030005');
+INSERT INTO pt_test (pt) VALUES ('00000000010000000300000004000000030006');
+SELECT PC_Get(pt, 'Intensity') FROM pt_test;
+ pc_get 
+--------
+      4
+      5
+      6
+(3 rows)
+
+SELECT Sum(PC_Get(pt, 'y')) FROM pt_test;
+ sum  
+------
+ 0.09
+(1 row)
+
+SELECT PC_AsText(pt) FROM pt_test;
+          pc_astext          
+-----------------------------
+ ( 1 : 0.01, 0.02, 0.03, 4 )
+ ( 1 : 0.02, 0.03, 0.03, 5 )
+ ( 1 : 0.03, 0.04, 0.03, 6 )
+(3 rows)
+
+DROP TABLE pt_test;

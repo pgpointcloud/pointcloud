@@ -40,8 +40,8 @@ enum COMPRESSIONS
 */
 enum ENDIANS
 {
-	PC_NDR, /* Little */
-	PC_XDR  /* Big */
+	PC_XDR = 0,   /* Big */
+	PC_NDR = 1    /* Little */
 };
 
 
@@ -253,7 +253,7 @@ char* pc_point_to_string(const PCPOINT *pt);
 PCPATCH* pc_patch_make(const PCSCHEMA *s);
 
 /** Create new PCPATCH from a PCPOINT set. Copies data, doesn't take ownership of points */
-PCPATCH* pc_patch_from_points(const PCPOINT **pts, uint32_t numpts);
+PCPATCH* pc_patch_from_points(const PCPOINTLIST *pl);
 
 /** Returns a list of points extracted from patch */
 PCPOINTLIST* pc_patch_to_points(const PCPATCH *patch);

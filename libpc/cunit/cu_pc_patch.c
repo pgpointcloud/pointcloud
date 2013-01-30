@@ -87,7 +87,7 @@ test_endian_flip()
 }
 
 static void 
-test_patch_hex_inout()
+test_patch_hex_in()
 {
 	// 00 endian
 	// 00000000 pcid
@@ -118,12 +118,67 @@ test_patch_hex_inout()
 }
 
 
+static void 
+test_patch_hex_out()
+{
+	// 00 endian
+	// 00000000 pcid
+	// 00000000 compression
+	// 00000002 npoints
+	// 0000000200000003000000050006 pt1 (XYZi)
+	// 0000000200000003000000050008 pt2 (XYZi)
+	
+	static char *wkt_result = "[ 0 : (0.02, 0.03, 0.05, 6), (0.02, 0.03, 0.05, 8) ]";
+	static char *hexresult_xdr = 
+	   "0000000000000000000000000200000002000000030000000500060000000200000003000000050008";
+	static char *hexresult_ndr = 
+	   "0100000000000000000200000002000000030000000500000006000200000003000000050000000800";
+
+	double d0[4] = { 0.02, 0.03, 0.05, 6 };
+	double d1[4] = { 0.02, 0.03, 0.05, 8 };
+
+	PCPOINT *pt0 = pc_point_from_double_array(simpleschema, d0, 4);
+	PCPOINT *pt1 = pc_point_from_double_array(simpleschema, d1, 4);
+
+	PCPOINTLIST *pl = pc_pointlist_make(2);
+	PCPATCH *pa;		
+	uint8_t *wkb;
+	size_t wkbsize;
+	char *hexwkb;
+	
+	pl->points[0] = pt0;
+	pl->points[1] = pt1;
+	pl->npoints = 2;
+	
+	pa = pc_patch_from_points(pl);
+	wkb = pc_patch_to_wkb(pa, &wkbsize);
+	// printf("wkbsize %zu\n", wkbsize);
+	hexwkb = hexbytes_from_bytes(wkb, wkbsize);
+
+	// printf("hexwkb %s\n", hexwkb);
+	// printf("hexresult_ndr %s\n", hexresult_ndr);
+	// printf("machine_endian %d\n", machine_endian());
+	if ( machine_endian() == PC_NDR )
+	{
+		CU_ASSERT_STRING_EQUAL(hexwkb, hexresult_ndr);
+	}
+	else
+	{
+		CU_ASSERT_STRING_EQUAL(hexwkb, hexresult_xdr);
+	}
+	
+	pc_pointlist_free(pl);
+	pc_patch_free(pa);
+	pcfree(hexwkb);	
+	pcfree(wkb);	
+}
 
 /* REGISTER ***********************************************************/
 
 CU_TestInfo patch_tests[] = {
 	PG_TEST(test_endian_flip),
-	PG_TEST(test_patch_hex_inout),
+	PG_TEST(test_patch_hex_in),
+	PG_TEST(test_patch_hex_out),
 	CU_TEST_INFO_NULL
 };
 

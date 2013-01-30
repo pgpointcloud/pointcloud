@@ -197,6 +197,15 @@ pc_schema_calculate_byteoffsets(const PCSCHEMA *pcs)
 	}
 }
 
+static void pc_schema_check_xy(const PCSCHEMA *s)
+{
+	if ( s->x_position < 0 )
+		pcerror("pc_schema_check_xy: invalid x_position '%d'", s->x_position);
+	
+	if ( s->y_position < 0 )
+		pcerror("pc_schema_check_xy: invalid y_position '%d'", s->y_position);
+}
+
 /** Population a PCSCHEMA struct from the XML representation */
 int
 pc_schema_from_xml(const char *xml_str, PCSCHEMA **schema)
@@ -276,7 +285,7 @@ pc_schema_from_xml(const char *xml_str, PCSCHEMA **schema)
 				xmlNodePtr cur = nodes->nodeTab[i];
 				xmlNodePtr child;
 				PCDIMENSION *d = pc_dimension_new();
-				int is_x = 0, is_y = 0;
+				char xydim = 0;
 				
 				/* These are the values of the dimension */
 				for ( child = cur->children; child; child = child->next )
@@ -286,16 +295,16 @@ pc_schema_from_xml(const char *xml_str, PCSCHEMA **schema)
 						if ( strcmp(child->name, "name") == 0 )
 						{
 							if ( strcasecmp(child->children->content, "X") == 0 ||
-							     strcasecmp(child->children->content, "Longitude") ||
-							     strcasecmp(child->children->content, "Lon") )
+							     strcasecmp(child->children->content, "Longitude") == 0 ||
+							     strcasecmp(child->children->content, "Lon") == 0 )
 							{
-								is_x = 1;
+								xydim = 'x';
 							}
 							if ( strcasecmp(child->children->content, "Y") == 0 ||
-							     strcasecmp(child->children->content, "Latitude") ||
-							     strcasecmp(child->children->content, "Lat") )
+							     strcasecmp(child->children->content, "Latitude") == 0 ||
+							     strcasecmp(child->children->content, "Lat") == 0 )
 							{
-								is_y = 1;
+								xydim = 'y';
 							}
 							d->name = pcstrdup(child->children->content);
 						}
@@ -336,8 +345,8 @@ pc_schema_from_xml(const char *xml_str, PCSCHEMA **schema)
 					s->dims[d->position] = d;
 					d->size = pc_interpretation_size(d->interpretation);
 					s->size += d->size;
-					if ( is_x ) { s->x_position = d->position; }
-					if ( is_y ) { s->y_position = d->position; }
+					if ( xydim == 'x' ) { s->x_position = d->position; }
+					if ( xydim == 'y' ) { s->y_position = d->position; }
 					hashtable_insert(s->namehash, pcstrdup(d->name), d);
 				}
 				else
@@ -355,6 +364,9 @@ pc_schema_from_xml(const char *xml_str, PCSCHEMA **schema)
 		
 		/* Complete the byte offsets of dimensions from the ordered sizes */
 		pc_schema_calculate_byteoffsets(s);
+		/* Check X/Y positions */
+		pc_schema_check_xy(s);
+		
 		
 	}
 	
