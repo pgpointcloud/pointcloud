@@ -60,4 +60,6 @@ INSERT INTO pt_test (pt) VALUES ('00000000010000000300000004000000030006');
 SELECT PC_Get(pt, 'Intensity') FROM pt_test;
 SELECT Sum(PC_Get(pt, 'y')) FROM pt_test;
 
+SELECT PC_AsText(pt) FROM pt_test;
+
 DROP TABLE pt_test;

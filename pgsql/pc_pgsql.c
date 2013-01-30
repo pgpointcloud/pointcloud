@@ -284,8 +284,8 @@ pc_patch_serialize(const PCPATCH *pcpch)
 	/* Compress uncompressed patches before saving */
 	patch = pc_patch_compress(pcpch);
 	
-	/* Allocate */
-	serpch_size = sizeof(SERIALIZED_PATCH) - 1 + patch->datasize;
+	/* Allocate: size(int4) + pcid(int4) + npoints(int4) + box(4*float8) + data(?) */
+	serpch_size = 4+4+4+4*8+patch->datasize; 
 	serpch = palloc(serpch_size);
 	
 	/* Copy */

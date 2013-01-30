@@ -176,6 +176,7 @@ pc_point_to_string(const PCPOINT *pt)
 		}
 		stringbuffer_aprintf(sb, "%g", pc_point_get_double_by_index(pt, i));
 	}
+	stringbuffer_append(sb, " )");
 	str = stringbuffer_getstringcopy(sb);
 	stringbuffer_destroy(sb);
 	return str;

@@ -152,8 +152,8 @@ stringbuffer_getstringcopy(stringbuffer_t *s)
 {
 	size_t size = (s->str_end - s->str_start) + 1;
 	char *str = malloc(size);
-	memcpy(str, s->str_start, size);
-	str[size - 1] = '\0';
+	memcpy(str, s->str_start, size-1);
+	str[size-1] = '\0';
 	return str;
 }
 

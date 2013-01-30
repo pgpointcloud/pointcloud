@@ -67,4 +67,12 @@ SELECT Sum(PC_Get(pt, 'y')) FROM pt_test;
  0.09
 (1 row)
 
+SELECT PC_AsText(pt) FROM pt_test;
+          pc_astext          
+-----------------------------
+ ( 1 : 0.01, 0.02, 0.03, 4 )
+ ( 1 : 0.02, 0.03, 0.03, 5 )
+ ( 1 : 0.03, 0.04, 0.03, 6 )
+(3 rows)
+
 DROP TABLE pt_test;
