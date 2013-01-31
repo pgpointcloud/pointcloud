@@ -1,3 +1,12 @@
+/***********************************************************************
+* pc_pgsql.h
+*
+*  Common header file for all PgSQL pointcloud functions.
+*
+* Portions Copyright (c) 2012, OpenGeo
+*
+***********************************************************************/
+
 #include "pc_api.h"
 
 #include "postgres.h"

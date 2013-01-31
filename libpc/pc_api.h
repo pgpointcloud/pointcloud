@@ -10,11 +10,11 @@
 #ifndef _PC_API_H
 #define _PC_API_H
 
+#include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
-#include <stdarg.h>
 
 #include "hashtable.h"
 

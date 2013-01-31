@@ -140,15 +140,15 @@ test_patch_hex_out()
 	PCPOINT *pt0 = pc_point_from_double_array(simpleschema, d0, 4);
 	PCPOINT *pt1 = pc_point_from_double_array(simpleschema, d1, 4);
 
-	PCPOINTLIST *pl = pc_pointlist_make(2);
 	PCPATCH *pa;		
 	uint8_t *wkb;
 	size_t wkbsize;
 	char *hexwkb;
-	
-	pl->points[0] = pt0;
-	pl->points[1] = pt1;
-	pl->npoints = 2;
+	char *wkt;
+
+	PCPOINTLIST *pl = pc_pointlist_make(2);
+	pc_pointlist_add_point(pl, pt0);
+	pc_pointlist_add_point(pl, pt1);
 	
 	pa = pc_patch_from_points(pl);
 	wkb = pc_patch_to_wkb(pa, &wkbsize);
@@ -167,10 +167,14 @@ test_patch_hex_out()
 		CU_ASSERT_STRING_EQUAL(hexwkb, hexresult_xdr);
 	}
 	
+	wkt = pc_patch_to_string(pa);
+	CU_ASSERT_STRING_EQUAL(wkt, wkt_result);
+	
 	pc_pointlist_free(pl);
 	pc_patch_free(pa);
-	pcfree(hexwkb);	
-	pcfree(wkb);	
+	pcfree(hexwkb);
+	pcfree(wkb);
+	pcfree(wkt);
 }
 
 /* REGISTER ***********************************************************/

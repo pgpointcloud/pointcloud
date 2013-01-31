@@ -1,3 +1,11 @@
+/***********************************************************************
+* pc_inout.c
+*
+*  Input/output functions for points and patches in PgSQL.
+*
+* Portions Copyright (c) 2012, OpenGeo
+*
+***********************************************************************/
 
 #include "pc_pgsql.h"      /* Common PgSQL support for our type */
 
