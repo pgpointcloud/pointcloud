@@ -28,17 +28,15 @@ Datum PC_Get(PG_FUNCTION_ARGS)
 	float8 double_result;
 
 	PCPOINT *pt = pc_point_deserialize(serpt);
-	if ( ! pt ) 
+	if ( ! pt )
 		PG_RETURN_NULL();	
-	
-	dim_str = text_to_cstring(dim_name);
-	if ( ! pc_schema_get_dimension_by_name(pt->schema, dim_str) )
+
+	dim_str = text_to_cstring(dim_name);		
+	if ( ! pc_point_get_double_by_name(pt, dim_str, &double_result) )
 	{
 		pc_point_free(pt);
-		elog(ERROR, "dimension \"%s\" does not exist in schema", dim_str);
+		elog(ERROR, "dimension \"%s\" does not exist in schema", dim_str);		
 	}
-	
-	double_result = pc_point_get_double_by_name(pt, dim_str);
 	pfree(dim_str);
 	pc_point_free(pt);
 	PG_RETURN_DATUM(DirectFunctionCall1(float8_numeric, Float8GetDatum(double_result)));

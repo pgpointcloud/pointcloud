@@ -121,7 +121,7 @@ pc_patch_add_point(PCPATCH *c, const PCPOINT *p)
 		pcerror("pc_patch_add_point: pcids of point (%d) and patch (%d) not equal", c->schema->pcid, p->schema->pcid);
 		return PC_FAILURE;
 	}
-	
+
 	if ( c->readonly )
 	{
 		pcerror("pc_patch_add_point: cannot add point to readonly patch");
@@ -537,11 +537,16 @@ pc_patch_to_string(const PCPATCH *patch)
 		stringbuffer_append(sb, "(");
 		for ( j = 0; j < pt->schema->ndims; j++ )
 		{
+			double d;
+			if ( ! pc_point_get_double_by_index(pt, j, &d))
+			{
+				pcerror("pc_patch_to_string: unable to read double at index %d", j);
+			}
 			if ( j )
 			{
 				stringbuffer_append(sb, ", ");
 			}
-			stringbuffer_aprintf(sb, "%g", pc_point_get_double_by_index(pt, j));
+			stringbuffer_aprintf(sb, "%g", d);
 		}
 		stringbuffer_append(sb, ")");
 	}

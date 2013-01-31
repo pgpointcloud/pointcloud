@@ -218,10 +218,10 @@ PCPOINT* pc_point_from_double_array(const PCSCHEMA *s, double *array, uint32_t n
 void pc_point_free(PCPOINT *pt);
 
 /** Casts named dimension value to double and scale/offset appropriately before returning */
-double pc_point_get_double_by_name(const PCPOINT *pt, const char *name);
+int pc_point_get_double_by_name(const PCPOINT *pt, const char *name, double *d);
 
 /** Casts dimension value to double and scale/offset appropriately before returning */
-double pc_point_get_double_by_index(const PCPOINT *pt, uint32_t idx);
+int pc_point_get_double_by_index(const PCPOINT *pt, uint32_t idx, double *d);
 
 /** Scales/offsets double, casts to appropriate dimension type, and writes into point */
 int pc_point_set_double_by_index(PCPOINT *pt, uint32_t idx, double val);
@@ -243,6 +243,9 @@ uint8_t* pc_point_to_wkb(const PCPOINT *pt, size_t *wkbsize);
 
 /** Returns text form of point */
 char* pc_point_to_string(const PCPOINT *pt);
+
+/** Return the OGC WKB version of the point */
+uint8_t* pc_point_to_geometry_wkb(const PCPOINT *pt, size_t *wkbsize);
 
 
 /**********************************************************************

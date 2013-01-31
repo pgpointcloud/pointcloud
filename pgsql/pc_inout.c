@@ -239,3 +239,31 @@ Datum PC_PatchAsText(PG_FUNCTION_ARGS)
 	pfree(str);
 	PG_RETURN_TEXT_P(txt);
 }
+
+PG_FUNCTION_INFO_V1(PC_PointAsByteA);
+Datum PC_PointAsByteA(PG_FUNCTION_ARGS)
+{
+	SERIALIZED_POINT *serpt = PG_GETARG_SERPOINT_P(0);
+	uint8_t *bytes;
+	size_t bytes_size;
+	bytea *wkb;
+	size_t wkb_size;
+	PCPOINT *pt = pc_point_deserialize(serpt);
+
+	if ( ! pt ) 
+		PG_RETURN_NULL();	
+
+	bytes = pc_point_to_geometry_wkb(pt, &bytes_size);
+	wkb_size = VARHDRSZ + bytes_size;
+	wkb = palloc(wkb_size);
+	memcpy(VARDATA(wkb), bytes, bytes_size);
+	SET_VARSIZE(wkb, wkb_size);
+	
+	pc_point_free(pt);
+	pfree(bytes);
+
+	PG_RETURN_BYTEA_P(wkb);
+}
+
+
+

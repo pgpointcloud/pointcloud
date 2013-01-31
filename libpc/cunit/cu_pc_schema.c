@@ -126,19 +126,19 @@ test_point_access()
 	idx = 0;
 	a1 = 1.5;
 	rv = pc_point_set_double_by_index(pt, idx, a1);
-	b1 = pc_point_get_double_by_index(pt, idx);
+	rv = pc_point_get_double_by_index(pt, idx, &b1);
 	// printf("d1=%g, d2=%g\n", a1, b1);
 	CU_ASSERT_DOUBLE_EQUAL(a1, b1, 0.0000001);
 
 	idx = 2;
 	a2 = 1501500.12;
 	rv = pc_point_set_double_by_index(pt, idx, a2);
-	b2 = pc_point_get_double_by_index(pt, idx);
+	rv = pc_point_get_double_by_index(pt, idx, &b2);
 	CU_ASSERT_DOUBLE_EQUAL(a2, b2, 0.0000001);
 
 	a3 = 91;
 	rv = pc_point_set_double_by_name(pt, "NumberOfReturns", a3);
-	b3 = pc_point_get_double_by_name(pt, "NumberOfReturns");
+	rv = pc_point_get_double_by_name(pt, "NumberOfReturns", &b3);
 	CU_ASSERT_DOUBLE_EQUAL(a3, b3, 0.0000001);
 	
 	pc_point_free(pt);
@@ -153,10 +153,10 @@ test_point_access()
 	rv = pc_point_set_double_by_index(pt, 2, a2);
 	rv = pc_point_set_double_by_name(pt, "NumberOfReturns", a3);
 	rv = pc_point_set_double_by_name(pt, "UserData", a4);
-	b1 = pc_point_get_double_by_index(pt, 0);
-	b2 = pc_point_get_double_by_index(pt, 2);
-	b3 = pc_point_get_double_by_name(pt, "NumberOfReturns");
-	b4 = pc_point_get_double_by_name(pt, "UserData");
+	rv = pc_point_get_double_by_index(pt, 0, &b1);
+	rv = pc_point_get_double_by_index(pt, 2, &b2);
+	rv = pc_point_get_double_by_name(pt, "NumberOfReturns", &b3);
+	rv = pc_point_get_double_by_name(pt, "UserData", &b4);
 	CU_ASSERT_DOUBLE_EQUAL(a1, b1, 0.0000001);
 	CU_ASSERT_DOUBLE_EQUAL(a2, b2, 0.0000001);
 	CU_ASSERT_DOUBLE_EQUAL(a3, b3, 0.0000001);

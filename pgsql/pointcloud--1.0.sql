@@ -67,6 +67,10 @@ CREATE OR REPLACE FUNCTION PC_AsText(p pcpoint)
 	RETURNS text AS 'MODULE_PATHNAME', 'PC_PointAsText'
 	LANGUAGE 'c' IMMUTABLE STRICT;
 
+CREATE OR REPLACE FUNCTION PC_PointAsByteA(p pcpoint)
+	RETURNS bytea AS 'MODULE_PATHNAME', 'PC_PointAsByteA'
+	LANGUAGE 'c' IMMUTABLE STRICT;
+
 -------------------------------------------------------------------
 --  PCPATCH
 -------------------------------------------------------------------

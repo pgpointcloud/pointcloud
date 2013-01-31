@@ -63,10 +63,10 @@ test_endian_flip()
 	rv = pc_point_set_double_by_name(pt, "Z", a2);
 	rv = pc_point_set_double_by_name(pt, "Intensity", a3);
 	rv = pc_point_set_double_by_name(pt, "UserData", a4);
-	b1 = pc_point_get_double_by_name(pt, "X");
-	b2 = pc_point_get_double_by_name(pt, "Z");
-	b3 = pc_point_get_double_by_name(pt, "Intensity");
-	b4 = pc_point_get_double_by_name(pt, "UserData");
+	rv = pc_point_get_double_by_name(pt, "X", &b1);
+	rv = pc_point_get_double_by_name(pt, "Z", &b2);
+	rv = pc_point_get_double_by_name(pt, "Intensity", &b3);
+	rv = pc_point_get_double_by_name(pt, "UserData", &b4);
 	CU_ASSERT_DOUBLE_EQUAL(a1, b1, 0.0000001);
 	CU_ASSERT_DOUBLE_EQUAL(a2, b2, 0.0000001);
 	CU_ASSERT_DOUBLE_EQUAL(a3, b3, 0.0000001);
@@ -76,10 +76,10 @@ test_endian_flip()
 	pcfree(pt->data);
 	pt->data = uncompressed_bytes_flip_endian(ptr, schema, 1);
 	
-	b1 = pc_point_get_double_by_name(pt, "X");
-	b2 = pc_point_get_double_by_name(pt, "Z");
-	b3 = pc_point_get_double_by_name(pt, "Intensity");
-	b4 = pc_point_get_double_by_name(pt, "UserData");
+	rv = pc_point_get_double_by_name(pt, "X", &b1);
+	rv = pc_point_get_double_by_name(pt, "Z", &b2);
+	rv = pc_point_get_double_by_name(pt, "Intensity", &b3);
+	rv = pc_point_get_double_by_name(pt, "UserData", &b4);
 	CU_ASSERT_DOUBLE_EQUAL(a1, b1, 0.0000001);
 	CU_ASSERT_DOUBLE_EQUAL(a2, b2, 0.0000001);
 	CU_ASSERT_DOUBLE_EQUAL(a3, b3, 0.0000001);
@@ -103,9 +103,9 @@ test_patch_hex_in()
 	uint8_t *wkb = bytes_from_hexbytes(hexbuf, hexsize);
 	PCPATCH *pa = pc_patch_from_wkb(simpleschema, wkb, hexsize/2);
 	PCPOINTLIST *pl = pc_patch_to_points(pa);
-	d = pc_point_get_double_by_name(pl->points[0], "X");
+	pc_point_get_double_by_name(pl->points[0], "X", &d);
 	CU_ASSERT_DOUBLE_EQUAL(d, 0.02, 0.000001);
-	d = pc_point_get_double_by_name(pl->points[1], "Intensity");
+	pc_point_get_double_by_name(pl->points[1], "Intensity", &d);
 	CU_ASSERT_DOUBLE_EQUAL(d, 8, 0.000001);
 
 	str = pc_patch_to_string(pa);

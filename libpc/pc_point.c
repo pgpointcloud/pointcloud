@@ -75,41 +75,44 @@ pc_point_free(PCPOINT *pt)
 	pcfree(pt);
 }
 
-static double
-pc_point_get_double(const PCPOINT *pt, const PCDIMENSION *d)
+static int
+pc_point_get_double(const PCPOINT *pt, const PCDIMENSION *dim, double *d)
 {
 	uint8_t *ptr;
 	double val;
 	
 	/* Read raw value from byte buffer */
-	ptr = pt->data + d->byteoffset;
-	val = pc_double_from_ptr(ptr, d->interpretation);
+	ptr = pt->data + dim->byteoffset;
+	val = pc_double_from_ptr(ptr, dim->interpretation);
 
 	/* Scale value */
-	if ( d->scale )
-		val *= d->scale;
+	if ( dim->scale )
+		val *= dim->scale;
 
 	/* Offset value */
-	if ( d->offset )
-		val += d->offset;
+	if ( dim->offset )
+		val += dim->offset;
 	
-	return val;
+	*d = val;
+	return PC_SUCCESS;
 }
 
-double
-pc_point_get_double_by_name(const PCPOINT *pt, const char *name)
+int
+pc_point_get_double_by_name(const PCPOINT *pt, const char *name, double *d)
 {
-	PCDIMENSION *d;
-	d = pc_schema_get_dimension_by_name(pt->schema, name);
-	return pc_point_get_double(pt, d);
+	PCDIMENSION *dim;
+	dim = pc_schema_get_dimension_by_name(pt->schema, name);
+	if ( ! dim ) return PC_FAILURE;
+	return pc_point_get_double(pt, dim, d);
 }
 
-double
-pc_point_get_double_by_index(const PCPOINT *pt, uint32_t idx)
+int
+pc_point_get_double_by_index(const PCPOINT *pt, uint32_t idx, double *d)
 {
-	PCDIMENSION *d;
-	d = pc_schema_get_dimension(pt->schema, idx);
-	return pc_point_get_double(pt, d);
+	PCDIMENSION *dim;
+	dim = pc_schema_get_dimension(pt->schema, idx);
+	if ( ! dim ) return PC_FAILURE;
+	return pc_point_get_double(pt, dim, d);
 }
 
 int 
@@ -150,13 +153,17 @@ pc_point_set_double_by_name(PCPOINT *pt, const char *name, double val)
 double
 pc_point_get_x(const PCPOINT *pt)
 {
-	return pc_point_get_double_by_index(pt, pt->schema->x_position);
+	double d;
+	pc_point_get_double_by_index(pt, pt->schema->x_position, &d);
+	return d;
 }
 
 double 
 pc_point_get_y(const PCPOINT *pt)
 {
-	return pc_point_get_double_by_index(pt, pt->schema->y_position);
+	double d;
+	pc_point_get_double_by_index(pt, pt->schema->y_position, &d);
+	return d;
 }
 
 char *
@@ -170,11 +177,16 @@ pc_point_to_string(const PCPOINT *pt)
 	stringbuffer_aprintf(sb, "( %d : ", pt->schema->pcid);
 	for ( i = 0; i < pt->schema->ndims; i++ )
 	{
+		double d;
+		if ( ! pc_point_get_double_by_index(pt, i, &d) )
+		{
+			pcerror("pc_point_to_string: unable to read double at position %d", i);
+		}
 		if ( i )
 		{
 			stringbuffer_append(sb, ", ");
 		}
-		stringbuffer_aprintf(sb, "%g", pc_point_get_double_by_index(pt, i));
+		stringbuffer_aprintf(sb, "%g", d);
 	}
 	stringbuffer_append(sb, " )");
 	str = stringbuffer_getstringcopy(sb);
@@ -275,6 +287,67 @@ pc_point_to_wkb(const PCPOINT *pt, size_t *wkbsize)
 	wkb[0] = endian; /* Write endian flag */
 	memcpy(wkb + 1, &(pt->schema->pcid), 4); /* Write PCID */
 	memcpy(wkb + 5, pt->data, pt->schema->size); /* Write data */
+	if ( wkbsize ) *wkbsize = size;
+	return wkb;
+}
+
+uint8_t *
+pc_point_to_geometry_wkb(const PCPOINT *pt, size_t *wkbsize)
+{
+	static uint32_t srid_mask = 0x20000000;
+	static uint32_t z_mask = 0x80000000;
+	uint32_t wkbtype = 1; /* WKB POINT */
+	size_t size = 1 + 4 + 8 + 8; /* endian + type + dblX, + dblY */
+	uint8_t *wkb, *ptr;
+	uint32_t srid;
+	int has_srid = PC_FALSE, has_z = PC_FALSE;
+	double x, y, z;
+	
+	x = pc_point_get_x(pt);
+	y = pc_point_get_y(pt);
+	
+	if ( pt->schema->srid > 0 )
+	{
+		has_srid = PC_TRUE;
+		wkbtype |= srid_mask;
+		size += 4;
+		srid = pt->schema->srid;
+	}
+	
+	if ( pc_point_get_double_by_name(pt, "Z", &z) )
+	{
+		has_z = PC_TRUE;
+		wkbtype |= z_mask;
+		size += 8;
+	}
+
+	wkb = pcalloc(size);
+	ptr = wkb;
+
+	ptr[0] = machine_endian(); /* Endian flag */
+	ptr += 1;
+	
+	memcpy(ptr, &wkbtype, 4); /* WKB type */
+	ptr += 4;
+	
+	if ( has_srid )
+	{
+		memcpy(ptr, &srid, 4); /* SRID */
+		ptr += 4;
+	}
+	
+	memcpy(ptr, &x, 8); /* X */
+	ptr += 8;
+	
+	memcpy(ptr, &y, 8); /* Y */
+	ptr += 8;
+
+	if ( has_z )
+	{
+		memcpy(ptr, &z, 8); /* Z */
+		ptr += 8;
+	}
+	
 	if ( wkbsize ) *wkbsize = size;
 	return wkb;
 }

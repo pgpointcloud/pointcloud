@@ -88,3 +88,4 @@ SELECT PC_AsText(pa) FROM pa_test;
 (2 rows)
 
 DROP TABLE pt_test;
+DROP TABLE pa_test;
