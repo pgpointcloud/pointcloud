@@ -21,6 +21,8 @@ Datum PC_SchemaGetNDims(PG_FUNCTION_ARGS);
 Datum PC_MakePointFromArray(PG_FUNCTION_ARGS);
 Datum PC_PointAsText(PG_FUNCTION_ARGS);
 Datum PC_PatchAsText(PG_FUNCTION_ARGS);
+Datum PC_PointAsByteA(PG_FUNCTION_ARGS);
+Datum PC_PatchEnvelopeAsByteA(PG_FUNCTION_ARGS);
 
 PG_FUNCTION_INFO_V1(pcpoint_in);
 Datum pcpoint_in(PG_FUNCTION_ARGS)
@@ -265,5 +267,28 @@ Datum PC_PointAsByteA(PG_FUNCTION_ARGS)
 	PG_RETURN_BYTEA_P(wkb);
 }
 
+PG_FUNCTION_INFO_V1(PC_PatchEnvelopeAsByteA);
+Datum PC_PatchEnvelopeAsByteA(PG_FUNCTION_ARGS)
+{
+	SERIALIZED_PATCH *serpatch = PG_GETARG_SERPATCH_P(0);
+	uint8_t *bytes;
+	size_t bytes_size;
+	bytea *wkb;
+	size_t wkb_size;
+	PCPATCH *pa = pc_patch_deserialize(serpatch);
 
+	if ( ! pa ) 
+		PG_RETURN_NULL();	
+
+	bytes = pc_patch_to_geometry_wkb_envelope(pa, &bytes_size);
+	wkb_size = VARHDRSZ + bytes_size;
+	wkb = palloc(wkb_size);
+	memcpy(VARDATA(wkb), bytes, bytes_size);
+	SET_VARSIZE(wkb, wkb_size);
+	
+	pc_patch_free(pa);
+	pfree(bytes);
+
+	PG_RETURN_BYTEA_P(wkb);
+}
 

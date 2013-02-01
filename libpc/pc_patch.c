@@ -559,3 +559,85 @@ pc_patch_to_string(const PCPATCH *patch)
 
 	return str;
 }
+
+static uint8_t *
+pc_patch_wkb_set_double(uint8_t *wkb, double d)
+{
+	memcpy(wkb, &d, 8);
+	wkb += 8;
+	return wkb;
+}
+
+static uint8_t *
+pc_patch_wkb_set_int32(uint8_t *wkb, uint32_t i)
+{
+	memcpy(wkb, &i, 8);
+	wkb += 4;
+	return wkb;
+}
+
+static uint8_t *
+pc_patch_wkb_set_char(uint8_t *wkb, char c)
+{
+	memcpy(wkb, &c, 1);
+	wkb += 1;
+	return wkb;
+}
+
+uint8_t *
+pc_patch_to_geometry_wkb_envelope(const PCPATCH *pa, size_t *wkbsize)
+{
+	static uint32_t srid_mask = 0x20000000;
+	static uint32_t nrings = 1;
+	static uint32_t npoints = 5;
+	uint32_t wkbtype = 3; /* WKB POLYGON */
+	uint8_t *wkb, *ptr;
+	int has_srid = PC_FALSE;
+	size_t size = 1 + 4 + 4 + 4 + 2*npoints*8; /* endian + type + nrings + npoints + 5 dbl pts */
+	double x, y;
+	
+	if ( pa->schema->srid > 0 )
+	{
+		has_srid = PC_TRUE;
+		wkbtype |= srid_mask;
+		size += 4;
+	}
+
+	wkb = pcalloc(size);
+	ptr = wkb;
+	
+	ptr = pc_patch_wkb_set_char(ptr, machine_endian()); /* Endian flag */
+	
+	ptr = pc_patch_wkb_set_int32(ptr, wkbtype); /* TYPE = Polygon */
+	
+	if ( has_srid )
+	{
+		ptr = pc_patch_wkb_set_int32(ptr, pa->schema->srid); /* SRID */
+	}
+	
+	ptr = pc_patch_wkb_set_int32(ptr, nrings);  /* NRINGS = 1 */
+	ptr = pc_patch_wkb_set_int32(ptr, npoints); /* NPOINTS = 5 */
+	
+	/* Point 0 */
+	ptr = pc_patch_wkb_set_double(ptr, pa->xmin);
+	ptr = pc_patch_wkb_set_double(ptr, pa->ymin);
+	
+	/* Point 1 */
+	ptr = pc_patch_wkb_set_double(ptr, pa->xmin);
+	ptr = pc_patch_wkb_set_double(ptr, pa->ymax);
+	
+	/* Point 2 */
+	ptr = pc_patch_wkb_set_double(ptr, pa->xmax);
+	ptr = pc_patch_wkb_set_double(ptr, pa->ymax);
+	
+	/* Point 3 */
+	ptr = pc_patch_wkb_set_double(ptr, pa->xmax);
+	ptr = pc_patch_wkb_set_double(ptr, pa->ymin);
+	
+	/* Point 4 */
+	ptr = pc_patch_wkb_set_double(ptr, pa->xmin);
+	ptr = pc_patch_wkb_set_double(ptr, pa->ymin);
+	
+	if ( wkbsize ) *wkbsize = size;
+	return wkb;
+}
