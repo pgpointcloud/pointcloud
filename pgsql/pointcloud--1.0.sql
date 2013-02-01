@@ -9,7 +9,7 @@
 
 -- Confirm the XML representation of a schema has everything we need
 CREATE OR REPLACE FUNCTION PC_SchemaIsValid(xml text)
-	RETURNS boolean AS 'MODULE_PATHNAME','PC_SchemaIsValid'
+	RETURNS boolean AS 'MODULE_PATHNAME','pcschema_is_valid'
     LANGUAGE 'c' IMMUTABLE STRICT;
 
 -- Metadata table describing contents of pcpoints
@@ -24,7 +24,7 @@ CREATE TABLE pointcloud_formats (
 SELECT pg_catalog.pg_extension_config_dump('pointcloud_formats', '');
 
 CREATE OR REPLACE FUNCTION PC_SchemaGetNDims(pcid integer)
-	RETURNS integer AS 'MODULE_PATHNAME','PC_SchemaGetNDims'
+	RETURNS integer AS 'MODULE_PATHNAME','pcschema_get_ndims'
     LANGUAGE 'c' IMMUTABLE STRICT;
 
 
@@ -56,19 +56,19 @@ CREATE TYPE pcpoint (
 );
 
 CREATE OR REPLACE FUNCTION PC_Get(pt pcpoint, dimname text)
-	RETURNS numeric AS 'MODULE_PATHNAME', 'PC_Get'
+	RETURNS numeric AS 'MODULE_PATHNAME', 'pcpoint_get_value'
     LANGUAGE 'c' IMMUTABLE STRICT;
 
 CREATE OR REPLACE FUNCTION PC_MakePoint(pcid integer, vals float8[])
-	RETURNS pcpoint AS 'MODULE_PATHNAME', 'PC_MakePointFromArray'
+	RETURNS pcpoint AS 'MODULE_PATHNAME', 'pcpoint_from_double_array'
 	LANGUAGE 'c' IMMUTABLE STRICT;
 
 CREATE OR REPLACE FUNCTION PC_AsText(p pcpoint)
-	RETURNS text AS 'MODULE_PATHNAME', 'PC_PointAsText'
+	RETURNS text AS 'MODULE_PATHNAME', 'pcpoint_as_text'
 	LANGUAGE 'c' IMMUTABLE STRICT;
 
 CREATE OR REPLACE FUNCTION PC_AsBinary(p pcpoint)
-	RETURNS bytea AS 'MODULE_PATHNAME', 'PC_PointAsByteA'
+	RETURNS bytea AS 'MODULE_PATHNAME', 'pcpoint_as_bytea'
 	LANGUAGE 'c' IMMUTABLE STRICT;
 
 -------------------------------------------------------------------
@@ -98,11 +98,74 @@ CREATE TYPE pcpatch (
 );
 
 CREATE OR REPLACE FUNCTION PC_AsText(p pcpatch)
-	RETURNS text AS 'MODULE_PATHNAME', 'PC_PatchAsText'
+	RETURNS text AS 'MODULE_PATHNAME', 'pcpatch_as_text'
 	LANGUAGE 'c' IMMUTABLE STRICT;
 
 CREATE OR REPLACE FUNCTION PC_Envelope(p pcpatch)
-	RETURNS bytea AS 'MODULE_PATHNAME', 'PC_PatchEnvelopeAsByteA'
+	RETURNS bytea AS 'MODULE_PATHNAME', 'pcpatch_bytea_envelope'
 	LANGUAGE 'c' IMMUTABLE STRICT;
 
 
+
+-------------------------------------------------------------------
+--  AGGREGATE / EXPLODE
+-------------------------------------------------------------------
+
+CREATE OR REPLACE FUNCTION pcpoint_abs_in(cstring)
+	RETURNS pcpoint_abs AS 'MODULE_PATHNAME'
+	LANGUAGE 'c';
+
+CREATE OR REPLACE FUNCTION pcpoint_abs_out(pcpoint_abs)
+	RETURNS cstring AS 'MODULE_PATHNAME'
+	LANGUAGE 'c';
+
+CREATE TYPE pcpoint_abs (
+	internallength = 8,
+	input = pcpoint_abs_in,
+	output = pcpoint_abs_out,
+	alignment = double
+);
+
+CREATE FUNCTION PC_Patch(pcpoint[])
+	RETURNS pcpatch AS 'MODULE_PATHNAME', 'pcpatch_from_pcpoint_array'
+	LANGUAGE 'c' IMMUTABLE STRICT;
+
+
+CREATE FUNCTION pcpoint_agg_transfn (pcpoint_abs, pcpoint)
+	RETURNS pcpoint_abs AS'MODULE_PATHNAME',  'pcpoint_agg_transfn'
+	LANGUAGE 'c';
+
+CREATE FUNCTION pcpoint_agg_final_array (pcpoint_abs)
+	RETURNS pcpoint[]  AS 'MODULE_PATHNAME', 'pcpoint_agg_final_array'
+	LANGUAGE 'c';
+
+CREATE FUNCTION pcpoint_agg_final_pcpatch (pcpoint_abs)
+	RETURNS pcpatch AS 'MODULE_PATHNAME', 'pcpoint_agg_final_pcpatch'
+	LANGUAGE 'c';
+	
+CREATE AGGREGATE PC_Patch (
+        BASETYPE = pcpoint,
+        SFUNC = pcpoint_agg_transfn,
+        STYPE = pcpoint_abs,
+        FINALFUNC = pcpoint_agg_final_pcpatch
+);
+
+CREATE AGGREGATE PC_Point_Agg (
+        BASETYPE = pcpoint,
+        SFUNC = pcpoint_agg_transfn,
+        STYPE = pcpoint_abs,
+        FINALFUNC = pcpoint_agg_final_array
+);
+
+
+-- CREATE FUNCTION pcpoint_array_from_pcpatch(pcpatch)
+-- 	RETURNS pcpoint[] AS 'MODULE_PATHNAME', 'pcpoint_array_from_pcpatch'
+-- 	LANGUAGE 'sql' IMMUTABLE STRICT;
+	
+-- The enumeration function
+-- returns each element in a one dimensional integer array
+-- as a row.
+-- CREATE FUNCTION int_array_enum(int4[])
+-- RETURNS setof integer
+-- AS 'array_unnest'
+-- LANGUAGE INTERNAL IMMUTABLE STRICT;

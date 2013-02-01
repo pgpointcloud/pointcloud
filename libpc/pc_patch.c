@@ -223,7 +223,7 @@ pc_patch_from_points(const PCPOINTLIST *pl)
 	{
 		if ( pl->points[i] )
 		{
-			if ( pl->points[i]->schema != s )
+			if ( pl->points[i]->schema->pcid != s->pcid )
 			{
 				pcerror("pc_patch_from_points: points do not share a schema");
 				return NULL;

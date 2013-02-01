@@ -16,13 +16,13 @@ Datum pcpatch_in(PG_FUNCTION_ARGS);
 Datum pcpatch_out(PG_FUNCTION_ARGS);
 
 /* Other SQL functions */
-Datum PC_SchemaIsValid(PG_FUNCTION_ARGS);
-Datum PC_SchemaGetNDims(PG_FUNCTION_ARGS);
-Datum PC_MakePointFromArray(PG_FUNCTION_ARGS);
-Datum PC_PointAsText(PG_FUNCTION_ARGS);
-Datum PC_PatchAsText(PG_FUNCTION_ARGS);
-Datum PC_PointAsByteA(PG_FUNCTION_ARGS);
-Datum PC_PatchEnvelopeAsByteA(PG_FUNCTION_ARGS);
+Datum pcschema_is_valid(PG_FUNCTION_ARGS);
+Datum pcschema_get_ndims(PG_FUNCTION_ARGS);
+Datum pcpoint_from_double_array(PG_FUNCTION_ARGS);
+Datum pcpoint_as_text(PG_FUNCTION_ARGS);
+Datum pcpatch_as_text(PG_FUNCTION_ARGS);
+Datum pcpoint_as_bytea(PG_FUNCTION_ARGS);
+Datum pcpatch_bytea_envelope(PG_FUNCTION_ARGS);
 
 PG_FUNCTION_INFO_V1(pcpoint_in);
 Datum pcpoint_in(PG_FUNCTION_ARGS)
@@ -125,8 +125,8 @@ Datum pcpatch_out(PG_FUNCTION_ARGS)
 	PG_RETURN_CSTRING(hexwkb);
 }
 
-PG_FUNCTION_INFO_V1(PC_SchemaIsValid);
-Datum PC_SchemaIsValid(PG_FUNCTION_ARGS)
+PG_FUNCTION_INFO_V1(pcschema_is_valid);
+Datum pcschema_is_valid(PG_FUNCTION_ARGS)
 {
 	bool valid;
 	text *xml = PG_GETARG_TEXT_P(0);
@@ -145,8 +145,8 @@ Datum PC_SchemaIsValid(PG_FUNCTION_ARGS)
 	PG_RETURN_BOOL(valid);
 }
 
-PG_FUNCTION_INFO_V1(PC_SchemaGetNDims);
-Datum PC_SchemaGetNDims(PG_FUNCTION_ARGS)
+PG_FUNCTION_INFO_V1(pcschema_get_ndims);
+Datum pcschema_get_ndims(PG_FUNCTION_ARGS)
 {
 	int ndims;
 	uint32 pcid = PG_GETARG_INT32(0);
@@ -161,10 +161,10 @@ Datum PC_SchemaGetNDims(PG_FUNCTION_ARGS)
 }
 
 /**
-* PC_MakePointFromArray(integer pcid, float8[] returns PcPoint
+* pcpoint_from_double_array(integer pcid, float8[] returns PcPoint
 */
-PG_FUNCTION_INFO_V1(PC_MakePointFromArray);
-Datum PC_MakePointFromArray(PG_FUNCTION_ARGS)
+PG_FUNCTION_INFO_V1(pcpoint_from_double_array);
+Datum pcpoint_from_double_array(PG_FUNCTION_ARGS)
 {
 	uint32 pcid = PG_GETARG_INT32(0);
 	ArrayType *arrptr = PG_GETARG_ARRAYTYPE_P(1);
@@ -208,8 +208,8 @@ Datum PC_MakePointFromArray(PG_FUNCTION_ARGS)
 	PG_RETURN_POINTER(serpt);
 }
 
-PG_FUNCTION_INFO_V1(PC_PointAsText);
-Datum PC_PointAsText(PG_FUNCTION_ARGS)
+PG_FUNCTION_INFO_V1(pcpoint_as_text);
+Datum pcpoint_as_text(PG_FUNCTION_ARGS)
 {
 	SERIALIZED_POINT *serpt = PG_GETARG_SERPOINT_P(0);
 	text *txt;
@@ -225,8 +225,8 @@ Datum PC_PointAsText(PG_FUNCTION_ARGS)
 	PG_RETURN_TEXT_P(txt);
 }
 
-PG_FUNCTION_INFO_V1(PC_PatchAsText);
-Datum PC_PatchAsText(PG_FUNCTION_ARGS)
+PG_FUNCTION_INFO_V1(pcpatch_as_text);
+Datum pcpatch_as_text(PG_FUNCTION_ARGS)
 {
 	SERIALIZED_PATCH *serpatch = PG_GETARG_SERPATCH_P(0);
 	text *txt;
@@ -242,8 +242,8 @@ Datum PC_PatchAsText(PG_FUNCTION_ARGS)
 	PG_RETURN_TEXT_P(txt);
 }
 
-PG_FUNCTION_INFO_V1(PC_PointAsByteA);
-Datum PC_PointAsByteA(PG_FUNCTION_ARGS)
+PG_FUNCTION_INFO_V1(pcpoint_as_bytea);
+Datum pcpoint_as_bytea(PG_FUNCTION_ARGS)
 {
 	SERIALIZED_POINT *serpt = PG_GETARG_SERPOINT_P(0);
 	uint8_t *bytes;
@@ -267,8 +267,8 @@ Datum PC_PointAsByteA(PG_FUNCTION_ARGS)
 	PG_RETURN_BYTEA_P(wkb);
 }
 
-PG_FUNCTION_INFO_V1(PC_PatchEnvelopeAsByteA);
-Datum PC_PatchEnvelopeAsByteA(PG_FUNCTION_ARGS)
+PG_FUNCTION_INFO_V1(pcpatch_bytea_envelope);
+Datum pcpatch_bytea_envelope(PG_FUNCTION_ARGS)
 {
 	SERIALIZED_PATCH *serpatch = PG_GETARG_SERPATCH_P(0);
 	uint8_t *bytes;
