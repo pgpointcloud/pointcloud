@@ -22,6 +22,9 @@ Datum pcpoint_agg_transfn(PG_FUNCTION_ARGS);
 Datum pcpoint_abs_in(PG_FUNCTION_ARGS);
 Datum pcpoint_abs_out(PG_FUNCTION_ARGS);
 
+/* Deaggregation functions */
+Datum pcpatch_unnest(PG_FUNCTION_ARGS);
+
 /**
 * Read a named dimension from a PCPOINT
 * PC_Get(point pcpoint, dimname text) returns Numeric
@@ -47,6 +50,20 @@ Datum pcpoint_get_value(PG_FUNCTION_ARGS)
 	pfree(dim_str);
 	pc_point_free(pt);
 	PG_RETURN_DATUM(DirectFunctionCall1(float8_numeric, Float8GetDatum(double_result)));
+}
+
+static bool
+array_get_isnull(const bits8 *nullbitmap, int offset)
+{
+	if (nullbitmap == NULL)
+	{
+		return false; /* assume not null */
+	}
+	if (nullbitmap[offset / 8] & (1 << (offset % 8)))
+	{
+		return false; /* not null */
+	}
+	return true;
 }
 
 PG_FUNCTION_INFO_V1(pcpatch_from_pcpoint_array);
@@ -88,7 +105,7 @@ Datum pcpatch_from_pcpoint_array(PG_FUNCTION_ARGS)
 	for ( i = 0; i < nelems; i++ )
 	{
 		/* Only work on non-NULL entries in the array */
-		if ( (bitmap && (*bitmap & bitmask)) || !bitmap )
+		if ( ! array_get_isnull(bitmap, i) )
 		{
 			SERIALIZED_POINT *serpt = (SERIALIZED_POINT *)(ARR_DATA_PTR(array)+offset);
 			PCPOINT *pt;
@@ -113,16 +130,6 @@ Datum pcpatch_from_pcpoint_array(PG_FUNCTION_ARGS)
 			offset += INTALIGN(VARSIZE(serpt));			
 		}
 
-		/* Advance NULL bitmap */
-		if (bitmap)
-		{
-			bitmask <<= 1;
-			if (bitmask == 0x100)
-			{
-				bitmap++;
-				bitmask = 1;
-			}
-		}
 	}
 	
 	if ( pl->npoints == 0 )
@@ -252,6 +259,77 @@ Datum pcpoint_agg_final_pcpatch(PG_FUNCTION_ARGS)
 	result = pcpoint_agg_final(a, CurrentMemoryContext, fcinfo);
 	result_final = DirectFunctionCall1(pcpatch_from_pcpoint_array, result);
 	PG_RETURN_DATUM(result_final);
+}
+
+PG_FUNCTION_INFO_V1(pcpatch_unnest);
+Datum pcpatch_unnest(PG_FUNCTION_ARGS)
+{
+	typedef struct
+	{
+		int nextelem;
+		int numelems;
+		PCPOINTLIST *pointlist;
+	} pcpatch_unnest_fctx;
+
+	FuncCallContext *funcctx;
+	pcpatch_unnest_fctx *fctx;
+	MemoryContext oldcontext;
+
+	/* stuff done only on the first call of the function */
+	if (SRF_IS_FIRSTCALL())
+	{		
+		PCPATCH *patch;
+		SERIALIZED_PATCH *serpatch;
+		
+		/* create a function context for cross-call persistence */
+		funcctx = SRF_FIRSTCALL_INIT();
+
+		/*
+		* switch to memory context appropriate for multiple function calls
+		*/
+		oldcontext = MemoryContextSwitchTo(funcctx->multi_call_memory_ctx);
+
+		/*
+		* Get the patch value and detoast if needed.  We can't do this
+		* earlier because if we have to detoast, we want the detoasted copy
+		* to be in multi_call_memory_ctx, so it will go away when we're done
+		* and not before.      (If no detoast happens, we assume the originally
+		* passed array will stick around till then.)
+		*/
+		serpatch = PG_GETARG_SERPATCH_P(0);
+		patch = pc_patch_deserialize(serpatch);
+
+		/* allocate memory for user context */
+		fctx = (pcpatch_unnest_fctx *) palloc(sizeof(pcpatch_unnest_fctx));
+
+		/* initialize state */
+		fctx->nextelem = 0;
+		fctx->numelems = patch->npoints;
+		fctx->pointlist = pc_patch_to_points(patch);
+
+		/* save user context, switch back to function context */
+		funcctx->user_fctx = fctx;
+		MemoryContextSwitchTo(oldcontext);
+	}
+
+	/* stuff done on every call of the function */
+	funcctx = SRF_PERCALL_SETUP();
+	fctx = funcctx->user_fctx;
+
+	if (fctx->nextelem < fctx->numelems)
+	{
+		Datum elem;
+		PCPOINT *pt = fctx->pointlist->points[fctx->nextelem];
+		SERIALIZED_POINT *serpt = pc_point_serialize(pt);
+		fctx->nextelem++;
+		elem = PointerGetDatum(serpt);
+		SRF_RETURN_NEXT(funcctx, elem);
+	}
+	else
+	{
+		/* do when there is no more left */
+		SRF_RETURN_DONE(funcctx);
+	}
 }
 
 

@@ -14,7 +14,7 @@ CREATE OR REPLACE FUNCTION PC_SchemaIsValid(xml text)
 
 -- Metadata table describing contents of pcpoints
 CREATE TABLE pointcloud_formats (
-    pcid INTEGER PRIMARY KEY,
+    pcid INTEGER PRIMARY KEY CHECK (pcid > 0),
     srid INTEGER, -- REFERENCES spatial_ref_sys(srid)
     schema TEXT 
 		CHECK ( PC_SchemaIsValid(schema) )
@@ -157,15 +157,8 @@ CREATE AGGREGATE PC_Point_Agg (
         FINALFUNC = pcpoint_agg_final_array
 );
 
-
--- CREATE FUNCTION pcpoint_array_from_pcpatch(pcpatch)
--- 	RETURNS pcpoint[] AS 'MODULE_PATHNAME', 'pcpoint_array_from_pcpatch'
--- 	LANGUAGE 'sql' IMMUTABLE STRICT;
+CREATE FUNCTION PC_Explode(pcpatch)
+	RETURNS setof pcpoint AS 'MODULE_PATHNAME', 'pcpatch_unnest'
+	LANGUAGE 'c' IMMUTABLE STRICT;
 	
--- The enumeration function
--- returns each element in a one dimensional integer array
--- as a row.
--- CREATE FUNCTION int_array_enum(int4[])
--- RETURNS setof integer
--- AS 'array_unnest'
--- LANGUAGE INTERNAL IMMUTABLE STRICT;
+
