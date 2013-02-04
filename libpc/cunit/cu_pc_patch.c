@@ -177,12 +177,101 @@ test_patch_hex_out()
 	pcfree(wkt);
 }
 
+#if 0
+
+/** Convert RLE bytes to value bytes */
+uint8_t* pc_bytes_run_length_decode(const uint8_t *bytes_rle, size_t bytes_rle_size, uint32_t interpretation, size_t *bytes_nelems);
+#endif
+
+
+static void 
+test_run_length_encoding()
+{
+	char *bytes, *bytes_rle, *bytes_de_rle;
+	int nr;
+	uint32_t bytes_nelems;
+	size_t bytes_rle_size;
+	size_t size;
+	uint8_t interp;
+	size_t interp_size;
+	
+	bytes = "aaaabbbbccdde";
+	nr = pc_bytes_run_count(bytes, PC_UINT8, strlen(bytes));
+	CU_ASSERT_EQUAL(nr, 5);
+
+	bytes = "a";
+	nr = pc_bytes_run_count(bytes, PC_UINT8, strlen(bytes));
+	CU_ASSERT_EQUAL(nr, 1);
+
+	bytes = "aa";
+	nr = pc_bytes_run_count(bytes, PC_UINT8, strlen(bytes));
+	CU_ASSERT_EQUAL(nr, 1);
+
+	bytes = "ab";
+	nr = pc_bytes_run_count(bytes, PC_UINT8, strlen(bytes));
+	CU_ASSERT_EQUAL(nr, 2);
+
+	bytes = "abcdefg";
+	nr = pc_bytes_run_count(bytes, PC_UINT8, strlen(bytes));
+	CU_ASSERT_EQUAL(nr, 7);
+
+	bytes = "aabcdefg";
+	nr = pc_bytes_run_count(bytes, PC_UINT8, strlen(bytes));
+	CU_ASSERT_EQUAL(nr, 7);
+
+	bytes = "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc";
+	nr = pc_bytes_run_count(bytes, PC_UINT8, strlen(bytes));
+	CU_ASSERT_EQUAL(nr, 1);
+	
+	bytes_rle = pc_bytes_run_length_encode(bytes, PC_UINT8, strlen(bytes), &bytes_rle_size);
+	bytes_de_rle = pc_bytes_run_length_decode(bytes_rle, bytes_rle_size, PC_UINT8, &bytes_nelems);
+	CU_ASSERT_EQUAL(memcmp(bytes, bytes_de_rle, strlen(bytes)), 0);
+	pcfree(bytes_rle);
+	pcfree(bytes_de_rle);
+
+	bytes = "aabcdefg";
+	interp = PC_UINT8;
+	interp_size = INTERPRETATION_SIZES[interp];
+	size = strlen(bytes) / interp_size;
+	bytes_rle = pc_bytes_run_length_encode(bytes, interp, size, &bytes_rle_size);
+	bytes_de_rle = pc_bytes_run_length_decode(bytes_rle, bytes_rle_size, interp, &bytes_nelems);
+	CU_ASSERT_EQUAL(memcmp(bytes, bytes_de_rle, strlen(bytes)), 0);
+	CU_ASSERT_EQUAL(bytes_nelems, strlen(bytes)/interp_size);
+	pcfree(bytes_rle);
+	pcfree(bytes_de_rle);
+
+	bytes = "aaaaaabbbbeeeeeeeeeehhiiiiiioooo";
+	interp = PC_UINT32;
+	interp_size = INTERPRETATION_SIZES[interp];
+	size = strlen(bytes) / interp_size;
+	bytes_rle = pc_bytes_run_length_encode(bytes, interp, size, &bytes_rle_size);
+	bytes_de_rle = pc_bytes_run_length_decode(bytes_rle, bytes_rle_size, interp, &bytes_nelems);
+	CU_ASSERT_EQUAL(memcmp(bytes, bytes_de_rle, strlen(bytes)), 0);
+	CU_ASSERT_EQUAL(bytes_nelems, strlen(bytes)/interp_size);
+	pcfree(bytes_rle);
+	pcfree(bytes_de_rle);
+
+	bytes = "aaaaaabbbbeeeeeeeeeehhiiiiiioooo";
+	interp = PC_UINT16;
+	interp_size = INTERPRETATION_SIZES[interp];
+	size = strlen(bytes) / interp_size;
+	bytes_rle = pc_bytes_run_length_encode(bytes, interp, size, &bytes_rle_size);
+	bytes_de_rle = pc_bytes_run_length_decode(bytes_rle, bytes_rle_size, interp, &bytes_nelems);
+	CU_ASSERT_EQUAL(memcmp(bytes, bytes_de_rle, strlen(bytes)), 0);
+	CU_ASSERT_EQUAL(bytes_nelems, strlen(bytes)/interp_size);
+	pcfree(bytes_rle);
+	pcfree(bytes_de_rle);
+	
+}
+
+
 /* REGISTER ***********************************************************/
 
 CU_TestInfo patch_tests[] = {
 	PG_TEST(test_endian_flip),
 	PG_TEST(test_patch_hex_in),
 	PG_TEST(test_patch_hex_out),
+	PG_TEST(test_run_length_encoding),
 	CU_TEST_INFO_NULL
 };
 

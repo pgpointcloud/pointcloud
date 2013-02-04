@@ -5,6 +5,7 @@ CPPFLAGS = $(XML2_CPPFLAGS)
 LDFLAGS = $(XML2_LDFLAGS)
 
 OBJS = \
+	pc_dimensional.o \
 	pc_mem.o \
 	pc_patch.o \
 	pc_point.o \

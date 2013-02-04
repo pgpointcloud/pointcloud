@@ -191,6 +191,8 @@ LIBS="$LIBS_SAVE"
 
 AC_DEFINE_UNQUOTED([LIBXML2_VERSION], ["$LIBXML2_VERSION"], [PointCloud libxml2 version])
 AC_SUBST([LIBXML2_VERSION])
+AC_SUBST([XML2_LDFLAGS])
+AC_SUBST([XML2_CPPFLAGS])
 
 
 dnl ===========================================================================

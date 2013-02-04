@@ -84,5 +84,13 @@ int pc_schema_has_name(const PCSCHEMA *s, const char *name);
 /** Copy a string within the global memory management context */
 char* pcstrdup(const char *str);
 
+/** How many runs are there in a value array? */
+uint32_t pc_bytes_run_count(const uint8_t *bytes, uint32_t interpretation, uint32_t nelems);
+
+/** Convert value bytes to RLE bytes */
+uint8_t* pc_bytes_run_length_encode(const uint8_t *bytes, uint32_t interpretation, uint32_t nelems, size_t *bytes_rle_size);
+
+/** Convert RLE bytes to value bytes */
+uint8_t* pc_bytes_run_length_decode(const uint8_t *bytes_rle, size_t bytes_rle_size, uint32_t interpretation, uint32_t *bytes_nelems);
 
 #endif /* _PC_API_INTERNAL_H */
