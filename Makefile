@@ -1,10 +1,10 @@
 
 all install uninstall noop clean distclean:
-	$(MAKE) -C libpc $@
+	$(MAKE) -C lib $@
 	$(MAKE) -C pgsql $@
 
 check:
-	$(MAKE) -C libpc $@
+	$(MAKE) -C lib $@
 
 astyle:
 	find . \

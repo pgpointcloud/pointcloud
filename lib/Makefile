@@ -27,7 +27,7 @@ clean:
 	$(MAKE) -C cunit $@
 
 install:
-	@echo "No install target in libpc"
+	@echo "No install target in lib"
 
 check:
 	$(MAKE) -C cunit $@

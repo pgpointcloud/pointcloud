@@ -253,8 +253,8 @@ dnl Output the relevant files
 dnl ===========================================================================
 
 AC_OUTPUT([ 
-   libpc/Makefile
-   libpc/cunit/Makefile 
+   lib/Makefile
+   lib/cunit/Makefile 
 ])
     
 dnl ===========================================================================
