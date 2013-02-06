@@ -37,7 +37,7 @@ Datum pcpoint_get_value(PG_FUNCTION_ARGS)
 	char *dim_str;
 	float8 double_result;
 
-	PCPOINT *pt = pc_point_deserialize(serpt);
+	PCPOINT *pt = pc_point_deserialize(serpt, fcinfo);
 	if ( ! pt )
 		PG_RETURN_NULL();	
 
@@ -119,7 +119,7 @@ Datum pcpatch_from_pcpoint_array(PG_FUNCTION_ARGS)
 				elog(ERROR, "pcpatch_from_pcpoint_array: pcid mismatch (%d != %d)", serpt->pcid, pcid);
 			}
 			
-			pt = pc_point_deserialize(serpt);
+			pt = pc_point_deserialize(serpt, fcinfo);
 			if ( ! pt )
 			{
 				elog(ERROR, "pcpatch_from_pcpoint_array: point deserialization failed");
@@ -297,7 +297,7 @@ Datum pcpatch_unnest(PG_FUNCTION_ARGS)
 		* passed array will stick around till then.)
 		*/
 		serpatch = PG_GETARG_SERPATCH_P(0);
-		patch = pc_patch_deserialize(serpatch);
+		patch = pc_patch_deserialize(serpatch, fcinfo);
 
 		/* allocate memory for user context */
 		fctx = (pcpatch_unnest_fctx *) palloc(sizeof(pcpatch_unnest_fctx));

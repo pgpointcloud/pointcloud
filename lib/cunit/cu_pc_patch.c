@@ -264,6 +264,48 @@ test_run_length_encoding()
 	
 }
 
+static void 
+test_sigbits_encoding()
+{
+	char *bytes;
+	uint32_t count;
+	uint8_t common8;
+	uint16_t common16;
+	uint32_t common32;
+	
+	/*
+	01100001 a
+	01100010 b
+	01100011 c
+	01100000 `
+	*/
+	bytes = "abc";
+	common8 = pc_sigbits_8(bytes, strlen(bytes), &count);
+	CU_ASSERT_EQUAL(count, 6);
+	CU_ASSERT_EQUAL(common8, '`');
+
+	bytes = "abcdef";
+	common8 = pc_sigbits_8(bytes, strlen(bytes), &count);
+	CU_ASSERT_EQUAL(count, 5);
+	CU_ASSERT_EQUAL(common8, '`');
+
+	/*
+	0110000101100001 aa
+	0110001001100010 bb
+	0110001101100011 cc
+	0110000000000000 24576
+	*/
+	bytes = "aabbcc";
+	common16 = pc_sigbits_16(bytes, strlen(bytes)/2, &count);
+	CU_ASSERT_EQUAL(count, 6);
+	CU_ASSERT_EQUAL(common16, 24576);
+
+	bytes = "aaaabaaacaaadaaaeaaafaaa";
+	common32 = pc_sigbits_32(bytes, strlen(bytes)/4, &count);
+	CU_ASSERT_EQUAL(count, 29);
+	CU_ASSERT_EQUAL(common32, 1633771872);
+
+}
 
 /* REGISTER ***********************************************************/
 
@@ -272,6 +314,7 @@ CU_TestInfo patch_tests[] = {
 	PG_TEST(test_patch_hex_in),
 	PG_TEST(test_patch_hex_out),
 	PG_TEST(test_run_length_encoding),
+	PG_TEST(test_sigbits_encoding),
 	CU_TEST_INFO_NULL
 };
 

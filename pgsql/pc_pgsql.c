@@ -100,21 +100,29 @@ _PG_fini(void)
 	elog(LOG, "Pointcloud (%s) module unloaded", POINTCLOUD_VERSION);
 }
 
+/* Mask pcid from bottom of typmod */
+uint32 pcid_from_typmod(const int32 typmod)
+{
+    if ( typmod == -1 )
+        return 0;
+    else
+        return (typmod & 0x0000FFFF);
+}
 
 /**********************************************************************************
 * PCPOINT WKB Handling
 */
 
 PCPOINT *
-pc_point_from_hexwkb(const char *hexwkb, size_t hexlen)
+pc_point_from_hexwkb(const char *hexwkb, size_t hexlen, FunctionCallInfoData *fcinfo)
 {
 	PCPOINT *pt;
 	PCSCHEMA *schema;
-	uint32_t pcid;
-	uint8_t *wkb = bytes_from_hexbytes(hexwkb, hexlen);
+	uint32 pcid;
+	uint8 *wkb = bytes_from_hexbytes(hexwkb, hexlen);
 	size_t wkblen = hexlen/2;
 	pcid = wkb_get_pcid(wkb);	
-	schema = pc_schema_get_by_id(pcid);
+	schema = pc_schema_from_pcid(pcid, fcinfo);
 	pt = pc_point_from_wkb(schema, wkb, wkblen);	
 	pfree(wkb);
 	return pt;
@@ -123,7 +131,7 @@ pc_point_from_hexwkb(const char *hexwkb, size_t hexlen)
 char *
 pc_point_to_hexwkb(const PCPOINT *pt)
 {
-	uint8_t *wkb;
+	uint8 *wkb;
 	size_t wkb_size;
 	char *hexwkb;
 	
@@ -139,15 +147,15 @@ pc_point_to_hexwkb(const PCPOINT *pt)
 */
 
 PCPATCH *
-pc_patch_from_hexwkb(const char *hexwkb, size_t hexlen)
+pc_patch_from_hexwkb(const char *hexwkb, size_t hexlen, FunctionCallInfoData *fcinfo)
 {
 	PCPATCH *patch;
 	PCSCHEMA *schema;
-	uint32_t pcid;
-	uint8_t *wkb = bytes_from_hexbytes(hexwkb, hexlen);
+	uint32 pcid;
+	uint8 *wkb = bytes_from_hexbytes(hexwkb, hexlen);
 	size_t wkblen = hexlen/2;
 	pcid = wkb_get_pcid(wkb);	
-	schema = pc_schema_get_by_id(pcid);
+	schema = pc_schema_from_pcid(pcid, fcinfo);
 	patch = pc_patch_from_wkb(schema, wkb, wkblen);	
 	pfree(wkb);
 	return patch;
@@ -156,7 +164,7 @@ pc_patch_from_hexwkb(const char *hexwkb, size_t hexlen)
 char *
 pc_patch_to_hexwkb(const PCPATCH *patch)
 {
-	uint8_t *wkb;
+	uint8 *wkb;
 	size_t wkb_size;
 	char *hexwkb;
 	
@@ -174,8 +182,8 @@ pc_patch_to_hexwkb(const PCPATCH *patch)
 /**
 * TODO: Back this routine with a statement level memory cache.
 */
-PCSCHEMA *
-pc_schema_get_by_id(uint32_t pcid)
+static PCSCHEMA *
+pc_schema_from_pcid_uncached(uint32 pcid)
 {
 	char sql[256];
 	char *xml, *xml_spi, *srid_spi;
@@ -186,7 +194,7 @@ pc_schema_get_by_id(uint32_t pcid)
 	if (SPI_OK_CONNECT != SPI_connect ())
 	{
 		SPI_finish();
-		elog(ERROR, "pc_schema_get_by_id: could not connect to SPI manager");
+		elog(ERROR, "pc_schema_from_pcid: could not connect to SPI manager");
 		return NULL;
 	}
 
@@ -197,7 +205,7 @@ pc_schema_get_by_id(uint32_t pcid)
 	if ( err < 0 )
 	{
 		SPI_finish();
-		elog(ERROR, "pc_schema_get_by_id: error (%d) executing query: %s", err, sql);
+		elog(ERROR, "pc_schema_from_pcid: error (%d) executing query: %s", err, sql);
 		return NULL;
 	} 
 
@@ -247,6 +255,13 @@ pc_schema_get_by_id(uint32_t pcid)
 	return schema;
 }
 
+PCSCHEMA *
+pc_schema_from_pcid(uint32 pcid, FunctionCallInfoData *fcinfo)
+{
+    return pc_schema_from_pcid_uncached(pcid);
+}
+
+
 
 /**********************************************************************************
 * SERIALIZATION/DESERIALIZATION UTILITIES
@@ -264,10 +279,10 @@ pc_point_serialize(const PCPOINT *pcpt)
 }
 
 PCPOINT * 
-pc_point_deserialize(const SERIALIZED_POINT *serpt)
+pc_point_deserialize(const SERIALIZED_POINT *serpt, FunctionCallInfoData *fcinfo)
 {
 	PCPOINT *pcpt;
-	PCSCHEMA *schema = pc_schema_get_by_id(serpt->pcid);
+	PCSCHEMA *schema = pc_schema_from_pcid(serpt->pcid, fcinfo);
 	size_t pgsize = VARSIZE(serpt) + 1 - sizeof(SERIALIZED_POINT); 
 	/* 
 	* Big problem, the size on disk doesn't match what we expect, 
@@ -310,14 +325,14 @@ pc_patch_serialize(const PCPATCH *pcpch)
 }
 
 PCPATCH *
-pc_patch_deserialize(const SERIALIZED_PATCH *serpatch)
+pc_patch_deserialize(const SERIALIZED_PATCH *serpatch, FunctionCallInfoData *fcinfo)
 {
 	PCPATCH *patch;
-	PCSCHEMA *schema = pc_schema_get_by_id(serpatch->pcid);
+	PCSCHEMA *schema = pc_schema_from_pcid(serpatch->pcid, fcinfo);
 	
 	/* Reference the external data */
 	patch = pcalloc(sizeof(PCPATCH));
-	patch->data = (uint8_t*)serpatch->data;
+	patch->data = (uint8*)serpatch->data;
 	patch->datasize = VARSIZE(serpatch) - sizeof(SERIALIZED_PATCH) + 1;
 
 	/* Set up basic info */

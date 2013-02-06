@@ -93,4 +93,12 @@ uint8_t* pc_bytes_run_length_encode(const uint8_t *bytes, uint32_t interpretatio
 /** Convert RLE bytes to value bytes */
 uint8_t* pc_bytes_run_length_decode(const uint8_t *bytes_rle, size_t bytes_rle_size, uint32_t interpretation, uint32_t *bytes_nelems);
 
+/** How many bits are shared by all elements of this array? */
+uint32_t pc_signbits_count(const uint8_t *bytes, uint32_t interpretation, uint32_t nelems);
+
+uint8_t  pc_sigbits_8 (const uint8_t *bytes8, uint32_t nelems, uint32_t *nsigbits);
+uint16_t pc_sigbits_16(const uint8_t *bytes8, uint32_t nelems, uint32_t *nsigbits);
+uint32_t pc_sigbits_32(const uint8_t *bytes8, uint32_t nelems, uint32_t *nsigbits);
+uint64_t pc_sigbits_64(const uint8_t *bytes8, uint32_t nelems, uint32_t *nsigbits);
+
 #endif /* _PC_API_INTERNAL_H */

@@ -15,6 +15,10 @@ Datum pcpoint_out(PG_FUNCTION_ARGS);
 Datum pcpatch_in(PG_FUNCTION_ARGS);
 Datum pcpatch_out(PG_FUNCTION_ARGS);
 
+/* Typmod support */
+Datum pc_typmod_in(PG_FUNCTION_ARGS);
+Datum pc_typmod_out(PG_FUNCTION_ARGS);
+
 /* Other SQL functions */
 Datum pcschema_is_valid(PG_FUNCTION_ARGS);
 Datum pcschema_get_ndims(PG_FUNCTION_ARGS);
@@ -24,18 +28,34 @@ Datum pcpatch_as_text(PG_FUNCTION_ARGS);
 Datum pcpoint_as_bytea(PG_FUNCTION_ARGS);
 Datum pcpatch_bytea_envelope(PG_FUNCTION_ARGS);
 
+
+static void
+pcid_consistent(const uint32 pcid, const uint32 column_pcid)
+{
+	if ( column_pcid && pcid != column_pcid )
+	{
+        ereport(ERROR, (
+            errcode(ERRCODE_DATATYPE_MISMATCH),
+            errmsg("point/patch pcid (%u) does not match column pcid (%d)", pcid, column_pcid) 
+            ));
+	} 
+}
+
+
 PG_FUNCTION_INFO_V1(pcpoint_in);
 Datum pcpoint_in(PG_FUNCTION_ARGS)
 {
 	char *str = PG_GETARG_CSTRING(0);
-	/* Datum geog_oid = PG_GETARG_OID(1); Not needed. */
-	int32 pc_typmod = -1;
+	/* Datum pc_oid = PG_GETARG_OID(1); Not needed. */
+    int32 typmod = 0;
+    uint32 pcid = 0;
 	PCPOINT *pt;
 	SERIALIZED_POINT *serpt;
 	
 	if ( (PG_NARGS()>2) && (!PG_ARGISNULL(2)) ) 
 	{
-		pc_typmod = PG_GETARG_INT32(2);
+		typmod = PG_GETARG_INT32(2);
+        pcid = pcid_from_typmod(typmod);
 	}
 
 	/* Empty string. */
@@ -48,7 +68,8 @@ Datum pcpoint_in(PG_FUNCTION_ARGS)
 	if ( str[0] == '0' )
 	{		
 		/* Hex-encoded binary */
-		pt = pc_point_from_hexwkb(str, strlen(str));
+		pt = pc_point_from_hexwkb(str, strlen(str), fcinfo);
+        pcid_consistent(pt->schema->pcid, pcid);
 		serpt = pc_point_serialize(pt);
 		pc_point_free(pt);
 	}
@@ -68,7 +89,7 @@ Datum pcpoint_out(PG_FUNCTION_ARGS)
 	char *hexwkb = NULL;
 
 	serpt = (SERIALIZED_POINT*)PG_DETOAST_DATUM(PG_GETARG_DATUM(0));
-	pcpt = pc_point_deserialize(serpt);
+	pcpt = pc_point_deserialize(serpt, fcinfo);
 	hexwkb = pc_point_to_hexwkb(pcpt);
 	pc_point_free(pcpt);
 	PG_RETURN_CSTRING(hexwkb);
@@ -80,13 +101,14 @@ Datum pcpatch_in(PG_FUNCTION_ARGS)
 {
 	char *str = PG_GETARG_CSTRING(0);
 	/* Datum geog_oid = PG_GETARG_OID(1); Not needed. */
-	int32 pc_typmod = -1;
+    uint32 typmod = 0, pcid = 0;
 	PCPATCH *patch;
 	SERIALIZED_PATCH *serpatch;
 	
 	if ( (PG_NARGS()>2) && (!PG_ARGISNULL(2)) ) 
 	{
-		pc_typmod = PG_GETARG_INT32(2);
+		typmod = PG_GETARG_INT32(2);
+        pcid = pcid_from_typmod(typmod);
 	}
 
 	/* Empty string. */
@@ -99,7 +121,8 @@ Datum pcpatch_in(PG_FUNCTION_ARGS)
 	if ( str[0] == '0' )
 	{		
 		/* Hex-encoded binary */
-		patch = pc_patch_from_hexwkb(str, strlen(str));
+		patch = pc_patch_from_hexwkb(str, strlen(str), fcinfo);
+        pcid_consistent(patch->schema->pcid, pcid);
 		serpatch = pc_patch_serialize(patch);
 		pc_patch_free(patch);
 	}
@@ -119,7 +142,7 @@ Datum pcpatch_out(PG_FUNCTION_ARGS)
 	char *hexwkb = NULL;
 
 	serpatch = (SERIALIZED_PATCH*)PG_DETOAST_DATUM(PG_GETARG_DATUM(0));
-	patch = pc_patch_deserialize(serpatch);
+	patch = pc_patch_deserialize(serpatch, fcinfo);
 	hexwkb = pc_patch_to_hexwkb(patch);
 	pc_patch_free(patch);
 	PG_RETURN_CSTRING(hexwkb);
@@ -150,7 +173,7 @@ Datum pcschema_get_ndims(PG_FUNCTION_ARGS)
 {
 	int ndims;
 	uint32 pcid = PG_GETARG_INT32(0);
-	PCSCHEMA *schema = pc_schema_get_by_id(pcid);
+	PCSCHEMA *schema = pc_schema_from_pcid(pcid, fcinfo);
 
 	if ( ! schema )
 		elog(ERROR, "unable to load schema for pcid = %d", pcid);
@@ -172,7 +195,7 @@ Datum pcpoint_from_double_array(PG_FUNCTION_ARGS)
 	int i;
 	float8 *vals;
 	PCPOINT *pt;
-	PCSCHEMA *schema = pc_schema_get_by_id(pcid);
+	PCSCHEMA *schema = pc_schema_from_pcid(pcid, fcinfo);
 	SERIALIZED_POINT *serpt;
 
 	if ( ! schema )
@@ -214,7 +237,7 @@ Datum pcpoint_as_text(PG_FUNCTION_ARGS)
 	SERIALIZED_POINT *serpt = PG_GETARG_SERPOINT_P(0);
 	text *txt;
 	char *str;
-	PCPOINT *pt = pc_point_deserialize(serpt);
+	PCPOINT *pt = pc_point_deserialize(serpt, fcinfo);
 	if ( ! pt ) 
 		PG_RETURN_NULL();	
 	
@@ -231,7 +254,7 @@ Datum pcpatch_as_text(PG_FUNCTION_ARGS)
 	SERIALIZED_PATCH *serpatch = PG_GETARG_SERPATCH_P(0);
 	text *txt;
 	char *str;
-	PCPATCH *patch = pc_patch_deserialize(serpatch);
+	PCPATCH *patch = pc_patch_deserialize(serpatch, fcinfo);
 	if ( ! patch ) 
 		PG_RETURN_NULL();	
 	
@@ -246,11 +269,11 @@ PG_FUNCTION_INFO_V1(pcpoint_as_bytea);
 Datum pcpoint_as_bytea(PG_FUNCTION_ARGS)
 {
 	SERIALIZED_POINT *serpt = PG_GETARG_SERPOINT_P(0);
-	uint8_t *bytes;
+	uint8 *bytes;
 	size_t bytes_size;
 	bytea *wkb;
 	size_t wkb_size;
-	PCPOINT *pt = pc_point_deserialize(serpt);
+	PCPOINT *pt = pc_point_deserialize(serpt, fcinfo);
 
 	if ( ! pt ) 
 		PG_RETURN_NULL();	
@@ -271,11 +294,11 @@ PG_FUNCTION_INFO_V1(pcpatch_bytea_envelope);
 Datum pcpatch_bytea_envelope(PG_FUNCTION_ARGS)
 {
 	SERIALIZED_PATCH *serpatch = PG_GETARG_SERPATCH_P(0);
-	uint8_t *bytes;
+	uint8 *bytes;
 	size_t bytes_size;
 	bytea *wkb;
 	size_t wkb_size;
-	PCPATCH *pa = pc_patch_deserialize(serpatch);
+	PCPATCH *pa = pc_patch_deserialize(serpatch, fcinfo);
 
 	if ( ! pa ) 
 		PG_RETURN_NULL();	
@@ -291,4 +314,71 @@ Datum pcpatch_bytea_envelope(PG_FUNCTION_ARGS)
 
 	PG_RETURN_BYTEA_P(wkb);
 }
+
+PG_FUNCTION_INFO_V1(pc_typmod_in);
+Datum pc_typmod_in(PG_FUNCTION_ARGS)
+{
+    uint32 typmod = 0;
+    Datum *elem_values;
+    int n = 0;
+    int i = 0;
+    ArrayType *arr = (ArrayType *) DatumGetPointer(PG_GETARG_DATUM(0));
+
+    if (ARR_ELEMTYPE(arr) != CSTRINGOID)
+        ereport(ERROR,
+            (errcode(ERRCODE_ARRAY_ELEMENT_ERROR),
+             errmsg("typmod array must be type cstring[]")));
+
+    if (ARR_NDIM(arr) != 1)
+        ereport(ERROR,
+            (errcode(ERRCODE_ARRAY_SUBSCRIPT_ERROR),
+             errmsg("typmod array must be one-dimensional")));
+
+    if (ARR_HASNULL(arr))
+        ereport(ERROR,
+            (errcode(ERRCODE_NULL_VALUE_NOT_ALLOWED),
+             errmsg("typmod array must not contain nulls")));
+
+    if (ArrayGetNItems(ARR_NDIM(arr), ARR_DIMS(arr)) > 1)
+        ereport(ERROR,
+            (errcode(ERRCODE_ARRAY_SUBSCRIPT_ERROR),
+             errmsg("typmod array must have one element")));
+
+    deconstruct_array(arr,
+                      CSTRINGOID, -2, false, 'c', /* hardwire cstring representation details */
+                      &elem_values, NULL, &n);
+
+    for (i = 0; i < n; i++)
+    {
+        if ( i == 0 ) /* PCID */
+        {
+            char *s = DatumGetCString(elem_values[i]);
+            typmod = pg_atoi(s, sizeof(int32), '\0');
+        }
+    }
+
+    PG_RETURN_INT32(typmod);
+}
+
+PG_FUNCTION_INFO_V1(pc_typmod_out);
+Datum pc_typmod_out(PG_FUNCTION_ARGS)
+{
+    char *str = (char*)palloc(64);
+    uint32 typmod = PG_GETARG_INT32(0);
+    uint32 pcid = pcid_from_typmod(typmod);
+    
+
+    /* No PCID value? Then no typmod at all. Return empty string. */
+    if ( ! pcid )
+    {
+        str[0] = '\0';
+        PG_RETURN_CSTRING(str);
+    }
+    else
+    {
+        sprintf(str, "(%u)", pcid);
+        PG_RETURN_CSTRING(str);
+    }
+}
+
 

@@ -14,7 +14,10 @@ CREATE OR REPLACE FUNCTION PC_SchemaIsValid(xml text)
 
 -- Metadata table describing contents of pcpoints
 CREATE TABLE pointcloud_formats (
-    pcid INTEGER PRIMARY KEY CHECK (pcid > 0),
+    pcid INTEGER PRIMARY KEY 
+        -- PCID == 0 is unknown
+        -- PCID > 2^16 is reserved to leave space in typmod
+        CHECK (pcid > 0 AND pcid < 65536),
     srid INTEGER, -- REFERENCES spatial_ref_sys(srid)
     schema TEXT 
 		CHECK ( PC_SchemaIsValid(schema) )
@@ -27,6 +30,17 @@ CREATE OR REPLACE FUNCTION PC_SchemaGetNDims(pcid integer)
 	RETURNS integer AS 'MODULE_PATHNAME','pcschema_get_ndims'
     LANGUAGE 'c' IMMUTABLE STRICT;
 
+-- Read typmod number from string
+CREATE OR REPLACE FUNCTION pc_typmod_in(cstring[])
+    RETURNS integer
+    AS 'MODULE_PATHNAME','pc_typmod_in'
+    LANGUAGE 'c' IMMUTABLE STRICT;
+
+-- Write typmod number to string
+CREATE OR REPLACE FUNCTION pc_typmod_out(integer)
+    RETURNS cstring
+    AS 'MODULE_PATHNAME','pc_typmod_out'
+    LANGUAGE 'c' IMMUTABLE STRICT;
 
 
 -------------------------------------------------------------------
@@ -47,8 +61,8 @@ CREATE TYPE pcpoint (
 	output = pcpoint_out,
 	-- send = geometry_send,
 	-- receive = geometry_recv,
-	-- typmod_in = geometry_typmod_in,
-	-- typmod_out = geometry_typmod_out,
+	typmod_in = pc_typmod_in,
+	typmod_out = pc_typmod_out,
 	-- delimiter = ':',
 	-- alignment = double,
 	-- analyze = geometry_analyze,
@@ -89,8 +103,8 @@ CREATE TYPE pcpatch (
 	output = pcpatch_out,
 	-- send = geometry_send,
 	-- receive = geometry_recv,
-	-- typmod_in = geometry_typmod_in,
-	-- typmod_out = geometry_typmod_out,
+	typmod_in = pc_typmod_in,
+	typmod_out = pc_typmod_out,
 	-- delimiter = ':',
 	-- alignment = double,
 	-- analyze = geometry_analyze,
