@@ -185,6 +185,8 @@ PCDIMENSION* pc_schema_get_dimension(const PCSCHEMA *s, uint32_t dim);
 PCDIMENSION* pc_schema_get_dimension_by_name(const PCSCHEMA *s, const char *name);
 /** Check if the schema has all the information we need to work with data */
 uint32_t pc_schema_is_valid(const PCSCHEMA *s);
+/** Create a full copy of the schema and dimensions it contains */
+PCSCHEMA* pc_schema_clone(const PCSCHEMA *s);
 
 
 /**********************************************************************

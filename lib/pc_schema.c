@@ -82,6 +82,18 @@ pc_dimension_new()
 	return pcd;
 }
 
+static PCDIMENSION*
+pc_dimension_clone(const PCDIMENSION *dim)
+{
+    PCDIMENSION *pcd = pc_dimension_new();
+	/* Copy all the inline data */
+    memcpy(pcd, dim, sizeof(PCDIMENSION));
+    /* Copy the referenced data */
+    pcd->name = pcstrdup(dim->name);
+    pcd->description = pcstrdup(dim->description);
+	return pcd;
+}
+
 /** Release the memory behind the PCDIMENSION struct */
 static void
 pc_dimension_free(PCDIMENSION *pcd)
@@ -105,6 +117,54 @@ pc_schema_new(uint32_t ndims)
 	pcs->y_position = -1;
 	return pcs;
 }
+
+/** Complete the byte offsets of dimensions from the ordered sizes */
+static void
+pc_schema_calculate_byteoffsets(PCSCHEMA *pcs)
+{
+	int i;
+	size_t byteoffset = 0;
+	for ( i = 0; i < pcs->ndims; i++ )
+	{
+		if ( pcs->dims[i] )
+		{
+			pcs->dims[i]->byteoffset = byteoffset;
+            pcs->dims[i]->size = pc_interpretation_size(pcs->dims[i]->interpretation);
+			byteoffset += pcs->dims[i]->size;
+		}
+	}
+    pcs->size = byteoffset;
+}
+
+static int
+pc_schema_set_dimension(PCSCHEMA *s, PCDIMENSION *d)
+{
+	s->dims[d->position] = d;
+	hashtable_insert(s->namehash, pcstrdup(d->name), d);
+}
+
+
+PCSCHEMA*
+pc_schema_clone(const PCSCHEMA *s)
+{
+    int i;
+    PCSCHEMA *pcs = pc_schema_new(s->ndims);
+    pcs->pcid = s->pcid;
+    pcs->srid = s->srid;
+    pcs->x_position = s->x_position;
+    pcs->y_position = s->y_position;
+    pcs->compression = s->compression;
+    for ( i = 0; i < pcs->ndims; i++ )
+    {
+        if ( s->dims[i] )
+        {
+            pc_schema_set_dimension(pcs, pc_dimension_clone(s->dims[i]));
+        }
+    }
+	pc_schema_calculate_byteoffsets(pcs);
+    return pcs;
+}
+
 
 /** Release the memory behind the PCSCHEMA struct */
 void 
@@ -181,21 +241,6 @@ pc_schema_to_json(const PCSCHEMA *pcs)
 	return str;
 }
 
-/** Complete the byte offsets of dimensions from the ordered sizes */
-static void
-pc_schema_calculate_byteoffsets(const PCSCHEMA *pcs)
-{
-	int i;
-	size_t byteoffset = 0;
-	for ( i = 0; i < pcs->ndims; i++ )
-	{
-		if ( pcs->dims[i] )
-		{
-			pcs->dims[i]->byteoffset = byteoffset;
-			byteoffset += pc_interpretation_size(pcs->dims[i]->interpretation);
-		}
-	}
-}
 
 static void pc_schema_check_xy(const PCSCHEMA *s)
 {
@@ -329,6 +374,9 @@ pc_schema_from_xml(const char *xml_str, PCSCHEMA **schema)
 					}
 				}
 				
+				/* Convert interprestation to size */
+				d->size = pc_interpretation_size(d->interpretation);
+				
 				/* Store the dimension in the schema */
 				if ( d->position >= 0 && d->position < ndims )
 				{
@@ -342,12 +390,9 @@ pc_schema_from_xml(const char *xml_str, PCSCHEMA **schema)
 						pcwarn("schema dimension at position \"%d\" is declared twice", d->position + 1, ndims);
 						return PC_FAILURE;
 					}
-					s->dims[d->position] = d;
-					d->size = pc_interpretation_size(d->interpretation);
-					s->size += d->size;
 					if ( xydim == 'x' ) { s->x_position = d->position; }
 					if ( xydim == 'y' ) { s->y_position = d->position; }
-					hashtable_insert(s->namehash, pcstrdup(d->name), d);
+                    pc_schema_set_dimension(s, d);
 				}
 				else
 				{

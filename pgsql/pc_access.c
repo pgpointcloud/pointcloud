@@ -37,7 +37,8 @@ Datum pcpoint_get_value(PG_FUNCTION_ARGS)
 	char *dim_str;
 	float8 double_result;
 
-	PCPOINT *pt = pc_point_deserialize(serpt, fcinfo);
+    PCSCHEMA *schema = pc_schema_from_pcid(serpt->pcid, fcinfo);
+	PCPOINT *pt = pc_point_deserialize(serpt, schema);
 	if ( ! pt )
 		PG_RETURN_NULL();	
 
@@ -52,7 +53,7 @@ Datum pcpoint_get_value(PG_FUNCTION_ARGS)
 	PG_RETURN_DATUM(DirectFunctionCall1(float8_numeric, Float8GetDatum(double_result)));
 }
 
-static bool
+static inline bool
 array_get_isnull(const bits8 *nullbitmap, int offset)
 {
 	if (nullbitmap == NULL)
@@ -66,25 +67,18 @@ array_get_isnull(const bits8 *nullbitmap, int offset)
 	return true;
 }
 
-PG_FUNCTION_INFO_V1(pcpatch_from_pcpoint_array);
-Datum pcpatch_from_pcpoint_array(PG_FUNCTION_ARGS)
+static PCPATCH *
+pcpatch_from_array(ArrayType *array, FunctionCallInfoData *fcinfo)
 {
-	ArrayType *array;
-	Datum datum = PG_GETARG_DATUM(0);
 	int nelems;
 	bits8 *bitmap;
 	int bitmask;
 	size_t offset = 0;
 	int i;
-	PCPOINTLIST *pl;
+    uint32 pcid = 0;
 	PCPATCH *pa;
-	SERIALIZED_PATCH *serpa;
-	uint32_t pcid = 0;
-
-	/* Null array, null geometry (should be empty?) */
-	if ( (Pointer *)datum == NULL ) PG_RETURN_NULL();
-
-	array = DatumGetArrayTypeP(datum);
+	PCPOINTLIST *pl;
+    PCSCHEMA *schema = 0;
 
 	/* How many things in our array? */
 	nelems = ArrayGetNItems(ARR_NDIM(array), ARR_DIMS(array));
@@ -94,7 +88,7 @@ Datum pcpatch_from_pcpoint_array(PG_FUNCTION_ARGS)
 
 	/* Empty array? Null return */
 	if ( nelems == 0 ) 
-		PG_RETURN_NULL();
+        return NULL;
 	
 	/* Make our holder */
 	pl = pc_pointlist_make(nelems);
@@ -110,6 +104,11 @@ Datum pcpatch_from_pcpoint_array(PG_FUNCTION_ARGS)
 			SERIALIZED_POINT *serpt = (SERIALIZED_POINT *)(ARR_DATA_PTR(array)+offset);
 			PCPOINT *pt;
 			
+			if ( ! schema )
+			{
+                schema = pc_schema_from_pcid(serpt->pcid, fcinfo);
+		    }
+			
 			if ( ! pcid ) 
 			{
 				pcid = serpt->pcid;
@@ -119,7 +118,7 @@ Datum pcpatch_from_pcpoint_array(PG_FUNCTION_ARGS)
 				elog(ERROR, "pcpatch_from_pcpoint_array: pcid mismatch (%d != %d)", serpt->pcid, pcid);
 			}
 			
-			pt = pc_point_deserialize(serpt, fcinfo);
+			pt = pc_point_deserialize(serpt, schema);
 			if ( ! pt )
 			{
 				elog(ERROR, "pcpatch_from_pcpoint_array: point deserialization failed");
@@ -133,10 +132,28 @@ Datum pcpatch_from_pcpoint_array(PG_FUNCTION_ARGS)
 	}
 	
 	if ( pl->npoints == 0 )
-		PG_RETURN_NULL();
+		return NULL;
 
 	pa = pc_patch_from_points(pl);
 	pc_pointlist_free(pl);
+    return pa;
+}
+
+PG_FUNCTION_INFO_V1(pcpatch_from_pcpoint_array);
+Datum pcpatch_from_pcpoint_array(PG_FUNCTION_ARGS)
+{
+	ArrayType *array;
+	PCPATCH *pa;
+	SERIALIZED_PATCH *serpa;
+
+    if ( PG_ARGISNULL(0) )
+        PG_RETURN_NULL();
+
+	array = DatumGetArrayTypeP(PG_GETARG_DATUM(0));
+    pa = pcpatch_from_array(array, fcinfo);
+    if ( ! pa )
+        PG_RETURN_NULL();
+
 	serpa = pc_patch_serialize(pa);
 	pc_patch_free(pa);
 	PG_RETURN_POINTER(serpa);
@@ -244,21 +261,29 @@ Datum pcpoint_agg_final_array(PG_FUNCTION_ARGS)
 	PG_RETURN_DATUM(result);
 }
 
+
+
 PG_FUNCTION_INFO_V1(pcpoint_agg_final_pcpatch);
 Datum pcpoint_agg_final_pcpatch(PG_FUNCTION_ARGS)
 {
+    ArrayType *array;
 	abs_trans *a;
-	Datum result = 0;
-	Datum result_final = 0;
+    PCPATCH *pa;
+    SERIALIZED_PATCH *serpa;
 
 	if (PG_ARGISNULL(0))
 		PG_RETURN_NULL();   /* returns null iff no input values */
 
 	a = (abs_trans*) PG_GETARG_POINTER(0);
 
-	result = pcpoint_agg_final(a, CurrentMemoryContext, fcinfo);
-	result_final = DirectFunctionCall1(pcpatch_from_pcpoint_array, result);
-	PG_RETURN_DATUM(result_final);
+	array = DatumGetArrayTypeP(pcpoint_agg_final(a, CurrentMemoryContext, fcinfo));
+    pa = pcpatch_from_array(array, fcinfo);
+    if ( ! pa )
+        PG_RETURN_NULL();
+	
+    serpa = pc_patch_serialize(pa);
+    pc_patch_free(pa);
+    PG_RETURN_POINTER(serpa);
 }
 
 PG_FUNCTION_INFO_V1(pcpatch_unnest);
@@ -297,7 +322,7 @@ Datum pcpatch_unnest(PG_FUNCTION_ARGS)
 		* passed array will stick around till then.)
 		*/
 		serpatch = PG_GETARG_SERPATCH_P(0);
-		patch = pc_patch_deserialize(serpatch, fcinfo);
+		patch = pc_patch_deserialize(serpatch, pc_schema_from_pcid_uncached(serpatch->pcid));
 
 		/* allocate memory for user context */
 		fctx = (pcpatch_unnest_fctx *) palloc(sizeof(pcpatch_unnest_fctx));

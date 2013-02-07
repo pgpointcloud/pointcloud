@@ -77,6 +77,8 @@ INSERT INTO pa_test (pa) VALUES ('0000000001000000000000000200000006000000070000
 SELECT PC_AsText(pa) FROM pa_test;
 SELECT PC_Envelope(pa) from pa_test;
 
+SELECT PC_AsText(PC_Patch(pt)) FROM pt_test;
+
 SELECT PC_AsText(PC_Explode(PC_Patch(pt))) FROM pt_test;
 
 --DROP TABLE pt_test;

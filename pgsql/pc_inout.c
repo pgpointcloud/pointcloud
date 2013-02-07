@@ -85,11 +85,13 @@ PG_FUNCTION_INFO_V1(pcpoint_out);
 Datum pcpoint_out(PG_FUNCTION_ARGS)
 {
 	PCPOINT *pcpt = NULL;
+    PCSCHEMA *schema = NULL;
 	SERIALIZED_POINT *serpt = NULL;
 	char *hexwkb = NULL;
 
 	serpt = (SERIALIZED_POINT*)PG_DETOAST_DATUM(PG_GETARG_DATUM(0));
-	pcpt = pc_point_deserialize(serpt, fcinfo);
+    schema = pc_schema_from_pcid(serpt->pcid, fcinfo);
+	pcpt = pc_point_deserialize(serpt, schema);
 	hexwkb = pc_point_to_hexwkb(pcpt);
 	pc_point_free(pcpt);
 	PG_RETURN_CSTRING(hexwkb);
@@ -140,9 +142,11 @@ Datum pcpatch_out(PG_FUNCTION_ARGS)
 	PCPATCH *patch = NULL;
 	SERIALIZED_PATCH *serpatch = NULL;
 	char *hexwkb = NULL;
+    PCSCHEMA *schema = NULL;
 
 	serpatch = (SERIALIZED_PATCH*)PG_DETOAST_DATUM(PG_GETARG_DATUM(0));
-	patch = pc_patch_deserialize(serpatch, fcinfo);
+    schema = pc_schema_from_pcid(serpatch->pcid, fcinfo);
+	patch = pc_patch_deserialize(serpatch, schema);
 	hexwkb = pc_patch_to_hexwkb(patch);
 	pc_patch_free(patch);
 	PG_RETURN_CSTRING(hexwkb);
@@ -237,7 +241,8 @@ Datum pcpoint_as_text(PG_FUNCTION_ARGS)
 	SERIALIZED_POINT *serpt = PG_GETARG_SERPOINT_P(0);
 	text *txt;
 	char *str;
-	PCPOINT *pt = pc_point_deserialize(serpt, fcinfo);
+    PCSCHEMA *schema = pc_schema_from_pcid(serpt->pcid, fcinfo);
+	PCPOINT *pt = pc_point_deserialize(serpt, schema);
 	if ( ! pt ) 
 		PG_RETURN_NULL();	
 	
@@ -254,7 +259,8 @@ Datum pcpatch_as_text(PG_FUNCTION_ARGS)
 	SERIALIZED_PATCH *serpatch = PG_GETARG_SERPATCH_P(0);
 	text *txt;
 	char *str;
-	PCPATCH *patch = pc_patch_deserialize(serpatch, fcinfo);
+    PCSCHEMA *schema = pc_schema_from_pcid(serpatch->pcid, fcinfo);
+	PCPATCH *patch = pc_patch_deserialize(serpatch, schema);
 	if ( ! patch ) 
 		PG_RETURN_NULL();	
 	
@@ -273,7 +279,8 @@ Datum pcpoint_as_bytea(PG_FUNCTION_ARGS)
 	size_t bytes_size;
 	bytea *wkb;
 	size_t wkb_size;
-	PCPOINT *pt = pc_point_deserialize(serpt, fcinfo);
+    PCSCHEMA *schema = pc_schema_from_pcid(serpt->pcid, fcinfo);
+	PCPOINT *pt = pc_point_deserialize(serpt, schema);
 
 	if ( ! pt ) 
 		PG_RETURN_NULL();	
@@ -298,7 +305,8 @@ Datum pcpatch_bytea_envelope(PG_FUNCTION_ARGS)
 	size_t bytes_size;
 	bytea *wkb;
 	size_t wkb_size;
-	PCPATCH *pa = pc_patch_deserialize(serpatch, fcinfo);
+    PCSCHEMA *schema = pc_schema_from_pcid(serpatch->pcid, fcinfo);
+	PCPATCH *pa = pc_patch_deserialize(serpatch, schema);
 
 	if ( ! pa ) 
 		PG_RETURN_NULL();	

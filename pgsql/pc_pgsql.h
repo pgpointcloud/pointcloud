@@ -68,11 +68,14 @@ uint32 pcid_from_typmod(const int32 typmod);
 /** Look-up the PCID in the POINTCLOUD_FORMATS table, and construct a PC_SCHEMA from the XML therein */
 PCSCHEMA* pc_schema_from_pcid(uint32_t pcid, FunctionCallInfoData *fcinfo);
 
+/** Look-up the PCID in the POINTCLOUD_FORMATS table, and construct a PC_SCHEMA from the XML therein */
+PCSCHEMA* pc_schema_from_pcid_uncached(uint32 pcid);
+
 /** Turn a PCPOINT into a byte buffer suitable for saving in PgSQL */
 SERIALIZED_POINT* pc_point_serialize(const PCPOINT *pcpt);
 
 /** Turn a byte buffer into a PCPOINT for processing */
-PCPOINT* pc_point_deserialize(const SERIALIZED_POINT *serpt, FunctionCallInfoData *fcinfo);
+PCPOINT* pc_point_deserialize(const SERIALIZED_POINT *serpt, const PCSCHEMA *schema);
 
 /** Create a new readwrite PCPOINT from a hex string */
 PCPOINT* pc_point_from_hexwkb(const char *hexwkb, size_t hexlen, FunctionCallInfoData *fcinfo);
@@ -80,15 +83,17 @@ PCPOINT* pc_point_from_hexwkb(const char *hexwkb, size_t hexlen, FunctionCallInf
 /** Create a hex representation of a PCPOINT */
 char* pc_point_to_hexwkb(const PCPOINT *pt);
 
-
 /** Turn a PCPATCH into a byte buffer suitable for saving in PgSQL */
 SERIALIZED_PATCH* pc_patch_serialize(const PCPATCH *patch);
 
 /** Turn a byte buffer into a PCPATCH for processing */
-PCPATCH* pc_patch_deserialize(const SERIALIZED_PATCH *serpatch, FunctionCallInfoData *fcinfo);
+PCPATCH* pc_patch_deserialize(const SERIALIZED_PATCH *serpatch, const PCSCHEMA *schema);
 
 /** Create a new readwrite PCPATCH from a hex string */
 PCPATCH* pc_patch_from_hexwkb(const char *hexwkb, size_t hexlen, FunctionCallInfoData *fcinfo);
 
 /** Create a hex representation of a PCPOINT */
 char* pc_patch_to_hexwkb(const PCPATCH *patch);
+
+/** Read the first few bytes off an object to get the datum */
+uint32 pcid_from_datum(Datum d);

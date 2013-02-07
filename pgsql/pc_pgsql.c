@@ -10,6 +10,8 @@
 
 #include "pc_pgsql.h"
 #include "executor/spi.h"
+#include "access/hash.h"
+#include "utils/hsearch.h"
 
 PG_MODULE_MAGIC;
 
@@ -25,9 +27,11 @@ pgsql_alloc(size_t size)
 
 	if ( ! result )
 	{
-		ereport(ERROR, (errmsg_internal("Out of virtual memory")));
-		return NULL;
-	}
+        ereport(ERROR,
+            (errcode(ERRCODE_OUT_OF_MEMORY),
+             errmsg("Out of virtual memory")));
+     }
+
 	return result;
 }
 
@@ -36,6 +40,12 @@ pgsql_realloc(void *mem, size_t size)
 {
 	void * result;
 	result = repalloc(mem, size);
+	if ( ! result )
+	{
+        ereport(ERROR,
+            (errcode(ERRCODE_OUT_OF_MEMORY),
+             errmsg("Out of virtual memory")));
+     }
 	return result;
 }
 
@@ -179,10 +189,18 @@ pc_patch_to_hexwkb(const PCPATCH *patch)
 * PCID <=> PCSCHEMA translation via POINTCLOUD_FORMATS
 */
 
-/**
-* TODO: Back this routine with a statement level memory cache.
-*/
-static PCSCHEMA *
+uint32 pcid_from_datum(Datum d)
+{
+    SERIALIZED_POINT *serpart;
+    if ( ! d )
+        return 0;
+    /* Serializations are int32_t <size> uint32_t <pcid> == 8 bytes */
+    /* Cast to SERIALIZED_POINT for convenience, SERIALIZED_PATCH shares same header */
+    serpart = (SERIALIZED_POINT*)PG_DETOAST_DATUM_SLICE(d, 0, 8);
+    return serpart->pcid;
+}
+
+PCSCHEMA *
 pc_schema_from_pcid_uncached(uint32 pcid)
 {
 	char sql[256];
@@ -245,8 +263,9 @@ pc_schema_from_pcid_uncached(uint32 pcid)
 	
 	if ( ! err )
 	{
-		elog(ERROR, "unable to parse XML of pcid = %d in \"%s\"", pcid, POINTCLOUD_FORMATS);
-		return NULL;
+        ereport(ERROR,
+            (errcode(ERRCODE_NOT_AN_XML_DOCUMENT),
+             errmsg("unable to parse XML for pcid = %d in \"%s\"", pcid, POINTCLOUD_FORMATS)));
 	}
 	
 	schema->pcid = pcid;
@@ -255,10 +274,125 @@ pc_schema_from_pcid_uncached(uint32 pcid)
 	return schema;
 }
 
+
+typedef struct {
+    int type;
+    char data[1];
+} GenericCache;
+
+/**
+* Hold the schema references in a list.
+* We'll just search them linearly, because
+* usually we'll have only one per statement
+*/
+#define SchemaCacheSize 16
+
+typedef struct {
+    int type;
+    int next_slot;
+    int pcids[SchemaCacheSize];
+    PCSCHEMA* schemas[SchemaCacheSize];
+} SchemaCache;
+
+
+/**
+* PostGIS uses this kind of structure for its
+* cache objects, and we expect to be used in
+* concert with PostGIS, so here we not only ape
+* the container, but avoid the first 10 slots,
+* so as to miss any existing cached PostGIS objects.
+*/ 
+typedef struct {
+    GenericCache *entry[16];
+} GenericCacheCollection;
+
+#define PC_SCHEMA_CACHE 10
+#define PC_STATS_CACHE  11
+ 
+/**
+* Get the generic collection off the statement, allocate a 
+* new one if we don't have one already.
+*/ 
+static GenericCacheCollection * 
+GetGenericCacheCollection(FunctionCallInfoData *fcinfo)
+{
+    GenericCacheCollection *cache = fcinfo->flinfo->fn_extra;
+
+    if ( ! cache ) 
+    {
+        cache = MemoryContextAlloc(fcinfo->flinfo->fn_mcxt, sizeof(GenericCacheCollection));
+        memset(cache, 0, sizeof(GenericCacheCollection));
+        fcinfo->flinfo->fn_extra = cache;
+    }
+    return cache;
+}
+
+/**
+* Get the Proj4 entry from the generic cache if one exists.
+* If it doesn't exist, make a new empty one and return it.
+*/
+static SchemaCache *
+GetSchemaCache(FunctionCallInfoData* fcinfo)
+{
+        GenericCacheCollection *generic_cache = GetGenericCacheCollection(fcinfo);
+        SchemaCache* cache = (SchemaCache*)(generic_cache->entry[PC_SCHEMA_CACHE]);
+        
+        if ( ! cache )
+        {
+                /* Allocate in the upper context */
+                cache = MemoryContextAlloc(fcinfo->flinfo->fn_mcxt, sizeof(SchemaCache));
+                memset(cache, 0, sizeof(SchemaCache));
+                cache->type = PC_SCHEMA_CACHE;
+        }
+        
+        generic_cache->entry[PC_SCHEMA_CACHE] = (GenericCache*)cache;
+        return cache;
+}
+
+
 PCSCHEMA *
 pc_schema_from_pcid(uint32 pcid, FunctionCallInfoData *fcinfo)
 {
-    return pc_schema_from_pcid_uncached(pcid);
+    SchemaCache *schema_cache = GetSchemaCache(fcinfo);
+    int i;
+    PCSCHEMA *schema;
+    MemoryContext oldcontext;
+    
+    /* Unable to find/make a schema cache? Odd. */
+    if ( ! schema_cache )
+    {
+        ereport(ERROR,
+            (errcode(ERRCODE_INTERNAL_ERROR),
+             errmsg("unable to create/load statement level schema cache")));
+    }
+    
+    /* Find our PCID if it's in there (usually it will be first) */
+    for ( i = 0; i < SchemaCacheSize; i++ )
+    {
+        if ( schema_cache->pcids[i] == pcid )
+        {
+            return schema_cache->schemas[i];
+        }
+    }
+    
+    /* Not in there, load one the old-fashioned way. */
+    oldcontext = MemoryContextSwitchTo(fcinfo->flinfo->fn_mcxt);
+    schema = pc_schema_from_pcid_uncached(pcid);
+    MemoryContextSwitchTo(oldcontext);
+    
+    /* Failed to load the XML? Odd. */
+    if ( ! schema )
+    {
+        ereport(ERROR,
+            (errcode(ERRCODE_INTERNAL_ERROR),
+             errmsg("unable to load schema for pcid %u", pcid)));
+    }
+
+    /* Save the XML in the next unused slot */
+    schema_cache->schemas[schema_cache->next_slot] = schema;
+    schema_cache->pcids[schema_cache->next_slot] = pcid;
+    schema_cache->next_slot = (schema_cache->next_slot + 1) % SchemaCacheSize;
+    return schema;
 }
 
 
@@ -279,10 +413,9 @@ pc_point_serialize(const PCPOINT *pcpt)
 }
 
 PCPOINT * 
-pc_point_deserialize(const SERIALIZED_POINT *serpt, FunctionCallInfoData *fcinfo)
+pc_point_deserialize(const SERIALIZED_POINT *serpt, const PCSCHEMA *schema)
 {
 	PCPOINT *pcpt;
-	PCSCHEMA *schema = pc_schema_from_pcid(serpt->pcid, fcinfo);
 	size_t pgsize = VARSIZE(serpt) + 1 - sizeof(SERIALIZED_POINT); 
 	/* 
 	* Big problem, the size on disk doesn't match what we expect, 
@@ -325,10 +458,9 @@ pc_patch_serialize(const PCPATCH *pcpch)
 }
 
 PCPATCH *
-pc_patch_deserialize(const SERIALIZED_PATCH *serpatch, FunctionCallInfoData *fcinfo)
+pc_patch_deserialize(const SERIALIZED_PATCH *serpatch, const PCSCHEMA *schema)
 {
 	PCPATCH *patch;
-	PCSCHEMA *schema = pc_schema_from_pcid(serpatch->pcid, fcinfo);
 	
 	/* Reference the external data */
 	patch = pcalloc(sizeof(PCPATCH));
