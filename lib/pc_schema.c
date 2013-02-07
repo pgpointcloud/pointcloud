@@ -365,6 +365,8 @@ pc_schema_from_xml(const char *xml_str, PCSCHEMA **schema)
 							d->interpretation = pc_interpretation_number(child->children->content);
 						else if ( strcmp(child->name, "scale") == 0 )
 							d->scale = atof(child->children->content);
+						else if ( strcmp(child->name, "offset") == 0 )
+							d->offset = atof(child->children->content);
 						else if ( strcmp(child->name, "uuid") == 0 )
 							/* Ignore this tag for now */ 1;
 						else if ( strcmp(child->name, "parent_uuid") == 0 )
