@@ -425,7 +425,7 @@ pc_bytes_sigbits_encode_16(const uint8_t *bytes8, uint32_t nelems, uint16_t comm
     /* How wide are our unique values? */
     int nbits = bitwidth - commonbits;
     /* Size of output buffer */
-    size_t size_out = (nbits * nelems / 8) + 4;
+    size_t size_out = (nbits * nelems / 8) + 3;
     uint16_t *bytes_out = pcalloc(size_out);
     /* Use this to zero out the parts that are common */
     uint16_t mask = (0xFFFF >> commonbits);
@@ -492,7 +492,7 @@ pc_bytes_sigbits_encode_32(const uint8_t *bytes8, uint32_t nelems, uint32_t comm
     /* How wide are our unique values? */
     int nbits = bitwidth - commonbits;
     /* Size of output buffer */
-    size_t size_out = (nbits * nelems / 8) + 8;
+    size_t size_out = (nbits * nelems / 8) + 5;
     uint32_t *bytes_out = pcalloc(size_out);
     /* Use this to zero out the parts that are common */
     uint32_t mask = (0xFFFFFFFF >> commonbits);

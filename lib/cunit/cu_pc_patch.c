@@ -297,9 +297,10 @@ test_run_length_encoding()
 static void 
 test_sigbits_encoding()
 {
-	char *bytes;
-	uint8_t *ebytes;
+	uint8_t *bytes, *ebytes;
+    uint16_t *bytes16, *ebytes16;
     size_t ebytes_size;
+    
 	uint32_t count;
 	uint8_t common8;
 	uint16_t common16;
@@ -332,20 +333,13 @@ test_sigbits_encoding()
 	CU_ASSERT_EQUAL(count, 6);
 	CU_ASSERT_EQUAL(common16, 24576);
 
-    // bytes = "aaabac";
-    // common16 = pc_sigbits_16(bytes, strlen(bytes)/2, &count);
-    // CU_ASSERT_EQUAL(count, 14);
-    // CU_ASSERT_EQUAL(common16, 24928);
-
-
-	bytes = "aaaabaaacaaadaaaeaaafaaa";
-	common32 = pc_sigbits_32(bytes, strlen(bytes)/4, &count);
-	CU_ASSERT_EQUAL(count, 29);
-	CU_ASSERT_EQUAL(common32, 1633771872);
+    // bytes = "aaaabaaacaaadaaaeaaafaaa";
+    // common32 = pc_sigbits_32(bytes, strlen(bytes)/4, &count);
+    // CU_ASSERT_EQUAL(count, 29);
+    // CU_ASSERT_EQUAL(common32, 1633771872);
 
 	/*
-	"abca" encoded:
-	
+	"abca" encoded:	
 	base      a  b  c  a
 	01100000 01 10 11 01
 	*/
@@ -359,38 +353,42 @@ test_sigbits_encoding()
 
 	/*
 	"abca" encoded:
-	
 	base       a   b   c   d   a   b
 	01100000 001 010 011 100 001 010
 	*/
-	bytes = "abcda";
+    bytes = "abcdab";
     ebytes = pc_bytes_sigbits_encode(bytes, PC_INT8, strlen(bytes), &ebytes_size);
     CU_ASSERT_EQUAL(ebytes[0], 96);
     CU_ASSERT_EQUAL(ebytes[1], 41);
     CU_ASSERT_EQUAL(ebytes[2], 194);
 
 	/*
-	0110000101100001 aa
-	0110000101100010 ab
-	0110000101100011 ac
-	0110000101100001 aa
-	0110000101100010 ab
-	0110000101100011 ac
-
-	"aaabacaaabacaaab" encoded:
-	
-	base              aa ab ac aa ab ac aa ab
-	0110000101100000  01 10 11 01 10 11 01 10
-	*/
-    // bytes = "aaabacaaabacaaab";
-    //     ebytes = pc_bytes_sigbits_encode(bytes, PC_INT16, strlen(bytes)/2, &ebytes_size);
-    //     CU_ASSERT_EQUAL(ebytes[0], 97);
-    //     CU_ASSERT_EQUAL(ebytes[1], 96);
-    //     CU_ASSERT_EQUAL(ebytes[2], 109);
-    //     CU_ASSERT_EQUAL(ebytes[3], 182);
-
-
-
+	0110000101100001 24929
+	0110000101100010 24930
+	0110000101100011 24931
+	0110000101100100 24932
+	0110000101100101 24933
+	0110000101100110 24934
+	encoded
+	0110000101100 001 010 011 100 101 110
+    */
+	bytes16 = pcalloc(8); /* 4 nelems */
+    bytes16[0] = 24929;
+    bytes16[1] = 24930;
+    bytes16[2] = 24931;
+    bytes16[3] = 24932;
+    bytes16[4] = 24933;
+    bytes16[5] = 24934;
+    
+    uint32_t commonbits;
+    common16 = pc_sigbits_16((uint8_t*)bytes16, 6, &commonbits);
+    ebytes = pc_bytes_sigbits_encode((uint8_t*)bytes16, PC_INT16, 6, &ebytes_size);
+    ebytes16 = (uint16_t*)ebytes;
+    CU_ASSERT_EQUAL(common16, 24928);
+    CU_ASSERT_EQUAL(commonbits, 13);
+    printf("commonbits %d\n", commonbits);
+    CU_ASSERT_EQUAL(ebytes16[0], 24928);
+    CU_ASSERT_EQUAL(ebytes16[1], 10699);
 }
 
 /* REGISTER ***********************************************************/
