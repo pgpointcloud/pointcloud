@@ -169,11 +169,11 @@ test_point_access()
 /* REGISTER ***********************************************************/
 
 CU_TestInfo schema_tests[] = {
-	PG_TEST(test_schema_from_xml),
-	PG_TEST(test_schema_size),
-	PG_TEST(test_dimension_get),
-	PG_TEST(test_dimension_byteoffsets),
-	PG_TEST(test_point_access),
+	PC_TEST(test_schema_from_xml),
+	PC_TEST(test_schema_size),
+	PC_TEST(test_dimension_get),
+	PC_TEST(test_dimension_byteoffsets),
+	PC_TEST(test_point_access),
 	CU_TEST_INFO_NULL
 };
 

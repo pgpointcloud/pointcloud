@@ -86,7 +86,7 @@ test_point_hex_inout()
 /* REGISTER ***********************************************************/
 
 CU_TestInfo point_tests[] = {
-	PG_TEST(test_point_hex_inout),
+	PC_TEST(test_point_hex_inout),
 	CU_TEST_INFO_NULL
 };
 

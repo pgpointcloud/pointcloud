@@ -14,8 +14,10 @@
 
 static PCSCHEMA *schema = NULL;
 static PCSCHEMA *simpleschema = NULL;
+static PCSCHEMA *lasschema = NULL;
 static const char *xmlfile = "data/pdal-schema.xml";
 static const char *simplexmlfile = "data/simple-schema.xml";
+static const char *lasxmlfile = "data/las-schema.xml";
 
 /* Setup/teardown for this suite */
 static int 
@@ -31,6 +33,11 @@ init_suite(void)
 	pcfree(xmlstr);
 	if ( rv == PC_FAILURE ) return 1;
 
+	xmlstr = file_to_str(lasxmlfile);
+	rv = pc_schema_from_xml(xmlstr, &lasschema);
+	pcfree(xmlstr);
+	if ( rv == PC_FAILURE ) return 1;
+
 	return 0;
 }
 
@@ -39,6 +46,7 @@ clean_suite(void)
 {
 	pc_schema_free(schema);
 	pc_schema_free(simpleschema);
+	pc_schema_free(lasschema);
 	return 0;
 }
 
@@ -183,6 +191,28 @@ test_patch_hex_out()
 uint8_t* pc_bytes_run_length_decode(const uint8_t *bytes_rle, size_t bytes_rle_size, uint32_t interpretation, size_t *bytes_nelems);
 #endif
 
+static void 
+test_schema_xy()
+{
+    /*
+    "Intensity", "ReturnNumber", "NumberOfReturns", "ScanDirectionFlag", "EdgeOfFlightLine", "Classification", "ScanAngleRank", "UserData", "PointSourceId", "Time", "Red", "Green", "Blue", "PointID", "BlockID", "X", "Y", "Z"
+    25, 1, 1, 1, 0, 1, 6, 124, 7327, 246093, 39, 57, 56, 20, 0, -125.0417204, 49.2540081, 128.85
+    */
+	static char *hexpt = "01010000000AE9C90307A1100522A5000019000101010001067C9F1C4953C474650A0E412700390038001400000000000000876B6601962F750155320000";
+	
+    uint8_t *bytes =  bytes_from_hexbytes(hexpt, strlen(hexpt));
+    PCPOINT *pt;
+    double val;
+
+    pt = pc_point_from_wkb(lasschema, bytes, strlen(hexpt)/2);
+    pc_point_get_double_by_name(pt, "x", &val);
+    CU_ASSERT_DOUBLE_EQUAL(val, -125.0417204, 0.00001);	
+
+    pt = pc_point_from_wkb(lasschema, bytes, strlen(hexpt)/2);
+    pc_point_get_double_by_name(pt, "y", &val);
+    CU_ASSERT_DOUBLE_EQUAL(val, 49.2540081, 0.00001);	
+    
+}
 
 static void 
 test_run_length_encoding()
@@ -268,6 +298,8 @@ static void
 test_sigbits_encoding()
 {
 	char *bytes;
+	uint8_t *ebytes;
+    size_t ebytes_size;
 	uint32_t count;
 	uint8_t common8;
 	uint16_t common16;
@@ -300,21 +332,76 @@ test_sigbits_encoding()
 	CU_ASSERT_EQUAL(count, 6);
 	CU_ASSERT_EQUAL(common16, 24576);
 
+    // bytes = "aaabac";
+    // common16 = pc_sigbits_16(bytes, strlen(bytes)/2, &count);
+    // CU_ASSERT_EQUAL(count, 14);
+    // CU_ASSERT_EQUAL(common16, 24928);
+
+
 	bytes = "aaaabaaacaaadaaaeaaafaaa";
 	common32 = pc_sigbits_32(bytes, strlen(bytes)/4, &count);
 	CU_ASSERT_EQUAL(count, 29);
 	CU_ASSERT_EQUAL(common32, 1633771872);
+
+	/*
+	"abca" encoded:
+	
+	base      a  b  c  a
+	01100000 01 10 11 01
+	*/
+	bytes = "abcaabcaabcbabcc";
+    ebytes = pc_bytes_sigbits_encode(bytes, PC_INT8, strlen(bytes), &ebytes_size);
+    CU_ASSERT_EQUAL(ebytes[0], 96);
+    CU_ASSERT_EQUAL(ebytes[1], 109);
+    CU_ASSERT_EQUAL(ebytes[2], 109);
+    CU_ASSERT_EQUAL(ebytes[3], 110);
+    CU_ASSERT_EQUAL(ebytes[4], 111);
+
+	/*
+	"abca" encoded:
+	
+	base       a   b   c   d   a   b
+	01100000 001 010 011 100 001 010
+	*/
+	bytes = "abcda";
+    ebytes = pc_bytes_sigbits_encode(bytes, PC_INT8, strlen(bytes), &ebytes_size);
+    CU_ASSERT_EQUAL(ebytes[0], 96);
+    CU_ASSERT_EQUAL(ebytes[1], 41);
+    CU_ASSERT_EQUAL(ebytes[2], 194);
+
+	/*
+	0110000101100001 aa
+	0110000101100010 ab
+	0110000101100011 ac
+	0110000101100001 aa
+	0110000101100010 ab
+	0110000101100011 ac
+
+	"aaabacaaabacaaab" encoded:
+	
+	base              aa ab ac aa ab ac aa ab
+	0110000101100000  01 10 11 01 10 11 01 10
+	*/
+    // bytes = "aaabacaaabacaaab";
+    //     ebytes = pc_bytes_sigbits_encode(bytes, PC_INT16, strlen(bytes)/2, &ebytes_size);
+    //     CU_ASSERT_EQUAL(ebytes[0], 97);
+    //     CU_ASSERT_EQUAL(ebytes[1], 96);
+    //     CU_ASSERT_EQUAL(ebytes[2], 109);
+    //     CU_ASSERT_EQUAL(ebytes[3], 182);
+
+
 
 }
 
 /* REGISTER ***********************************************************/
 
 CU_TestInfo patch_tests[] = {
-	PG_TEST(test_endian_flip),
-	PG_TEST(test_patch_hex_in),
-	PG_TEST(test_patch_hex_out),
-	PG_TEST(test_run_length_encoding),
-	PG_TEST(test_sigbits_encoding),
+	PC_TEST(test_endian_flip),
+	PC_TEST(test_patch_hex_in),
+	PC_TEST(test_patch_hex_out),
+	PC_TEST(test_run_length_encoding),
+    PC_TEST(test_schema_xy),
+	PC_TEST(test_sigbits_encoding),
 	CU_TEST_INFO_NULL
 };
 

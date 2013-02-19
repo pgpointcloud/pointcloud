@@ -101,4 +101,6 @@ uint16_t pc_sigbits_16(const uint8_t *bytes8, uint32_t nelems, uint32_t *nsigbit
 uint32_t pc_sigbits_32(const uint8_t *bytes8, uint32_t nelems, uint32_t *nsigbits);
 uint64_t pc_sigbits_64(const uint8_t *bytes8, uint32_t nelems, uint32_t *nsigbits);
 
+uint8_t* pc_bytes_sigbits_encode(const uint8_t *bytes, uint32_t interpretation, uint32_t nelems, size_t *bytes_sigbits_size);
+
 #endif /* _PC_API_INTERNAL_H */

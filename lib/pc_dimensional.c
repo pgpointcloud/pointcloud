@@ -347,3 +347,234 @@ pc_sigbits_count(const uint8_t *bytes, uint32_t interpretation, uint32_t nelems)
 	return count;
 }
 
+
+uint8_t *
+pc_bytes_sigbits_encode_8(const uint8_t *bytes, uint32_t nelems, uint8_t commonvalue, uint8_t commonbits, size_t *bytes_size)
+{
+    int i;
+    int shift;
+    /* How wide are our words? */
+    static int bitwidth = 8;
+    /* How wide are our unique values? */
+    int nbits = bitwidth - commonbits;
+    /* Size of output buffer */
+    size_t size_out = (nbits * nelems / 8) + 2;
+    uint8_t *bytes_out = pcalloc(size_out);
+    /* Use this to zero out the parts that are common */
+    uint8_t mask = (0xFF >> commonbits);
+    /* Write head */
+    uint8_t *byte_ptr = bytes_out + 1;
+    /* What bit are we writing to now? */
+    int bit = bitwidth;
+
+    /* Common value goes up front, unmolested */
+    bytes_out[0] = commonvalue;
+    
+    for ( i = 0; i < nelems; i++ )
+    {
+        uint8_t val = bytes[i];
+        /* Clear off common parts */
+        val &= mask; 
+        /* How far to move unique parts to get to write head? */
+        shift = bit - nbits;
+        /* If positive, we can fit this part into the current word */
+        if ( shift >= 0 )
+        {
+            val <<= shift;
+            *byte_ptr |= val;
+            bit -= nbits;
+            if ( bit <= 0 )
+            {
+                bit = bitwidth;
+                byte_ptr++;
+            }
+        }
+        /* If negative, then we need to split this part across words */
+        else
+        {
+            /* First the bit into the current word */
+            uint8_t v = val;
+            int s = abs(shift);          
+            v >>= s;
+            *byte_ptr |= v;
+            /* The reset to write the next word */
+            bit = bitwidth;
+            byte_ptr++;
+            v = val;
+            shift = bit - s;
+            /* But only those parts we didn't already write */
+            v <<= shift;
+            *byte_ptr |= v;  
+            bit -= s;
+        }
+    }
+
+    *bytes_size = size_out;
+    return bytes_out;    
+}
+
+uint8_t *
+pc_bytes_sigbits_encode_16(const uint8_t *bytes8, uint32_t nelems, uint16_t commonvalue, uint8_t commonbits, size_t *bytes_size)
+{
+    int i;
+    int shift;
+    uint16_t *bytes = (uint16_t*)bytes8;
+    
+    /* How wide are our words? */
+    static int bitwidth = 16;
+    /* How wide are our unique values? */
+    int nbits = bitwidth - commonbits;
+    /* Size of output buffer */
+    size_t size_out = (nbits * nelems / 8) + 4;
+    uint16_t *bytes_out = pcalloc(size_out);
+    /* Use this to zero out the parts that are common */
+    uint16_t mask = (0xFFFF >> commonbits);
+    /* Write head */
+    uint16_t *byte_ptr = bytes_out + 1;
+    /* What bit are we writing to now? */
+    int bit = bitwidth;
+
+    /* Common value goes up front, unmolested */
+    bytes_out[0] = commonvalue;
+    
+    for ( i = 0; i < nelems; i++ )
+    {
+        uint16_t val = bytes[i];
+        /* Clear off common parts */
+        val &= mask; 
+        /* How far to move unique parts to get to write head? */
+        shift = bit - nbits;
+        /* If positive, we can fit this part into the current word */
+        if ( shift >= 0 )
+        {
+            val <<= shift;
+            *byte_ptr |= val;
+            bit -= nbits;
+            if ( bit <= 0 )
+            {
+                bit = bitwidth;
+                byte_ptr++;
+            }
+        }
+        /* If negative, then we need to split this part across words */
+        else
+        {
+            /* First the bit into the current word */
+            uint16_t v = val;
+            int s = abs(shift);          
+            v >>= s;
+            *byte_ptr |= v;
+            /* The reset to write the next word */
+            bit = bitwidth;
+            byte_ptr++;
+            v = val;
+            shift = bit - s;
+            /* But only those parts we didn't already write */
+            v <<= shift;
+            *byte_ptr |= v;  
+            bit -= s;
+        }
+    }
+
+    *bytes_size = size_out;
+    return (uint8_t*)bytes_out;
+}
+
+uint8_t *
+pc_bytes_sigbits_encode_32(const uint8_t *bytes8, uint32_t nelems, uint32_t commonvalue, uint8_t commonbits, size_t *bytes_size)
+{
+    int i;
+    int shift;
+    uint32_t *bytes = (uint32_t*)bytes8;
+    
+    /* How wide are our words? */
+    static int bitwidth = 32;
+    /* How wide are our unique values? */
+    int nbits = bitwidth - commonbits;
+    /* Size of output buffer */
+    size_t size_out = (nbits * nelems / 8) + 8;
+    uint32_t *bytes_out = pcalloc(size_out);
+    /* Use this to zero out the parts that are common */
+    uint32_t mask = (0xFFFFFFFF >> commonbits);
+    /* Write head */
+    uint32_t *byte_ptr = bytes_out + 1;
+    /* What bit are we writing to now? */
+    int bit = bitwidth;
+
+    /* Common value goes up front, unmolested */
+    bytes_out[0] = commonvalue;
+    
+    for ( i = 0; i < nelems; i++ )
+    {
+        uint32_t val = bytes[i];
+        /* Clear off common parts */
+        val &= mask; 
+        /* How far to move unique parts to get to write head? */
+        shift = bit - nbits;
+        /* If positive, we can fit this part into the current word */
+        if ( shift >= 0 )
+        {
+            val <<= shift;
+            *byte_ptr |= val;
+            bit -= nbits;
+            if ( bit <= 0 )
+            {
+                bit = bitwidth;
+                byte_ptr++;
+            }
+        }
+        /* If negative, then we need to split this part across words */
+        else
+        {
+            /* First the bit into the current word */
+            uint32_t v = val;
+            int s = abs(shift);          
+            v >>= s;
+            *byte_ptr |= v;
+            /* The reset to write the next word */
+            bit = bitwidth;
+            byte_ptr++;
+            v = val;
+            shift = bit - s;
+            /* But only those parts we didn't already write */
+            v <<= shift;
+            *byte_ptr |= v;  
+            bit -= s;
+        }
+    }
+
+    *bytes_size = size_out;
+    return (uint8_t*)bytes_out;
+}
+
+
+uint8_t *
+pc_bytes_sigbits_encode(const uint8_t *bytes, uint32_t interpretation, uint32_t nelems, size_t *ebytes_size)
+{
+    size_t size = INTERPRETATION_SIZES[interpretation];
+    uint32_t nbits;
+    switch ( size )
+    {
+        case 1:
+        {
+            uint8_t commonvalue = pc_sigbits_8(bytes, nelems, &nbits);
+            return pc_bytes_sigbits_encode_8(bytes, nelems, commonvalue, nbits, ebytes_size);            
+        }
+        case 2:
+        {
+            uint16_t commonvalue = pc_sigbits_16(bytes, nelems, &nbits);
+            return pc_bytes_sigbits_encode_16(bytes, nelems, commonvalue, nbits, ebytes_size);            
+        }
+        case 4:
+        {
+            uint16_t commonvalue = pc_sigbits_32(bytes, nelems, &nbits);
+            return pc_bytes_sigbits_encode_32(bytes, nelems, commonvalue, nbits, ebytes_size);            
+        }
+        default:
+        {
+            pcerror("Uh oh");
+        }
+    }
+    pcerror("Uh Oh");
+    return NULL;
+}
