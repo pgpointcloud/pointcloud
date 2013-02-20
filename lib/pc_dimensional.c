@@ -152,15 +152,8 @@ pc_bytes_run_length_decode(const uint8_t *bytes_rle, size_t bytes_rle_size, uint
 }
 
 
-
-
-
-
-
-
-
 uint8_t
-pc_sigbits_8(const uint8_t *bytes, uint32_t nelems, uint32_t *nsigbits)
+pc_sigbits_count_8(const uint8_t *bytes, uint32_t nelems, uint32_t *nsigbits)
 {
 	static uint8_t nbits = 8;
 	uint8_t elem_and = bytes[0];
@@ -186,7 +179,7 @@ pc_sigbits_8(const uint8_t *bytes, uint32_t nelems, uint32_t *nsigbits)
 }
 
 uint16_t
-pc_sigbits_16(const uint8_t *bytes8, uint32_t nelems, uint32_t *nsigbits)
+pc_sigbits_count_16(const uint8_t *bytes8, uint32_t nelems, uint32_t *nsigbits)
 {
 	static int nbits = 16;
 	uint16_t *bytes = (uint16_t*)bytes8;
@@ -213,7 +206,7 @@ pc_sigbits_16(const uint8_t *bytes8, uint32_t nelems, uint32_t *nsigbits)
 }
 
 uint32_t
-pc_sigbits_32(const uint8_t *bytes8, uint32_t nelems, uint32_t *nsigbits)
+pc_sigbits_count_32(const uint8_t *bytes8, uint32_t nelems, uint32_t *nsigbits)
 {
 	static int nbits = 32;
 	uint32_t *bytes = (uint32_t*)bytes8;
@@ -240,7 +233,7 @@ pc_sigbits_32(const uint8_t *bytes8, uint32_t nelems, uint32_t *nsigbits)
 }
 
 uint64_t
-pc_sigbits_64(const uint8_t *bytes8, uint32_t nelems, uint32_t *nsigbits)
+pc_sigbits_count_64(const uint8_t *bytes8, uint32_t nelems, uint32_t *nsigbits)
 {
 	static int nbits = 64;
 	uint64_t *bytes = (uint64_t*)bytes8;
@@ -266,85 +259,38 @@ pc_sigbits_64(const uint8_t *bytes8, uint32_t nelems, uint32_t *nsigbits)
 	return elem_and;	
 }
 
-
-
 /**
 * How many bits are shared by all elements of this array?
 */
 uint32_t
 pc_sigbits_count(const uint8_t *bytes, uint32_t interpretation, uint32_t nelems)
 {
-	int i, j, start, end, incr;
-	const uint8_t *bytes_ptr;
-	uint8_t bytes_and[8];
-	uint8_t bytes_or[8];	
-	uint8_t bytes_sig[8];
-	size_t size = INTERPRETATION_SIZES[interpretation];
-	uint32_t count = 0;
-
-	memset(bytes_sig, 0, 8);
-	memset(bytes_and, 0, 8);
-	memset(bytes_or, 0, 8);
-	memcpy(bytes_and, bytes, size);
-	memcpy(bytes_or, bytes, size);
-	
-	/* Figure out the global "and" and "or" of all the values */
-	for ( i = 1; i < nelems; i++ )
-	{
-		bytes_ptr = bytes + i*size;
-		for ( j = 0; j < size; j++ )
-		{
-			bytes_and[j] &= bytes_ptr[j];
-			bytes_or[j]  |= bytes_ptr[j];
-		}
-	}
-	
-	/* Count down the bytes for little-endian, up for big */
-	if ( machine_endian() == PC_NDR )
-	{
-		start = size-1;
-		end = -1;
-		incr = -1;
-	}
-	else
-	{
-		start = 0;
-		end = size;
-		incr = 1;
-	}
-	
-	for ( i = start; i != end; i += incr )
-	{
-		/* If bytes are the same, all 8 bits are shared! */
-		if ( bytes_and[i] == bytes_or[i] )
-		{
-			count += 8;
-			bytes_sig[i] = bytes_and[i];
-		}
-		/* If bytes are different, find if they share any top bits */
-		else
-		{
-			int commonbits = 8;
-			uint8_t b_and = bytes_and[i];
-			uint8_t b_or = bytes_or[i];
-			
-			/* Slide off bottom bits until the values match */
-			while ( b_and != b_or )
-			{
-				b_and >>= 1;
-				b_or >>= 1;
-				commonbits -= 1;
-			}
-			count += commonbits;
-			
-			/* Save the common bits to the significant bit value */
-			b_and <<= 8 - commonbits;
-			bytes_sig[i] = b_and;
-			break;
-		}
-	}
-	
-	return count;
+    size_t size = INTERPRETATION_SIZES[interpretation];
+    uint32_t nbits = -1;
+    switch ( size )
+    {
+        case 1:
+        {
+            uint8_t commonvalue = pc_sigbits_count_8(bytes, nelems, &nbits);
+            break;
+        }
+        case 2:
+        {
+            uint16_t commonvalue = pc_sigbits_count_16(bytes, nelems, &nbits);
+            break;
+        }
+        case 4:
+        {
+            uint16_t commonvalue = pc_sigbits_count_32(bytes, nelems, &nbits);
+            break;
+        }
+        default:
+        {
+            pcerror("Uh oh");
+            return -1;
+        }
+    }
+    return nbits;
 }
 
 
@@ -375,9 +321,9 @@ pc_bytes_sigbits_encode_8(const uint8_t *bytes, uint32_t nelems, uint8_t commonv
     int bit = bitwidth;
 
     /* Number of unique bits goes up front */
-    *byte_ptr++ = nbits;
+    *byte_ptr = nbits; byte_ptr++;
     /* The common value we'll add the unique values to */
-    *byte_ptr++ = commonvalue;
+    *byte_ptr = commonvalue; byte_ptr++;
     
     for ( i = 0; i < nelems; i++ )
     {
@@ -451,9 +397,9 @@ pc_bytes_sigbits_encode_16(const uint8_t *bytes8, uint32_t nelems, uint16_t comm
     int bit = bitwidth;
 
     /* Number of unique bits goes up front */
-    *byte_ptr++ = nbits;
+    *byte_ptr = nbits; byte_ptr++;
     /* The common value we'll add the unique values to */
-    *byte_ptr++ = commonvalue;
+    *byte_ptr = commonvalue; byte_ptr++;
     
     for ( i = 0; i < nelems; i++ )
     {
@@ -527,9 +473,9 @@ pc_bytes_sigbits_encode_32(const uint8_t *bytes8, uint32_t nelems, uint32_t comm
     int bit = bitwidth;
 
     /* Number of unique bits goes up front */
-    *byte_ptr++ = nbits;
+    *byte_ptr = nbits; byte_ptr++;
     /* The common value we'll add the unique values to */
-    *byte_ptr++ = commonvalue;
+    *byte_ptr = commonvalue; byte_ptr++;
     
     for ( i = 0; i < nelems; i++ )
     {
@@ -591,17 +537,17 @@ pc_bytes_sigbits_encode(const uint8_t *bytes, uint32_t interpretation, uint32_t 
     {
         case 1:
         {
-            uint8_t commonvalue = pc_sigbits_8(bytes, nelems, &nbits);
+            uint8_t commonvalue = pc_sigbits_count_8(bytes, nelems, &nbits);
             return pc_bytes_sigbits_encode_8(bytes, nelems, commonvalue, nbits, ebytes_size);            
         }
         case 2:
         {
-            uint16_t commonvalue = pc_sigbits_16(bytes, nelems, &nbits);
+            uint16_t commonvalue = pc_sigbits_count_16(bytes, nelems, &nbits);
             return pc_bytes_sigbits_encode_16(bytes, nelems, commonvalue, nbits, ebytes_size);            
         }
         case 4:
         {
-            uint16_t commonvalue = pc_sigbits_32(bytes, nelems, &nbits);
+            uint16_t commonvalue = pc_sigbits_count_32(bytes, nelems, &nbits);
             return pc_bytes_sigbits_encode_32(bytes, nelems, commonvalue, nbits, ebytes_size);            
         }
         default:
@@ -614,7 +560,190 @@ pc_bytes_sigbits_encode(const uint8_t *bytes, uint32_t interpretation, uint32_t 
 }
 
 
-uint8_t *
+static uint8_t *
 pc_bytes_sigbits_decode_8(const uint8_t *bytes, uint32_t nelems)
 {
+    int i;  
+    const uint8_t *bytes_ptr = bytes;
+    uint8_t nbits;
+    uint8_t commonvalue;
+    uint8_t mask;
+    int bit = 8;
+    uint8_t *outbytes = pcalloc(sizeof(uint8_t) * nelems);
+    uint8_t *obytes = (uint8_t*)outbytes;
+    
+    /* How many unique bits? */
+    nbits = *bytes_ptr; bytes_ptr++;
+    /* What is the shared bit value? */
+    commonvalue = *bytes_ptr; bytes_ptr++; 
+    /* Mask for just the unique parts */
+    mask = (0xFF >> (bit-nbits));
+    
+    for ( i = 0; i < nelems; i++ )
+    {
+        int shift = bit - nbits;
+        uint8_t val = *bytes_ptr;
+        /* The unique part is all in this word */
+        if ( shift >= 0 )
+        {
+            /* Push unique part to bottom of word */
+            val >>= shift;
+            /* Mask out any excess */
+            val &= mask;
+            /* Add in the common part */
+            val |= commonvalue;
+            /* Save */
+            obytes[i] = val;
+            /* Move read head */
+            bit -= nbits;
+        }
+        /* The unique part is split over this word and the next */
+        else
+        {
+            int s = abs(shift);
+            val <<= s;
+            val &= mask;
+            val |= commonvalue;            
+            obytes[i] = val;
+            bytes_ptr++;
+            bit = 8;
+            val = *bytes_ptr;
+            shift = bit - s;
+            val >>= shift;
+            val &= mask;
+            obytes[i] |= val;
+            bit -= s;
+        }
+    }
+    return outbytes;
+}
+
+static uint8_t *
+pc_bytes_sigbits_decode_16(const uint8_t *bytes, uint32_t nelems)
+{
+    int i;  
+    const uint16_t *bytes_ptr = (const uint16_t *)bytes;
+    uint16_t nbits;
+    uint16_t commonvalue;
+    uint16_t mask;
+    int bit = 16;
+    uint8_t *outbytes = pcalloc(sizeof(uint16_t) * nelems);
+    uint16_t *obytes = (uint16_t*)outbytes;
+    
+    /* How many unique bits? */
+    nbits = *bytes_ptr; bytes_ptr++;
+    /* What is the shared bit value? */
+    commonvalue = *bytes_ptr; bytes_ptr++; 
+    /* Calculate mask */
+    mask = (0xFFFF >> (bit-nbits));
+    
+    for ( i = 0; i < nelems; i++ )
+    {
+        int shift = bit - nbits;
+        uint16_t val = *bytes_ptr;
+        if ( shift >= 0 )
+        {
+            val >>= shift;
+            val &= mask;
+            val |= commonvalue;
+            obytes[i] = val;
+            bit -= nbits;
+        }
+        else
+        {
+            int s = abs(shift);
+            val <<= s;
+            val &= mask;
+            val |= commonvalue;            
+            obytes[i] = val;
+            bytes_ptr++;
+            bit = 16;
+            val = *bytes_ptr;
+            shift = bit - s;
+            val >>= shift;
+            val &= mask;
+            obytes[i] |= val;
+            bit -= s;
+        }
+    }
+    return outbytes;
+}
+
+static uint8_t *
+pc_bytes_sigbits_decode_32(const uint8_t *bytes, uint32_t nelems)
+{
+    int i;  
+    const uint32_t *bytes_ptr = (const uint32_t *)bytes;
+    uint32_t nbits;
+    uint32_t commonvalue;
+    uint32_t mask;
+    int bit = 32;
+    uint8_t *outbytes = pcalloc(sizeof(uint32_t) * nelems);
+    uint32_t *obytes = (uint32_t*)outbytes;
+    
+    /* How many unique bits? */
+    nbits = *bytes_ptr; bytes_ptr++;
+    /* What is the shared bit value? */
+    commonvalue = *bytes_ptr; bytes_ptr++; 
+    /* Calculate mask */
+    mask = (0xFFFFFFFF >> (bit-nbits));
+    
+    for ( i = 0; i < nelems; i++ )
+    {
+        int shift = bit - nbits;
+        uint32_t val = *bytes_ptr;
+        if ( shift >= 0 )
+        {
+            val >>= shift;
+            val &= mask;
+            val |= commonvalue;
+            obytes[i] = val;
+            bit -= nbits;
+        }
+        else
+        {
+            int s = abs(shift);
+            val <<= s;
+            val &= mask;
+            val |= commonvalue;            
+            obytes[i] = val;
+            bytes_ptr++;
+            bit = 32;
+            val = *bytes_ptr;
+            shift = bit - s;
+            val >>= shift;
+            val &= mask;
+            bit -= s;
+            obytes[i] |= val;
+        }
+    }
+    return outbytes;
+}
+
+
+uint8_t *
+pc_bytes_sigbits_decode(const uint8_t *bytes, uint32_t interpretation, uint32_t nelems)
+{
+    size_t size = INTERPRETATION_SIZES[interpretation];
+    switch ( size )
+    {
+        case 1:
+        {
+            return pc_bytes_sigbits_decode_8(bytes, nelems);
+        }
+        case 2:
+        {
+            return pc_bytes_sigbits_decode_16(bytes, nelems);
+        }
+        case 4:
+        {
+            return pc_bytes_sigbits_decode_32(bytes, nelems);
+        }
+        default:
+        {
+            pcerror("Uh oh");
+        }
+    }
+    pcerror("Uh Oh");
+    return NULL;
 }

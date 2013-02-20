@@ -313,12 +313,12 @@ test_sigbits_encoding()
 	01100000 `
 	*/
 	bytes = "abc";
-	common8 = pc_sigbits_8(bytes, strlen(bytes), &count);
+	common8 = pc_sigbits_count_8(bytes, strlen(bytes), &count);
 	CU_ASSERT_EQUAL(count, 6);
 	CU_ASSERT_EQUAL(common8, '`');
 
 	bytes = "abcdef";
-	common8 = pc_sigbits_8(bytes, strlen(bytes), &count);
+	common8 = pc_sigbits_count_8(bytes, strlen(bytes), &count);
 	CU_ASSERT_EQUAL(count, 5);
 	CU_ASSERT_EQUAL(common8, '`');
 
@@ -329,14 +329,8 @@ test_sigbits_encoding()
 	0110000000000000 24576
 	*/
 	bytes = "aabbcc";
-	common16 = pc_sigbits_16(bytes, strlen(bytes)/2, &count);
+	count = pc_sigbits_count(bytes, PC_UINT16, strlen(bytes)/2);
 	CU_ASSERT_EQUAL(count, 6);
-	CU_ASSERT_EQUAL(common16, 24576);
-
-    // bytes = "aaaabaaacaaadaaaeaaafaaa";
-    // common32 = pc_sigbits_32(bytes, strlen(bytes)/4, &count);
-    // CU_ASSERT_EQUAL(count, 29);
-    // CU_ASSERT_EQUAL(common32, 1633771872);
 
 	/*
 	"abca" encoded:	
@@ -351,6 +345,7 @@ test_sigbits_encoding()
     CU_ASSERT_EQUAL(ebytes[3], 109); /* packed byte */
     CU_ASSERT_EQUAL(ebytes[4], 110); /* packed byte */
     CU_ASSERT_EQUAL(ebytes[5], 111); /* packed byte */
+    pcfree(ebytes);
 
 	/*
 	"abca" encoded:
@@ -363,6 +358,16 @@ test_sigbits_encoding()
     CU_ASSERT_EQUAL(ebytes[1], 96);  /* common bits */
     CU_ASSERT_EQUAL(ebytes[2], 41);  /* packed byte */
     CU_ASSERT_EQUAL(ebytes[3], 194); /* packed byte */
+
+    bytes = pc_bytes_sigbits_decode(ebytes, PC_INT8, strlen(bytes));
+    CU_ASSERT_EQUAL(bytes[0], 'a');
+    CU_ASSERT_EQUAL(bytes[1], 'b');
+    CU_ASSERT_EQUAL(bytes[2], 'c');
+    CU_ASSERT_EQUAL(bytes[3], 'd');
+    CU_ASSERT_EQUAL(bytes[4], 'a');
+    CU_ASSERT_EQUAL(bytes[5], 'b');
+    pcfree(bytes);
+    pcfree(ebytes);
 
 	/*
 	0110000101100001 24929
@@ -382,16 +387,28 @@ test_sigbits_encoding()
     bytes16[4] = 24933;
     bytes16[5] = 24934;
     
-    uint32_t commonbits;
-    common16 = pc_sigbits_16((uint8_t*)bytes16, 6, &commonbits);
+    common16 = pc_sigbits_count_16((uint8_t*)bytes16, 6, &count);
     CU_ASSERT_EQUAL(common16, 24928);
-    CU_ASSERT_EQUAL(commonbits, 13);
+    CU_ASSERT_EQUAL(count, 13);
     ebytes = pc_bytes_sigbits_encode((uint8_t*)bytes16, PC_INT16, 6, &ebytes_size);
+    pcfree(bytes16);
     ebytes16 = (uint16_t*)ebytes;
     // printf("commonbits %d\n", commonbits);
     CU_ASSERT_EQUAL(ebytes16[0], 3);     /* unique bit count */
     CU_ASSERT_EQUAL(ebytes16[1], 24928); /* common bits */
     CU_ASSERT_EQUAL(ebytes16[2], 10699); /* packed uint16 one */
+
+    /* uint8_t* pc_bytes_sigbits_decode(const uint8_t *bytes, uint32_t interpretation, uint32_t nelems) */
+    bytes = pc_bytes_sigbits_decode(ebytes, PC_INT16, 6);
+    bytes16 = (uint16_t*)bytes;
+    CU_ASSERT_EQUAL(bytes16[0], 24929);
+    CU_ASSERT_EQUAL(bytes16[1], 24930);
+    CU_ASSERT_EQUAL(bytes16[2], 24931);
+    CU_ASSERT_EQUAL(bytes16[3], 24932);
+    CU_ASSERT_EQUAL(bytes16[4], 24933);
+    CU_ASSERT_EQUAL(bytes16[5], 24934);
+    pcfree(ebytes);
+    pcfree(bytes);
 }
 
 /* REGISTER ***********************************************************/
