@@ -348,6 +348,13 @@ pc_sigbits_count(const uint8_t *bytes, uint32_t interpretation, uint32_t nelems)
 }
 
 
+/**
+* Encoded array:
+* <uint8> number of bits per unique section
+* <uint8> common bits for the array
+* [n_bits]... unique bits packed in
+* Size of encoded array comes out in ebytes_size.
+*/
 uint8_t *
 pc_bytes_sigbits_encode_8(const uint8_t *bytes, uint32_t nelems, uint8_t commonvalue, uint8_t commonbits, size_t *bytes_size)
 {
@@ -357,18 +364,20 @@ pc_bytes_sigbits_encode_8(const uint8_t *bytes, uint32_t nelems, uint8_t commonv
     static int bitwidth = 8;
     /* How wide are our unique values? */
     int nbits = bitwidth - commonbits;
-    /* Size of output buffer */
-    size_t size_out = (nbits * nelems / 8) + 2;
+    /* Size of output buffer (#bits/8+1remainder+2metadata) */
+    size_t size_out = (nbits * nelems / 8) + 3;
     uint8_t *bytes_out = pcalloc(size_out);
     /* Use this to zero out the parts that are common */
     uint8_t mask = (0xFF >> commonbits);
     /* Write head */
-    uint8_t *byte_ptr = bytes_out + 1;
+    uint8_t *byte_ptr = bytes_out;
     /* What bit are we writing to now? */
     int bit = bitwidth;
 
-    /* Common value goes up front, unmolested */
-    bytes_out[0] = commonvalue;
+    /* Number of unique bits goes up front */
+    *byte_ptr++ = nbits;
+    /* The common value we'll add the unique values to */
+    *byte_ptr++ = commonvalue;
     
     for ( i = 0; i < nelems; i++ )
     {
@@ -413,6 +422,13 @@ pc_bytes_sigbits_encode_8(const uint8_t *bytes, uint32_t nelems, uint8_t commonv
     return bytes_out;    
 }
 
+/**
+* Encoded array:
+* <uint16> number of bits per unique section
+* <uint16> common bits for the array
+* [n_bits]... unique bits packed in
+* Size of encoded array comes out in ebytes_size.
+*/
 uint8_t *
 pc_bytes_sigbits_encode_16(const uint8_t *bytes8, uint32_t nelems, uint16_t commonvalue, uint8_t commonbits, size_t *bytes_size)
 {
@@ -424,18 +440,20 @@ pc_bytes_sigbits_encode_16(const uint8_t *bytes8, uint32_t nelems, uint16_t comm
     static int bitwidth = 16;
     /* How wide are our unique values? */
     int nbits = bitwidth - commonbits;
-    /* Size of output buffer */
-    size_t size_out = (nbits * nelems / 8) + 3;
-    uint16_t *bytes_out = pcalloc(size_out);
+    /* Size of output buffer (#bits/8+1remainder+4metadata)  */
+    size_t size_out = (nbits * nelems / 8) + 5;
+    uint8_t *bytes_out = pcalloc(size_out);
     /* Use this to zero out the parts that are common */
     uint16_t mask = (0xFFFF >> commonbits);
     /* Write head */
-    uint16_t *byte_ptr = bytes_out + 1;
+    uint16_t *byte_ptr = (uint16_t*)(bytes_out);
     /* What bit are we writing to now? */
     int bit = bitwidth;
 
-    /* Common value goes up front, unmolested */
-    bytes_out[0] = commonvalue;
+    /* Number of unique bits goes up front */
+    *byte_ptr++ = nbits;
+    /* The common value we'll add the unique values to */
+    *byte_ptr++ = commonvalue;
     
     for ( i = 0; i < nelems; i++ )
     {
@@ -477,9 +495,16 @@ pc_bytes_sigbits_encode_16(const uint8_t *bytes8, uint32_t nelems, uint16_t comm
     }
 
     *bytes_size = size_out;
-    return (uint8_t*)bytes_out;
+    return bytes_out;
 }
 
+/**
+* Encoded array:
+* <uint32> number of bits per unique section
+* <uint32> common bits for the array
+* [n_bits]... unique bits packed in
+* Size of encoded array comes out in ebytes_size.
+*/
 uint8_t *
 pc_bytes_sigbits_encode_32(const uint8_t *bytes8, uint32_t nelems, uint32_t commonvalue, uint8_t commonbits, size_t *bytes_size)
 {
@@ -491,18 +516,20 @@ pc_bytes_sigbits_encode_32(const uint8_t *bytes8, uint32_t nelems, uint32_t comm
     static int bitwidth = 32;
     /* How wide are our unique values? */
     int nbits = bitwidth - commonbits;
-    /* Size of output buffer */
-    size_t size_out = (nbits * nelems / 8) + 5;
-    uint32_t *bytes_out = pcalloc(size_out);
+    /* Size of output buffer (#bits/8+1remainder+8metadata) */
+    size_t size_out = (nbits * nelems / 8) + 9;
+    uint8_t *bytes_out = pcalloc(size_out);
     /* Use this to zero out the parts that are common */
     uint32_t mask = (0xFFFFFFFF >> commonbits);
     /* Write head */
-    uint32_t *byte_ptr = bytes_out + 1;
+    uint32_t *byte_ptr = (uint32_t*)bytes_out;
     /* What bit are we writing to now? */
     int bit = bitwidth;
 
-    /* Common value goes up front, unmolested */
-    bytes_out[0] = commonvalue;
+    /* Number of unique bits goes up front */
+    *byte_ptr++ = nbits;
+    /* The common value we'll add the unique values to */
+    *byte_ptr++ = commonvalue;
     
     for ( i = 0; i < nelems; i++ )
     {
@@ -544,10 +571,17 @@ pc_bytes_sigbits_encode_32(const uint8_t *bytes8, uint32_t nelems, uint32_t comm
     }
 
     *bytes_size = size_out;
-    return (uint8_t*)bytes_out;
+    return bytes_out;
 }
 
-
+/**
+* Convert a raw byte array into with common bits stripped and the 
+* remaining bits packed in. 
+* <uint8|uint16|uint32> number of bits per unique section
+* <uint8|uint16|uint32> common bits for the array
+* [n_bits]... unique bits packed in
+* Size of encoded array comes out in ebytes_size.
+*/
 uint8_t *
 pc_bytes_sigbits_encode(const uint8_t *bytes, uint32_t interpretation, uint32_t nelems, size_t *ebytes_size)
 {
@@ -577,4 +611,10 @@ pc_bytes_sigbits_encode(const uint8_t *bytes, uint32_t interpretation, uint32_t 
     }
     pcerror("Uh Oh");
     return NULL;
+}
+
+
+uint8_t *
+pc_bytes_sigbits_decode_8(const uint8_t *bytes, uint32_t nelems)
+{
 }

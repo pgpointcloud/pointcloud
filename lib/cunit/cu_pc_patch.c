@@ -345,11 +345,12 @@ test_sigbits_encoding()
 	*/
 	bytes = "abcaabcaabcbabcc";
     ebytes = pc_bytes_sigbits_encode(bytes, PC_INT8, strlen(bytes), &ebytes_size);
-    CU_ASSERT_EQUAL(ebytes[0], 96);
-    CU_ASSERT_EQUAL(ebytes[1], 109);
-    CU_ASSERT_EQUAL(ebytes[2], 109);
-    CU_ASSERT_EQUAL(ebytes[3], 110);
-    CU_ASSERT_EQUAL(ebytes[4], 111);
+    CU_ASSERT_EQUAL(ebytes[0], 2);   /* unique bit count */
+    CU_ASSERT_EQUAL(ebytes[1], 96);  /* common bits */
+    CU_ASSERT_EQUAL(ebytes[2], 109); /* packed byte */
+    CU_ASSERT_EQUAL(ebytes[3], 109); /* packed byte */
+    CU_ASSERT_EQUAL(ebytes[4], 110); /* packed byte */
+    CU_ASSERT_EQUAL(ebytes[5], 111); /* packed byte */
 
 	/*
 	"abca" encoded:
@@ -358,9 +359,10 @@ test_sigbits_encoding()
 	*/
     bytes = "abcdab";
     ebytes = pc_bytes_sigbits_encode(bytes, PC_INT8, strlen(bytes), &ebytes_size);
-    CU_ASSERT_EQUAL(ebytes[0], 96);
-    CU_ASSERT_EQUAL(ebytes[1], 41);
-    CU_ASSERT_EQUAL(ebytes[2], 194);
+    CU_ASSERT_EQUAL(ebytes[0], 3);   /* unique bit count */
+    CU_ASSERT_EQUAL(ebytes[1], 96);  /* common bits */
+    CU_ASSERT_EQUAL(ebytes[2], 41);  /* packed byte */
+    CU_ASSERT_EQUAL(ebytes[3], 194); /* packed byte */
 
 	/*
 	0110000101100001 24929
@@ -382,13 +384,14 @@ test_sigbits_encoding()
     
     uint32_t commonbits;
     common16 = pc_sigbits_16((uint8_t*)bytes16, 6, &commonbits);
-    ebytes = pc_bytes_sigbits_encode((uint8_t*)bytes16, PC_INT16, 6, &ebytes_size);
-    ebytes16 = (uint16_t*)ebytes;
     CU_ASSERT_EQUAL(common16, 24928);
     CU_ASSERT_EQUAL(commonbits, 13);
-    printf("commonbits %d\n", commonbits);
-    CU_ASSERT_EQUAL(ebytes16[0], 24928);
-    CU_ASSERT_EQUAL(ebytes16[1], 10699);
+    ebytes = pc_bytes_sigbits_encode((uint8_t*)bytes16, PC_INT16, 6, &ebytes_size);
+    ebytes16 = (uint16_t*)ebytes;
+    // printf("commonbits %d\n", commonbits);
+    CU_ASSERT_EQUAL(ebytes16[0], 3);     /* unique bit count */
+    CU_ASSERT_EQUAL(ebytes16[1], 24928); /* common bits */
+    CU_ASSERT_EQUAL(ebytes16[2], 10699); /* packed uint16 one */
 }
 
 /* REGISTER ***********************************************************/
