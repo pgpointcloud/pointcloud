@@ -297,11 +297,13 @@ test_run_length_encoding()
 static void 
 test_sigbits_encoding()
 {
+    int i;
 	uint8_t *bytes, *ebytes;
     uint16_t *bytes16, *ebytes16;
+    uint32_t *bytes32, *ebytes32;
     size_t ebytes_size;
     
-	uint32_t count;
+	uint32_t count, nelems;
 	uint8_t common8;
 	uint16_t common16;
 	uint32_t common32;
@@ -379,7 +381,8 @@ test_sigbits_encoding()
 	encoded
 	0110000101100 001 010 011 100 101 110
     */
-	bytes16 = pcalloc(8); /* 4 nelems */
+    nelems = 6;
+	bytes16 = pcalloc(nelems*sizeof(uint16_t)); 
     bytes16[0] = 24929;
     bytes16[1] = 24930;
     bytes16[2] = 24931;
@@ -387,10 +390,10 @@ test_sigbits_encoding()
     bytes16[4] = 24933;
     bytes16[5] = 24934;
     
-    common16 = pc_sigbits_count_16((uint8_t*)bytes16, 6, &count);
+    common16 = pc_sigbits_count_16((uint8_t*)bytes16, nelems, &count);
     CU_ASSERT_EQUAL(common16, 24928);
     CU_ASSERT_EQUAL(count, 13);
-    ebytes = pc_bytes_sigbits_encode((uint8_t*)bytes16, PC_INT16, 6, &ebytes_size);
+    ebytes = pc_bytes_sigbits_encode((uint8_t*)bytes16, PC_INT16, nelems, &ebytes_size);
     pcfree(bytes16);
     ebytes16 = (uint16_t*)ebytes;
     // printf("commonbits %d\n", commonbits);
@@ -399,7 +402,8 @@ test_sigbits_encoding()
     CU_ASSERT_EQUAL(ebytes16[2], 10699); /* packed uint16 one */
 
     /* uint8_t* pc_bytes_sigbits_decode(const uint8_t *bytes, uint32_t interpretation, uint32_t nelems) */
-    bytes = pc_bytes_sigbits_decode(ebytes, PC_INT16, 6);
+    bytes = pc_bytes_sigbits_decode(ebytes, PC_INT16, nelems);
+    pcfree(ebytes);
     bytes16 = (uint16_t*)bytes;
     CU_ASSERT_EQUAL(bytes16[0], 24929);
     CU_ASSERT_EQUAL(bytes16[1], 24930);
@@ -407,8 +411,32 @@ test_sigbits_encoding()
     CU_ASSERT_EQUAL(bytes16[3], 24932);
     CU_ASSERT_EQUAL(bytes16[4], 24933);
     CU_ASSERT_EQUAL(bytes16[5], 24934);
-    pcfree(ebytes);
     pcfree(bytes);
+    
+    nelems = 6;
+	bytes32 = pcalloc(nelems*sizeof(uint32_t));
+    bytes32[0] = 103241; /* 0000000000000001 1001 0011 0100 1001 */
+    bytes32[1] = 103251; /* 0000000000000001 1001 0011 0101 0011 */
+    bytes32[2] = 103261; /* 0000000000000001 1001 0011 0101 1101 */
+    bytes32[3] = 103271; /* 0000000000000001 1001 0011 0110 0111 */
+    bytes32[4] = 103281; /* 0000000000000001 1001 0011 0111 0001 */
+    bytes32[5] = 103291; /* 0000000000000001 1001 0011 0111 1011 */
+    ebytes = pc_bytes_sigbits_encode((uint8_t*)bytes32, PC_INT32, nelems, &ebytes_size);
+    pcfree(bytes32);
+    ebytes32 = (uint32_t*)ebytes;
+    CU_ASSERT_EQUAL(ebytes32[0], 6);     /* unique bit count */
+    CU_ASSERT_EQUAL(ebytes32[1], 103232); /* common bits */
+    CU_ASSERT_EQUAL(ebytes32[2], 624388039); /* packed uint32 */
+    bytes = pc_bytes_sigbits_decode(ebytes, PC_INT32, nelems);
+    pcfree(ebytes32);
+    bytes32 = (uint16_t*)bytes;
+    CU_ASSERT_EQUAL(bytes32[0], 103241);
+    CU_ASSERT_EQUAL(bytes32[1], 103251);
+    CU_ASSERT_EQUAL(bytes32[2], 103261);
+    CU_ASSERT_EQUAL(bytes32[3], 103271);
+    CU_ASSERT_EQUAL(bytes32[4], 103281);
+    CU_ASSERT_EQUAL(bytes32[5], 103291);
+    pcfree(bytes32);
 }
 
 /* REGISTER ***********************************************************/

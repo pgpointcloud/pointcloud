@@ -281,7 +281,7 @@ pc_sigbits_count(const uint8_t *bytes, uint32_t interpretation, uint32_t nelems)
         }
         case 4:
         {
-            uint16_t commonvalue = pc_sigbits_count_32(bytes, nelems, &nbits);
+            uint32_t commonvalue = pc_sigbits_count_32(bytes, nelems, &nbits);
             break;
         }
         default:
@@ -547,7 +547,7 @@ pc_bytes_sigbits_encode(const uint8_t *bytes, uint32_t interpretation, uint32_t 
         }
         case 4:
         {
-            uint16_t commonvalue = pc_sigbits_count_32(bytes, nelems, &nbits);
+            uint32_t commonvalue = pc_sigbits_count_32(bytes, nelems, &nbits);
             return pc_bytes_sigbits_encode_32(bytes, nelems, commonvalue, nbits, ebytes_size);            
         }
         default:
