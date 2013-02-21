@@ -1,8 +1,8 @@
 
 include ../config.mk
 
-CPPFLAGS = $(XML2_CPPFLAGS)
-LDFLAGS = $(XML2_LDFLAGS)
+CPPFLAGS = $(XML2_CPPFLAGS) $(ZLIB_CPPFLAGS)
+LDFLAGS = $(XML2_LDFLAGS) $(ZLIB_LDFLAGS)
 
 OBJS = \
 	pc_dimensional.o \

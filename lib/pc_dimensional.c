@@ -17,7 +17,9 @@
 ***********************************************************************/
 
 #include <stdarg.h>
+#include <assert.h>
 #include "pc_api_internal.h"
+#include "zlib.h"
 
 
 /**
@@ -747,3 +749,98 @@ pc_bytes_sigbits_decode(const uint8_t *bytes, uint32_t interpretation, uint32_t 
     pcerror("Uh Oh");
     return NULL;
 }
+
+static voidpf
+pc_zlib_alloc(voidpf opaque, uInt nitems, uInt sz)
+{
+    return pcalloc(sz*nitems);
+}
+
+static void
+pc_zlib_free(voidpf opaque, voidpf ptr)
+{
+    pcfree(ptr);
+}
+
+
+/* TO DO look for Z_STREAM_END on the write */
+
+/**
+* Returns compressed byte array with
+* <size_t> size of compressed portion
+* <size_t> size of original data
+* <.....> compresssed bytes
+*/
+uint8_t *
+pc_bytes_zlib_encode(const uint8_t *bytes, uint32_t interpretation,  uint32_t nelems)
+{
+    size_t size = (INTERPRETATION_SIZES[interpretation] * nelems);
+    z_stream strm;
+    int ret;
+    size_t have;
+    size_t bufsize = 4*size;
+    uint8_t *buf = pcalloc(bufsize);
+    uint8_t *bytesout;
+    
+    /* Use our own allocators */
+    strm.zalloc = pc_zlib_alloc;
+    strm.zfree = pc_zlib_free;
+    strm.opaque = Z_NULL;
+    ret = deflateInit(&strm, 9);
+    /* Set up input buffer */
+    strm.avail_in = size;
+    strm.next_in = (uint8_t*)bytes;
+    /* Set up output buffer */
+    strm.avail_out = bufsize;
+    strm.next_out = buf;
+    /* Compress */
+    ret = deflate(&strm, Z_FINISH);
+    assert(ret != Z_STREAM_ERROR);
+    have = strm.total_out;
+    bytesout = pcalloc(have + 2 * 4);
+    memcpy(bytesout, &have, 4);
+    memcpy(bytesout+4, &size, 4);
+    memcpy(bytesout+8, buf, have);    
+    pcfree(buf);
+    deflateEnd(&strm);
+    return bytesout;
+}
+
+/**
+* Returns uncompressed byte array from input with
+* <size_t> size of compressed portion
+* <size_t> size of original data
+* <.....> compresssed bytes
+*/
+uint8_t *
+pc_bytes_zlib_decode(const uint8_t *bytes, uint32_t interpretation)
+{
+    z_stream strm;
+    uint32_t comp_size, orig_size;
+    size_t bufsize;
+    uint8_t *buf;
+    int ret;
+    
+    memcpy(&comp_size, bytes, 4);
+    memcpy(&orig_size, bytes+4, 4);
+    
+    /* Set up output memory */
+    buf = pcalloc(orig_size);
+    
+    /* Use our own allocators */
+    strm.zalloc = pc_zlib_alloc;
+    strm.zfree = pc_zlib_free;
+    strm.opaque = Z_NULL;
+    ret = inflateInit(&strm);
+    /* Set up input buffer */
+    strm.avail_in = comp_size;
+    strm.next_in = (uint8_t*)(bytes+8);
+
+    strm.avail_out = orig_size;
+    strm.next_out = buf;
+    ret = inflate(&strm, Z_FINISH);
+    assert(ret != Z_STREAM_ERROR);
+    inflateEnd(&strm);
+    return buf;
+}
+

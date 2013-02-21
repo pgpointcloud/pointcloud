@@ -429,7 +429,7 @@ test_sigbits_encoding()
     CU_ASSERT_EQUAL(ebytes32[2], 624388039); /* packed uint32 */
     bytes = pc_bytes_sigbits_decode(ebytes, PC_INT32, nelems);
     pcfree(ebytes32);
-    bytes32 = (uint16_t*)bytes;
+    bytes32 = (uint32_t*)bytes;
     CU_ASSERT_EQUAL(bytes32[0], 103241);
     CU_ASSERT_EQUAL(bytes32[1], 103251);
     CU_ASSERT_EQUAL(bytes32[2], 103261);
@@ -437,6 +437,21 @@ test_sigbits_encoding()
     CU_ASSERT_EQUAL(bytes32[4], 103281);
     CU_ASSERT_EQUAL(bytes32[5], 103291);
     pcfree(bytes32);
+    
+    /*
+    uint8_t *
+    pc_bytes_zlib_encode(const uint8_t *bytes, uint32_t interpretation,  uint32_t nelems)
+    uint8_t *
+    pc_bytes_zlib_decode(const uint8_t *bytes, uint32_t interpretation)
+    */
+    bytes = "abcaabcaabcbabcc";
+    ebytes = pc_bytes_zlib_encode(bytes, PC_INT8, strlen(bytes));
+    memcpy(&i, ebytes+4, 4);
+    CU_ASSERT_EQUAL(i, strlen(bytes)); /* original length value */
+    bytes = pc_bytes_zlib_decode(ebytes, PC_INT8);
+    CU_ASSERT_EQUAL(bytes[0], 'a');
+    CU_ASSERT_EQUAL(bytes[2], 'c');
+    CU_ASSERT_EQUAL(bytes[5], 'b');
 }
 
 /* REGISTER ***********************************************************/
