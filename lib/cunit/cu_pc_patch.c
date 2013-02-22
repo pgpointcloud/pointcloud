@@ -125,7 +125,9 @@ test_patch_hex_in()
 	pcfree(wkb);	
 }
 
-
+/*
+* Write an uncompressed patch out to hex 
+*/
 static void 
 test_patch_hex_out()
 {
@@ -185,12 +187,9 @@ test_patch_hex_out()
 	pcfree(wkt);
 }
 
-#if 0
-
-/** Convert RLE bytes to value bytes */
-uint8_t* pc_bytes_run_length_decode(const uint8_t *bytes_rle, size_t bytes_rle_size, uint32_t interpretation, size_t *bytes_nelems);
-#endif
-
+/*
+* Can we read this example point value?
+*/
 static void 
 test_schema_xy()
 {
@@ -214,6 +213,11 @@ test_schema_xy()
     
 }
 
+/*
+* Run-length encode a byte stream by word.
+* Lots of identical words means great
+* compression ratios.
+*/
 static void 
 test_run_length_encoding()
 {
@@ -294,6 +298,11 @@ test_run_length_encoding()
 	
 }
 
+/*
+* Strip the common bits off a stream and pack the 
+* remaining bits in behind. Test bit counting and
+* round-trip encode/decode paths.
+*/
 static void 
 test_sigbits_encoding()
 {
@@ -371,6 +380,7 @@ test_sigbits_encoding()
     pcfree(bytes);
     pcfree(ebytes);
 
+    /* Test the 16 bit implementation path */
 	/*
 	0110000101100001 24929
 	0110000101100010 24930
@@ -390,6 +400,7 @@ test_sigbits_encoding()
     bytes16[4] = 24933;
     bytes16[5] = 24934;
     
+    /* Test the 16 bit implementation path */
     common16 = pc_sigbits_count_16((uint8_t*)bytes16, nelems, &count);
     CU_ASSERT_EQUAL(common16, 24928);
     CU_ASSERT_EQUAL(count, 13);
@@ -413,6 +424,7 @@ test_sigbits_encoding()
     CU_ASSERT_EQUAL(bytes16[5], 24934);
     pcfree(bytes);
     
+    /* Test the 32 bit implementation path */
     nelems = 6;
 	bytes32 = pcalloc(nelems*sizeof(uint32_t));
     bytes32[0] = 103241; /* 0000000000000001 1001 0011 0100 1001 */
@@ -438,6 +450,32 @@ test_sigbits_encoding()
     CU_ASSERT_EQUAL(bytes32[5], 103291);
     pcfree(bytes32);
     
+    /* What if all the words are the same? */
+    nelems = 6;
+	bytes16 = pcalloc(nelems*sizeof(uint16_t));
+    bytes16[0] = 24929;
+    bytes16[1] = 24929;
+    bytes16[2] = 24929;
+    bytes16[3] = 24929;
+    bytes16[4] = 24929;
+    bytes16[5] = 24929;
+    ebytes = pc_bytes_sigbits_encode((uint8_t*)bytes16, PC_INT16, nelems, &ebytes_size);    
+    pcfree(bytes16);
+    bytes = pc_bytes_sigbits_decode(ebytes, PC_INT16, nelems);
+    bytes16 = (uint16_t*)bytes;
+    pcfree(ebytes);
+    pcfree(bytes);
+    
+}
+
+/*
+* Encode and decode a byte stream. Data matches?
+*/
+static void 
+test_zlib_encoding()
+{
+    uint8_t *bytes, *ebytes;
+    uint32_t i;
     /*
     uint8_t *
     pc_bytes_zlib_encode(const uint8_t *bytes, uint32_t interpretation,  uint32_t nelems)
@@ -454,15 +492,72 @@ test_sigbits_encoding()
     CU_ASSERT_EQUAL(bytes[5], 'b');
 }
 
+/**
+* Pivot a pointlist into a dimlist and back. 
+* Test for data loss or alteration.
+*/
+static void 
+test_dimlist()
+{
+    PCPOINT *pt;
+    int i;
+    int npts = 10;
+    PCPOINTLIST *pl1, *pl2;
+    PCDIMLIST *pdl;
+    PCDIMSTATS *pds;
+    
+    pl1 = pc_pointlist_make(npts);
+    
+    for ( i = 0; i < npts; i++ )
+    {
+        pt = pc_point_make(simpleschema);
+        pc_point_set_double_by_name(pt, "x", i*2.0);
+        pc_point_set_double_by_name(pt, "y", i*1.9);
+        pc_point_set_double_by_name(pt, "Z", i*0.34);
+        pc_point_set_double_by_name(pt, "intensity", 10);
+        pc_pointlist_add_point(pl1, pt);
+    }
+    
+    pdl = pc_dimlist_from_pointlist(pl1);
+    pl2 = pc_pointlist_from_dimlist(pdl);
+    
+    for ( i = 0; i < npts; i++ )
+    {
+        pt = pl2->points[i];
+        double v1, v2, v3, v4;
+        pc_point_get_double_by_name(pt, "x", &v1);
+        pc_point_get_double_by_name(pt, "y", &v2);
+        pc_point_get_double_by_name(pt, "Z", &v3);
+        pc_point_get_double_by_name(pt, "intensity", &v4);
+        // printf("%g\n", v4);
+        CU_ASSERT_DOUBLE_EQUAL(v1, i*2.0, 0.001);
+        CU_ASSERT_DOUBLE_EQUAL(v2, i*1.9, 0.001);
+        CU_ASSERT_DOUBLE_EQUAL(v3, i*0.34, 0.001);
+        CU_ASSERT_DOUBLE_EQUAL(v4, 10, 0.001);
+    }
+    
+    pds = pc_dimstats_make(simpleschema);
+    pc_dimstats_update(pds, pdl);
+    pc_dimstats_update(pds, pdl);
+    
+    
+    pc_dimlist_free(pdl);
+    pc_pointlist_free(pl1);
+    pc_pointlist_free(pl2);
+    pc_dimstats_free(pds);
+}
+
 /* REGISTER ***********************************************************/
 
 CU_TestInfo patch_tests[] = {
 	PC_TEST(test_endian_flip),
 	PC_TEST(test_patch_hex_in),
 	PC_TEST(test_patch_hex_out),
-	PC_TEST(test_run_length_encoding),
     PC_TEST(test_schema_xy),
+	PC_TEST(test_run_length_encoding),
 	PC_TEST(test_sigbits_encoding),
+	PC_TEST(test_zlib_encoding),
+	PC_TEST(test_dimlist),
 	CU_TEST_INFO_NULL
 };
 

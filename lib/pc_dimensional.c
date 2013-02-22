@@ -22,6 +22,164 @@
 #include "zlib.h"
 
 
+PCDIMSTATS *
+pc_dimstats_make(const PCSCHEMA *schema)
+{
+    PCDIMSTATS *pds;
+    pds = pcalloc(sizeof(PCDIMSTATS));
+    pds->ndims = schema->ndims;
+    pds->stats = pcalloc(pds->ndims * sizeof(PCDIMSTAT));
+    return pds;
+}
+
+void
+pc_dimstats_free(PCDIMSTATS *pds)
+{
+    if ( pds->stats )
+        pcfree(pds->stats);
+    pcfree(pds);
+}
+
+int
+pc_dimstats_update(PCDIMSTATS *pds, const PCDIMLIST *pdl)
+{
+    int i, j;
+    uint32_t nelems = pdl->npoints;
+    const PCSCHEMA *schema = pdl->schema;
+    
+    /* Update global stats */
+    pds->total_points += pdl->npoints;
+    pds->total_patches += 1;
+    
+    /* Update dimensional stats */
+    for ( i = 0; i < pds->ndims; i++ )
+    {
+        PCDIMENSION *dim = pc_schema_get_dimension(schema, i);
+        uint8_t *bytes = pdl->data[i];
+        uint32_t runs = pc_bytes_run_count(bytes, dim->interpretation, nelems);
+        uint32_t commonbits = pc_sigbits_count(bytes, dim->interpretation, nelems);
+        pds->stats[i].total_runs += runs;
+        pds->stats[i].total_commonbits += commonbits;
+    }
+    
+    /* Update recommended compression schema */
+    for ( i = 0; i < pds->ndims; i++ )
+    {
+        PCDIMENSION *dim = pc_schema_get_dimension(schema, i);
+        /* Uncompressed size, foreach point, one value entry */
+        double raw_size = pds->total_points * dim->size;
+        /* RLE size, for each run, one count byte and one value entry */
+        double rle_size = pds->stats[i].total_runs * (dim->size + 1);
+        /* Sigbits size, for each patch, one header and n bits for each entry */
+        double avg_commonbits_per_patch = pds->stats[i].total_commonbits / pds->total_patches;
+        double avg_uniquebits_per_patch = 8*dim->size - avg_commonbits_per_patch;
+        double sigbits_size = pds->total_patches * 2 * dim->size + pds->total_points * avg_uniquebits_per_patch / 8;
+        /* Default to ZLib */
+        pds->stats[i].recommended_compression = PC_DIM_ZLIB;
+        /* Only use rle and sigbits compression on integer values */
+        /* If we can do better than 4:1 we might beat zlib */
+        if ( dim->interpretation != PC_DOUBLE )
+        {
+            /* If sigbits is better than 4:1, use that */
+            if ( raw_size/sigbits_size > 4.0 )
+            {
+                pds->stats[i].recommended_compression = PC_DIM_SIGBITS;
+            }
+            /* If RLE size is even better, use that. */
+            else if ( raw_size/rle_size > 4.0 )
+            {
+                pds->stats[i].recommended_compression = PC_DIM_RLE;
+            }
+        }
+    }
+    return PC_SUCCESS;
+}
+
+
+/**
+* Converts a list of I N-dimensional points into a 
+* list of N I-valued dimensions. Precursor to running
+* compression on each dimension separately.
+*/
+PCDIMLIST *
+pc_dimlist_from_pointlist(const PCPOINTLIST *pl)
+{
+    PCDIMLIST *pdl;
+    int i, j, ndims, npoints;
+    assert(pl);
+    
+    if ( pl->npoints == 0 ) return NULL;
+    
+    ndims = pl->points[0]->schema->ndims;
+    npoints = pl->npoints;
+    pdl = pcalloc(sizeof(PCDIMLIST));
+    pdl->schema = pl->points[0]->schema;
+    pdl->npoints = npoints;
+    pdl->compressions = pcalloc(ndims * sizeof(uint32_t));
+    pdl->data = pcalloc(ndims * sizeof(uint8_t*));
+    
+    for ( i = 0; i < ndims; i++ )
+    {
+        PCDIMENSION *dim = pc_schema_get_dimension(pdl->schema, i);
+        pdl->data[i] = pcalloc(npoints * dim->size);
+        for ( j = 0; j < npoints; j++ )
+        {
+            uint8_t *to = pdl->data[i] + dim->size * j;
+            uint8_t *from = pl->points[j]->data + dim->byteoffset;
+            memcpy(to, from, dim->size);
+        }
+        pdl->compressions[i] = PC_DIM_NONE;
+    }    
+    return pdl;
+}
+
+void
+pc_dimlist_free(PCDIMLIST *pdl)
+{
+    int i;
+    int ndims;
+    assert(pdl);
+    assert(pdl->schema);
+    
+    ndims = pdl->schema->ndims;
+    if ( pdl->data )
+    {
+        for ( i = 0; i < ndims; i++ )
+        {
+            if (pdl->data[i])
+                pcfree(pdl->data[i]);
+        }
+        pcfree(pdl->data);
+    }
+    if ( pdl->compressions )
+        pcfree(pdl->compressions);
+    
+    pcfree(pdl);
+}
+
+int
+pc_dimlist_encode(PCDIMLIST *pdl)
+{
+    int i;
+    int ndims;
+    assert(pdl);
+    assert(pdl->schema);
+    
+    return PC_SUCCESS;
+}
+
+int
+pc_dimlist_decode(PCDIMLIST *pdl)
+{
+    int i;
+    int ndims;
+    assert(pdl);
+    assert(pdl->schema);
+    
+    return PC_SUCCESS;
+}
+
+
 /**
 * How many distinct runs of values are there in this array?
 * One? Two? Five? Great news for run-length encoding!
@@ -288,7 +446,7 @@ pc_sigbits_count(const uint8_t *bytes, uint32_t interpretation, uint32_t nelems)
         }
         default:
         {
-            pcerror("Uh oh");
+            pcerror("pc_sigbits_count cannot handle interpretation %d", interpretation);
             return -1;
         }
     }
@@ -326,6 +484,13 @@ pc_bytes_sigbits_encode_8(const uint8_t *bytes, uint32_t nelems, uint8_t commonv
     *byte_ptr = nbits; byte_ptr++;
     /* The common value we'll add the unique values to */
     *byte_ptr = commonvalue; byte_ptr++;
+
+    /* All the values are the same... */
+    if ( bitwidth == commonbits )
+    {
+        *bytes_size = size_out;
+        return bytes_out;
+    }
     
     for ( i = 0; i < nelems; i++ )
     {
@@ -403,6 +568,13 @@ pc_bytes_sigbits_encode_16(const uint8_t *bytes8, uint32_t nelems, uint16_t comm
     /* The common value we'll add the unique values to */
     *byte_ptr = commonvalue; byte_ptr++;
     
+    /* All the values are the same... */
+    if ( bitwidth == commonbits )
+    {
+        *bytes_size = size_out;
+        return bytes_out;
+    }
+    
     for ( i = 0; i < nelems; i++ )
     {
         uint16_t val = bytes[i];
@@ -478,6 +650,13 @@ pc_bytes_sigbits_encode_32(const uint8_t *bytes8, uint32_t nelems, uint32_t comm
     *byte_ptr = nbits; byte_ptr++;
     /* The common value we'll add the unique values to */
     *byte_ptr = commonvalue; byte_ptr++;
+
+    /* All the values are the same... */
+    if ( bitwidth == commonbits )
+    {
+        *bytes_size = size_out;
+        return bytes_out;
+    }
     
     for ( i = 0; i < nelems; i++ )
     {
@@ -554,7 +733,7 @@ pc_bytes_sigbits_encode(const uint8_t *bytes, uint32_t interpretation, uint32_t 
         }
         default:
         {
-            pcerror("Uh oh");
+            pcerror("pc_bytes_sigbits_encode cannot handle interpretation %d", interpretation);
         }
     }
     pcerror("Uh Oh");
@@ -743,10 +922,10 @@ pc_bytes_sigbits_decode(const uint8_t *bytes, uint32_t interpretation, uint32_t 
         }
         default:
         {
-            pcerror("Uh oh");
+            pcerror("pc_bytes_sigbits_decode cannot handle interpretation %d", interpretation);
         }
     }
-    pcerror("Uh Oh");
+    pcerror("pc_bytes_sigbits_decode got an unhandled errror");
     return NULL;
 }
 
