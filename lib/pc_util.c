@@ -279,22 +279,35 @@ pc_bytes_make(const PCDIMENSION *dim, uint32_t npoints)
     return pcb;
 }
 
+static PCBYTES 
+pc_bytes_clone(PCBYTES pcb)
+{
+    PCBYTES pcbnew = pcb;
+    pcbnew.bytes = pcalloc(pcb.size);
+    memcpy(pcbnew.bytes, pcb.bytes, pcb.size);
+    return pcbnew;
+}
+
 PCBYTES
 pc_bytes_encode(PCBYTES pcb, int compression)
 {
+    PCBYTES epcb;
     switch ( compression )
     {
         case PC_DIM_RLE:
         {
-            return pc_bytes_run_length_encode(pcb);
+            epcb = pc_bytes_run_length_encode(pcb);
+            break;
         }
         case PC_DIM_SIGBITS:
         {
-            return pc_bytes_sigbits_encode(pcb);
+            epcb = pc_bytes_sigbits_encode(pcb);
+            break;
         }
         case PC_DIM_ZLIB:
         {
-            return pc_bytes_zlib_encode(pcb);
+            epcb = pc_bytes_zlib_encode(pcb);
+            break;
         }
         case PC_DIM_NONE:
         {
@@ -305,4 +318,40 @@ pc_bytes_encode(PCBYTES pcb, int compression)
             pcerror("pc_bytes_encode: Uh oh");
         }
     }
+    pc_bytes_free(pcb);
+    return epcb;
+}
+
+PCBYTES
+pc_bytes_decode(PCBYTES epcb)
+{
+    PCBYTES pcb;
+    switch ( epcb.compression )
+    {
+        case PC_DIM_RLE:
+        {
+            pcb = pc_bytes_run_length_decode(pcb);
+            break;
+        }
+        case PC_DIM_SIGBITS:
+        {
+            pcb = pc_bytes_sigbits_decode(pcb);
+            break;
+        }
+        case PC_DIM_ZLIB:
+        {
+            pcb = pc_bytes_zlib_decode(pcb);
+            break;
+        }
+        case PC_DIM_NONE:
+        {
+            return epcb;
+        }
+        default:
+        {
+            pcerror("pc_bytes_decode: Uh oh");
+        }
+    }
+    pc_bytes_free(epcb);
+    return pcb;
 }

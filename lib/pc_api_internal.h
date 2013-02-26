@@ -146,28 +146,42 @@ PCBYTES pc_bytes_zlib_encode(const PCBYTES pcb);
 /** De-compress bytes using zlib */
 PCBYTES pc_bytes_zlib_decode(const PCBYTES pcb);
 
-
 /** How many runs are there in a value array? */
 uint32_t pc_bytes_run_count(const PCBYTES *pcb);
 /** How many bits are shared by all elements of this array? */
 uint32_t pc_sigbits_count(const PCBYTES *pcb);
-
+/** Using an 8-bit word, what is the common word and number of bits in common? */
 uint8_t  pc_sigbits_count_8 (const PCBYTES *pcb, uint32_t *nsigbits);
+/** Using an 16-bit word, what is the common word and number of bits in common? */
 uint16_t pc_sigbits_count_16(const PCBYTES *pcb, uint32_t *nsigbits);
+/** Using an 32-bit word, what is the common word and number of bits in common? */
 uint32_t pc_sigbits_count_32(const PCBYTES *pcb, uint32_t *nsigbits);
+/** Using an 64-bit word, what is the common word and number of bits in common? */
 uint64_t pc_sigbits_count_64(const PCBYTES *pcb, uint32_t *nsigbits);
-
+/** Pivot a #PCPOINTLIST to a #PCDIMLIST, taking copies of data. */
 PCDIMLIST* pc_dimlist_from_pointlist(const PCPOINTLIST *pl);
+/** Pivot a #PCDIMLIST to a #PCPOINTLIST, taking copies of data. */
 PCPOINTLIST* pc_pointlist_from_dimlist(PCDIMLIST *pdl);
 
-int pc_dimlist_encode(PCDIMLIST *pdl);
+/** Compress #DIMLIST, using the suggestions from the #PCDIMSTATS. Compresses in place and frees existing data. */
+int pc_dimlist_encode(PCDIMLIST *pdl, PCDIMSTATS **pdsptr);
+/** Decompress #DIMLIST. Decompresses in place and frees existing data. */
 int pc_dimlist_decode(PCDIMLIST *pdl);
 
+/** Build an empty #PCDIMSTATS based on the schema */
 PCDIMSTATS* pc_dimstats_make(const PCSCHEMA *schema);
+/** Analyze the bytes in the #PCDIMLIST and update the #PCDIMSTATS */
 int pc_dimstats_update(PCDIMSTATS *pds, const PCDIMLIST *pdl);
+/** Free the PCDIMSTATS memory */
 void pc_dimstats_free(PCDIMSTATS *pds);
 
-void pc_bytes_free(PCBYTES bytes);
+/** Construct empty byte array (zero out attribute and allocate byte buffer) */
 PCBYTES pc_bytes_make(const PCDIMENSION *dim, uint32_t npoints);
+/** Empty the byte array (free the byte buffer) */
+void pc_bytes_free(PCBYTES bytes);
+/** Apply the compresstion to the byte array in place, freeing the original byte buffer */
+PCBYTES pc_bytes_encode(PCBYTES pcb, int compression);
+/** Convert the bytes in #PCBYTES to PC_DIM_NONE compression */
+PCBYTES pc_bytes_decode(PCBYTES epcb);
 
 #endif /* _PC_API_INTERNAL_H */

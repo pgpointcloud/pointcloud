@@ -145,7 +145,6 @@ pc_dimlist_free(PCDIMLIST *pdl)
     pcfree(pdl);
 }
 
-#if 0
 int
 pc_dimlist_encode(PCDIMLIST *pdl, PCDIMSTATS **pdsptr)
 {
@@ -168,23 +167,13 @@ pc_dimlist_encode(PCDIMLIST *pdl, PCDIMSTATS **pdsptr)
         pc_dimstats_update(pds, pdl);
     
     /* Compress each dimension as dictated by stats */
-    for ( i = 0; i < pdl->ndims; i++ )
+    for ( i = 0; i < pdl->schema->ndims; i++ )
     {
-        uint8_t *bytes = pdl->data[i];
-        uint8_t *ebytes;
-        size_t ebytes_size;
-        PCDIMENSION *dim = pc_schema_get_dimension(pdl->schema, i);
-        
-        /* PC_DIM_NONE, PC_DIM_RLE, PC_DIM_SIGBITS, PC_DIM_ZLIB */
-        switch ( pds->stats[i].recommended_compression )
-        {
-
-        }
+        pdl->bytes[i] = pc_bytes_encode(pdl->bytes[i], pds->stats[i].recommended_compression);
     }
     
     return PC_SUCCESS;
 }
-#endif
 
 int
 pc_dimlist_decode(PCDIMLIST *pdl)
@@ -193,6 +182,12 @@ pc_dimlist_decode(PCDIMLIST *pdl)
     int ndims;
     assert(pdl);
     assert(pdl->schema);
+    
+    /* Compress each dimension as dictated by stats */
+    for ( i = 0; i < pdl->schema->ndims; i++ )
+    {
+        pdl->bytes[i] = pc_bytes_decode(pdl->bytes[i]);
+    }    
     
     return PC_SUCCESS;
 }
