@@ -221,6 +221,7 @@ static PCBYTES initbytes(uint8_t *bytes, size_t size, uint32_t interp)
     pcb.interpretation = interp;
     pcb.npoints = pcb.size / INTERPRETATION_SIZES[pcb.interpretation];
     pcb.compression = PC_DIM_NONE;
+    return pcb;
 }
 
 /*
@@ -372,7 +373,7 @@ test_sigbits_encoding()
 	0110000000000000 24576
 	*/
 	bytes = "aabbcc";
-    pcb = initbytes(bytes, strlen(bytes)/2, PC_UINT16);
+    pcb = initbytes(bytes, strlen(bytes), PC_UINT16);
 	count = pc_sigbits_count(&pcb);
 	CU_ASSERT_EQUAL(count, 6);
 
@@ -427,7 +428,7 @@ test_sigbits_encoding()
         };
     /* encoded 0110000101100 001 010 011 100 101 110 */
     bytes = (uint8_t*)bytes16;
-    pcb = initbytes(bytes, nelems, PC_INT16);
+    pcb = initbytes(bytes, nelems*2, PC_INT16);
     
     /* Test the 16 bit implementation path */
     common16 = pc_sigbits_count_16(&pcb, &count);
@@ -464,9 +465,13 @@ test_sigbits_encoding()
         103291  /* 0000000000000001 1001 0011 0111 1011 */
         };
     bytes = (uint8_t*)bytes32;
-    pcb = initbytes(bytes, nelems, PC_INT32);
-    epcb = pc_bytes_sigbits_encode(pcb);
+    pcb = initbytes(bytes, nelems*4, PC_INT32);
 
+    common32 = pc_sigbits_count_32(&pcb, &count);
+    CU_ASSERT_EQUAL(count, 26);     /* unique bit count */
+    CU_ASSERT_EQUAL(common32, 103232);
+
+    epcb = pc_bytes_sigbits_encode(pcb);
     ebytes32 = (uint32_t*)(epcb.bytes);
     CU_ASSERT_EQUAL(ebytes32[0], 6);     /* unique bit count */
     CU_ASSERT_EQUAL(ebytes32[1], 103232); /* common bits */
@@ -494,7 +499,7 @@ test_sigbits_encoding()
         24929  /* 0000000000000001 1001 0011 0111 1011 */
         };
     bytes = (uint8_t*)bytes16;
-    pcb = initbytes(bytes, nelems, PC_INT16);
+    pcb = initbytes(bytes, nelems*2, PC_INT16);
     epcb = pc_bytes_sigbits_encode(pcb);
     pcb2 = pc_bytes_sigbits_decode(epcb);
     pc_bytes_free(epcb);

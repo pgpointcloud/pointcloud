@@ -172,9 +172,6 @@ pc_schema_free(PCSCHEMA *pcs)
 {
 	int i;
 
-	if ( pcs->namehash )
-		hashtable_destroy(pcs->namehash, 0);
-
 	for ( i = 0; i < pcs->ndims; i++ )
 	{
 		if ( pcs->dims[i] )
@@ -184,6 +181,10 @@ pc_schema_free(PCSCHEMA *pcs)
 		}
 	}
 	pcfree(pcs->dims);
+
+    if ( pcs->namehash )
+        hashtable_destroy(pcs->namehash, 0);
+	
 	pcfree(pcs);
 }
 

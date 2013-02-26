@@ -343,7 +343,7 @@ uint8_t
 pc_sigbits_count_8(const PCBYTES *pcb, uint32_t *nsigbits)
 {
 	static uint8_t nbits = 8;
-    uint8_t *bytes = pcb->bytes;
+    uint8_t *bytes = (uint8_t*)(pcb->bytes);
 	uint8_t elem_and = bytes[0];
 	uint8_t elem_or = bytes[0];
 	uint32_t commonbits = nbits;
@@ -457,22 +457,22 @@ pc_sigbits_count(const PCBYTES *pcb)
     uint32_t nbits = -1;
     switch ( size )
     {
-        case 1:
+        case 1: /* INT8, UINT8 */
         {
             uint8_t commonvalue = pc_sigbits_count_8(pcb, &nbits);
             break;
         }
-        case 2:
+        case 2: /* INT16, UINT16 */
         {
             uint16_t commonvalue = pc_sigbits_count_16(pcb, &nbits);
             break;
         }
-        case 4:
+        case 4: /* INT32, UINT32 */
         {
             uint32_t commonvalue = pc_sigbits_count_32(pcb, &nbits);
             break;
         }
-        case 8:
+        case 8: /* DOUBLE, INT64, UINT64 */
         {
             uint64_t commonvalue = pc_sigbits_count_64(pcb, &nbits);
             break;
@@ -587,7 +587,7 @@ pc_bytes_sigbits_encode_16(const PCBYTES pcb, uint16_t commonvalue, uint8_t comm
 {
     int i;
     int shift;
-    uint8_t *bytes = (uint8_t*)(pcb.bytes);
+    uint16_t *bytes = (uint16_t*)(pcb.bytes);
     
     /* How wide are our words? */
     static int bitwidth = 16;
@@ -672,11 +672,11 @@ pc_bytes_sigbits_encode_16(const PCBYTES pcb, uint16_t commonvalue, uint8_t comm
 * Size of encoded array comes out in ebytes_size.
 */
 PCBYTES
-pc_bytes_sigbits_encode_32(const PCBYTES pcb, uint16_t commonvalue, uint8_t commonbits)
+pc_bytes_sigbits_encode_32(const PCBYTES pcb, uint32_t commonvalue, uint8_t commonbits)
 {
     int i;
     int shift;
-    uint8_t *bytes = (uint8_t*)(pcb.bytes);
+    uint32_t *bytes = (uint32_t*)(pcb.bytes);
     
     /* How wide are our words? */
     static int bitwidth = 32;
