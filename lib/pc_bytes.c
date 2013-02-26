@@ -1,5 +1,5 @@
 /***********************************************************************
-* pc_dimensional.c
+* pc_bytes.c
 *
 *  Support for "dimensional compression", which is a catch-all
 *  term for applying compression separately on each dimension
@@ -21,175 +21,101 @@
 #include "pc_api_internal.h"
 #include "zlib.h"
 
-PCDIMSTATS *
-pc_dimstats_make(const PCSCHEMA *schema)
-{
-    PCDIMSTATS *pds;
-    pds = pcalloc(sizeof(PCDIMSTATS));
-    pds->ndims = schema->ndims;
-    pds->stats = pcalloc(pds->ndims * sizeof(PCDIMSTAT));
-    return pds;
-}
+
 
 void
-pc_dimstats_free(PCDIMSTATS *pds)
+pc_bytes_free(PCBYTES bytes)
 {
-    if ( pds->stats )
-        pcfree(pds->stats);
-    pcfree(pds);
+    pcfree(bytes.bytes);
 }
 
-int
-pc_dimstats_update(PCDIMSTATS *pds, const PCDIMLIST *pdl)
+PCBYTES
+pc_bytes_make(const PCDIMENSION *dim, uint32_t npoints)
 {
-    int i, j;
-    uint32_t nelems = pdl->npoints;
-    const PCSCHEMA *schema = pdl->schema;
-    
-    /* Update global stats */
-    pds->total_points += pdl->npoints;
-    pds->total_patches += 1;
-    
-    /* Update dimensional stats */
-    for ( i = 0; i < pds->ndims; i++ )
+    PCBYTES pcb;
+    pcb.size = dim->size * npoints;
+    pcb.bytes = pcalloc(pcb.size);
+    pcb.npoints = npoints;
+    pcb.interpretation = dim->interpretation;
+    pcb.compression = PC_DIM_NONE;
+    return pcb;
+}
+
+static PCBYTES 
+pc_bytes_clone(PCBYTES pcb)
+{
+    PCBYTES pcbnew = pcb;
+    pcbnew.bytes = pcalloc(pcb.size);
+    memcpy(pcbnew.bytes, pcb.bytes, pcb.size);
+    return pcbnew;
+}
+
+PCBYTES
+pc_bytes_encode(PCBYTES pcb, int compression)
+{
+    PCBYTES epcb;
+    switch ( compression )
     {
-        PCBYTES pcb = pdl->bytes[i];
-        pds->stats[i].total_runs += pc_bytes_run_count(&pcb);
-        pds->stats[i].total_commonbits += pc_sigbits_count(&pcb);
-    }
-    
-    /* Update recommended compression schema */
-    for ( i = 0; i < pds->ndims; i++ )
-    {
-        PCDIMENSION *dim = pc_schema_get_dimension(schema, i);
-        /* Uncompressed size, foreach point, one value entry */
-        double raw_size = pds->total_points * dim->size;
-        /* RLE size, for each run, one count byte and one value entry */
-        double rle_size = pds->stats[i].total_runs * (dim->size + 1);
-        /* Sigbits size, for each patch, one header and n bits for each entry */
-        double avg_commonbits_per_patch = pds->stats[i].total_commonbits / pds->total_patches;
-        double avg_uniquebits_per_patch = 8*dim->size - avg_commonbits_per_patch;
-        double sigbits_size = pds->total_patches * 2 * dim->size + pds->total_points * avg_uniquebits_per_patch / 8;
-        /* Default to ZLib */
-        pds->stats[i].recommended_compression = PC_DIM_ZLIB;
-        /* Only use rle and sigbits compression on integer values */
-        /* If we can do better than 4:1 we might beat zlib */
-        if ( dim->interpretation != PC_DOUBLE )
+        case PC_DIM_RLE:
         {
-            /* If sigbits is better than 4:1, use that */
-            if ( raw_size/sigbits_size > 4.0 )
-            {
-                pds->stats[i].recommended_compression = PC_DIM_SIGBITS;
-            }
-            /* If RLE size is even better, use that. */
-            else if ( raw_size/rle_size > 4.0 )
-            {
-                pds->stats[i].recommended_compression = PC_DIM_RLE;
-            }
+            epcb = pc_bytes_run_length_encode(pcb);
+            break;
+        }
+        case PC_DIM_SIGBITS:
+        {
+            epcb = pc_bytes_sigbits_encode(pcb);
+            break;
+        }
+        case PC_DIM_ZLIB:
+        {
+            epcb = pc_bytes_zlib_encode(pcb);
+            break;
+        }
+        case PC_DIM_NONE:
+        {
+            return pcb;
+        }
+        default:
+        {
+            pcerror("pc_bytes_encode: Uh oh");
         }
     }
-    return PC_SUCCESS;
+    pc_bytes_free(pcb);
+    return epcb;
 }
 
-
-/**
-* Converts a list of I N-dimensional points into a 
-* list of N I-valued dimensions. Precursor to running
-* compression on each dimension separately.
-*/
-PCDIMLIST *
-pc_dimlist_from_pointlist(const PCPOINTLIST *pl)
+PCBYTES
+pc_bytes_decode(PCBYTES epcb)
 {
-    PCDIMLIST *pdl;
-    int i, j, ndims, npoints;
-    assert(pl);
-    
-    if ( pl->npoints == 0 ) return NULL;
-    
-    pdl = pcalloc(sizeof(PCDIMLIST));
-    pdl->schema = pl->points[0]->schema;
-    ndims = pdl->schema->ndims;
-    npoints = pl->npoints;
-    pdl->npoints = npoints;
-    pdl->bytes = pcalloc(ndims * sizeof(PCBYTES));
-    
-    for ( i = 0; i < ndims; i++ )
+    PCBYTES pcb;
+    switch ( epcb.compression )
     {
-        PCDIMENSION *dim = pc_schema_get_dimension(pdl->schema, i);
-        pdl->bytes[i] = pc_bytes_make(dim, npoints);
-        for ( j = 0; j < npoints; j++ )
+        case PC_DIM_RLE:
         {
-            uint8_t *to = pdl->bytes[i].bytes + dim->size * j;
-            uint8_t *from = pl->points[j]->data + dim->byteoffset;
-            memcpy(to, from, dim->size);
+            pcb = pc_bytes_run_length_decode(pcb);
+            break;
         }
-    }    
-    return pdl;
-}
-
-void
-pc_dimlist_free(PCDIMLIST *pdl)
-{
-    int i;
-    assert(pdl);
-    assert(pdl->schema);
-    
-    if ( pdl->bytes )
-    {
-        for ( i = 0; i < pdl->schema->ndims; i++ )
-            pc_bytes_free(pdl->bytes[i]);
-
-        pcfree(pdl->bytes);
+        case PC_DIM_SIGBITS:
+        {
+            pcb = pc_bytes_sigbits_decode(pcb);
+            break;
+        }
+        case PC_DIM_ZLIB:
+        {
+            pcb = pc_bytes_zlib_decode(pcb);
+            break;
+        }
+        case PC_DIM_NONE:
+        {
+            return epcb;
+        }
+        default:
+        {
+            pcerror("pc_bytes_decode: Uh oh");
+        }
     }
-    
-    pcfree(pdl);
-}
-
-int
-pc_dimlist_encode(PCDIMLIST *pdl, PCDIMSTATS **pdsptr)
-{
-    int i;
-    PCDIMSTATS *pds;
-    
-    assert(pdl);
-    assert(pdl->schema);
-    assert(pdsptr);
-    
-    /* Maybe we have stats passed in */
-    pds = *pdsptr;
-    
-    /* No stats at all, make a new one */
-    if ( ! pds )
-        pds = pc_dimstats_make(pdl->schema);
-
-    /* Still sampling, update stats */
-    if ( pds->total_points < PCDIMSTATS_MIN_SAMPLE )
-        pc_dimstats_update(pds, pdl);
-    
-    /* Compress each dimension as dictated by stats */
-    for ( i = 0; i < pdl->schema->ndims; i++ )
-    {
-        pdl->bytes[i] = pc_bytes_encode(pdl->bytes[i], pds->stats[i].recommended_compression);
-    }
-    
-    return PC_SUCCESS;
-}
-
-int
-pc_dimlist_decode(PCDIMLIST *pdl)
-{
-    int i;
-    int ndims;
-    assert(pdl);
-    assert(pdl->schema);
-    
-    /* Compress each dimension as dictated by stats */
-    for ( i = 0; i < pdl->schema->ndims; i++ )
-    {
-        pdl->bytes[i] = pc_bytes_decode(pdl->bytes[i]);
-    }    
-    
-    return PC_SUCCESS;
+    pc_bytes_free(epcb);
+    return pcb;
 }
 
 
@@ -335,7 +261,7 @@ pc_bytes_run_length_decode(const PCBYTES pcb)
 
 
 uint8_t
-pc_sigbits_count_8(const PCBYTES *pcb, uint32_t *nsigbits)
+pc_bytes_sigbits_count_8(const PCBYTES *pcb, uint32_t *nsigbits)
 {
 	static uint8_t nbits = 8;
     uint8_t *bytes = (uint8_t*)(pcb->bytes);
@@ -362,7 +288,7 @@ pc_sigbits_count_8(const PCBYTES *pcb, uint32_t *nsigbits)
 }
 
 uint16_t
-pc_sigbits_count_16(const PCBYTES *pcb, uint32_t *nsigbits)
+pc_bytes_sigbits_count_16(const PCBYTES *pcb, uint32_t *nsigbits)
 {
 	static int nbits = 16;
 	uint16_t *bytes = (uint16_t*)(pcb->bytes);
@@ -389,7 +315,7 @@ pc_sigbits_count_16(const PCBYTES *pcb, uint32_t *nsigbits)
 }
 
 uint32_t
-pc_sigbits_count_32(const PCBYTES *pcb, uint32_t *nsigbits)
+pc_bytes_sigbits_count_32(const PCBYTES *pcb, uint32_t *nsigbits)
 {
 	static int nbits = 32;
 	uint32_t *bytes = (uint32_t*)(pcb->bytes);
@@ -416,7 +342,7 @@ pc_sigbits_count_32(const PCBYTES *pcb, uint32_t *nsigbits)
 }
 
 uint64_t
-pc_sigbits_count_64(const PCBYTES *pcb, uint32_t *nsigbits)
+pc_bytes_sigbits_count_64(const PCBYTES *pcb, uint32_t *nsigbits)
 {
 	static int nbits = 64;
 	uint64_t *bytes = (uint64_t*)(pcb->bytes);
@@ -446,7 +372,7 @@ pc_sigbits_count_64(const PCBYTES *pcb, uint32_t *nsigbits)
 * How many bits are shared by all elements of this array?
 */
 uint32_t
-pc_sigbits_count(const PCBYTES *pcb)
+pc_bytes_sigbits_count(const PCBYTES *pcb)
 {
     size_t size = INTERPRETATION_SIZES[pcb->interpretation];
     uint32_t nbits = -1;
@@ -454,27 +380,27 @@ pc_sigbits_count(const PCBYTES *pcb)
     {
         case 1: /* INT8, UINT8 */
         {
-            uint8_t commonvalue = pc_sigbits_count_8(pcb, &nbits);
+            uint8_t commonvalue = pc_bytes_sigbits_count_8(pcb, &nbits);
             break;
         }
         case 2: /* INT16, UINT16 */
         {
-            uint16_t commonvalue = pc_sigbits_count_16(pcb, &nbits);
+            uint16_t commonvalue = pc_bytes_sigbits_count_16(pcb, &nbits);
             break;
         }
         case 4: /* INT32, UINT32 */
         {
-            uint32_t commonvalue = pc_sigbits_count_32(pcb, &nbits);
+            uint32_t commonvalue = pc_bytes_sigbits_count_32(pcb, &nbits);
             break;
         }
         case 8: /* DOUBLE, INT64, UINT64 */
         {
-            uint64_t commonvalue = pc_sigbits_count_64(pcb, &nbits);
+            uint64_t commonvalue = pc_bytes_sigbits_count_64(pcb, &nbits);
             break;
         }
         default:
         {
-            pcerror("pc_sigbits_count cannot handle interpretation %d", pcb->interpretation);
+            pcerror("pc_bytes_sigbits_count cannot handle interpretation %d", pcb->interpretation);
             return -1;
         }
     }
@@ -765,17 +691,17 @@ pc_bytes_sigbits_encode(const PCBYTES pcb)
     {
         case 1:
         {
-            uint8_t commonvalue = pc_sigbits_count_8(&pcb, &nbits);
+            uint8_t commonvalue = pc_bytes_sigbits_count_8(&pcb, &nbits);
             return pc_bytes_sigbits_encode_8(pcb, commonvalue, nbits);
         }
         case 2:
         {
-            uint16_t commonvalue = pc_sigbits_count_16(&pcb, &nbits);
+            uint16_t commonvalue = pc_bytes_sigbits_count_16(&pcb, &nbits);
             return pc_bytes_sigbits_encode_16(pcb, commonvalue, nbits);
         }
         case 4:
         {
-            uint32_t commonvalue = pc_sigbits_count_32(&pcb, &nbits);
+            uint32_t commonvalue = pc_bytes_sigbits_count_32(&pcb, &nbits);
             return pc_bytes_sigbits_encode_32(pcb, commonvalue, nbits);
         }
         default:

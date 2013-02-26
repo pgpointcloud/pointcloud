@@ -5,7 +5,9 @@ CPPFLAGS = $(XML2_CPPFLAGS) $(ZLIB_CPPFLAGS)
 LDFLAGS = $(XML2_LDFLAGS) $(ZLIB_LDFLAGS)
 
 OBJS = \
-	pc_dimensional.o \
+	pc_bytes.o \
+	pc_dimlist.o \
+	pc_dimstats.o \
 	pc_mem.o \
 	pc_patch.o \
 	pc_point.o \

@@ -356,13 +356,13 @@ test_sigbits_encoding()
 	*/
 	bytes = "abc";
     pcb = initbytes(bytes, strlen(bytes), PC_UINT8);
-    common8 = pc_sigbits_count_8(&pcb, &count);
+    common8 = pc_bytes_sigbits_count_8(&pcb, &count);
 	CU_ASSERT_EQUAL(count, 6);
 	CU_ASSERT_EQUAL(common8, '`');
 
 	bytes = "abcdef";
     pcb = initbytes(bytes, strlen(bytes), PC_UINT8);
-    common8 = pc_sigbits_count_8(&pcb, &count);
+    common8 = pc_bytes_sigbits_count_8(&pcb, &count);
 	CU_ASSERT_EQUAL(count, 5);
 	CU_ASSERT_EQUAL(common8, '`');
 
@@ -374,7 +374,7 @@ test_sigbits_encoding()
 	*/
 	bytes = "aabbcc";
     pcb = initbytes(bytes, strlen(bytes), PC_UINT16);
-	count = pc_sigbits_count(&pcb);
+	count = pc_bytes_sigbits_count(&pcb);
 	CU_ASSERT_EQUAL(count, 6);
 
 	/*
@@ -431,7 +431,7 @@ test_sigbits_encoding()
     pcb = initbytes(bytes, nelems*2, PC_INT16);
     
     /* Test the 16 bit implementation path */
-    common16 = pc_sigbits_count_16(&pcb, &count);
+    common16 = pc_bytes_sigbits_count_16(&pcb, &count);
     CU_ASSERT_EQUAL(common16, 24928);
     CU_ASSERT_EQUAL(count, 13);
     epcb = pc_bytes_sigbits_encode(pcb);
@@ -467,7 +467,7 @@ test_sigbits_encoding()
     bytes = (uint8_t*)bytes32;
     pcb = initbytes(bytes, nelems*4, PC_INT32);
 
-    common32 = pc_sigbits_count_32(&pcb, &count);
+    common32 = pc_bytes_sigbits_count_32(&pcb, &count);
     CU_ASSERT_EQUAL(count, 26);     /* unique bit count */
     CU_ASSERT_EQUAL(common32, 103232);
 
