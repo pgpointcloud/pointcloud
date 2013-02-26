@@ -26,7 +26,16 @@
 */
 #define PCCOMPRESSIONTYPES 2
 
+/**
+* Memory allocation for patch starts at 64 points
+*/
 #define PCPATCH_DEFAULT_MAXPOINTS 64
+
+/**
+* How many points to sample before considering
+* a PCDIMSTATS done?
+*/
+#define PCDIMSTATS_MIN_SAMPLE 10000
 
 /**
 * Interpretation types for our dimension descriptions
@@ -72,10 +81,18 @@ enum DIMCOMPRESSIONS {
 
 typedef struct
 {
+    size_t size;
+    uint32_t npoints;
+    uint32_t interpretation;
+    uint32_t compression;
+    uint8_t *bytes;
+} PCBYTES;
+
+typedef struct
+{
 	uint32_t npoints;
 	const PCSCHEMA *schema;
-    uint32_t *compressions;
-    uint8_t **data;
+    PCBYTES *bytes;
 } PCDIMLIST;
 
 typedef struct
@@ -116,26 +133,29 @@ int pc_schema_has_name(const PCSCHEMA *s, const char *name);
 /** Copy a string within the global memory management context */
 char* pcstrdup(const char *str);
 
-/** How many runs are there in a value array? */
-uint32_t pc_bytes_run_count(const uint8_t *bytes, uint32_t interpretation, uint32_t nelems);
-
 /** Convert value bytes to RLE bytes */
-uint8_t* pc_bytes_run_length_encode(const uint8_t *bytes, uint32_t interpretation, uint32_t nelems, size_t *bytes_rle_size);
-
+PCBYTES pc_bytes_run_length_encode(const PCBYTES pcb);
 /** Convert RLE bytes to value bytes */
-uint8_t* pc_bytes_run_length_decode(const uint8_t *bytes_rle, size_t bytes_rle_size, uint32_t interpretation, uint32_t *bytes_nelems);
+PCBYTES pc_bytes_run_length_decode(const PCBYTES pcb);
+/** Convert value bytes to bit packed bytes */
+PCBYTES pc_bytes_sigbits_encode(const PCBYTES pcb);
+/** Convert bit packed bytes to value bytes */
+PCBYTES pc_bytes_sigbits_decode(const PCBYTES pcb);
+/** Compress bytes using zlib */
+PCBYTES pc_bytes_zlib_encode(const PCBYTES pcb);
+/** De-compress bytes using zlib */
+PCBYTES pc_bytes_zlib_decode(const PCBYTES pcb);
 
+
+/** How many runs are there in a value array? */
+uint32_t pc_bytes_run_count(const PCBYTES *pcb);
 /** How many bits are shared by all elements of this array? */
-uint32_t pc_sigbits_count(const uint8_t *bytes, uint32_t interpretation, uint32_t nelems);
-uint8_t  pc_sigbits_count_8 (const uint8_t *bytes8, uint32_t nelems, uint32_t *nsigbits);
-uint16_t pc_sigbits_count_16(const uint8_t *bytes8, uint32_t nelems, uint32_t *nsigbits);
-uint32_t pc_sigbits_count_32(const uint8_t *bytes8, uint32_t nelems, uint32_t *nsigbits);
-uint64_t pc_sigbits_count_64(const uint8_t *bytes8, uint32_t nelems, uint32_t *nsigbits);
-uint8_t* pc_bytes_sigbits_encode(const uint8_t *bytes, uint32_t interpretation, uint32_t nelems, size_t *bytes_sigbits_size);
-uint8_t* pc_bytes_sigbits_decode(const uint8_t *bytes, uint32_t interpretation, uint32_t nelems);
+uint32_t pc_sigbits_count(const PCBYTES *pcb);
 
-uint8_t* pc_bytes_zlib_decode(const uint8_t *bytes, uint32_t interpretation);
-uint8_t* pc_bytes_zlib_encode(const uint8_t *bytes, uint32_t interpretation,  uint32_t nelems);
+uint8_t  pc_sigbits_count_8 (const PCBYTES *pcb, uint32_t *nsigbits);
+uint16_t pc_sigbits_count_16(const PCBYTES *pcb, uint32_t *nsigbits);
+uint32_t pc_sigbits_count_32(const PCBYTES *pcb, uint32_t *nsigbits);
+uint64_t pc_sigbits_count_64(const PCBYTES *pcb, uint32_t *nsigbits);
 
 PCDIMLIST* pc_dimlist_from_pointlist(const PCPOINTLIST *pl);
 PCPOINTLIST* pc_pointlist_from_dimlist(PCDIMLIST *pdl);
@@ -146,5 +166,8 @@ int pc_dimlist_decode(PCDIMLIST *pdl);
 PCDIMSTATS* pc_dimstats_make(const PCSCHEMA *schema);
 int pc_dimstats_update(PCDIMSTATS *pds, const PCDIMLIST *pdl);
 void pc_dimstats_free(PCDIMSTATS *pds);
+
+void pc_bytes_free(PCBYTES bytes);
+PCBYTES pc_bytes_make(const PCDIMENSION *dim, uint32_t npoints);
 
 #endif /* _PC_API_INTERNAL_H */

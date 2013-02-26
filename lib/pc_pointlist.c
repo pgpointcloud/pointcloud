@@ -72,7 +72,8 @@ pc_pointlist_from_dimlist(PCDIMLIST *pdl)
         for ( j = 0; j < ndims; j++ )
         {
             PCDIMENSION *dim = pc_schema_get_dimension(pdl->schema, j);
-            uint8_t *in = pdl->data[j] + dim->size * i;
+            
+            uint8_t *in = pdl->bytes[j].bytes + dim->size * i;
             uint8_t *out = pt->data + dim->byteoffset;
             memcpy(out, in, dim->size);
         }

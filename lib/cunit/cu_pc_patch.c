@@ -213,6 +213,16 @@ test_schema_xy()
     
 }
 
+static PCBYTES initbytes(uint8_t *bytes, size_t size, uint32_t interp)
+{
+    PCBYTES pcb;
+    pcb.bytes = bytes;
+    pcb.size = size;
+    pcb.interpretation = interp;
+    pcb.npoints = pcb.size / INTERPRETATION_SIZES[pcb.interpretation];
+    pcb.compression = PC_DIM_NONE;
+}
+
 /*
 * Run-length encode a byte stream by word.
 * Lots of identical words means great
@@ -228,73 +238,92 @@ test_run_length_encoding()
 	size_t size;
 	uint8_t interp;
 	size_t interp_size;
+    PCBYTES pcb, epcb, pcb2;
 	
-	bytes = "aaaabbbbccdde";
-	nr = pc_bytes_run_count(bytes, PC_UINT8, strlen(bytes));
+/*
+typedef struct
+{
+    size_t size;
+    uint32_t npoints;
+    uint32_t interpretation;
+    uint32_t compression;
+    uint8_t *bytes;
+} PCBYTES;
+*/
+	
+    bytes = "aaaabbbbccdde";
+    pcb = initbytes(bytes, strlen(bytes), PC_UINT8);
+	nr = pc_bytes_run_count(&pcb);
 	CU_ASSERT_EQUAL(nr, 5);
 
-	bytes = "a";
-	nr = pc_bytes_run_count(bytes, PC_UINT8, strlen(bytes));
+    bytes = "a";
+    pcb = initbytes(bytes, strlen(bytes), PC_UINT8);
+	nr = pc_bytes_run_count(&pcb);
 	CU_ASSERT_EQUAL(nr, 1);
 
-	bytes = "aa";
-	nr = pc_bytes_run_count(bytes, PC_UINT8, strlen(bytes));
+    bytes = "aa";
+    pcb = initbytes(bytes, strlen(bytes), PC_UINT8);
+	nr = pc_bytes_run_count(&pcb);
 	CU_ASSERT_EQUAL(nr, 1);
 
-	bytes = "ab";
-	nr = pc_bytes_run_count(bytes, PC_UINT8, strlen(bytes));
+    bytes = "ab";
+    pcb = initbytes(bytes, strlen(bytes), PC_UINT8);
+	nr = pc_bytes_run_count(&pcb);
 	CU_ASSERT_EQUAL(nr, 2);
 
 	bytes = "abcdefg";
-	nr = pc_bytes_run_count(bytes, PC_UINT8, strlen(bytes));
+    pcb = initbytes(bytes, strlen(bytes), PC_UINT8);
+	nr = pc_bytes_run_count(&pcb);
 	CU_ASSERT_EQUAL(nr, 7);
 
 	bytes = "aabcdefg";
-	nr = pc_bytes_run_count(bytes, PC_UINT8, strlen(bytes));
+    pcb = initbytes(bytes, strlen(bytes), PC_UINT8);
+	nr = pc_bytes_run_count(&pcb);
 	CU_ASSERT_EQUAL(nr, 7);
 
 	bytes = "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc";
-	nr = pc_bytes_run_count(bytes, PC_UINT8, strlen(bytes));
+    pcb = initbytes(bytes, strlen(bytes), PC_UINT8);
+	nr = pc_bytes_run_count(&pcb);
 	CU_ASSERT_EQUAL(nr, 1);
 	
-	bytes_rle = pc_bytes_run_length_encode(bytes, PC_UINT8, strlen(bytes), &bytes_rle_size);
-	bytes_de_rle = pc_bytes_run_length_decode(bytes_rle, bytes_rle_size, PC_UINT8, &bytes_nelems);
-	CU_ASSERT_EQUAL(memcmp(bytes, bytes_de_rle, strlen(bytes)), 0);
-	pcfree(bytes_rle);
-	pcfree(bytes_de_rle);
+    epcb = pc_bytes_run_length_encode(pcb);
+    pcb2 = pc_bytes_run_length_decode(epcb);
+
+	CU_ASSERT_EQUAL(memcmp(pcb.bytes, pcb2.bytes, pcb.size), 0);
+    CU_ASSERT_EQUAL(pcb.size, pcb2.size);
+    CU_ASSERT_EQUAL(pcb.npoints, pcb2.npoints);
+	pc_bytes_free(epcb);
+	pc_bytes_free(pcb2);
 
 	bytes = "aabcdefg";
-	interp = PC_UINT8;
-	interp_size = INTERPRETATION_SIZES[interp];
-	size = strlen(bytes) / interp_size;
-	bytes_rle = pc_bytes_run_length_encode(bytes, interp, size, &bytes_rle_size);
-	bytes_de_rle = pc_bytes_run_length_decode(bytes_rle, bytes_rle_size, interp, &bytes_nelems);
-	CU_ASSERT_EQUAL(memcmp(bytes, bytes_de_rle, strlen(bytes)), 0);
-	CU_ASSERT_EQUAL(bytes_nelems, strlen(bytes)/interp_size);
-	pcfree(bytes_rle);
-	pcfree(bytes_de_rle);
+    pcb = initbytes(bytes, strlen(bytes), PC_UINT8);
+    epcb = pc_bytes_run_length_encode(pcb);
+    pcb2 = pc_bytes_run_length_decode(epcb);
+	CU_ASSERT_EQUAL(memcmp(pcb.bytes, pcb2.bytes, pcb.size), 0);
+    CU_ASSERT_EQUAL(pcb.size, pcb2.size);
+    CU_ASSERT_EQUAL(pcb.npoints, pcb2.npoints);
+	pc_bytes_free(epcb);
+	pc_bytes_free(pcb2);
 
-	bytes = "aaaaaabbbbeeeeeeeeeehhiiiiiioooo";
-	interp = PC_UINT32;
-	interp_size = INTERPRETATION_SIZES[interp];
-	size = strlen(bytes) / interp_size;
-	bytes_rle = pc_bytes_run_length_encode(bytes, interp, size, &bytes_rle_size);
-	bytes_de_rle = pc_bytes_run_length_decode(bytes_rle, bytes_rle_size, interp, &bytes_nelems);
-	CU_ASSERT_EQUAL(memcmp(bytes, bytes_de_rle, strlen(bytes)), 0);
-	CU_ASSERT_EQUAL(bytes_nelems, strlen(bytes)/interp_size);
-	pcfree(bytes_rle);
-	pcfree(bytes_de_rle);
+    bytes = (uint8_t*)((uint32_t[]){ 10, 10, 10, 20, 20, 30, 20, 20 });
+    pcb = initbytes(bytes, 8, PC_UINT32);
+    epcb = pc_bytes_run_length_encode(pcb);
+    pcb2 = pc_bytes_run_length_decode(epcb);
+	CU_ASSERT_EQUAL(memcmp(pcb.bytes, pcb2.bytes, pcb.size), 0);
+    CU_ASSERT_EQUAL(pcb.size, pcb2.size);
+    CU_ASSERT_EQUAL(pcb.npoints, pcb2.npoints);
+	pc_bytes_free(epcb);
+	pc_bytes_free(pcb2);
 
-	bytes = "aaaaaabbbbeeeeeeeeeehhiiiiiioooo";
-	interp = PC_UINT16;
-	interp_size = INTERPRETATION_SIZES[interp];
-	size = strlen(bytes) / interp_size;
-	bytes_rle = pc_bytes_run_length_encode(bytes, interp, size, &bytes_rle_size);
-	bytes_de_rle = pc_bytes_run_length_decode(bytes_rle, bytes_rle_size, interp, &bytes_nelems);
-	CU_ASSERT_EQUAL(memcmp(bytes, bytes_de_rle, strlen(bytes)), 0);
-	CU_ASSERT_EQUAL(bytes_nelems, strlen(bytes)/interp_size);
-	pcfree(bytes_rle);
-	pcfree(bytes_de_rle);
+    bytes = (uint8_t*)((uint16_t[]){ 10, 10, 10, 20, 20, 30, 20, 20 });
+    pcb = initbytes(bytes, 8, PC_UINT16);
+    epcb = pc_bytes_run_length_encode(pcb);
+    pcb2 = pc_bytes_run_length_decode(epcb);
+	CU_ASSERT_EQUAL(memcmp(pcb.bytes, pcb2.bytes, pcb.size), 0);
+    CU_ASSERT_EQUAL(pcb.size, pcb2.size);
+    CU_ASSERT_EQUAL(pcb.npoints, pcb2.npoints);
+	pc_bytes_free(epcb);
+	pc_bytes_free(pcb2);
 	
 }
 
@@ -316,6 +345,7 @@ test_sigbits_encoding()
 	uint8_t common8;
 	uint16_t common16;
 	uint32_t common32;
+    PCBYTES pcb, epcb, pcb2;
 	
 	/*
 	01100001 a
@@ -324,12 +354,14 @@ test_sigbits_encoding()
 	01100000 `
 	*/
 	bytes = "abc";
-	common8 = pc_sigbits_count_8(bytes, strlen(bytes), &count);
+    pcb = initbytes(bytes, strlen(bytes), PC_UINT8);
+    common8 = pc_sigbits_count_8(&pcb, &count);
 	CU_ASSERT_EQUAL(count, 6);
 	CU_ASSERT_EQUAL(common8, '`');
 
 	bytes = "abcdef";
-	common8 = pc_sigbits_count_8(bytes, strlen(bytes), &count);
+    pcb = initbytes(bytes, strlen(bytes), PC_UINT8);
+    common8 = pc_sigbits_count_8(&pcb, &count);
 	CU_ASSERT_EQUAL(count, 5);
 	CU_ASSERT_EQUAL(common8, '`');
 
@@ -340,7 +372,8 @@ test_sigbits_encoding()
 	0110000000000000 24576
 	*/
 	bytes = "aabbcc";
-	count = pc_sigbits_count(bytes, PC_UINT16, strlen(bytes)/2);
+    pcb = initbytes(bytes, strlen(bytes)/2, PC_UINT16);
+	count = pc_sigbits_count(&pcb);
 	CU_ASSERT_EQUAL(count, 6);
 
 	/*
@@ -349,14 +382,15 @@ test_sigbits_encoding()
 	01100000 01 10 11 01
 	*/
 	bytes = "abcaabcaabcbabcc";
-    ebytes = pc_bytes_sigbits_encode(bytes, PC_INT8, strlen(bytes), &ebytes_size);
-    CU_ASSERT_EQUAL(ebytes[0], 2);   /* unique bit count */
-    CU_ASSERT_EQUAL(ebytes[1], 96);  /* common bits */
-    CU_ASSERT_EQUAL(ebytes[2], 109); /* packed byte */
-    CU_ASSERT_EQUAL(ebytes[3], 109); /* packed byte */
-    CU_ASSERT_EQUAL(ebytes[4], 110); /* packed byte */
-    CU_ASSERT_EQUAL(ebytes[5], 111); /* packed byte */
-    pcfree(ebytes);
+    pcb = initbytes(bytes, strlen(bytes), PC_INT8);
+    epcb = pc_bytes_sigbits_encode(pcb);
+    CU_ASSERT_EQUAL(epcb.bytes[0], 2);   /* unique bit count */
+    CU_ASSERT_EQUAL(epcb.bytes[1], 96);  /* common bits */
+    CU_ASSERT_EQUAL(epcb.bytes[2], 109); /* packed byte */
+    CU_ASSERT_EQUAL(epcb.bytes[3], 109); /* packed byte */
+    CU_ASSERT_EQUAL(epcb.bytes[4], 110); /* packed byte */
+    CU_ASSERT_EQUAL(epcb.bytes[5], 111); /* packed byte */
+    pc_bytes_free(epcb);
 
 	/*
 	"abca" encoded:
@@ -364,107 +398,107 @@ test_sigbits_encoding()
 	01100000 001 010 011 100 001 010
 	*/
     bytes = "abcdab";
-    ebytes = pc_bytes_sigbits_encode(bytes, PC_INT8, strlen(bytes), &ebytes_size);
-    CU_ASSERT_EQUAL(ebytes[0], 3);   /* unique bit count */
-    CU_ASSERT_EQUAL(ebytes[1], 96);  /* common bits */
-    CU_ASSERT_EQUAL(ebytes[2], 41);  /* packed byte */
-    CU_ASSERT_EQUAL(ebytes[3], 194); /* packed byte */
+    pcb = initbytes(bytes, strlen(bytes), PC_INT8);
+    epcb = pc_bytes_sigbits_encode(pcb);
+    CU_ASSERT_EQUAL(epcb.bytes[0], 3);   /* unique bit count */
+    CU_ASSERT_EQUAL(epcb.bytes[1], 96);  /* common bits */
+    CU_ASSERT_EQUAL(epcb.bytes[2], 41);  /* packed byte */
+    CU_ASSERT_EQUAL(epcb.bytes[3], 194); /* packed byte */
 
-    bytes = pc_bytes_sigbits_decode(ebytes, PC_INT8, strlen(bytes));
-    CU_ASSERT_EQUAL(bytes[0], 'a');
-    CU_ASSERT_EQUAL(bytes[1], 'b');
-    CU_ASSERT_EQUAL(bytes[2], 'c');
-    CU_ASSERT_EQUAL(bytes[3], 'd');
-    CU_ASSERT_EQUAL(bytes[4], 'a');
-    CU_ASSERT_EQUAL(bytes[5], 'b');
-    pcfree(bytes);
-    pcfree(ebytes);
+    pcb2 = pc_bytes_sigbits_decode(epcb);
+    CU_ASSERT_EQUAL(pcb2.bytes[0], 'a');
+    CU_ASSERT_EQUAL(pcb2.bytes[1], 'b');
+    CU_ASSERT_EQUAL(pcb2.bytes[2], 'c');
+    CU_ASSERT_EQUAL(pcb2.bytes[3], 'd');
+    CU_ASSERT_EQUAL(pcb2.bytes[4], 'a');
+    CU_ASSERT_EQUAL(pcb2.bytes[5], 'b');
+    pc_bytes_free(pcb2);
+    pc_bytes_free(epcb);
 
     /* Test the 16 bit implementation path */
-	/*
-	0110000101100001 24929
-	0110000101100010 24930
-	0110000101100011 24931
-	0110000101100100 24932
-	0110000101100101 24933
-	0110000101100110 24934
-	encoded
-	0110000101100 001 010 011 100 101 110
-    */
     nelems = 6;
-	bytes16 = pcalloc(nelems*sizeof(uint16_t)); 
-    bytes16[0] = 24929;
-    bytes16[1] = 24930;
-    bytes16[2] = 24931;
-    bytes16[3] = 24932;
-    bytes16[4] = 24933;
-    bytes16[5] = 24934;
+    bytes16 = (uint16_t[]){ 
+        24929, /* 0110000101100001 */
+        24930, /* 0110000101100010 */
+        24931, /* 0110000101100011 */
+        24932, /* 0110000101100100 */
+        24933, /* 0110000101100101 */
+        24934  /* 0110000101100110 */
+        };
+    /* encoded 0110000101100 001 010 011 100 101 110 */
+    bytes = (uint8_t*)bytes16;
+    pcb = initbytes(bytes, nelems, PC_INT16);
     
     /* Test the 16 bit implementation path */
-    common16 = pc_sigbits_count_16((uint8_t*)bytes16, nelems, &count);
+    common16 = pc_sigbits_count_16(&pcb, &count);
     CU_ASSERT_EQUAL(common16, 24928);
     CU_ASSERT_EQUAL(count, 13);
-    ebytes = pc_bytes_sigbits_encode((uint8_t*)bytes16, PC_INT16, nelems, &ebytes_size);
-    pcfree(bytes16);
-    ebytes16 = (uint16_t*)ebytes;
+    epcb = pc_bytes_sigbits_encode(pcb);
+    ebytes16 = (uint16_t*)(epcb.bytes);
     // printf("commonbits %d\n", commonbits);
     CU_ASSERT_EQUAL(ebytes16[0], 3);     /* unique bit count */
     CU_ASSERT_EQUAL(ebytes16[1], 24928); /* common bits */
     CU_ASSERT_EQUAL(ebytes16[2], 10699); /* packed uint16 one */
 
     /* uint8_t* pc_bytes_sigbits_decode(const uint8_t *bytes, uint32_t interpretation, uint32_t nelems) */
-    bytes = pc_bytes_sigbits_decode(ebytes, PC_INT16, nelems);
-    pcfree(ebytes);
-    bytes16 = (uint16_t*)bytes;
+    pcb2 = pc_bytes_sigbits_decode(epcb);
+    pc_bytes_free(epcb);
+    bytes16 = (uint16_t*)(pcb2.bytes);
     CU_ASSERT_EQUAL(bytes16[0], 24929);
     CU_ASSERT_EQUAL(bytes16[1], 24930);
     CU_ASSERT_EQUAL(bytes16[2], 24931);
     CU_ASSERT_EQUAL(bytes16[3], 24932);
     CU_ASSERT_EQUAL(bytes16[4], 24933);
     CU_ASSERT_EQUAL(bytes16[5], 24934);
-    pcfree(bytes);
+    pc_bytes_free(pcb2);
     
     /* Test the 32 bit implementation path */
     nelems = 6;
-	bytes32 = pcalloc(nelems*sizeof(uint32_t));
-    bytes32[0] = 103241; /* 0000000000000001 1001 0011 0100 1001 */
-    bytes32[1] = 103251; /* 0000000000000001 1001 0011 0101 0011 */
-    bytes32[2] = 103261; /* 0000000000000001 1001 0011 0101 1101 */
-    bytes32[3] = 103271; /* 0000000000000001 1001 0011 0110 0111 */
-    bytes32[4] = 103281; /* 0000000000000001 1001 0011 0111 0001 */
-    bytes32[5] = 103291; /* 0000000000000001 1001 0011 0111 1011 */
-    ebytes = pc_bytes_sigbits_encode((uint8_t*)bytes32, PC_INT32, nelems, &ebytes_size);
-    pcfree(bytes32);
-    ebytes32 = (uint32_t*)ebytes;
+    
+    bytes32 = (uint32_t[]){ 
+        103241, /* 0000000000000001 1001 0011 0100 1001 */
+        103251, /* 0000000000000001 1001 0011 0101 0011 */
+        103261, /* 0000000000000001 1001 0011 0101 1101 */
+        103271, /* 0000000000000001 1001 0011 0110 0111 */
+        103281, /* 0000000000000001 1001 0011 0111 0001 */
+        103291  /* 0000000000000001 1001 0011 0111 1011 */
+        };
+    bytes = (uint8_t*)bytes32;
+    pcb = initbytes(bytes, nelems, PC_INT32);
+    epcb = pc_bytes_sigbits_encode(pcb);
+
+    ebytes32 = (uint32_t*)(epcb.bytes);
     CU_ASSERT_EQUAL(ebytes32[0], 6);     /* unique bit count */
     CU_ASSERT_EQUAL(ebytes32[1], 103232); /* common bits */
     CU_ASSERT_EQUAL(ebytes32[2], 624388039); /* packed uint32 */
-    bytes = pc_bytes_sigbits_decode(ebytes, PC_INT32, nelems);
-    pcfree(ebytes32);
-    bytes32 = (uint32_t*)bytes;
+    
+    pcb2 = pc_bytes_sigbits_decode(epcb);
+    pc_bytes_free(epcb);
+    bytes32 = (uint32_t*)(pcb2.bytes);
     CU_ASSERT_EQUAL(bytes32[0], 103241);
     CU_ASSERT_EQUAL(bytes32[1], 103251);
     CU_ASSERT_EQUAL(bytes32[2], 103261);
     CU_ASSERT_EQUAL(bytes32[3], 103271);
     CU_ASSERT_EQUAL(bytes32[4], 103281);
     CU_ASSERT_EQUAL(bytes32[5], 103291);
-    pcfree(bytes32);
+    pc_bytes_free(pcb2);
     
     /* What if all the words are the same? */
     nelems = 6;
-	bytes16 = pcalloc(nelems*sizeof(uint16_t));
-    bytes16[0] = 24929;
-    bytes16[1] = 24929;
-    bytes16[2] = 24929;
-    bytes16[3] = 24929;
-    bytes16[4] = 24929;
-    bytes16[5] = 24929;
-    ebytes = pc_bytes_sigbits_encode((uint8_t*)bytes16, PC_INT16, nelems, &ebytes_size);    
-    pcfree(bytes16);
-    bytes = pc_bytes_sigbits_decode(ebytes, PC_INT16, nelems);
-    bytes16 = (uint16_t*)bytes;
-    pcfree(ebytes);
-    pcfree(bytes);
+    bytes16 = (uint16_t[]){ 
+        24929, /* 0000000000000001 1001 0011 0100 1001 */
+        24929, /* 0000000000000001 1001 0011 0101 0011 */
+        24929, /* 0000000000000001 1001 0011 0101 1101 */
+        24929, /* 0000000000000001 1001 0011 0110 0111 */
+        24929, /* 0000000000000001 1001 0011 0111 0001 */
+        24929  /* 0000000000000001 1001 0011 0111 1011 */
+        };
+    bytes = (uint8_t*)bytes16;
+    pcb = initbytes(bytes, nelems, PC_INT16);
+    epcb = pc_bytes_sigbits_encode(pcb);
+    pcb2 = pc_bytes_sigbits_decode(epcb);
+    pc_bytes_free(epcb);
+    pc_bytes_free(pcb2);
     
 }
 
@@ -476,6 +510,7 @@ test_zlib_encoding()
 {
     uint8_t *bytes, *ebytes;
     uint32_t i;
+    PCBYTES pcb, epcb, pcb2;
     /*
     uint8_t *
     pc_bytes_zlib_encode(const uint8_t *bytes, uint32_t interpretation,  uint32_t nelems)
@@ -483,13 +518,12 @@ test_zlib_encoding()
     pc_bytes_zlib_decode(const uint8_t *bytes, uint32_t interpretation)
     */
     bytes = "abcaabcaabcbabcc";
-    ebytes = pc_bytes_zlib_encode(bytes, PC_INT8, strlen(bytes));
-    memcpy(&i, ebytes+4, 4);
-    CU_ASSERT_EQUAL(i, strlen(bytes)); /* original length value */
-    bytes = pc_bytes_zlib_decode(ebytes, PC_INT8);
-    CU_ASSERT_EQUAL(bytes[0], 'a');
-    CU_ASSERT_EQUAL(bytes[2], 'c');
-    CU_ASSERT_EQUAL(bytes[5], 'b');
+    pcb = initbytes(bytes, strlen(bytes), PC_INT8);
+    epcb = pc_bytes_zlib_encode(pcb);
+    pcb2 = pc_bytes_zlib_decode(epcb);
+	CU_ASSERT_EQUAL(memcmp(pcb.bytes, pcb2.bytes, pcb.size), 0);
+    pc_bytes_free(epcb);
+    pc_bytes_free(pcb2);
 }
 
 /**

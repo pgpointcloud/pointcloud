@@ -260,3 +260,49 @@ bytebuffer_copy(bytebuffer_t *bb)
     memcpy(buf, bb->buf, bytebuffer_size(bb));
     return (void *)buf;
 }
+
+void
+pc_bytes_free(PCBYTES bytes)
+{
+    pcfree(bytes.bytes);
+}
+
+PCBYTES
+pc_bytes_make(const PCDIMENSION *dim, uint32_t npoints)
+{
+    PCBYTES pcb;
+    pcb.size = dim->size * npoints;
+    pcb.bytes = pcalloc(pcb.size);
+    pcb.npoints = npoints;
+    pcb.interpretation = dim->interpretation;
+    pcb.compression = PC_DIM_NONE;
+    return pcb;
+}
+
+PCBYTES
+pc_bytes_encode(PCBYTES pcb, int compression)
+{
+    switch ( compression )
+    {
+        case PC_DIM_RLE:
+        {
+            return pc_bytes_run_length_encode(pcb);
+        }
+        case PC_DIM_SIGBITS:
+        {
+            return pc_bytes_sigbits_encode(pcb);
+        }
+        case PC_DIM_ZLIB:
+        {
+            return pc_bytes_zlib_encode(pcb);
+        }
+        case PC_DIM_NONE:
+        {
+            return pcb;
+        }
+        default:
+        {
+            pcerror("pc_bytes_encode: Uh oh");
+        }
+    }
+}
