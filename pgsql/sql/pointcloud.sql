@@ -81,5 +81,6 @@ SELECT PC_AsText(PC_Patch(pt)) FROM pt_test;
 
 SELECT PC_AsText(PC_Explode(PC_Patch(pt))) FROM pt_test;
 
+--DROP TABLE pts_collection;
 --DROP TABLE pt_test;
 --DROP TABLE pa_test;
