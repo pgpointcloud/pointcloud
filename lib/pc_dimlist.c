@@ -160,3 +160,64 @@ pc_dimlist_from_patch(const PCPATCH *pa)
     return pdl;    
 }
 
+
+uint8_t *
+pc_dimlist_serialize(const PCDIMLIST *pdl, size_t *size)
+{
+    int i;
+    int ndims = pdl->schema->ndims;
+    size_t dlsize = 0;
+    uint8_t *buf;
+    
+    for ( i = 0; i < ndims; i++ )
+        dlsize += pc_bytes_get_serialized_size(&(pdl->bytes[i]));
+    
+    buf = pcalloc(dlsize);
+
+    for ( i = 0; i < ndims ; i++ )
+    {
+        size_t bsize = 0;
+        pc_bytes_serialize(&(pdl->bytes[i]), buf, &bsize);
+        buf += bsize;
+    }
+    
+    return buf;
+}
+
+
+PCDIMLIST *
+pc_dimlist_deserialize(const PCSCHEMA *schema, int npoints, uint8_t *buf, int read_only, int flip_endian)
+{
+    int i;
+    size_t size = 0;
+    int ndims = schema->ndims;
+    PCDIMLIST *pdl = pcalloc(sizeof(PCDIMLIST));
+    pdl->schema = schema;
+    pdl->npoints = npoints;
+    pdl->bytes = pcalloc(ndims * sizeof(PCBYTES));
+    
+    for ( i = 0; i < ndims; i++ )
+    {
+        PCDIMENSION *dim = schema->dims[i];
+        PCBYTES pcb = pdl->bytes[i];
+        pc_bytes_deserialize(buf, dim, &pcb, read_only, flip_endian);
+        /* pc_bytes_deserialize can't fill in npoints and interpretation */
+        pcb.npoints = npoints;
+        pcb.interpretation = dim->interpretation;
+        /* move forward to next data area */
+        buf += pcb.size;
+        pdl->bytes[i] = pcb;
+    }
+    
+    return pdl;
+}
+
+
+
+
+
+
+
+
+
+

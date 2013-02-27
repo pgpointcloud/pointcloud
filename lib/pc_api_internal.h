@@ -85,6 +85,7 @@ typedef struct
     uint32_t npoints;
     uint32_t interpretation;
     uint32_t compression;
+    uint32_t read_only;
     uint8_t *bytes;
 } PCBYTES;
 
@@ -183,5 +184,17 @@ void pc_bytes_free(PCBYTES bytes);
 PCBYTES pc_bytes_encode(PCBYTES pcb, int compression);
 /** Convert the bytes in #PCBYTES to PC_DIM_NONE compression */
 PCBYTES pc_bytes_decode(PCBYTES epcb);
+
+/** How big will the serialization be? */
+size_t pc_bytes_get_serialized_size(const PCBYTES *pcb);
+/** Write the representation down to a buffer */
+int pc_bytes_serialize(const PCBYTES *pcb, uint8_t *buf, size_t *size);
+/** Read a buffer up into a bytes structure */
+int pc_bytes_deserialize(uint8_t *buf, const PCDIMENSION *dim, PCBYTES *pcb, int read_only, int flip_endian);
+    
+/** Read an int32 from a byte array, flipping if requested */
+int32_t wkb_get_int32(const uint8_t *wkb, int flip_endian);
+/** Read an int16 from a byte array, flipping if requested */
+int16_t wkb_get_int16(const uint8_t *wkb, int flip_endian);
 
 #endif /* _PC_API_INTERNAL_H */

@@ -131,8 +131,30 @@ int16_flip_endian(int16_t val)
 	return val;
 }
 
+int32_t
+wkb_get_int32(const uint8_t *wkb, int flip_endian)
+{
+    int32_t i;
+    memcpy(&i, wkb, 4);
+    if ( flip_endian ) 
+        return int32_flip_endian(i);
+    else
+        return i;
+}
+
+int16_t
+wkb_get_int16(const uint8_t *wkb, int flip_endian)
+{
+    int16_t i;
+    memcpy(&i, wkb, 2);
+    if ( flip_endian ) 
+        return int16_flip_endian(i);
+    else
+        return i;
+}
+
 uint32_t
-wkb_get_pcid(uint8_t *wkb)
+wkb_get_pcid(const uint8_t *wkb)
 {
 	/* We expect the bytes to be in WKB format for PCPOINT/PCPATCH */
 	/* byte 0:   endian */
@@ -148,7 +170,7 @@ wkb_get_pcid(uint8_t *wkb)
 }
 
 uint32_t
-wkb_get_compression(uint8_t *wkb)
+wkb_get_compression(const uint8_t *wkb)
 {
 	/* We expect the bytes to be in WKB format for PCPATCH */
 	/* byte 0:   endian */
@@ -165,7 +187,7 @@ wkb_get_compression(uint8_t *wkb)
 }
 
 uint32_t
-wkb_get_npoints(uint8_t *wkb)
+wkb_get_npoints(const uint8_t *wkb)
 {
 	/* We expect the bytes to be in WKB format for PCPATCH */
 	/* byte 0:   endian */

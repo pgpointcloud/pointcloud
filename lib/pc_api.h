@@ -108,11 +108,12 @@ typedef struct
 */
 typedef struct
 {
+    int type;
 	int8_t readonly;
-	uint32_t npoints; /* How many points we have */
-	uint32_t maxpoints; /* How man points we can hold (or 0 for read-only) */
 	const PCSCHEMA *schema;
+	uint32_t npoints; /* How many points we have */
 	double xmin, xmax, ymin, ymax;
+	uint32_t maxpoints; /* How man points we can hold (or 0 for read-only) */
 	uint8_t compressed; /* Has compression been applied to the data buffer? */
 	size_t datasize;
 	uint8_t *data; /* A serialized version of the data */
@@ -158,9 +159,9 @@ void pc_install_default_handlers(void);
 */
 
 /** Read the the PCID from WKB form of a POINT/PATCH */
-uint32_t wkb_get_pcid(uint8_t *wkb);
+uint32_t wkb_get_pcid(const uint8_t *wkb);
 /** Read the the npoints from WKB form of a PATCH */
-uint32_t wkb_get_compression(uint8_t *wkb);
+uint32_t wkb_get_compression(const uint8_t *wkb);
 /** Flips the bytes of an int32_t */
 int32_t int32_flip_endian(int32_t val);
 /** Convert binary to hex */

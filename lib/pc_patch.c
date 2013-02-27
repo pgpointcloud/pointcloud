@@ -248,6 +248,7 @@ pc_patch_from_points(const PCPOINTLIST *pl)
 }
 
 
+
 PCPOINTLIST *
 pc_patch_to_points_uncompressed(const PCPATCH *patch)
 {
@@ -293,13 +294,24 @@ pc_patch_to_points(const PCPATCH *patch)
 	return NULL;
 }
 
-
+#if 0
 static PCPATCH *
 pc_patch_compress_dimensional(const PCPATCH *patch)
 {
-	pcerror("pc_patch_compress_dimensional unimplemented");
+    PCDIMLIST *pdl;
+    PCDIMSTATS *pds = NULL;
+    int rv;
+    
+    if ( patch->compressed )
+	    pcerror("pc_patch_compress_dimensional cannot work on previously compressed data");
+	
+    pdl = pc_dimlist_from_patch(patch);
+    rv = pc_dimlist_encode(pdl, &pds);
+    
+    
 	return NULL;
 }
+#endif 
 
 static PCPATCH *
 pc_patch_compress_ght(const PCPATCH *patch)
@@ -331,7 +343,7 @@ pc_patch_compress(const PCPATCH *patch)
 		}
 		case PC_DIMENSIONAL:
 		{
-			return pc_patch_compress_dimensional(patch);
+            // return pc_patch_compress_dimensional(patch);
 		}
 	}
 	
@@ -397,6 +409,7 @@ pc_patch_from_wkb_uncompressed(const PCSCHEMA *s, uint8_t *wkb, size_t wkbsize)
 	patch->compressed = PC_TRUE; /* It's in whatever compression it came in */
 	patch->datasize = (wkbsize - hdrsz);
 	patch->data = data;
+    patch->readonly = PC_FALSE;
 
 	if ( PC_FAILURE == pc_patch_compute_extent(patch) )
 	{
@@ -406,7 +419,73 @@ pc_patch_from_wkb_uncompressed(const PCSCHEMA *s, uint8_t *wkb, size_t wkbsize)
 	return patch;
 }
 
+#if 0
+static PCPATCH * 
+pc_patch_from_wkb_dimensional(const PCSCHEMA *s, uint8_t *wkb, size_t wkbsize)
+{
+	/*
+    byte:     endianness (1 = NDR, 0 = XDR)
+    uint32:   pcid (key to POINTCLOUD_SCHEMAS)
+    uint32:   compression (0 = no compression, 1 = dimensional, 2 = GHT)
+    uint32:   npoints
+    pcpoint[]:  data (interpret relative to pcid)
+	*/
+	static size_t hdrsz = 1+4+4+4; /* endian + pcid + compression + npoints */
+	PCPATCH *patch;
+	uint8_t *data;
+	uint8_t swap_endian = (wkb[0] != machine_endian());
+	uint32_t npoints;
+    size_t datasize = wkbsize - hdrsz;
+	
+	if ( wkb_get_compression(wkb) != PC_DIMENSIONAL )
+	{
+		pcerror("pc_patch_from_wkb_dimensional: call with wkb that is not dimensionally compressed");
+		return NULL;
+	}
 
+	npoints = wkb_get_npoints(wkb);
+
+#if 0
+typedef struct
+{
+	int8_t readonly;
+	uint32_t npoints; /* How many points we have */
+	uint32_t maxpoints; /* How man points we can hold (or 0 for read-only) */
+	const PCSCHEMA *schema;
+	double xmin, xmax, ymin, ymax;
+	uint8_t compressed; /* Has compression been applied to the data buffer? */
+	size_t datasize;
+	uint8_t *data; /* A serialized version of the data */
+} PCPATCH;
+#endif
+	
+	
+	if ( swap_endian )
+	{
+		data = uncompressed_bytes_flip_endian(wkb+hdrsz, s, npoints);
+	}
+	else
+	{
+		data = pcalloc(datasize);
+		memcpy(data, wkb+hdrsz, datasize);
+	}
+	
+	patch = pcalloc(sizeof(PCPATCH));
+	patch->npoints = npoints;
+	patch->maxpoints = 0;
+	patch->schema = s;
+	patch->compressed = PC_TRUE; /* It's in whatever compression it came in */
+	patch->datasize = datasize;
+	patch->data = data;
+
+	if ( PC_FAILURE == pc_patch_compute_extent(patch) )
+	{
+		pcerror("pc_patch_compute_extent failed");
+	}
+
+	return patch;
+}
+#endif
 
 PCPATCH * 
 pc_patch_from_wkb(const PCSCHEMA *s, uint8_t *wkb, size_t wkbsize)

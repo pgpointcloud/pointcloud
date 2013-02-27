@@ -24,9 +24,10 @@
 
 
 void
-pc_bytes_free(PCBYTES bytes)
+pc_bytes_free(PCBYTES pcb)
 {
-    pcfree(bytes.bytes);
+    if ( ! pcb.read_only )
+        pcfree(pcb.bytes);
 }
 
 PCBYTES
@@ -38,6 +39,7 @@ pc_bytes_make(const PCDIMENSION *dim, uint32_t npoints)
     pcb.npoints = npoints;
     pcb.interpretation = dim->interpretation;
     pcb.compression = PC_DIM_NONE;
+    pcb.read_only = PC_FALSE;
     return pcb;
 }
 
@@ -201,6 +203,7 @@ pc_bytes_run_length_encode(const PCBYTES pcb)
 	/* We're going to replace the current buffer */
     pcbout.bytes = bytes_rle;
     pcbout.compression = PC_DIM_RLE;
+    pcbout.read_only = PC_FALSE;
 	return pcbout;
 }
 
@@ -256,7 +259,58 @@ pc_bytes_run_length_decode(const PCBYTES pcb)
     pcbout.compression = PC_DIM_NONE;
     pcbout.size = size_out;
     pcbout.bytes = bytes;
+    pcbout.read_only = PC_FALSE;
 	return pcbout;
+}
+
+
+/**
+* RLE bytes consist of a <byte:count><word:value><byte:count><word:value> pattern
+* so we can hope from word to word and flip each one in place.
+*/
+static PCBYTES
+pc_bytes_run_length_flip_endian(PCBYTES pcb)
+{
+    int i, n;
+	uint8_t *bytes_ptr = pcb.bytes;
+    uint8_t tmp;
+	size_t size = INTERPRETATION_SIZES[pcb.interpretation];
+
+    assert(pcb.compression == PC_DIM_RLE);
+    assert(pcb.npoints > 0);
+
+    /* If the type isn't multibyte, it doesn't need flipping */
+    if ( size < 2 )
+        return pcb;
+
+    /* Don't try to modify read-only memory, make some fresh memory */
+    if ( pcb.read_only == PC_TRUE )
+    {
+        uint8_t *oldbytes = pcb.bytes;
+        pcb.bytes = pcalloc(pcb.size);
+        memcpy(pcb.bytes, oldbytes, pcb.size);
+        pcb.read_only = PC_FALSE;
+    }
+
+    /* Move to start of first word */
+    bytes_ptr++;
+
+    /* Visit each entry and flip the word, skip the count */
+    for ( i = 0; i < pcb.npoints; i++ )
+    {
+        /* Swap the bytes in a way that makes sense for this word size */
+        for ( n = 0; n < size/2; n++ )
+        {
+            tmp = bytes_ptr[n];
+            bytes_ptr[n] = bytes_ptr[size-n-1];
+            bytes_ptr[size-n-1] = tmp;
+        }
+        
+        /* Move forward one word and one counter */
+        bytes_ptr += size+1;
+    }
+    
+    return pcb;
 }
 
 
@@ -713,6 +767,36 @@ pc_bytes_sigbits_encode(const PCBYTES pcb)
     return pcb;
 }
 
+static PCBYTES
+pc_bytes_sigbits_flip_endian(const PCBYTES pcb)
+{
+    int n;
+    uint8_t tmp1, tmp2;
+    size_t size = INTERPRETATION_SIZES[pcb.interpretation];
+    uint8_t *b1 = pcb.bytes;
+    uint8_t *b2 = pcb.bytes + size;
+    
+    /* If it's not multi-byte words, it doesn't need flipping */
+    if ( size < 2 )
+        return pcb;
+        
+    /* We only need to flip the first two words, */
+    /* which are the common bit count and common bits word */
+    for ( n = 0; n < size / 2; n++ )
+    {
+        /* Flip bit count */
+        tmp1 = b1[n];
+        b1[n] = b1[size-n-1];
+        b1[size-n-1] = tmp1;
+        /* Flip common bits */
+        tmp2 = b2[n];
+        b2[n] = b2[size-n-1];
+        b2[size-n-1] = tmp2;
+    }
+    
+    return pcb;
+}
+
 
 PCBYTES
 pc_bytes_sigbits_decode_8(const PCBYTES pcb)
@@ -1010,3 +1094,65 @@ pc_bytes_zlib_decode(const PCBYTES pcb)
     return pcbout;
 }
 
+/**
+* This flips bytes in-place, so won't work on read_only bytes 
+*/
+PCBYTES
+pc_bytes_flip_endian(PCBYTES pcb)
+{
+    switch(pcb.compression)
+    {
+        case PC_DIM_NONE:
+            return pcb;
+        case PC_DIM_SIGBITS:
+            return pc_bytes_sigbits_flip_endian(pcb);
+        case PC_DIM_ZLIB:
+            return pcb;
+        case PC_DIM_RLE:
+            return pc_bytes_run_length_flip_endian(pcb);
+        default:
+            pcerror("pc_bytes_flip_endian: unknown compression");    
+    }
+    return pcb;
+}
+
+size_t
+pc_bytes_get_serialized_size(const PCBYTES *pcb)
+{
+    /* compression type (1) + size of data (4) + data */
+    return 1 + 4 + pcb->size;
+}
+
+int
+pc_bytes_serialize(const PCBYTES *pcb, uint8_t *buf, size_t *size)
+{
+    /* compression type + size + data */
+    *buf = pcb->compression; buf++;
+    memcpy(buf, &(pcb->size), 4); buf += 4;
+    memcpy(buf, pcb->bytes, pcb->size);
+    *size = pcb->size * 5;
+    return PC_SUCCESS;
+}
+
+int
+pc_bytes_deserialize(uint8_t *buf, const PCDIMENSION *dim, PCBYTES *pcb, int read_only, int flip_endian)
+{
+    pcb->compression = buf[0];
+    pcb->size = wkb_get_int32(buf+1, flip_endian);
+    pcb->read_only = read_only;
+    if ( read_only && flip_endian )
+        pcerror("pc_bytes_deserialize: cannot create a read-only buffer on byteswapped input");
+    if ( read_only )
+    {
+        pcb->bytes = buf + 5;
+    }
+    else
+    {
+        pcb->bytes = pcalloc(pcb->size);
+        memcpy(pcb->bytes, buf+5, pcb->size);
+    }
+    /* WARNING, still need to set externally */
+    /*   pcb.interpretation */
+    /*   pcb.npoints */
+    return PC_SUCCESS;
+}
