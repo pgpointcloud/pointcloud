@@ -431,19 +431,41 @@ pc_point_deserialize(const SERIALIZED_POINT *serpt, const PCSCHEMA *schema)
 }
 
 
-SERIALIZED_PATCH * 
-pc_patch_serialize(const PCPATCH *pcpch)
+size_t
+pc_patch_serialized_size(const PCPATCH *patch)
+{
+	switch( patch->type )
+	{
+		case PC_NONE:
+		{
+            PCPATCH_UNCOMPRESSED *upatch = (PCPATCH_UNCOMPRESSED*)patch;
+            return sizeof(SERIALIZED_PATCH) - 1 + upatch->datasize;
+		}
+		case PC_GHT:
+		{
+            pcerror("pc_patch_serialized_size: GHT format not yet supported");
+		}
+		case PC_DIMENSIONAL:
+		{
+            return sizeof(SERIALIZED_PATCH) - 1 + pc_patch_dimensional_serialized_size(patch);
+		}
+		default:
+		{
+		    pcerror("pc_patch_serialized_size: unknown compresed %d", patch->type);
+	    }
+	}
+    return -1;
+}
+
+static SERIALIZED_PATCH * 
+pc_patch_uncompressed_serialize(const PCPATCH *patch_in)
 {
 	size_t serpch_size;
-	PCPATCH *patch;
 	SERIALIZED_PATCH *serpch;
+    const PCPATCH_UNCOMPRESSED *patch = (PCPATCH_UNCOMPRESSED *)patch_in;
 	
-	/* Compress uncompressed patches before saving */
-	patch = pc_patch_compress(pcpch);
-	
-	/* Allocate: size(int4) + pcid(int4) + npoints(int4) + box(4*float8) + data(?) */
-	serpch_size = sizeof(SERIALIZED_PATCH) - 1 + patch->datasize; 
-	serpch = palloc(serpch_size);
+    serpch_size = pc_patch_serialized_size(patch_in);
+	serpch = pcalloc(serpch_size);
 	
 	/* Copy */
 	serpch->pcid = patch->schema->pcid;
@@ -457,20 +479,103 @@ pc_patch_serialize(const PCPATCH *pcpch)
 	return serpch;
 }
 
-PCPATCH *
-pc_patch_deserialize(const SERIALIZED_PATCH *serpatch, const PCSCHEMA *schema)
+
+static SERIALIZED_PATCH * 
+pc_patch_dimensional_serialize(const PCPATCH *patch_in)
 {
-	PCPATCH *patch;
+	size_t serpch_size;
+	SERIALIZED_PATCH *serpch;
+    int i;
+    uint8_t *buf;
+    const PCPATCH_DIMENSIONAL *patch = (PCPATCH_DIMENSIONAL*)patch_in;
+
+	serpch_size = pc_patch_serialized_size((PCPATCH*)patch);
+	serpch = pcalloc(serpch_size);
+	
+	/* Copy basics */
+	serpch->pcid = patch->schema->pcid;
+	serpch->npoints = patch->npoints;
+	serpch->xmin = patch->xmin;
+	serpch->ymin = patch->ymin;
+	serpch->xmax = patch->xmax;
+	serpch->ymax = patch->ymax;
+	
+	/* Copy byte buffers, one by one */
+    buf = serpch->data;
+    for ( i = 0; i < patch->schema->ndims; i++ )
+    {
+        size_t bsize = 0;
+        PCBYTES *pcb = &(patch->bytes[i]);
+        pc_bytes_serialize(pcb, buf, &bsize);
+        buf += bsize;
+    }
+
+	SET_VARSIZE(serpch, serpch_size);
+	return serpch;
+}
+
+
+/**
+* Convert struct to byte array.
+* Userdata is currently only PCDIMSTATS, hopefully updated across
+* a number of iterations and saved.
+*/
+SERIALIZED_PATCH * 
+pc_patch_serialize(const PCPATCH *patch_in, void *userdata)
+{   
+    PCPATCH *patch = (PCPATCH*)patch_in;
+    SERIALIZED_PATCH *serpatch;
+    /* 
+    * Convert the patch to the final target compression,
+    * which is the one in the schema.
+    */
+    if ( patch->type != patch->schema->compression )
+    {
+        patch = pc_patch_compress(patch_in, userdata);
+    }
+    
+    switch( patch->type )
+    {
+        case PC_NONE:
+            serpatch = pc_patch_uncompressed_serialize(patch);
+            break;
+        case PC_DIMENSIONAL:
+        {
+            serpatch = pc_patch_dimensional_serialize(patch);
+            break;
+        }
+        case PC_GHT:
+        {
+            pcerror("pc_patch_serialize: GHT compression currently unsupported");
+            break;
+        }
+        default:
+        {
+            pcerror("pc_patch_serialize: unsupported compression type %d", patch->type);
+        }
+    }
+    
+    if ( patch != patch_in )
+        pc_patch_free(patch);
+    
+    return serpatch;
+}
+
+
+
+static PCPATCH *
+pc_patch_uncompressed_deserialize(const SERIALIZED_PATCH *serpatch, const PCSCHEMA *schema)
+{
+	PCPATCH_UNCOMPRESSED *patch;
 	
 	/* Reference the external data */
-	patch = pcalloc(sizeof(PCPATCH));
+	patch = pcalloc(sizeof(PCPATCH_UNCOMPRESSED));
 	patch->data = (uint8*)serpatch->data;
 	patch->datasize = VARSIZE(serpatch) - sizeof(SERIALIZED_PATCH) + 1;
 
 	/* Set up basic info */
 	patch->schema = schema;
 	patch->readonly = true;
-	patch->compressed = true;
 	patch->npoints = serpatch->npoints;
 	patch->maxpoints = 0;
 	patch->xmin = serpatch->xmin;
@@ -478,6 +583,58 @@ pc_patch_deserialize(const SERIALIZED_PATCH *serpatch, const PCSCHEMA *schema)
 	patch->xmax = serpatch->xmax;
 	patch->ymax = serpatch->ymax;
 
-	return patch;
+	return (PCPATCH*)patch;
 }
 
+static PCPATCH *
+pc_patch_dimensional_deserialize(const SERIALIZED_PATCH *serpatch, const PCSCHEMA *schema)
+{
+ 	PCPATCH_DIMENSIONAL *patch;
+    int i;
+    const uint8_t *buf;
+    int ndims = schema->ndims;
+    int npoints = serpatch->npoints;
+    
+	/* Reference the external data */
+	patch = pcalloc(sizeof(PCPATCH_DIMENSIONAL));
+
+	/* Set up basic info */
+	patch->schema = schema;
+	patch->readonly = true;
+	patch->npoints = npoints;
+	patch->xmin = serpatch->xmin;
+	patch->ymin = serpatch->ymin;
+	patch->xmax = serpatch->xmax;
+	patch->ymax = serpatch->ymax;
+
+    /* Set up dimensions */
+    patch->bytes = pcalloc(ndims * sizeof(PCBYTES));
+    buf = serpatch->data;
+    
+    for ( i = 0; i < ndims; i++ )
+    {
+        PCBYTES *pcb = &(patch->bytes[i]);
+        PCDIMENSION *dim = schema->dims[i];
+        pc_bytes_deserialize(buf, dim, pcb, true /*readonly*/, false /*flipendian*/);
+        pcb->npoints = npoints;
+        buf += pcb->size;
+    }
+
+	return (PCPATCH*)patch;
+}
+
+PCPATCH * 
+pc_patch_deserialize(const SERIALIZED_PATCH *serpatch, const PCSCHEMA *schema)
+{   
+    switch(schema->compression)
+    {
+        case PC_NONE:
+            return pc_patch_uncompressed_deserialize(serpatch, schema);
+        case PC_DIMENSIONAL:
+            return pc_patch_dimensional_deserialize(serpatch, schema);
+        case PC_GHT:
+            pcerror("pc_patch_deserialize: GHT compression currently unsupported");
+    }
+    pcerror("pc_patch_deserialize: unsupported compression type");
+    return NULL;
+}

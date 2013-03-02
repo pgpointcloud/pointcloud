@@ -169,12 +169,12 @@ pc_point_get_y(const PCPOINT *pt)
 char *
 pc_point_to_string(const PCPOINT *pt)
 {
-	/* ( <pcid> : <dim1>, <dim2>, <dim3>, <dim4> )*/
+	/* { "pcid":1, "values":[<dim1>, <dim2>, <dim3>, <dim4>] }*/
 	stringbuffer_t *sb = stringbuffer_create();
 	char *str;
 	int i;
 	
-	stringbuffer_aprintf(sb, "( %d : ", pt->schema->pcid);
+	stringbuffer_aprintf(sb, "{\"pcid\":%d,\"pt\":[", pt->schema->pcid);
 	for ( i = 0; i < pt->schema->ndims; i++ )
 	{
 		double d;
@@ -184,11 +184,11 @@ pc_point_to_string(const PCPOINT *pt)
 		}
 		if ( i )
 		{
-			stringbuffer_append(sb, ", ");
+			stringbuffer_append(sb, ",");
 		}
 		stringbuffer_aprintf(sb, "%g", d);
 	}
-	stringbuffer_append(sb, " )");
+	stringbuffer_append(sb, "]}");
 	str = stringbuffer_getstringcopy(sb);
 	stringbuffer_destroy(sb);
 	return str;

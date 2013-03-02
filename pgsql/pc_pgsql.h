@@ -83,8 +83,11 @@ PCPOINT* pc_point_from_hexwkb(const char *hexwkb, size_t hexlen, FunctionCallInf
 /** Create a hex representation of a PCPOINT */
 char* pc_point_to_hexwkb(const PCPOINT *pt);
 
+/** How big will this thing be on disk? */
+size_t pc_patch_serialized_size(const PCPATCH *patch);
+
 /** Turn a PCPATCH into a byte buffer suitable for saving in PgSQL */
-SERIALIZED_PATCH* pc_patch_serialize(const PCPATCH *patch);
+SERIALIZED_PATCH* pc_patch_serialize(const PCPATCH *patch, void *userdata);
 
 /** Turn a byte buffer into a PCPATCH for processing */
 PCPATCH* pc_patch_deserialize(const SERIALIZED_PATCH *serpatch, const PCSCHEMA *schema);

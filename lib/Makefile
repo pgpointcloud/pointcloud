@@ -6,10 +6,11 @@ LDFLAGS = $(XML2_LDFLAGS) $(ZLIB_LDFLAGS)
 
 OBJS = \
 	pc_bytes.o \
-	pc_dimlist.o \
 	pc_dimstats.o \
 	pc_mem.o \
 	pc_patch.o \
+	pc_patch_dimensional.o \
+	pc_patch_uncompressed.o \
 	pc_point.o \
 	pc_pointlist.o \
 	pc_schema.o \

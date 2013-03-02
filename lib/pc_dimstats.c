@@ -19,6 +19,7 @@
 #include <stdarg.h>
 #include <assert.h>
 #include "pc_api_internal.h"
+#include "stringbuffer.h"
 
 
 PCDIMSTATS *
@@ -38,9 +39,54 @@ pc_dimstats_free(PCDIMSTATS *pds)
         pcfree(pds->stats);
     pcfree(pds);
 }
+/*
+typedef struct
+{
+    uint32_t total_runs;
+    uint32_t total_commonbits;
+    uint32_t recommended_compression;
+} PCDIMSTAT;
+
+typedef struct
+{
+    int32_t ndims;
+    uint32_t total_points;
+    uint32_t total_patches;
+    PCDIMSTAT *stats;
+} PCDIMSTATS;
+*/
+
+char *
+pc_dimstats_to_string(const PCDIMSTATS *pds)
+{
+    int i;
+    stringbuffer_t *sb = stringbuffer_create();
+	char *str;
+    
+    stringbuffer_aprintf(sb,"{\"ndims\":%d,\"total_points\":%d,\"total_patches\":%d,\"dims\":[", 
+                pds->ndims, 
+                pds->total_points, 
+                pds->total_patches
+    );
+
+    for ( i = 0; i < pds->ndims; i++ )
+    {
+        if ( i ) stringbuffer_append(sb, ",");
+        stringbuffer_aprintf(sb, "{\"total_runs\":%d,\"total_commonbits\":%d,\"recommended_compression\":%d}",
+                pds->stats[i].total_runs, 
+                pds->stats[i].total_commonbits, 
+                pds->stats[i].recommended_compression
+        );
+    }
+    stringbuffer_append(sb, "]}");
+
+    str = stringbuffer_getstringcopy(sb);
+	stringbuffer_destroy(sb);
+	return str;
+}
 
 int
-pc_dimstats_update(PCDIMSTATS *pds, const PCDIMLIST *pdl)
+pc_dimstats_update(PCDIMSTATS *pds, const PCPATCH_DIMENSIONAL *pdl)
 {
     int i, j;
     uint32_t nelems = pdl->npoints;
@@ -77,12 +123,12 @@ pc_dimstats_update(PCDIMSTATS *pds, const PCDIMLIST *pdl)
         if ( dim->interpretation != PC_DOUBLE )
         {
             /* If sigbits is better than 4:1, use that */
-            if ( raw_size/sigbits_size > 4.0 )
+            if ( raw_size/sigbits_size > 1.6 )
             {
                 pds->stats[i].recommended_compression = PC_DIM_SIGBITS;
             }
             /* If RLE size is even better, use that. */
-            else if ( raw_size/rle_size > 4.0 )
+            if ( raw_size/rle_size > 4.0 )
             {
                 pds->stats[i].recommended_compression = PC_DIM_RLE;
             }

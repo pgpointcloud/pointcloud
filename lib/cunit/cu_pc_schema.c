@@ -19,8 +19,10 @@ static const char *xmlfile = "data/pdal-schema.xml";
 static int 
 init_suite(void)
 {
-	schema = NULL;
-	return 0;
+    char *xmlstr = file_to_str(xmlfile);
+	int rv = pc_schema_from_xml(xmlstr, &schema);
+	pcfree(xmlstr);
+	return rv == PC_FAILURE;
 }
 
 static int 
@@ -36,8 +38,9 @@ clean_suite(void)
 static void 
 test_schema_from_xml() 
 {
+    static PCSCHEMA *myschema = NULL;
 	char *xmlstr = file_to_str(xmlfile);
-	int rv = pc_schema_from_xml(xmlstr, &schema);
+	int rv = pc_schema_from_xml(xmlstr, &myschema);
 	pcfree(xmlstr);
 
 	// char *schemastr = pc_schema_to_json(schema);
@@ -45,7 +48,8 @@ test_schema_from_xml()
 	// printf("name0 %s\n", schema->dims[0]->name);
 	// printf("%s\n", schemastr);
 	
-	CU_ASSERT(schema != NULL);
+	CU_ASSERT(myschema != NULL);
+    pc_schema_free(myschema);
 }
 
 static void 

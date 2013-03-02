@@ -77,6 +77,21 @@ typedef struct
 } PCSCHEMA;
 
 
+typedef struct
+{
+    uint32_t total_runs;
+    uint32_t total_commonbits;
+    uint32_t recommended_compression;
+} PCDIMSTAT;
+
+typedef struct
+{
+    int32_t ndims;
+    uint32_t total_points;
+    uint32_t total_patches;
+    PCDIMSTAT *stats;
+} PCDIMSTATS;
+
 /**
 * Uncompressed structure for in-memory handling
 * of points. A read-only PgSQL point can be wrapped in
@@ -99,6 +114,16 @@ typedef struct
 	PCPOINT **points;
 } PCPOINTLIST;
 
+typedef struct
+{
+    size_t size;
+    uint32_t npoints;
+    uint32_t interpretation;
+    uint32_t compression;
+    uint32_t readonly;
+    uint8_t *bytes;
+} PCBYTES;
+
 /**
 * Uncompressed Structure for in-memory handling
 * of patches. A read-only PgSQL patch can be wrapped in
@@ -113,11 +138,40 @@ typedef struct
 	const PCSCHEMA *schema;
 	uint32_t npoints; /* How many points we have */
 	double xmin, xmax, ymin, ymax;
+} PCPATCH;
+    
+typedef struct
+{
+    int type;
+	int8_t readonly;
+	const PCSCHEMA *schema;
+	uint32_t npoints; /* How many points we have */
+	double xmin, xmax, ymin, ymax;
 	uint32_t maxpoints; /* How man points we can hold (or 0 for read-only) */
-	uint8_t compressed; /* Has compression been applied to the data buffer? */
 	size_t datasize;
 	uint8_t *data; /* A serialized version of the data */
-} PCPATCH;
+} PCPATCH_UNCOMPRESSED;
+
+typedef struct
+{
+    int type;
+	int8_t readonly;
+	const PCSCHEMA *schema;
+	uint32_t npoints; /* How many points we have */
+	double xmin, xmax, ymin, ymax;
+    PCBYTES *bytes;
+} PCPATCH_DIMENSIONAL;
+
+typedef struct
+{
+    int type;
+	int8_t readonly;
+	const PCSCHEMA *schema;
+	uint32_t npoints; /* How many points we have */
+	double xmin, xmax, ymin, ymax;
+    uint8_t *data;
+} PCPATCH_GHT;
+
 
 
 /* Global function signatures for memory/logging handlers. */
@@ -158,16 +212,15 @@ void pc_install_default_handlers(void);
 * UTILITY
 */
 
-/** Read the the PCID from WKB form of a POINT/PATCH */
-uint32_t wkb_get_pcid(const uint8_t *wkb);
-/** Read the the npoints from WKB form of a PATCH */
-uint32_t wkb_get_compression(const uint8_t *wkb);
-/** Flips the bytes of an int32_t */
-int32_t int32_flip_endian(int32_t val);
 /** Convert binary to hex */
 uint8_t* bytes_from_hexbytes(const char *hexbuf, size_t hexsize);
 /** Convert hex to binary */
 char* hexbytes_from_bytes(const uint8_t *bytebuf, size_t bytesize);
+/** Read the the PCID from WKB form of a POINT/PATCH */
+uint32_t wkb_get_pcid(const uint8_t *wkb);
+/** Build an empty #PCDIMSTATS based on the schema */
+PCDIMSTATS* pc_dimstats_make(const PCSCHEMA *schema);
+
 
 
 /**********************************************************************
@@ -203,6 +256,9 @@ void pc_pointlist_free(PCPOINTLIST *pl);
 /** Add a point to the list, expanding buffer as necessary */
 void pc_pointlist_add_point(PCPOINTLIST *pl, PCPOINT *pt);
 
+/** Get a point from the list */
+PCPOINT* pc_pointlist_get_point(const PCPOINTLIST *pl, int i);
+
 
 /**********************************************************************
 * PCPOINT
@@ -225,12 +281,6 @@ int pc_point_get_double_by_name(const PCPOINT *pt, const char *name, double *d);
 
 /** Casts dimension value to double and scale/offset appropriately before returning */
 int pc_point_get_double_by_index(const PCPOINT *pt, uint32_t idx, double *d);
-
-/** Scales/offsets double, casts to appropriate dimension type, and writes into point */
-int pc_point_set_double_by_index(PCPOINT *pt, uint32_t idx, double val);
-
-/** Scales/offsets double, casts to appropriate dimension type, and writes into point */
-int pc_point_set_double_by_name(PCPOINT *pt, const char *name, double val);
 
 /** Returns X coordinate */
 double pc_point_get_x(const PCPOINT *pt);
@@ -255,26 +305,17 @@ uint8_t* pc_point_to_geometry_wkb(const PCPOINT *pt, size_t *wkbsize);
 * PCPATCH
 */
 
-/** Create new empty PCPATCH */
-PCPATCH* pc_patch_make(const PCSCHEMA *s);
-
 /** Create new PCPATCH from a PCPOINT set. Copies data, doesn't take ownership of points */
-PCPATCH* pc_patch_from_points(const PCPOINTLIST *pl);
+PCPATCH* pc_patch_from_pointlist(const PCPOINTLIST *ptl);
 
 /** Returns a list of points extracted from patch */
-PCPOINTLIST* pc_patch_to_points(const PCPATCH *patch);
+PCPOINTLIST* pc_patch_to_pointlist(const PCPATCH *patch);
 
 /** Free patch memory, respecting read-only status. Does not free referenced schema */
 void pc_patch_free(PCPATCH *patch);
 
-/** Add a point to read/write PCPATCH */
-int pc_patch_add_point(PCPATCH *c, const PCPOINT *p);
-
 /** Create a compressed copy, using the compression schema referenced in the PCSCHEMA */
-PCPATCH* pc_patch_compress(const PCPATCH *patch);
-
-/** Create a full copy of the patch, including data, but not including PCSCHEMA */
-PCPATCH* pc_patch_clone(const PCPATCH *patch);
+PCPATCH* pc_patch_compress(const PCPATCH *patch, void *userdata);
 
 /** Create a new readwrite PCPOINT from a byte array */
 PCPATCH* pc_patch_from_wkb(const PCSCHEMA *s, uint8_t *wkb, size_t wkbsize);
@@ -287,6 +328,15 @@ char* pc_patch_to_string(const PCPATCH *patch);
 
 /** Returns OGC WKB for envelope of PCPATCH */
 uint8_t* pc_patch_to_geometry_wkb_envelope(const PCPATCH *pa, size_t *wkbsize);
+
+/** */
+size_t pc_patch_dimensional_serialized_size(const PCPATCH *patch);
+
+/** Write the representation down to a buffer */
+int pc_bytes_serialize(const PCBYTES *pcb, uint8_t *buf, size_t *size);
+
+/** Read a buffer up into a bytes structure */
+int pc_bytes_deserialize(const uint8_t *buf, const PCDIMENSION *dim, PCBYTES *pcb, int readonly, int flip_endian);
 
 
 #endif /* _PC_API_H */

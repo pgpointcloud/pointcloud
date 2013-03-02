@@ -79,42 +79,24 @@ enum DIMCOMPRESSIONS {
     PC_DIM_ZLIB = 3
 };
 
-typedef struct
-{
-    size_t size;
-    uint32_t npoints;
-    uint32_t interpretation;
-    uint32_t compression;
-    uint32_t read_only;
-    uint8_t *bytes;
-} PCBYTES;
 
-typedef struct
-{
-	uint32_t npoints;
-	const PCSCHEMA *schema;
-    PCBYTES *bytes;
-} PCDIMLIST;
-
-typedef struct
-{
-    uint32_t total_runs;
-    uint32_t total_commonbits;
-    uint32_t recommended_compression;
-} PCDIMSTAT;
-
-typedef struct
-{
-    int32_t ndims;
-    uint32_t total_points;
-    uint32_t total_patches;
-    PCDIMSTAT *stats;
-} PCDIMSTATS;
 
 
 
 /** What is the endianness of this system? */
 char machine_endian(void);
+
+/** Flips the bytes of an int32_t */
+int32_t int32_flip_endian(int32_t val);
+
+/** Read the the npoints from WKB form of a PATCH */
+uint32_t wkb_get_compression(const uint8_t *wkb);
+
+/** Read an int32 from a byte array, flipping if requested */
+int32_t wkb_get_int32(const uint8_t *wkb, int flip_endian);
+
+/** Read an int16 from a byte array, flipping if requested */
+int16_t wkb_get_int16(const uint8_t *wkb, int flip_endian);
 
 /** Force a byte array into the machine endianness */
 uint8_t* uncompressed_bytes_flip_endian(const uint8_t *bytebuf, const PCSCHEMA *schema, uint32_t npoints);
@@ -128,11 +110,71 @@ int pc_double_to_ptr(uint8_t *ptr, uint32_t interpretation, double val);
 /** Return number of bytes in a given interpretation */
 size_t pc_interpretation_size(uint32_t interp);
 
-/** True if there is a dimension of that name */
-int pc_schema_has_name(const PCSCHEMA *s, const char *name);
-
 /** Copy a string within the global memory management context */
 char* pcstrdup(const char *str);
+
+/** Scales/offsets double, casts to appropriate dimension type, and writes into point */
+int pc_point_set_double_by_index(PCPOINT *pt, uint32_t idx, double val);
+
+/** Scales/offsets double, casts to appropriate dimension type, and writes into point */
+int pc_point_set_double_by_name(PCPOINT *pt, const char *name, double val);
+
+
+/****************************************************************************
+* DIMENSION STATISTICS
+*/
+
+/** Analyze the bytes in the #PCPATCH_DIMENSIONAL and update the #PCDIMSTATS */
+int pc_dimstats_update(PCDIMSTATS *pds, const PCPATCH_DIMENSIONAL *pdl);
+/** Free the PCDIMSTATS memory */
+void pc_dimstats_free(PCDIMSTATS *pds);
+char* pc_dimstats_to_string(const PCDIMSTATS *pds);
+
+
+/****************************************************************************
+* PATCHES
+*/
+
+/* DIMENSIONAL PATCHES */
+char* pc_patch_dimensional_to_string(const PCPATCH_DIMENSIONAL *pa);
+PCPATCH_DIMENSIONAL* pc_patch_dimensional_from_uncompressed(const PCPATCH_UNCOMPRESSED *pa);
+PCPATCH_DIMENSIONAL* pc_patch_dimensional_compress(const PCPATCH_DIMENSIONAL *pdl, PCDIMSTATS *pds);
+PCPATCH_DIMENSIONAL* pc_patch_dimensional_decompress(const PCPATCH_DIMENSIONAL *pdl);
+void pc_patch_dimensional_free(PCPATCH_DIMENSIONAL *pdl);
+int pc_patch_dimensional_compute_extent(PCPATCH_DIMENSIONAL *pdl);
+uint8_t* pc_patch_dimensional_to_wkb(const PCPATCH_DIMENSIONAL *patch, size_t *wkbsize);
+PCPATCH* pc_patch_dimensional_from_wkb(const PCSCHEMA *schema, const uint8_t *wkb, size_t wkbsize);
+PCPATCH_DIMENSIONAL* pc_patch_dimensional_from_pointlist(const PCPOINTLIST *pdl);
+PCPOINTLIST* pc_pointlist_from_dimensional(const PCPATCH_DIMENSIONAL *pdl);
+
+/* UNCOMPRESSED PATCHES */
+char* pc_patch_uncompressed_to_string(const PCPATCH_UNCOMPRESSED *patch);
+uint8_t* pc_patch_uncompressed_to_wkb(const PCPATCH_UNCOMPRESSED *patch, size_t *wkbsize);
+PCPATCH*  pc_patch_uncompressed_from_wkb(const PCSCHEMA *s, const uint8_t *wkb, size_t wkbsize);
+PCPATCH_UNCOMPRESSED*  pc_patch_uncompressed_make(const PCSCHEMA *s);
+int pc_patch_uncompressed_compute_extent(PCPATCH_UNCOMPRESSED *patch);
+void pc_patch_uncompressed_free(PCPATCH_UNCOMPRESSED *patch);
+PCPOINTLIST* pc_patch_uncompressed_to_pointlist(const PCPATCH_UNCOMPRESSED *patch);
+PCPATCH_UNCOMPRESSED* pc_patch_uncompressed_from_pointlist(const PCPOINTLIST *pl);
+PCPATCH_UNCOMPRESSED* pc_patch_uncompressed_from_dimensional(const PCPATCH_DIMENSIONAL *pdl);
+int pc_patch_uncompressed_add_point(PCPATCH_UNCOMPRESSED *c, const PCPOINT *p);
+
+
+
+/****************************************************************************
+* BYTES
+*/
+
+/** Construct empty byte array (zero out attribute and allocate byte buffer) */
+PCBYTES pc_bytes_make(const PCDIMENSION *dim, uint32_t npoints);
+/** Empty the byte array (free the byte buffer) */
+void pc_bytes_free(PCBYTES bytes);
+/** Apply the compresstion to the byte array in place, freeing the original byte buffer */
+PCBYTES pc_bytes_encode(PCBYTES pcb, int compression);
+/** Convert the bytes in #PCBYTES to PC_DIM_NONE compression */
+PCBYTES pc_bytes_decode(PCBYTES epcb);
+/** How big will the serialization be? */
+size_t pc_bytes_serialized_size(const PCBYTES *pcb);
 
 /** Convert value bytes to RLE bytes */
 PCBYTES pc_bytes_run_length_encode(const PCBYTES pcb);
@@ -159,42 +201,6 @@ uint16_t pc_bytes_sigbits_count_16(const PCBYTES *pcb, uint32_t *nsigbits);
 uint32_t pc_bytes_sigbits_count_32(const PCBYTES *pcb, uint32_t *nsigbits);
 /** Using an 64-bit word, what is the common word and number of bits in common? */
 uint64_t pc_bytes_sigbits_count_64(const PCBYTES *pcb, uint32_t *nsigbits);
-/** Pivot a #PCPOINTLIST to a #PCDIMLIST, taking copies of data. */
-PCDIMLIST* pc_dimlist_from_pointlist(const PCPOINTLIST *pl);
-/** Pivot a #PCDIMLIST to a #PCPOINTLIST, taking copies of data. */
-PCPOINTLIST* pc_pointlist_from_dimlist(PCDIMLIST *pdl);
 
-/** Compress #DIMLIST, using the suggestions from the #PCDIMSTATS. Compresses in place and frees existing data. */
-int pc_dimlist_encode(PCDIMLIST *pdl, PCDIMSTATS **pdsptr);
-/** Decompress #DIMLIST. Decompresses in place and frees existing data. */
-int pc_dimlist_decode(PCDIMLIST *pdl);
-
-/** Build an empty #PCDIMSTATS based on the schema */
-PCDIMSTATS* pc_dimstats_make(const PCSCHEMA *schema);
-/** Analyze the bytes in the #PCDIMLIST and update the #PCDIMSTATS */
-int pc_dimstats_update(PCDIMSTATS *pds, const PCDIMLIST *pdl);
-/** Free the PCDIMSTATS memory */
-void pc_dimstats_free(PCDIMSTATS *pds);
-
-/** Construct empty byte array (zero out attribute and allocate byte buffer) */
-PCBYTES pc_bytes_make(const PCDIMENSION *dim, uint32_t npoints);
-/** Empty the byte array (free the byte buffer) */
-void pc_bytes_free(PCBYTES bytes);
-/** Apply the compresstion to the byte array in place, freeing the original byte buffer */
-PCBYTES pc_bytes_encode(PCBYTES pcb, int compression);
-/** Convert the bytes in #PCBYTES to PC_DIM_NONE compression */
-PCBYTES pc_bytes_decode(PCBYTES epcb);
-
-/** How big will the serialization be? */
-size_t pc_bytes_get_serialized_size(const PCBYTES *pcb);
-/** Write the representation down to a buffer */
-int pc_bytes_serialize(const PCBYTES *pcb, uint8_t *buf, size_t *size);
-/** Read a buffer up into a bytes structure */
-int pc_bytes_deserialize(uint8_t *buf, const PCDIMENSION *dim, PCBYTES *pcb, int read_only, int flip_endian);
-    
-/** Read an int32 from a byte array, flipping if requested */
-int32_t wkb_get_int32(const uint8_t *wkb, int flip_endian);
-/** Read an int16 from a byte array, flipping if requested */
-int16_t wkb_get_int16(const uint8_t *wkb, int flip_endian);
 
 #endif /* _PC_API_INTERNAL_H */

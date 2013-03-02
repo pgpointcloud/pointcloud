@@ -50,34 +50,41 @@ pc_pointlist_add_point(PCPOINTLIST *pl, PCPOINT *pt)
 	return;
 }
 
+PCPOINT *
+pc_pointlist_get_point(const PCPOINTLIST *pl, int i)
+{
+    return pl->points[i];
+}
 
 PCPOINTLIST *
-pc_pointlist_from_dimlist(PCDIMLIST *pdl)
+pc_pointlist_from_dimensional(const PCPATCH_DIMENSIONAL *pdl)
 {
     PCPOINTLIST *pl;
+    PCPATCH_DIMENSIONAL *pdl_uncompressed;
+    const PCSCHEMA *schema = pdl->schema;
     int i, j, ndims, npoints;
     assert(pdl);
     
-    /* We can only pull off this trick on uncompressed data */
-    if ( PC_FAILURE == pc_dimlist_decode(pdl) )
-        return NULL;
+    pdl_uncompressed = pc_patch_dimensional_decompress(pdl);
     
-    ndims = pdl->schema->ndims;
+    ndims = schema->ndims;
     npoints = pdl->npoints;
     pl = pc_pointlist_make(npoints);
     
     for ( i = 0; i < npoints; i++ )
     {
-        PCPOINT *pt = pc_point_make(pdl->schema);
+        PCPOINT *pt = pc_point_make(schema);
         for ( j = 0; j < ndims; j++ )
         {
-            PCDIMENSION *dim = pc_schema_get_dimension(pdl->schema, j);
+            PCDIMENSION *dim = pc_schema_get_dimension(schema, j);
             
-            uint8_t *in = pdl->bytes[j].bytes + dim->size * i;
+            uint8_t *in = pdl_uncompressed->bytes[j].bytes + dim->size * i;
             uint8_t *out = pt->data + dim->byteoffset;
             memcpy(out, in, dim->size);
         }
         pc_pointlist_add_point(pl, pt);
     }
+    pc_patch_dimensional_free(pdl_uncompressed);
+    
     return pl;
 }

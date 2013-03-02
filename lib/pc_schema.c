@@ -69,9 +69,14 @@ size_t
 pc_interpretation_size(uint32_t interp)
 {
 	if ( interp >= 0 && interp < NUM_INTERPRETATIONS )
+	{
 		return INTERPRETATION_SIZES[interp];
+	}
 	else
+	{
+        pcerror("pc_interpretation_size: invalid interpretation");
 		return 0;
+	}
 }
 
 /** Allocate clean memory for a PCDIMENSION struct */
@@ -140,7 +145,7 @@ static int
 pc_schema_set_dimension(PCSCHEMA *s, PCDIMENSION *d)
 {
 	s->dims[d->position] = d;
-	hashtable_insert(s->namehash, pcstrdup(d->name), d);
+	hashtable_insert(s->namehash, d->name, d);
 }
 
 
@@ -478,15 +483,5 @@ pc_schema_get_dimension_by_name(const PCSCHEMA *s, const char *name)
 		return NULL;
 
 	return hashtable_search(s->namehash, name);
-}
-
-int
-pc_schema_has_name(const PCSCHEMA *s, const char *name)
-{
-	if ( hashtable_search(s->namehash, name) )
-	{
-		return PC_TRUE;
-	}
-	return PC_FALSE;
 }
 

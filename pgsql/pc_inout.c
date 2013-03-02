@@ -125,7 +125,7 @@ Datum pcpatch_in(PG_FUNCTION_ARGS)
 		/* Hex-encoded binary */
 		patch = pc_patch_from_hexwkb(str, strlen(str), fcinfo);
         pcid_consistent(patch->schema->pcid, pcid);
-		serpatch = pc_patch_serialize(patch);
+		serpatch = pc_patch_serialize(patch, NULL);
 		pc_patch_free(patch);
 	}
 	else
@@ -196,7 +196,6 @@ Datum pcpoint_from_double_array(PG_FUNCTION_ARGS)
 	uint32 pcid = PG_GETARG_INT32(0);
 	ArrayType *arrptr = PG_GETARG_ARRAYTYPE_P(1);
 	int nelems;
-	int i;
 	float8 *vals;
 	PCPOINT *pt;
 	PCSCHEMA *schema = pc_schema_from_pcid(pcid, fcinfo);
@@ -218,17 +217,9 @@ Datum pcpoint_from_double_array(PG_FUNCTION_ARGS)
 	if ( nelems != schema->ndims || ARR_LBOUND(arrptr)[0] > 1 )
 		elog(ERROR, "array dimenensions do not match schema dimensions of pcid = %d", pcid);
 	
-	pt = pc_point_make(schema);
 	vals = (float8*) ARR_DATA_PTR(arrptr);
+    pt = pc_point_from_double_array(schema, vals, nelems);
 
-	for ( i = 0; i < nelems; i++ )
-	{
-		float8 val = vals[i];
-		int err = pc_point_set_double_by_index(pt, i, val);
-		if ( ! err )
-			elog(ERROR, "failed to set value into point");		
-	}
-	
 	serpt = pc_point_serialize(pt);
 	pc_point_free(pt);
 	pc_schema_free(schema);

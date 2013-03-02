@@ -64,7 +64,8 @@ Patch Binary (Dimensional)
     byte:          endianness (1 = NDR, 0 = XDR)
     uint32:        pcid (key to POINTCLOUD_SCHEMAS)
     uint32:        1 = dimensional compression
-    dimensional[]: dimensionally compressed data for each dimension
+    uint32:        npoints
+    dimensions[]:  dimensionally compressed data for each dimension
 
     /* dimensional compression */
     byte:          dimensional compression type (0 = none, 1 = significant bits, 2 = deflate, 3 = run-length)

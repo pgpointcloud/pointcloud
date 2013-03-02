@@ -134,7 +134,7 @@ pcpatch_from_array(ArrayType *array, FunctionCallInfoData *fcinfo)
 	if ( pl->npoints == 0 )
 		return NULL;
 
-	pa = pc_patch_from_points(pl);
+	pa = pc_patch_from_pointlist(pl);
 	pc_pointlist_free(pl);
     return pa;
 }
@@ -154,7 +154,7 @@ Datum pcpatch_from_pcpoint_array(PG_FUNCTION_ARGS)
     if ( ! pa )
         PG_RETURN_NULL();
 
-	serpa = pc_patch_serialize(pa);
+	serpa = pc_patch_serialize(pa, NULL);
 	pc_patch_free(pa);
 	PG_RETURN_POINTER(serpa);
 }
@@ -281,7 +281,7 @@ Datum pcpoint_agg_final_pcpatch(PG_FUNCTION_ARGS)
     if ( ! pa )
         PG_RETURN_NULL();
 	
-    serpa = pc_patch_serialize(pa);
+    serpa = pc_patch_serialize(pa, NULL);
     pc_patch_free(pa);
     PG_RETURN_POINTER(serpa);
 }
@@ -330,7 +330,7 @@ Datum pcpatch_unnest(PG_FUNCTION_ARGS)
 		/* initialize state */
 		fctx->nextelem = 0;
 		fctx->numelems = patch->npoints;
-		fctx->pointlist = pc_patch_to_points(patch);
+		fctx->pointlist = pc_patch_to_pointlist(patch);
 
 		/* save user context, switch back to function context */
 		funcctx->user_fctx = fctx;
@@ -344,7 +344,7 @@ Datum pcpatch_unnest(PG_FUNCTION_ARGS)
 	if (fctx->nextelem < fctx->numelems)
 	{
 		Datum elem;
-		PCPOINT *pt = fctx->pointlist->points[fctx->nextelem];
+		PCPOINT *pt = pc_pointlist_get_point(fctx->pointlist, fctx->nextelem);
 		SERIALIZED_POINT *serpt = pc_point_serialize(pt);
 		fctx->nextelem++;
 		elem = PointerGetDatum(serpt);
