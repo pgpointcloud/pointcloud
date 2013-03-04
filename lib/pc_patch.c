@@ -302,3 +302,82 @@ pc_patch_to_geometry_wkb_envelope(const PCPATCH *pa, size_t *wkbsize)
 	if ( wkbsize ) *wkbsize = size;
 	return wkb;
 }
+
+PCPATCH *
+pc_patch_from_patchlist(PCPATCH **palist, int numpatches)
+{
+    int i;
+    uint32_t totalpoints = 0;
+    PCPATCH_UNCOMPRESSED *paout;
+    const PCSCHEMA *schema = NULL;
+    uint8_t *buf;
+    
+    assert(palist);
+    assert(numpatches);
+    
+    /* All schemas better be the same... */
+    schema = palist[0]->schema;
+    
+    /* How many points will this output have? */
+    for ( i = 0; i < numpatches; i++ )
+    {
+        if ( schema->pcid != palist[i]->schema->pcid )
+        {
+            pcerror("pc_patch_from_patchlist: inconsistent schemas in input");
+            return NULL;
+        }
+        totalpoints += palist[i]->npoints;
+    }
+    
+    /* Blank output */
+    paout = pc_patch_uncompressed_make(schema, totalpoints);
+    buf = paout->data;
+    paout->xmin = paout->ymin = MAXFLOAT;
+    paout->xmax = paout->ymax = -1 * MAXFLOAT;
+    
+    /* Uncompress dimensionals, copy uncompressed */
+    for ( i = 0; i < numpatches; i++ )
+    {
+        const PCPATCH *pa = palist[i];
+
+        /* Update bounds */
+        if ( pa->xmin < paout->xmin ) paout->xmin = pa->xmin;
+        if ( pa->ymin < paout->ymin ) paout->ymin = pa->ymin;
+        if ( pa->xmax > paout->xmax ) paout->xmax = pa->xmax;
+        if ( pa->ymax > paout->ymax ) paout->ymax = pa->ymax;
+        
+        switch ( pa->type )
+        {
+            case PC_DIMENSIONAL:
+            {
+                PCPATCH_UNCOMPRESSED *pu = pc_patch_uncompressed_from_dimensional((const PCPATCH_DIMENSIONAL*)pa);
+                size_t sz = schema->size * pu->npoints;
+                memcpy(buf, pu->data, sz);
+                buf += sz;
+                pc_patch_uncompressed_free(pu);
+                break;
+            }
+            case PC_GHT:
+            {
+                pcerror("pc_patch_from_patchlist: GHT compression not yet supported");
+                break;
+            }
+            case PC_NONE:
+            {
+                PCPATCH_UNCOMPRESSED *pu = (PCPATCH_UNCOMPRESSED*)pa;
+                size_t sz = schema->size * pu->npoints;
+                memcpy(buf, pu->data, sz);
+                buf += sz;
+                break;
+            }
+            default:
+            {
+                pcerror("pc_patch_from_patchlist: unknown compresseion type", pa->type);
+                break;
+            }
+        }
+    }
+    
+    paout->npoints = totalpoints;
+    return (PCPATCH*)paout;
+}

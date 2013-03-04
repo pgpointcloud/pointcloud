@@ -136,10 +136,9 @@ pc_patch_uncompressed_from_wkb(const PCSCHEMA *s, const uint8_t *wkb, size_t wkb
 }
 
 PCPATCH_UNCOMPRESSED * 
-pc_patch_uncompressed_make(const PCSCHEMA *s)
+pc_patch_uncompressed_make(const PCSCHEMA *s, uint32_t maxpoints)
 {
 	PCPATCH_UNCOMPRESSED *pch;
-	uint32_t maxpoints = PCPATCH_DEFAULT_MAXPOINTS;
 	size_t datasize;
 	
 	if ( ! s )

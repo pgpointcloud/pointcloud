@@ -14,14 +14,20 @@
 /* Other SQL functions */
 Datum pcpoint_get_value(PG_FUNCTION_ARGS);
 Datum pcpatch_from_pcpoint_array(PG_FUNCTION_ARGS);
+Datum pcpatch_from_pcpatch_array(PG_FUNCTION_ARGS);
 
-/* Aggregation functions */
-Datum pcpoint_agg_final_pcpatch(PG_FUNCTION_ARGS);
-Datum pcpoint_agg_final_array(PG_FUNCTION_ARGS);
+/* Generic aggregation functions */
 Datum pointcloud_agg_transfn(PG_FUNCTION_ARGS);
 Datum pointcloud_abs_in(PG_FUNCTION_ARGS);
 Datum pointcloud_abs_out(PG_FUNCTION_ARGS);
+
+/* Point finalizers */
+Datum pcpoint_agg_final_pcpatch(PG_FUNCTION_ARGS);
+Datum pcpoint_agg_final_array(PG_FUNCTION_ARGS);
+
+/* Patch finalizers */
 Datum pcpatch_agg_final_array(PG_FUNCTION_ARGS);
+Datum pcpatch_agg_final_pcpatch(PG_FUNCTION_ARGS);
 
 /* Deaggregation functions */
 Datum pcpatch_unnest(PG_FUNCTION_ARGS);
@@ -116,13 +122,13 @@ pcpatch_from_point_array(ArrayType *array, FunctionCallInfoData *fcinfo)
 			}
 			else if ( pcid != serpt->pcid )
 			{
-				elog(ERROR, "pcpatch_from_pcpoint_array: pcid mismatch (%d != %d)", serpt->pcid, pcid);
+				elog(ERROR, "pcpatch_from_point_array: pcid mismatch (%d != %d)", serpt->pcid, pcid);
 			}
 			
 			pt = pc_point_deserialize(serpt, schema);
 			if ( ! pt )
 			{
-				elog(ERROR, "pcpatch_from_pcpoint_array: point deserialization failed");
+				elog(ERROR, "pcpatch_from_point_array: point deserialization failed");
 			}
 			
 			pc_pointlist_add_point(pl, pt);
@@ -138,6 +144,110 @@ pcpatch_from_point_array(ArrayType *array, FunctionCallInfoData *fcinfo)
 	pa = pc_patch_from_pointlist(pl);
 	pc_pointlist_free(pl);
     return pa;
+}
+
+
+static PCPATCH *
+pcpatch_from_patch_array(ArrayType *array, FunctionCallInfoData *fcinfo)
+{
+	int nelems;
+	bits8 *bitmap;
+	int bitmask;
+	size_t offset = 0;
+	int i;
+    uint32 pcid = 0;
+	PCPATCH *pa;
+	PCPATCH **palist;
+    int numpatches = 0;
+    PCSCHEMA *schema = 0;
+
+	/* How many things in our array? */
+	nelems = ArrayGetNItems(ARR_NDIM(array), ARR_DIMS(array));
+
+	/* PgSQL supplies a bitmap of which array entries are null */
+	bitmap = ARR_NULLBITMAP(array);
+
+	/* Empty array? Null return */
+	if ( nelems == 0 ) 
+        return NULL;
+	
+	/* Make our temporary list of patches */
+	palist = pcalloc(nelems*sizeof(PCPATCH*));
+
+    /* Read the patches out of the array and deserialize */
+	offset = 0;
+	bitmap = ARR_NULLBITMAP(array);
+	bitmask = 1;
+	for ( i = 0; i < nelems; i++ )
+	{
+		/* Only work on non-NULL entries in the array */
+		if ( ! array_get_isnull(bitmap, i) )
+		{
+			SERIALIZED_PATCH *serpatch = (SERIALIZED_PATCH *)(ARR_DATA_PTR(array)+offset);
+			
+			if ( ! schema )
+			{
+                schema = pc_schema_from_pcid(serpatch->pcid, fcinfo);
+		    }
+			
+			if ( ! pcid ) 
+			{
+				pcid = serpatch->pcid;
+			}
+			else if ( pcid != serpatch->pcid )
+			{
+				elog(ERROR, "pcpatch_from_patch_array: pcid mismatch (%d != %d)", serpatch->pcid, pcid);
+			}
+			
+			pa = pc_patch_deserialize(serpatch, schema);
+			if ( ! pa )
+			{
+				elog(ERROR, "pcpatch_from_patch_array: patch deserialization failed");
+			}
+			
+            palist[numpatches++] = pa;
+
+			offset += INTALIGN(VARSIZE(serpatch));
+		}
+
+	}
+	
+	/* Can't do anything w/ NULL */
+	if ( numpatches == 0 )
+		return NULL;
+
+    /* Pass to the lib to build the output patch from the list */
+	pa = pc_patch_from_patchlist(palist, numpatches);
+	
+	/* Free the temporary patch list */
+    for ( i = 0; i < numpatches; i++ )
+    {
+        pc_patch_free(palist[i]);
+    }
+    pcfree(palist);
+    
+    return pa;
+}
+
+
+PG_FUNCTION_INFO_V1(pcpatch_from_pcpatch_array);
+Datum pcpatch_from_pcpatch_array(PG_FUNCTION_ARGS)
+{
+	ArrayType *array;
+	PCPATCH *pa;
+	SERIALIZED_PATCH *serpa;
+
+    if ( PG_ARGISNULL(0) )
+        PG_RETURN_NULL();
+
+	array = DatumGetArrayTypeP(PG_GETARG_DATUM(0));
+    pa = pcpatch_from_patch_array(array, fcinfo);
+    if ( ! pa )
+        PG_RETURN_NULL();
+
+	serpa = pc_patch_serialize(pa, NULL);
+	pc_patch_free(pa);
+	PG_RETURN_POINTER(serpa);
 }
 
 PG_FUNCTION_INFO_V1(pcpatch_from_pcpoint_array);
@@ -301,6 +411,31 @@ Datum pcpoint_agg_final_pcpatch(PG_FUNCTION_ARGS)
     pc_patch_free(pa);
     PG_RETURN_POINTER(serpa);
 }
+
+
+PG_FUNCTION_INFO_V1(pcpatch_agg_final_pcpatch);
+Datum pcpatch_agg_final_pcpatch(PG_FUNCTION_ARGS)
+{
+    ArrayType *array;
+	abs_trans *a;
+    PCPATCH *pa;
+    SERIALIZED_PATCH *serpa;
+
+	if (PG_ARGISNULL(0))
+		PG_RETURN_NULL();   /* returns null iff no input values */
+
+	a = (abs_trans*) PG_GETARG_POINTER(0);
+
+	array = DatumGetArrayTypeP(pointcloud_agg_final(a, CurrentMemoryContext, fcinfo));
+    pa = pcpatch_from_patch_array(array, fcinfo);
+    if ( ! pa )
+        PG_RETURN_NULL();
+	
+    serpa = pc_patch_serialize(pa, NULL);
+    pc_patch_free(pa);
+    PG_RETURN_POINTER(serpa);
+}
+
 
 PG_FUNCTION_INFO_V1(pcpatch_unnest);
 Datum pcpatch_unnest(PG_FUNCTION_ARGS)

@@ -311,6 +311,9 @@ PCPATCH* pc_patch_from_pointlist(const PCPOINTLIST *ptl);
 /** Returns a list of points extracted from patch */
 PCPOINTLIST* pc_patch_to_pointlist(const PCPATCH *patch);
 
+/** Merge a set of patches into a single patch */
+PCPATCH* pc_patch_from_patchlist(PCPATCH **palist, int numpatches);
+
 /** Free patch memory, respecting read-only status. Does not free referenced schema */
 void pc_patch_free(PCPATCH *patch);
 

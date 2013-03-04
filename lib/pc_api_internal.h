@@ -150,8 +150,8 @@ PCPOINTLIST* pc_pointlist_from_dimensional(const PCPATCH_DIMENSIONAL *pdl);
 /* UNCOMPRESSED PATCHES */
 char* pc_patch_uncompressed_to_string(const PCPATCH_UNCOMPRESSED *patch);
 uint8_t* pc_patch_uncompressed_to_wkb(const PCPATCH_UNCOMPRESSED *patch, size_t *wkbsize);
-PCPATCH*  pc_patch_uncompressed_from_wkb(const PCSCHEMA *s, const uint8_t *wkb, size_t wkbsize);
-PCPATCH_UNCOMPRESSED*  pc_patch_uncompressed_make(const PCSCHEMA *s);
+PCPATCH* pc_patch_uncompressed_from_wkb(const PCSCHEMA *s, const uint8_t *wkb, size_t wkbsize);
+PCPATCH_UNCOMPRESSED* pc_patch_uncompressed_make(const PCSCHEMA *s, uint32_t maxpoints);
 int pc_patch_uncompressed_compute_extent(PCPATCH_UNCOMPRESSED *patch);
 void pc_patch_uncompressed_free(PCPATCH_UNCOMPRESSED *patch);
 PCPOINTLIST* pc_patch_uncompressed_to_pointlist(const PCPATCH_UNCOMPRESSED *patch);

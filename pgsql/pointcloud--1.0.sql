@@ -181,6 +181,10 @@ CREATE OR REPLACE FUNCTION pcpatch_agg_final_array (pointcloud_abs)
 	RETURNS pcpatch[] AS 'MODULE_PATHNAME', 'pcpatch_agg_final_array'
 	LANGUAGE 'c';
 
+CREATE OR REPLACE FUNCTION pcpatch_agg_final_pcpatch (pointcloud_abs)
+	RETURNS pcpatch AS 'MODULE_PATHNAME', 'pcpatch_agg_final_pcpatch'
+	LANGUAGE 'c';
+
 CREATE OR REPLACE FUNCTION pcpatch_agg_transfn (pointcloud_abs, pcpatch)
 	RETURNS pointcloud_abs AS 'MODULE_PATHNAME', 'pointcloud_agg_transfn'
 	LANGUAGE 'c';
@@ -191,6 +195,14 @@ CREATE AGGREGATE PC_Patch_Agg (
         STYPE = pointcloud_abs,
         FINALFUNC = pcpatch_agg_final_array
 );
+
+CREATE AGGREGATE PC_Union (
+        BASETYPE = pcpatch,
+        SFUNC = pcpatch_agg_transfn,
+        STYPE = pointcloud_abs,
+        FINALFUNC = pcpatch_agg_final_pcpatch
+);
+
 
 CREATE OR REPLACE FUNCTION PC_Explode(pcpatch)
 	RETURNS setof pcpoint AS 'MODULE_PATHNAME', 'pcpatch_unnest'
