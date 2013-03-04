@@ -27,19 +27,18 @@ CREATE TABLE pointcloud_formats (
 SELECT pg_catalog.pg_extension_config_dump('pointcloud_formats', '');
 
 CREATE OR REPLACE FUNCTION PC_SchemaGetNDims(pcid integer)
-	RETURNS integer AS 'MODULE_PATHNAME','pcschema_get_ndims'
+	RETURNS integer 
+	AS 'MODULE_PATHNAME','pcschema_get_ndims'
     LANGUAGE 'c' IMMUTABLE STRICT;
 
 -- Read typmod number from string
 CREATE OR REPLACE FUNCTION pc_typmod_in(cstring[])
-    RETURNS integer
-    AS 'MODULE_PATHNAME','pc_typmod_in'
+    RETURNS integer AS 'MODULE_PATHNAME','pc_typmod_in'
     LANGUAGE 'c' IMMUTABLE STRICT;
 
 -- Write typmod number to string
 CREATE OR REPLACE FUNCTION pc_typmod_out(integer)
-    RETURNS cstring
-    AS 'MODULE_PATHNAME','pc_typmod_out'
+    RETURNS cstring AS 'MODULE_PATHNAME','pc_typmod_out'
     LANGUAGE 'c' IMMUTABLE STRICT;
 
 
@@ -122,7 +121,7 @@ CREATE OR REPLACE FUNCTION PC_Envelope(p pcpatch)
 
 
 -------------------------------------------------------------------
---  AGGREGATE / EXPLODE
+--  AGGREGATE GENERIC SUPPORT
 -------------------------------------------------------------------
 
 CREATE OR REPLACE FUNCTION pointcloud_abs_in(cstring)
@@ -140,38 +139,60 @@ CREATE TYPE pointcloud_abs (
 	alignment = double
 );
 
-CREATE FUNCTION PC_Patch(pcpoint[])
+-------------------------------------------------------------------
+--  AGGREGATE PCPOINT
+-------------------------------------------------------------------
+
+CREATE OR REPLACE FUNCTION PC_Patch(pcpoint[])
 	RETURNS pcpatch AS 'MODULE_PATHNAME', 'pcpatch_from_pcpoint_array'
 	LANGUAGE 'c' IMMUTABLE STRICT;
 
-
-CREATE FUNCTION pointcloud_agg_transfn (pointcloud_abs, pcpoint)
-	RETURNS pointcloud_abs AS'MODULE_PATHNAME',  'pointcloud_agg_transfn'
+CREATE OR REPLACE FUNCTION pcpoint_agg_transfn (pointcloud_abs, pcpoint)
+	RETURNS pointcloud_abs AS 'MODULE_PATHNAME', 'pointcloud_agg_transfn'
 	LANGUAGE 'c';
 
-CREATE FUNCTION pcpoint_agg_final_array (pointcloud_abs)
-	RETURNS pcpoint[]  AS 'MODULE_PATHNAME', 'pcpoint_agg_final_array'
+CREATE OR REPLACE FUNCTION pcpoint_agg_final_array (pointcloud_abs)
+	RETURNS pcpoint[] AS 'MODULE_PATHNAME', 'pcpoint_agg_final_array'
 	LANGUAGE 'c';
 
-CREATE FUNCTION pcpoint_agg_final_pcpatch (pointcloud_abs)
+CREATE OR REPLACE FUNCTION pcpoint_agg_final_pcpatch (pointcloud_abs)
 	RETURNS pcpatch AS 'MODULE_PATHNAME', 'pcpoint_agg_final_pcpatch'
 	LANGUAGE 'c';
-	
+
 CREATE AGGREGATE PC_Patch (
         BASETYPE = pcpoint,
-        SFUNC = pointcloud_agg_transfn,
+        SFUNC = pcpoint_agg_transfn,
         STYPE = pointcloud_abs,
         FINALFUNC = pcpoint_agg_final_pcpatch
 );
 
 CREATE AGGREGATE PC_Point_Agg (
         BASETYPE = pcpoint,
-        SFUNC = pointcloud_agg_transfn,
+        SFUNC = pcpoint_agg_transfn,
         STYPE = pointcloud_abs,
         FINALFUNC = pcpoint_agg_final_array
 );
 
-CREATE FUNCTION PC_Explode(pcpatch)
+-------------------------------------------------------------------
+--  AGGREGATE / EXPLODE PCPATCH
+-------------------------------------------------------------------
+
+CREATE OR REPLACE FUNCTION pcpatch_agg_final_array (pointcloud_abs)
+	RETURNS pcpatch[] AS 'MODULE_PATHNAME', 'pcpatch_agg_final_array'
+	LANGUAGE 'c';
+
+CREATE OR REPLACE FUNCTION pcpatch_agg_transfn (pointcloud_abs, pcpatch)
+	RETURNS pointcloud_abs AS 'MODULE_PATHNAME', 'pointcloud_agg_transfn'
+	LANGUAGE 'c';
+	
+CREATE AGGREGATE PC_Patch_Agg (
+        BASETYPE = pcpatch,
+        SFUNC = pcpatch_agg_transfn,
+        STYPE = pointcloud_abs,
+        FINALFUNC = pcpatch_agg_final_array
+);
+
+CREATE OR REPLACE FUNCTION PC_Explode(pcpatch)
 	RETURNS setof pcpoint AS 'MODULE_PATHNAME', 'pcpatch_unnest'
 	LANGUAGE 'c' IMMUTABLE STRICT;
 	

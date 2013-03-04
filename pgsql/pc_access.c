@@ -21,6 +21,7 @@ Datum pcpoint_agg_final_array(PG_FUNCTION_ARGS);
 Datum pointcloud_agg_transfn(PG_FUNCTION_ARGS);
 Datum pointcloud_abs_in(PG_FUNCTION_ARGS);
 Datum pointcloud_abs_out(PG_FUNCTION_ARGS);
+Datum pcpatch_agg_final_array(PG_FUNCTION_ARGS);
 
 /* Deaggregation functions */
 Datum pcpatch_unnest(PG_FUNCTION_ARGS);
@@ -235,7 +236,7 @@ Datum pointcloud_agg_transfn(PG_FUNCTION_ARGS)
 
 
 static Datum
-pcpoint_agg_final(abs_trans *a, MemoryContext mctx, FunctionCallInfo fcinfo)
+pointcloud_agg_final(abs_trans *a, MemoryContext mctx, FunctionCallInfo fcinfo)
 {
 	ArrayBuildState *state;
 	int dims[1];
@@ -257,10 +258,25 @@ Datum pcpoint_agg_final_array(PG_FUNCTION_ARGS)
 	
 	a = (abs_trans*) PG_GETARG_POINTER(0);
 	
-	result = pcpoint_agg_final(a, CurrentMemoryContext, fcinfo);
+	result = pointcloud_agg_final(a, CurrentMemoryContext, fcinfo);
 	PG_RETURN_DATUM(result);
 }
 
+
+PG_FUNCTION_INFO_V1(pcpatch_agg_final_array);
+Datum pcpatch_agg_final_array(PG_FUNCTION_ARGS)
+{
+	abs_trans *a;
+	Datum result = 0;
+
+	if (PG_ARGISNULL(0))
+		PG_RETURN_NULL();   /* returns null iff no input values */
+	
+	a = (abs_trans*) PG_GETARG_POINTER(0);
+	
+	result = pointcloud_agg_final(a, CurrentMemoryContext, fcinfo);
+	PG_RETURN_DATUM(result);
+}
 
 
 PG_FUNCTION_INFO_V1(pcpoint_agg_final_pcpatch);
@@ -276,7 +292,7 @@ Datum pcpoint_agg_final_pcpatch(PG_FUNCTION_ARGS)
 
 	a = (abs_trans*) PG_GETARG_POINTER(0);
 
-	array = DatumGetArrayTypeP(pcpoint_agg_final(a, CurrentMemoryContext, fcinfo));
+	array = DatumGetArrayTypeP(pointcloud_agg_final(a, CurrentMemoryContext, fcinfo));
     pa = pcpatch_from_point_array(array, fcinfo);
     if ( ! pa )
         PG_RETURN_NULL();
