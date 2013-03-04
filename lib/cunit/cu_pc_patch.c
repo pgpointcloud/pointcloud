@@ -653,6 +653,45 @@ test_patch_dimensional_compression()
     if ( pds ) pc_dimstats_free(pds);
 }
 
+static void 
+test_patch_union()
+{
+    int i;
+    int npts = 20;
+    PCPOINTLIST *pl1;
+    PCPATCH *pu;
+    PCPATCH **palist;
+    PCDIMSTATS *pds = NULL;
+    size_t z1, z2;
+    char *str;
+    
+    pl1 = pc_pointlist_make(npts);
+    
+    for ( i = 0; i < npts; i++ )
+    {
+        PCPOINT *pt = pc_point_make(simpleschema);
+        pc_point_set_double_by_name(pt, "x", i*2.0);
+        pc_point_set_double_by_name(pt, "y", i*1.9);
+        pc_point_set_double_by_name(pt, "Z", i*0.34);
+        pc_point_set_double_by_name(pt, "intensity", 10);
+        pc_pointlist_add_point(pl1, pt);
+    }
+    
+    palist = pcalloc(2*sizeof(PCPATCH*));
+
+    palist[0] = (PCPATCH*)pc_patch_dimensional_from_pointlist(pl1);
+    palist[1] = (PCPATCH*)pc_patch_uncompressed_from_pointlist(pl1);
+    
+    pu = pc_patch_from_patchlist(palist, 2);
+    CU_ASSERT_EQUAL(pu->npoints, 2*npts);
+    
+    pc_pointlist_free(pl1);
+    pc_patch_free(pu);
+    pc_patch_free(palist[0]);
+    pc_patch_free(palist[1]);
+    pcfree(palist);
+}
+
 /* REGISTER ***********************************************************/
 
 CU_TestInfo patch_tests[] = {
@@ -665,6 +704,7 @@ CU_TestInfo patch_tests[] = {
 	PC_TEST(test_zlib_encoding),
 	PC_TEST(test_patch_dimensional),
 	PC_TEST(test_patch_dimensional_compression),
+	PC_TEST(test_patch_union),
 	CU_TEST_INFO_NULL
 };
 

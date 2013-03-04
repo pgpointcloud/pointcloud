@@ -155,7 +155,7 @@ pc_patch_uncompressed_make(const PCSCHEMA *s, uint32_t maxpoints)
 	}
 	
 	/* Make our own data area */
-	pch = pcalloc(sizeof(PCPATCH)); 
+	pch = pcalloc(sizeof(PCPATCH_UNCOMPRESSED)); 
 	datasize = s->size * maxpoints;
 	pch->data = pcalloc(datasize);
 	pch->datasize = datasize;

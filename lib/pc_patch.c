@@ -332,8 +332,6 @@ pc_patch_from_patchlist(PCPATCH **palist, int numpatches)
     /* Blank output */
     paout = pc_patch_uncompressed_make(schema, totalpoints);
     buf = paout->data;
-    paout->xmin = paout->ymin = MAXFLOAT;
-    paout->xmax = paout->ymax = -1 * MAXFLOAT;
     
     /* Uncompress dimensionals, copy uncompressed */
     for ( i = 0; i < numpatches; i++ )
@@ -351,7 +349,7 @@ pc_patch_from_patchlist(PCPATCH **palist, int numpatches)
             case PC_DIMENSIONAL:
             {
                 PCPATCH_UNCOMPRESSED *pu = pc_patch_uncompressed_from_dimensional((const PCPATCH_DIMENSIONAL*)pa);
-                size_t sz = schema->size * pu->npoints;
+                size_t sz = pu->schema->size * pu->npoints;
                 memcpy(buf, pu->data, sz);
                 buf += sz;
                 pc_patch_uncompressed_free(pu);
@@ -365,7 +363,7 @@ pc_patch_from_patchlist(PCPATCH **palist, int numpatches)
             case PC_NONE:
             {
                 PCPATCH_UNCOMPRESSED *pu = (PCPATCH_UNCOMPRESSED*)pa;
-                size_t sz = schema->size * pu->npoints;
+                size_t sz = pu->schema->size * pu->npoints;
                 memcpy(buf, pu->data, sz);
                 buf += sz;
                 break;
