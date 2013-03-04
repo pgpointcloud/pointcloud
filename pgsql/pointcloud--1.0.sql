@@ -125,18 +125,18 @@ CREATE OR REPLACE FUNCTION PC_Envelope(p pcpatch)
 --  AGGREGATE / EXPLODE
 -------------------------------------------------------------------
 
-CREATE OR REPLACE FUNCTION pcpoint_abs_in(cstring)
-	RETURNS pcpoint_abs AS 'MODULE_PATHNAME'
+CREATE OR REPLACE FUNCTION pointcloud_abs_in(cstring)
+	RETURNS pointcloud_abs AS 'MODULE_PATHNAME'
 	LANGUAGE 'c';
 
-CREATE OR REPLACE FUNCTION pcpoint_abs_out(pcpoint_abs)
+CREATE OR REPLACE FUNCTION pointcloud_abs_out(pointcloud_abs)
 	RETURNS cstring AS 'MODULE_PATHNAME'
 	LANGUAGE 'c';
 
-CREATE TYPE pcpoint_abs (
+CREATE TYPE pointcloud_abs (
 	internallength = 8,
-	input = pcpoint_abs_in,
-	output = pcpoint_abs_out,
+	input = pointcloud_abs_in,
+	output = pointcloud_abs_out,
 	alignment = double
 );
 
@@ -145,29 +145,29 @@ CREATE FUNCTION PC_Patch(pcpoint[])
 	LANGUAGE 'c' IMMUTABLE STRICT;
 
 
-CREATE FUNCTION pcpoint_agg_transfn (pcpoint_abs, pcpoint)
-	RETURNS pcpoint_abs AS'MODULE_PATHNAME',  'pcpoint_agg_transfn'
+CREATE FUNCTION pointcloud_agg_transfn (pointcloud_abs, pcpoint)
+	RETURNS pointcloud_abs AS'MODULE_PATHNAME',  'pointcloud_agg_transfn'
 	LANGUAGE 'c';
 
-CREATE FUNCTION pcpoint_agg_final_array (pcpoint_abs)
+CREATE FUNCTION pcpoint_agg_final_array (pointcloud_abs)
 	RETURNS pcpoint[]  AS 'MODULE_PATHNAME', 'pcpoint_agg_final_array'
 	LANGUAGE 'c';
 
-CREATE FUNCTION pcpoint_agg_final_pcpatch (pcpoint_abs)
+CREATE FUNCTION pcpoint_agg_final_pcpatch (pointcloud_abs)
 	RETURNS pcpatch AS 'MODULE_PATHNAME', 'pcpoint_agg_final_pcpatch'
 	LANGUAGE 'c';
 	
 CREATE AGGREGATE PC_Patch (
         BASETYPE = pcpoint,
-        SFUNC = pcpoint_agg_transfn,
-        STYPE = pcpoint_abs,
+        SFUNC = pointcloud_agg_transfn,
+        STYPE = pointcloud_abs,
         FINALFUNC = pcpoint_agg_final_pcpatch
 );
 
 CREATE AGGREGATE PC_Point_Agg (
         BASETYPE = pcpoint,
-        SFUNC = pcpoint_agg_transfn,
-        STYPE = pcpoint_abs,
+        SFUNC = pointcloud_agg_transfn,
+        STYPE = pointcloud_abs,
         FINALFUNC = pcpoint_agg_final_array
 );
 

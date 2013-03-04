@@ -18,9 +18,9 @@ Datum pcpatch_from_pcpoint_array(PG_FUNCTION_ARGS);
 /* Aggregation functions */
 Datum pcpoint_agg_final_pcpatch(PG_FUNCTION_ARGS);
 Datum pcpoint_agg_final_array(PG_FUNCTION_ARGS);
-Datum pcpoint_agg_transfn(PG_FUNCTION_ARGS);
-Datum pcpoint_abs_in(PG_FUNCTION_ARGS);
-Datum pcpoint_abs_out(PG_FUNCTION_ARGS);
+Datum pointcloud_agg_transfn(PG_FUNCTION_ARGS);
+Datum pointcloud_abs_in(PG_FUNCTION_ARGS);
+Datum pointcloud_abs_out(PG_FUNCTION_ARGS);
 
 /* Deaggregation functions */
 Datum pcpatch_unnest(PG_FUNCTION_ARGS);
@@ -68,7 +68,7 @@ array_get_isnull(const bits8 *nullbitmap, int offset)
 }
 
 static PCPATCH *
-pcpatch_from_array(ArrayType *array, FunctionCallInfoData *fcinfo)
+pcpatch_from_point_array(ArrayType *array, FunctionCallInfoData *fcinfo)
 {
 	int nelems;
 	bits8 *bitmap;
@@ -150,7 +150,7 @@ Datum pcpatch_from_pcpoint_array(PG_FUNCTION_ARGS)
         PG_RETURN_NULL();
 
 	array = DatumGetArrayTypeP(PG_GETARG_DATUM(0));
-    pa = pcpatch_from_array(array, fcinfo);
+    pa = pcpatch_from_point_array(array, fcinfo);
     if ( ! pa )
         PG_RETURN_NULL();
 
@@ -164,25 +164,25 @@ typedef struct
 	ArrayBuildState *s;
 } abs_trans;
 
-PG_FUNCTION_INFO_V1(pcpoint_abs_in);
-Datum pcpoint_abs_in(PG_FUNCTION_ARGS)
+PG_FUNCTION_INFO_V1(pointcloud_abs_in);
+Datum pointcloud_abs_in(PG_FUNCTION_ARGS)
 {
 	ereport(ERROR,(errcode(ERRCODE_FEATURE_NOT_SUPPORTED),
-	               errmsg("function pcpoint_abs_in not implemented")));
+	               errmsg("function pointcloud_abs_in not implemented")));
 	PG_RETURN_POINTER(NULL);
 }
 
-PG_FUNCTION_INFO_V1(pcpoint_abs_out);
-Datum pcpoint_abs_out(PG_FUNCTION_ARGS)
+PG_FUNCTION_INFO_V1(pointcloud_abs_out);
+Datum pointcloud_abs_out(PG_FUNCTION_ARGS)
 {
 	ereport(ERROR,(errcode(ERRCODE_FEATURE_NOT_SUPPORTED),
-	               errmsg("function pcpoint_abs_out not implemented")));
+	               errmsg("function pointcloud_abs_out not implemented")));
 	PG_RETURN_POINTER(NULL);
 }
 
 
-PG_FUNCTION_INFO_V1(pcpoint_agg_transfn);
-Datum pcpoint_agg_transfn(PG_FUNCTION_ARGS)
+PG_FUNCTION_INFO_V1(pointcloud_agg_transfn);
+Datum pointcloud_agg_transfn(PG_FUNCTION_ARGS)
 {
 	Oid arg1_typeid = get_fn_expr_argtype(fcinfo->flinfo, 1);
 	MemoryContext aggcontext;
@@ -206,7 +206,7 @@ Datum pcpoint_agg_transfn(PG_FUNCTION_ARGS)
 	else
 	{
 		/* cannot be called directly because of dummy-type argument */
-		elog(ERROR, "pcpoint_agg_transfn called in non-aggregate context");
+		elog(ERROR, "pointcloud_agg_transfn called in non-aggregate context");
 		aggcontext = NULL;  /* keep compiler quiet */
 	}
 
@@ -277,7 +277,7 @@ Datum pcpoint_agg_final_pcpatch(PG_FUNCTION_ARGS)
 	a = (abs_trans*) PG_GETARG_POINTER(0);
 
 	array = DatumGetArrayTypeP(pcpoint_agg_final(a, CurrentMemoryContext, fcinfo));
-    pa = pcpatch_from_array(array, fcinfo);
+    pa = pcpatch_from_point_array(array, fcinfo);
     if ( ! pa )
         PG_RETURN_NULL();
 	
