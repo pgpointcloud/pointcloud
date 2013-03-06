@@ -11,12 +11,8 @@
 #include "pc_api_internal.h"
 
 
-
-double
-pc_value_from_ptr(const uint8_t *ptr, const PCDIMENSION *dim)
+double pc_value_scale_offset(double val, const PCDIMENSION *dim)
 {
-	double val = pc_double_from_ptr(ptr, dim->interpretation);
-	
 	/* Scale value */
 	if ( dim->scale )
 		val *= dim->scale;
@@ -25,7 +21,14 @@ pc_value_from_ptr(const uint8_t *ptr, const PCDIMENSION *dim)
 	if ( dim->offset )
 		val += dim->offset;
 	
-    return val;
+    return val;    
+}
+
+double
+pc_value_from_ptr(const uint8_t *ptr, const PCDIMENSION *dim)
+{
+	double val = pc_double_from_ptr(ptr, dim->interpretation);
+    return pc_value_scale_offset(val, dim);
 }
 
 double 

@@ -101,6 +101,9 @@ int16_t wkb_get_int16(const uint8_t *wkb, int flip_endian);
 /** Force a byte array into the machine endianness */
 uint8_t* uncompressed_bytes_flip_endian(const uint8_t *bytebuf, const PCSCHEMA *schema, uint32_t npoints);
 
+/** Update a value using the scale/offset info from a dimension */
+double pc_value_scale_offset(double val, const PCDIMENSION *dim);
+
 /** Read interpretation type from buffer and cast to double */
 double pc_double_from_ptr(const uint8_t *ptr, uint32_t interpretation);
 

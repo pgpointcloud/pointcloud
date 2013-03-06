@@ -174,12 +174,16 @@ pc_patch_dimensional_compute_extent(PCPATCH_DIMENSIONAL *pdl)
     /* Get x extremes */
     pcb = &(pdl->bytes[pdl->schema->x_position]);
     rv = pc_bytes_minmax(pcb, xmin, xmax);
+    xmin = pc_value_scale_offset(xmin, pdl->schema->dims[pdl->schema->x_position]);
+    xmax = pc_value_scale_offset(xmin, pdl->schema->dims[pdl->schema->x_position]);
     pdl->xmin = xmin;
     pdl->xmax = xmax;
 
     /* Get y extremes */
     pcb = &(pdl->bytes[pdl->schema->y_position]);
     rv = pc_bytes_minmax(pcb, ymin, ymax);
+    ymin = pc_value_scale_offset(xmin, pdl->schema->dims[pdl->schema->y_position]);
+    ymax = pc_value_scale_offset(xmin, pdl->schema->dims[pdl->schema->y_position]);
     pdl->ymin = ymin;
     pdl->ymax = ymax;
     
