@@ -41,6 +41,10 @@ CREATE OR REPLACE FUNCTION pc_typmod_out(integer)
     RETURNS cstring AS 'MODULE_PATHNAME','pc_typmod_out'
     LANGUAGE 'c' IMMUTABLE STRICT;
 
+-- Read pcid from typmod number
+CREATE OR REPLACE FUNCTION pc_typmod_pcid(integer)
+    RETURNS int4 AS 'MODULE_PATHNAME','pc_typmod_pcid'
+    LANGUAGE 'c' IMMUTABLE STRICT;
 
 -------------------------------------------------------------------
 --  PCPOINT
@@ -118,6 +122,33 @@ CREATE OR REPLACE FUNCTION PC_Envelope(p pcpatch)
 	RETURNS bytea AS 'MODULE_PATHNAME', 'pcpatch_bytea_envelope'
 	LANGUAGE 'c' IMMUTABLE STRICT;
 
+
+-------------------------------------------------------------------
+--  POINTCLOUD_COLUMNS
+-------------------------------------------------------------------
+
+CREATE OR REPLACE VIEW pointcloud_columns AS
+    SELECT
+        n.nspname AS schema, 
+        c.relname AS table, 
+        a.attname AS column,
+        pc_typmod_pcid(a.atttypmod) AS pcid,
+        p.srid AS srid,
+        t.typname AS type
+    FROM 
+        pg_class c, 
+        pg_attribute a, 
+        pg_type t, 
+        pg_namespace n,
+        pointcloud_formats p
+    WHERE t.typname IN ('pcpatch','pcpoint')
+    AND a.attisdropped = false
+    AND a.atttypid = t.oid
+    AND a.attrelid = c.oid
+    AND c.relnamespace = n.oid
+    AND pc_typmod_pcid(a.atttypmod) = p.pcid
+    AND NOT pg_is_other_temp_schema(c.relnamespace)
+    AND has_table_privilege( c.oid, 'SELECT'::text );
 
 
 -------------------------------------------------------------------
@@ -203,9 +234,8 @@ CREATE AGGREGATE PC_Union (
         FINALFUNC = pcpatch_agg_final_pcpatch
 );
 
-
 CREATE OR REPLACE FUNCTION PC_Explode(pcpatch)
 	RETURNS setof pcpoint AS 'MODULE_PATHNAME', 'pcpatch_unnest'
 	LANGUAGE 'c' IMMUTABLE STRICT;
-	
+
 

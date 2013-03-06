@@ -27,6 +27,7 @@ Datum pcpoint_as_text(PG_FUNCTION_ARGS);
 Datum pcpatch_as_text(PG_FUNCTION_ARGS);
 Datum pcpoint_as_bytea(PG_FUNCTION_ARGS);
 Datum pcpatch_bytea_envelope(PG_FUNCTION_ARGS);
+Datum pc_typmod_pcid(PG_FUNCTION_ARGS);
 
 
 static void
@@ -380,4 +381,12 @@ Datum pc_typmod_out(PG_FUNCTION_ARGS)
     }
 }
 
+
+PG_FUNCTION_INFO_V1(pc_typmod_pcid);
+Datum pc_typmod_pcid(PG_FUNCTION_ARGS)
+{
+    uint32 typmod = PG_GETARG_INT32(0);
+    uint32 pcid = pcid_from_typmod(typmod);
+    PG_RETURN_INT32(pcid);
+}
 
