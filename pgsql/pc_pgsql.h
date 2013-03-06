@@ -25,6 +25,9 @@
 #define PG_GETARG_SERPOINT_P(datum) (SERIALIZED_POINT*)PG_DETOAST_DATUM(PG_GETARG_DATUM(datum))
 #define PG_GETARG_SERPATCH_P(datum) (SERIALIZED_PATCH*)PG_DETOAST_DATUM(PG_GETARG_DATUM(datum))
 
+#define AUTOCOMPRESS_NO 0
+#define AUTOCOMPRESS_YES 1
+
 /**
 * Serialized point type for clouds. Variable length, because there can be
 * an arbitrary number of dimensions. The pcid is a foreign key

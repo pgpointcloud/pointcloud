@@ -90,7 +90,7 @@ Datum pcpoint_out(PG_FUNCTION_ARGS)
 	SERIALIZED_POINT *serpt = NULL;
 	char *hexwkb = NULL;
 
-	serpt = (SERIALIZED_POINT*)PG_DETOAST_DATUM(PG_GETARG_DATUM(0));
+	serpt = PG_GETARG_SERPOINT_P(0);
     schema = pc_schema_from_pcid(serpt->pcid, fcinfo);
 	pcpt = pc_point_deserialize(serpt, schema);
 	hexwkb = pc_point_to_hexwkb(pcpt);
@@ -145,7 +145,7 @@ Datum pcpatch_out(PG_FUNCTION_ARGS)
 	char *hexwkb = NULL;
     PCSCHEMA *schema = NULL;
 
-	serpatch = (SERIALIZED_PATCH*)PG_DETOAST_DATUM(PG_GETARG_DATUM(0));
+	serpatch = PG_GETARG_SERPATCH_P(0);
     schema = pc_schema_from_pcid(serpatch->pcid, fcinfo);
 	patch = pc_patch_deserialize(serpatch, schema);
 	hexwkb = pc_patch_to_hexwkb(patch);
@@ -386,7 +386,7 @@ PG_FUNCTION_INFO_V1(pc_typmod_pcid);
 Datum pc_typmod_pcid(PG_FUNCTION_ARGS)
 {
     uint32 typmod = PG_GETARG_INT32(0);
-    uint32 pcid = pcid_from_typmod(typmod);
-    PG_RETURN_INT32(pcid);
+    PG_RETURN_INT32(pcid_from_typmod(typmod));
 }
+
 
