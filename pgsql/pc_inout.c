@@ -386,7 +386,11 @@ PG_FUNCTION_INFO_V1(pc_typmod_pcid);
 Datum pc_typmod_pcid(PG_FUNCTION_ARGS)
 {
     uint32 typmod = PG_GETARG_INT32(0);
-    PG_RETURN_INT32(pcid_from_typmod(typmod));
+    uint32 pcid = pcid_from_typmod(typmod);
+    if ( ! pcid )
+        PG_RETURN_NULL();
+    else
+        PG_RETURN_INT32(pcid);
 }
 
 

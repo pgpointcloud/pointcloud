@@ -153,7 +153,7 @@ CREATE OR REPLACE VIEW pointcloud_columns AS
     AND a.atttypid = t.oid
     AND a.attrelid = c.oid
     AND c.relnamespace = n.oid
-    AND pc_typmod_pcid(a.atttypmod) = p.pcid
+    AND (pc_typmod_pcid(a.atttypmod) = p.pcid OR pc_typmod_pcid(a.atttypmod) IS NULL)
     AND NOT pg_is_other_temp_schema(c.relnamespace)
     AND has_table_privilege( c.oid, 'SELECT'::text );
 
@@ -244,5 +244,43 @@ CREATE AGGREGATE PC_Union (
 CREATE OR REPLACE FUNCTION PC_Explode(pcpatch)
 	RETURNS setof pcpoint AS 'MODULE_PATHNAME', 'pcpatch_unnest'
 	LANGUAGE 'c' IMMUTABLE STRICT;
+
+
+-------------------------------------------------------------------
+--  SQL Utility Functions
+-------------------------------------------------------------------
+
+-- Utility to get AVERAGE value from patch
+CREATE OR REPLACE FUNCTION PC_PatchAvg(p pcpatch, attr text)
+    RETURNS numeric AS 
+    $$
+        WITH pts AS (
+        SELECT PC_Explode(p) AS pt
+        )
+        SELECT avg(PC_Get(pt, attr)) FROM pts
+    $$ 
+    LANGUAGE 'sql';
+
+-- Utility to get MAXIMUM value from patch
+CREATE OR REPLACE FUNCTION PC_PatchMax(p pcpatch, attr text)
+    RETURNS numeric AS 
+    $$
+        WITH pts AS (
+        SELECT PC_Explode(p) AS pt
+        )
+        SELECT max(PC_Get(pt, attr)) FROM pts
+    $$ 
+    LANGUAGE 'sql';
+
+-- Utility to get MINIMUM value from patch
+CREATE OR REPLACE FUNCTION PC_PatchMax(p pcpatch, attr text)
+    RETURNS numeric AS
+    $$
+        WITH pts AS (
+        SELECT PC_Explode(p) AS pt
+        )
+        SELECT max(PC_Get(pt, attr)) FROM pts
+    $$ 
+    LANGUAGE 'sql';
 
 

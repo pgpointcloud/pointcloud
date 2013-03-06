@@ -124,6 +124,14 @@ typedef struct
     uint8_t *bytes;
 } PCBYTES;
 
+typedef struct
+{
+    double xmin;
+    double xmax;
+    double ymin;
+    double ymax;
+} PCBOUNDS;
+
 /**
 * Uncompressed Structure for in-memory handling
 * of patches. A read-only PgSQL patch can be wrapped in
