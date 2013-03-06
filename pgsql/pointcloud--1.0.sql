@@ -122,6 +122,13 @@ CREATE OR REPLACE FUNCTION PC_Envelope(p pcpatch)
 	RETURNS bytea AS 'MODULE_PATHNAME', 'pcpatch_bytea_envelope'
 	LANGUAGE 'c' IMMUTABLE STRICT;
 
+CREATE OR REPLACE FUNCTION PC_Uncompress(p pcpatch)
+    RETURNS pcpatch AS 'MODULE_PATHNAME', 'pcpatch_uncompress'
+    LANGUAGE 'c' IMMUTABLE STRICT;
+
+CREATE OR REPLACE FUNCTION PC_NumPoints(p pcpatch)
+    RETURNS int4 AS 'MODULE_PATHNAME', 'pcpatch_numpoints'
+    LANGUAGE 'c' IMMUTABLE STRICT;
 
 -------------------------------------------------------------------
 --  POINTCLOUD_COLUMNS

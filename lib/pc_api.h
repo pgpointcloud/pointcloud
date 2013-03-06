@@ -320,6 +320,9 @@ void pc_patch_free(PCPATCH *patch);
 /** Create a compressed copy, using the compression schema referenced in the PCSCHEMA */
 PCPATCH* pc_patch_compress(const PCPATCH *patch, void *userdata);
 
+/** Create an uncompressed copy */
+PCPATCH * pc_patch_uncompress(const PCPATCH *patch);
+
 /** Create a new readwrite PCPOINT from a byte array */
 PCPATCH* pc_patch_from_wkb(const PCSCHEMA *s, uint8_t *wkb, size_t wkbsize);
 

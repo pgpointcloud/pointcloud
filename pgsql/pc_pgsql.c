@@ -562,6 +562,30 @@ pc_patch_serialize(const PCPATCH *patch_in, void *userdata)
 }
 
 
+/**
+* Convert struct to byte array.
+* Userdata is currently only PCDIMSTATS, hopefully updated across
+* a number of iterations and saved.
+*/
+SERIALIZED_PATCH * 
+pc_patch_serialize_uncompressed(const PCPATCH *patch_in)
+{   
+    PCPATCH *patch = (PCPATCH*)patch_in;
+    SERIALIZED_PATCH *serpatch;
+    
+    /*  Convert the patch to uncompressed, if necessary */
+    if ( patch->type != PC_NONE )
+    {
+        patch = pc_patch_uncompress(patch_in);
+    }
+    
+    serpatch = pc_patch_uncompressed_serialize(patch);
+    
+    if ( patch != patch_in )
+        pc_patch_free(patch);
+    
+    return serpatch;
+}
 
 static PCPATCH *
 pc_patch_uncompressed_deserialize(const SERIALIZED_PATCH *serpatch, const PCSCHEMA *schema)

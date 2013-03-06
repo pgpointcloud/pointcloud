@@ -11,10 +11,12 @@
 #include "utils/numeric.h"
 #include "funcapi.h"
 
-/* Other SQL functions */
+/* General SQL functions */
 Datum pcpoint_get_value(PG_FUNCTION_ARGS);
 Datum pcpatch_from_pcpoint_array(PG_FUNCTION_ARGS);
 Datum pcpatch_from_pcpatch_array(PG_FUNCTION_ARGS);
+Datum pcpatch_uncompress(PG_FUNCTION_ARGS);
+Datum pcpatch_numpoints(PG_FUNCTION_ARGS);
 
 /* Generic aggregation functions */
 Datum pointcloud_agg_transfn(PG_FUNCTION_ARGS);
@@ -508,4 +510,21 @@ Datum pcpatch_unnest(PG_FUNCTION_ARGS)
 	}
 }
 
+PG_FUNCTION_INFO_V1(pcpatch_uncompress);
+Datum pcpatch_uncompress(PG_FUNCTION_ARGS)
+{
+	SERIALIZED_PATCH *serpa = PG_GETARG_SERPATCH_P(0);
+    PCSCHEMA *schema = pc_schema_from_pcid(serpa->pcid, fcinfo);
+    PCPATCH *patch = pc_patch_deserialize(serpa, schema);
+    SERIALIZED_PATCH *serpa_out = pc_patch_serialize_uncompressed(patch);
+    pc_patch_free(patch);
+    PG_RETURN_POINTER(serpa_out);
+}
+
+PG_FUNCTION_INFO_V1(pcpatch_numpoints);
+Datum pcpatch_numpoints(PG_FUNCTION_ARGS)
+{
+	SERIALIZED_PATCH *serpa = PG_GETARG_SERPATCH_P(0);
+    PG_RETURN_INT32(serpa->npoints);
+}
 

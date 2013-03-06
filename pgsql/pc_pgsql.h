@@ -92,6 +92,9 @@ size_t pc_patch_serialized_size(const PCPATCH *patch);
 /** Turn a PCPATCH into a byte buffer suitable for saving in PgSQL */
 SERIALIZED_PATCH* pc_patch_serialize(const PCPATCH *patch, void *userdata);
 
+/** Turn a PCPATCH into an uncompressed byte buffer */
+SERIALIZED_PATCH* pc_patch_serialize_uncompressed(const PCPATCH *patch);
+
 /** Turn a byte buffer into a PCPATCH for processing */
 PCPATCH* pc_patch_deserialize(const SERIALIZED_PATCH *serpatch, const PCSCHEMA *schema);
 

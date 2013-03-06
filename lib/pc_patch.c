@@ -126,6 +126,33 @@ pc_patch_compress(const PCPATCH *patch, void *userdata)
 }
 
 
+PCPATCH *
+pc_patch_uncompress(const PCPATCH *patch)
+{
+	uint32_t patch_compression = patch->type;
+	
+    if ( patch_compression == PC_DIMENSIONAL )
+    {
+        PCPATCH_UNCOMPRESSED *pu = pc_patch_uncompressed_from_dimensional((PCPATCH_DIMENSIONAL*)patch);
+        return (PCPATCH*)pu;
+    }
+    
+    if ( patch_compression == PC_NONE )
+    {
+        return (PCPATCH*)patch;
+    }
+    
+    if ( patch_compression == PC_GHT )
+    {
+        pcerror("pc_patch_uncompress: GHT compression not yet supported");
+        return NULL;
+    }
+    
+    return NULL;
+}
+
+
+
 PCPATCH * 
 pc_patch_from_wkb(const PCSCHEMA *s, uint8_t *wkb, size_t wkbsize)
 {

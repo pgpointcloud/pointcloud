@@ -100,6 +100,11 @@ INSERT INTO pa_test (pa) VALUES ('0000000002000000000000000200000002000000030000
 ERROR:  no entry in "pointcloud_formats" for pcid = 2
 LINE 1: INSERT INTO pa_test (pa) VALUES ('00000000020000000000000002...
                                          ^
+SELECT PC_Uncompress(pa) FROM pa_test LIMIT 1;
+ pc_uncompress 
+---------------
+(0 rows)
+
 INSERT INTO pa_test (pa) VALUES ('0000000001000000000000000200000002000000030000000500060000000200000003000000050008');
 INSERT INTO pa_test (pa) VALUES ('000000000100000000000000020000000600000007000000050006000000090000000A00000005000A');
 INSERT INTO pa_test (pa) VALUES ('000000000100000000000000020000000600000007000000050006000000090000000A00000005000A');
@@ -140,6 +145,18 @@ SELECT PC_AsText(PC_Union(pa)) FROM pa_test;
                                                                                  pc_astext                                                                                  
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
  {"pcid":1,"pts":[[0.02,0.03,0.05,6],[0.02,0.03,0.05,8],[0.06,0.07,0.05,6],[0.09,0.1,0.05,10],[0.06,0.07,0.05,6],[0.09,0.1,0.05,10],[0.06,0.07,0.05,6],[0.09,0.1,0.05,10]]}
+(1 row)
+
+SELECT sum(PC_NumPoints(pa)) FROM pa_test ;
+ sum 
+-----
+   8
+(1 row)
+
+SELECT sum(PC_NumPoints(pa)) FROM pa_test ;
+ sum 
+-----
+   8
 (1 row)
 
 --DROP TABLE pts_collection;
