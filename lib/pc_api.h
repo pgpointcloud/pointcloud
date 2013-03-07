@@ -317,7 +317,7 @@ uint8_t* pc_point_to_geometry_wkb(const PCPOINT *pt, size_t *wkbsize);
 PCPATCH* pc_patch_from_pointlist(const PCPOINTLIST *ptl);
 
 /** Returns a list of points extracted from patch */
-PCPOINTLIST* pc_patch_to_pointlist(const PCPATCH *patch);
+PCPOINTLIST* pc_pointlist_from_patch(const PCPATCH *patch);
 
 /** Merge a set of patches into a single patch */
 PCPATCH* pc_patch_from_patchlist(PCPATCH **palist, int numpatches);
@@ -344,7 +344,10 @@ char* pc_patch_to_string(const PCPATCH *patch);
 uint8_t* pc_patch_to_geometry_wkb_envelope(const PCPATCH *pa, size_t *wkbsize);
 
 /** */
-size_t pc_patch_dimensional_serialized_size(const PCPATCH *patch);
+size_t pc_patch_dimensional_serialized_size(const PCPATCH_DIMENSIONAL *patch);
+
+/** How big will the serialization be? */
+size_t pc_bytes_serialized_size(const PCBYTES *pcb);
 
 /** Write the representation down to a buffer */
 int pc_bytes_serialize(const PCBYTES *pcb, uint8_t *buf, size_t *size);

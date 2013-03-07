@@ -170,6 +170,13 @@ test_point_access()
 	
 }
 
+static void
+test_schema_compression(void)
+{
+    int compression = schema->compression;
+    CU_ASSERT_EQUAL(compression, PC_DIMENSIONAL);
+}
+
 /* REGISTER ***********************************************************/
 
 CU_TestInfo schema_tests[] = {
@@ -178,6 +185,7 @@ CU_TestInfo schema_tests[] = {
 	PC_TEST(test_dimension_get),
 	PC_TEST(test_dimension_byteoffsets),
 	PC_TEST(test_point_access),
+	PC_TEST(test_schema_compression),
 	CU_TEST_INFO_NULL
 };
 

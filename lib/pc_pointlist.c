@@ -88,3 +88,44 @@ pc_pointlist_from_dimensional(const PCPATCH_DIMENSIONAL *pdl)
     
     return pl;
 }
+
+PCPOINTLIST *
+pc_pointlist_from_uncompressed(const PCPATCH_UNCOMPRESSED *patch)
+{
+	int i;
+	PCPOINTLIST *pl;
+	size_t pt_size = patch->schema->size;
+	uint32_t npoints = patch->npoints;
+	
+	pl = pc_pointlist_make(npoints);
+	for ( i = 0; i < npoints; i++ )
+	{
+		pc_pointlist_add_point(pl, pc_point_from_data(patch->schema, patch->data + i*pt_size));
+	}
+	return pl;
+}
+
+PCPOINTLIST * 
+pc_pointlist_from_patch(const PCPATCH *patch)
+{
+	switch ( patch->type )
+	{
+		case PC_NONE:
+		{
+			return pc_pointlist_from_uncompressed((PCPATCH_UNCOMPRESSED*)patch);
+		}
+		case PC_GHT:
+		{
+			// return pc_pointlist_from_patch_ght(patch);
+		}
+		case PC_DIMENSIONAL:
+		{
+            return pc_pointlist_from_dimensional((PCPATCH_DIMENSIONAL*)patch);
+		}
+	}
+	
+	/* Don't get here */
+	pcerror("pc_pointlist_from_patch: unsupported compression type %d", patch->type);
+	return NULL;
+}
+

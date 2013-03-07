@@ -19,7 +19,7 @@ pc_patch_uncompressed_to_string(const PCPATCH_UNCOMPRESSED *patch)
 	char *str;
 	int i, j;
 	
-	pl = pc_patch_uncompressed_to_pointlist(patch);
+	pl = pc_pointlist_from_uncompressed(patch);
 	stringbuffer_aprintf(sb, "{\"pcid\":%d,\"pts\":[", patch->schema->pcid);
 	for ( i = 0; i < pl->npoints; i++ )
 	{
@@ -210,21 +210,7 @@ pc_patch_uncompressed_free(PCPATCH_UNCOMPRESSED *patch)
 	pcfree(patch);
 }
 
-PCPOINTLIST *
-pc_patch_uncompressed_to_pointlist(const PCPATCH_UNCOMPRESSED *patch)
-{
-	int i;
-	PCPOINTLIST *pl;
-	size_t pt_size = patch->schema->size;
-	uint32_t npoints = patch->npoints;
-	
-	pl = pc_pointlist_make(npoints);
-	for ( i = 0; i < npoints; i++ )
-	{
-		pc_pointlist_add_point(pl, pc_point_from_data(patch->schema, patch->data + i*pt_size));
-	}
-	return pl;
-}
+
 
 PCPATCH_UNCOMPRESSED * 
 pc_patch_uncompressed_from_pointlist(const PCPOINTLIST *pl)

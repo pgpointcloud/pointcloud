@@ -483,7 +483,7 @@ Datum pcpatch_unnest(PG_FUNCTION_ARGS)
 		/* initialize state */
 		fctx->nextelem = 0;
 		fctx->numelems = patch->npoints;
-		fctx->pointlist = pc_patch_to_pointlist(patch);
+		fctx->pointlist = pc_pointlist_from_patch(patch);
 
 		/* save user context, switch back to function context */
 		funcctx->user_fctx = fctx;

@@ -26,7 +26,7 @@ typedef struct
 
 
 size_t
-pc_patch_dimensional_serialized_size(const PCPATCH *patch)
+pc_patch_dimensional_serialized_size(const PCPATCH_DIMENSIONAL *patch)
 {
     PCPATCH_DIMENSIONAL *p = (PCPATCH_DIMENSIONAL*)patch;
     int i;
@@ -205,7 +205,7 @@ pc_patch_dimensional_to_wkb(const PCPATCH_DIMENSIONAL *patch, size_t *wkbsize)
     uint8_t *buf;
 	char endian = machine_endian();
 	/* endian + pcid + compression + npoints + datasize */
-	size_t size = 1 + 4 + 4 + 4 + pc_patch_dimensional_serialized_size((PCPATCH*)patch);
+	size_t size = 1 + 4 + 4 + 4 + pc_patch_dimensional_serialized_size(patch);
 	uint8_t *wkb = pcalloc(size);
 	uint32_t compression = patch->type;
 	uint32_t npoints = patch->npoints;
@@ -220,6 +220,8 @@ pc_patch_dimensional_to_wkb(const PCPATCH_DIMENSIONAL *patch, size_t *wkbsize)
     {
         size_t bsz;
         PCBYTES *pcb = &(patch->bytes[i]);
+// XXX        printf("pcb->(size=%d, interp=%d, npoints=%d, compression=%d, readonly=%d)\n",pcb->size, pcb->interpretation, pcb->npoints, pcb->compression, pcb->readonly);
+        
         pc_bytes_serialize(pcb, buf, &bsz);
         buf += bsz;
     }
@@ -266,9 +268,10 @@ pc_patch_dimensional_from_wkb(const PCSCHEMA *schema, const uint8_t *wkb, size_t
     for ( i = 0; i < ndims; i++ )
     {
         PCBYTES *pcb = &(patch->bytes[i]);
-        pc_bytes_deserialize(buf, schema->dims[i], pcb, PC_FALSE /*readonly*/, swap_endian);
+        PCDIMENSION *dim = schema->dims[i];
+        pc_bytes_deserialize(buf, dim, pcb, PC_FALSE /*readonly*/, swap_endian);
         pcb->npoints = npoints;
-        buf += pcb->size;
+        buf += pc_bytes_serialized_size(pcb);
     }
 
 	if ( PC_FAILURE == pc_patch_dimensional_compute_extent(patch) )

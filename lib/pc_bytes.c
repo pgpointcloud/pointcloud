@@ -1137,11 +1137,20 @@ pc_bytes_serialized_size(const PCBYTES *pcb)
 int
 pc_bytes_serialize(const PCBYTES *pcb, uint8_t *buf, size_t *size)
 {
-    /* compression type + size + data */
-    *buf = pcb->compression; buf++;
-    memcpy(buf, &(pcb->size), 4); buf += 4;
+    static int compression_num_size = 1;
+    static int size_num_size = 4;
+    int32_t pcbsize = pcb->size;
+    
+    /* Compression type number */
+    *buf = pcb->compression; 
+    buf += compression_num_size;
+    /* Buffer size */
+    memcpy(buf, &pcbsize, size_num_size); 
+    buf += size_num_size;
+    /* Buffer contents */
     memcpy(buf, pcb->bytes, pcb->size);
-    *size = pcb->size * 5;
+    /* Return total size */
+    *size = compression_num_size + size_num_size + pcbsize;
     return PC_SUCCESS;
 }
 

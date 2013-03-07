@@ -33,7 +33,7 @@
     <pc:scale>1</pc:scale>
   </pc:dimension>
   <pc:metadata>
-    <Metadata name="compression"></Metadata>
+    <Metadata name="compression">dimensional</Metadata>
     <Metadata name="ght_xmin"></Metadata>
     <Metadata name="ght_ymin"></Metadata>
     <Metadata name="ght_xmax"></Metadata>

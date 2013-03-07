@@ -64,6 +64,33 @@ pc_interpretation_number(const char *str)
 		return PC_UNKNOWN;
 }
 
+static int 
+pc_compression_number(const char *str)
+{
+    if ( ! str ) 
+        return PC_NONE;
+        
+    if ( (str[0] == 'd' || str[0] == 'D') &&
+         (strcasecmp(str, "dimensional") == 0) )
+    {
+        return PC_DIMENSIONAL;
+    }
+
+    if ( (str[0] == 'g' || str[0] == 'G') &&
+         (strcasecmp(str, "ght") == 0) )
+    {
+        return PC_GHT;
+    }
+
+    if ( (str[0] == 'n' || str[0] == 'N') &&
+         (strcasecmp(str, "none") == 0) )
+    {
+        return PC_NONE;
+    }
+    
+    return PC_NONE;
+}
+
 /** Convert type interpretation number size in bytes */
 size_t
 pc_interpretation_size(uint32_t interp)
@@ -257,6 +284,24 @@ static void pc_schema_check_xy(const PCSCHEMA *s)
 		pcerror("pc_schema_check_xy: invalid y_position '%d'", s->y_position);
 }
 
+static char *
+xml_node_get_content(xmlNodePtr node)
+{
+    int i;
+    xmlNodePtr cur = node->children;
+    if ( cur )
+    {
+        do {
+            if ( cur->type == XML_TEXT_NODE )
+            {
+                return cur->content;
+            }
+        }
+        while ( cur = cur->next );
+    }
+    return "";
+}
+
 /** Population a PCSCHEMA struct from the XML representation */
 int
 pc_schema_from_xml(const char *xml_str, PCSCHEMA **schema)
@@ -278,6 +323,8 @@ pc_schema_from_xml(const char *xml_str, PCSCHEMA **schema)
 		
 	size_t xml_size = strlen(xml_ptr);
 	static xmlChar *xpath_str = "/pc:PointCloudSchema/pc:dimension";
+	static xmlChar *xpath_metadata_str = "/pc:PointCloudSchema/pc:metadata/Metadata";
+
 	
 	/* Parse XML doc */
 	*schema = NULL;
@@ -419,11 +466,54 @@ pc_schema_from_xml(const char *xml_str, PCSCHEMA **schema)
 		pc_schema_calculate_byteoffsets(s);
 		/* Check X/Y positions */
 		pc_schema_check_xy(s);
-		
-		
 	}
 	
 	xmlXPathFreeObject(xpath_obj);
+	
+	/* SEARCH FOR METADATA ENTRIES */
+	xpath_obj = xmlXPathEvalExpression(xpath_metadata_str, xpath_ctx);
+	if( ! xpath_obj )
+	{
+	    xmlXPathFreeContext(xpath_ctx); 
+		xmlFreeDoc(xml_doc);
+		xmlCleanupParser();
+		pcwarn("unable to evaluate xpath expression \"%s\" against schema XML", xpath_metadata_str);
+		return PC_FAILURE;
+	}
+	
+	/* Iterate on the <Metadata> we find */
+	if ( nodes = xpath_obj->nodesetval )
+	{
+		int i;
+
+		for ( i = 0; i < nodes->nodeNr; i++ )
+		{
+            char *metadata_name = "";
+            char *metadata_value = "";
+		    /* Read the metadata name and value from the node */
+		    /* <Metadata name="somename">somevalue</Metadata> */
+		    xmlNodePtr cur = nodes->nodeTab[i];
+            if( cur->type == XML_ELEMENT_NODE && strcmp(cur->name, "Metadata") == 0 )
+            {
+                metadata_name = xmlGetProp(cur, "name");
+                metadata_value = xml_node_get_content(cur);
+            }
+            
+            /* Store the compression type on the schema */
+            if ( strcmp(metadata_name, "compression") == 0 )
+            {
+                int compression = pc_compression_number(metadata_value);
+                if ( compression >= 0 )
+                {
+                    s->compression = compression;
+                }
+            }
+            xmlFree(metadata_name);
+        }
+	}
+	
+	xmlXPathFreeObject(xpath_obj);
+	
     xmlXPathFreeContext(xpath_ctx); 
 	xmlFreeDoc(xml_doc);
 	xmlCleanupParser();

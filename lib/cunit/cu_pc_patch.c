@@ -110,7 +110,7 @@ test_patch_hex_in()
 	size_t hexsize = strlen(hexbuf);
 	uint8_t *wkb = bytes_from_hexbytes(hexbuf, hexsize);
 	PCPATCH *pa = pc_patch_from_wkb(simpleschema, wkb, hexsize/2);
-	PCPOINTLIST *pl = pc_patch_to_pointlist(pa);
+	PCPOINTLIST *pl = pc_pointlist_from_patch(pa);
 	pc_point_get_double_by_name(pc_pointlist_get_point(pl, 0), "X", &d);
 	CU_ASSERT_DOUBLE_EQUAL(d, 0.02, 0.000001);
 	pc_point_get_double_by_name(pc_pointlist_get_point(pl, 1), "Intensity", &d);
@@ -613,14 +613,14 @@ test_patch_dimensional_compression()
     }
     
     pch1 = pc_patch_dimensional_from_pointlist(pl1);
-    z1 = pc_patch_dimensional_serialized_size((PCPATCH*)pch1);
+    z1 = pc_patch_dimensional_serialized_size(pch1);
     // printf("z1 %ld\n", z1);
     
     pds = pc_dimstats_make(simpleschema);
     pc_dimstats_update(pds, pch1);
     pc_dimstats_update(pds, pch1);
     pch2 = pc_patch_dimensional_compress(pch1, pds);
-    z2 = pc_patch_dimensional_serialized_size((PCPATCH*)pch2);
+    z2 = pc_patch_dimensional_serialized_size(pch2);
     // printf("z2 %ld\n", z2);
 
     str = pc_dimstats_to_string(pds);
@@ -692,6 +692,67 @@ test_patch_union()
     pcfree(palist);
 }
 
+
+static void 
+test_patch_wkb()
+{
+    int i;
+    int npts = 20;
+    PCPOINTLIST *pl1;
+    PCPATCH_UNCOMPRESSED *pu1, *pu2;
+    PCPATCH *pa1, *pa2, *pa3, *pa4;
+    PCDIMSTATS *pds = NULL;
+    size_t z1, z2;
+    uint8_t *wkb1, *wkb2;
+    char *str;
+    
+    pl1 = pc_pointlist_make(npts);
+    
+    for ( i = 0; i < npts; i++ )
+    {
+        PCPOINT *pt = pc_point_make(simpleschema);
+        pc_point_set_double_by_name(pt, "x", i*2.123);
+        pc_point_set_double_by_name(pt, "y", i*2.9);
+        pc_point_set_double_by_name(pt, "Z", i*0.3099);
+        pc_point_set_double_by_name(pt, "intensity", 13);
+        pc_pointlist_add_point(pl1, pt);
+    }
+    
+    pa1 = (PCPATCH*)pc_patch_dimensional_from_pointlist(pl1);
+    wkb1 = pc_patch_to_wkb(pa1, &z1);
+    str = hexbytes_from_bytes(wkb1, z1);
+    // printf("str\n%s\n",str)'
+    pa2 = pc_patch_from_wkb(simpleschema, wkb1, z1);
+
+    // printf("pa2\n%s\n",pc_patch_to_string(pa2));
+    
+    pa3 = pc_patch_compress(pa2, NULL);
+
+    // printf("pa3\n%s\n",pc_patch_to_string(pa3));
+
+    wkb2 = pc_patch_to_wkb(pa3, &z2);
+    pa4 = pc_patch_from_wkb(simpleschema, wkb2, z2);
+
+    // printf("pa4\n%s\n",pc_patch_to_string(pa4));
+    
+    pu1 = (PCPATCH_UNCOMPRESSED*)pc_patch_uncompressed_from_dimensional((PCPATCH_DIMENSIONAL*)pa1);
+    pu2 = (PCPATCH_UNCOMPRESSED*)pc_patch_uncompressed_from_dimensional((PCPATCH_DIMENSIONAL*)pa4);
+    
+    // printf("pu1\n%s\n", pc_patch_to_string((PCPATCH*)pu1));
+    // printf("pu2\n%s\n", pc_patch_to_string((PCPATCH*)pu2));
+    
+    CU_ASSERT_EQUAL(pu1->datasize, pu2->datasize);
+    CU_ASSERT_EQUAL(pu1->npoints, pu2->npoints);
+    CU_ASSERT(memcmp(pu1->data, pu2->data, pu1->datasize) == 0);
+    
+    
+    pc_pointlist_free(pl1);
+    pc_patch_free(pa1);
+    pc_patch_free(pa2);
+    pcfree(wkb1);
+}
+
+
 /* REGISTER ***********************************************************/
 
 CU_TestInfo patch_tests[] = {
@@ -705,6 +766,7 @@ CU_TestInfo patch_tests[] = {
 	PC_TEST(test_patch_dimensional),
 	PC_TEST(test_patch_dimensional_compression),
 	PC_TEST(test_patch_union),
+	PC_TEST(test_patch_wkb),
 	CU_TEST_INFO_NULL
 };
 

@@ -157,7 +157,7 @@ PCPATCH* pc_patch_uncompressed_from_wkb(const PCSCHEMA *s, const uint8_t *wkb, s
 PCPATCH_UNCOMPRESSED* pc_patch_uncompressed_make(const PCSCHEMA *s, uint32_t maxpoints);
 int pc_patch_uncompressed_compute_extent(PCPATCH_UNCOMPRESSED *patch);
 void pc_patch_uncompressed_free(PCPATCH_UNCOMPRESSED *patch);
-PCPOINTLIST* pc_patch_uncompressed_to_pointlist(const PCPATCH_UNCOMPRESSED *patch);
+PCPOINTLIST* pc_pointlist_from_uncompressed(const PCPATCH_UNCOMPRESSED *patch);
 PCPATCH_UNCOMPRESSED* pc_patch_uncompressed_from_pointlist(const PCPOINTLIST *pl);
 PCPATCH_UNCOMPRESSED* pc_patch_uncompressed_from_dimensional(const PCPATCH_DIMENSIONAL *pdl);
 int pc_patch_uncompressed_add_point(PCPATCH_UNCOMPRESSED *c, const PCPOINT *p);
@@ -176,8 +176,6 @@ void pc_bytes_free(PCBYTES bytes);
 PCBYTES pc_bytes_encode(PCBYTES pcb, int compression);
 /** Convert the bytes in #PCBYTES to PC_DIM_NONE compression */
 PCBYTES pc_bytes_decode(PCBYTES epcb);
-/** How big will the serialization be? */
-size_t pc_bytes_serialized_size(const PCBYTES *pcb);
 
 /** Convert value bytes to RLE bytes */
 PCBYTES pc_bytes_run_length_encode(const PCBYTES pcb);

@@ -153,6 +153,7 @@
     <pc:parent_uuid>00000000-0000-0000-0000-000000000000</pc:parent_uuid>
   </pc:dimension>
   <pc:metadata>
+    <Metadata name="compression">dimensional</Metadata>
     <Reader type="drivers.pipeline.reader">
       <Option name="debug">false</Option>
       <Option name="filename">pipeline_reproject.xml</Option>

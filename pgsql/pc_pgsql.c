@@ -8,6 +8,7 @@
 *
 ***********************************************************************/
 
+#include <assert.h>
 #include "pc_pgsql.h"
 #include "executor/spi.h"
 #include "access/hash.h"
@@ -438,8 +439,8 @@ pc_patch_serialized_size(const PCPATCH *patch)
 	{
 		case PC_NONE:
 		{
-            PCPATCH_UNCOMPRESSED *upatch = (PCPATCH_UNCOMPRESSED*)patch;
-            return sizeof(SERIALIZED_PATCH) - 1 + upatch->datasize;
+            PCPATCH_UNCOMPRESSED *pu = (PCPATCH_UNCOMPRESSED*)patch;
+            return sizeof(SERIALIZED_PATCH) - 1 + pu->datasize;
 		}
 		case PC_GHT:
 		{
@@ -447,7 +448,7 @@ pc_patch_serialized_size(const PCPATCH *patch)
 		}
 		case PC_DIMENSIONAL:
 		{
-            return sizeof(SERIALIZED_PATCH) - 1 + pc_patch_dimensional_serialized_size(patch);
+            return sizeof(SERIALIZED_PATCH) - 1 + pc_patch_dimensional_serialized_size((PCPATCH_DIMENSIONAL*)patch);
 		}
 		default:
 		{
@@ -483,15 +484,15 @@ pc_patch_uncompressed_serialize(const PCPATCH *patch_in)
 static SERIALIZED_PATCH * 
 pc_patch_dimensional_serialize(const PCPATCH *patch_in)
 {
-	size_t serpch_size;
-	SERIALIZED_PATCH *serpch;
     int i;
     uint8_t *buf;
+	size_t serpch_size = pc_patch_serialized_size(patch_in);
+	SERIALIZED_PATCH *serpch = pcalloc(serpch_size);
     const PCPATCH_DIMENSIONAL *patch = (PCPATCH_DIMENSIONAL*)patch_in;
 
-	serpch_size = pc_patch_serialized_size((PCPATCH*)patch);
-	serpch = pcalloc(serpch_size);
-	
+    assert(patch_in);
+    assert(patch_in->type == PC_DIMENSIONAL);
+
 	/* Copy basics */
 	serpch->pcid = patch->schema->pcid;
 	serpch->npoints = patch->npoints;
@@ -598,6 +599,7 @@ pc_patch_uncompressed_deserialize(const SERIALIZED_PATCH *serpatch, const PCSCHE
 	patch->datasize = VARSIZE(serpatch) - sizeof(SERIALIZED_PATCH) + 1;
 
 	/* Set up basic info */
+    patch->type = PC_NONE;
 	patch->schema = schema;
 	patch->readonly = true;
 	patch->npoints = serpatch->npoints;
@@ -623,6 +625,7 @@ pc_patch_dimensional_deserialize(const SERIALIZED_PATCH *serpatch, const PCSCHEM
 	patch = pcalloc(sizeof(PCPATCH_DIMENSIONAL));
 
 	/* Set up basic info */
+    patch->type = PC_DIMENSIONAL;
 	patch->schema = schema;
 	patch->readonly = true;
 	patch->npoints = npoints;
@@ -641,7 +644,7 @@ pc_patch_dimensional_deserialize(const SERIALIZED_PATCH *serpatch, const PCSCHEM
         PCDIMENSION *dim = schema->dims[i];
         pc_bytes_deserialize(buf, dim, pcb, true /*readonly*/, false /*flipendian*/);
         pcb->npoints = npoints;
-        buf += pcb->size;
+        buf += pc_bytes_serialized_size(pcb); 
     }
 
 	return (PCPATCH*)patch;
