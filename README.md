@@ -1,35 +1,31 @@
-Pointcloud
-==========
+# Pointcloud #
 
 A PostgreSQL extension for storing point cloud (LIDAR) data.
 
 
-Build/Install
-=============
+## Build/Install ##
 
-Requirements
-------------
+### Requirements ###
 
 - PostgreSQL and PostgreSQL development packages must be installed (pg_config and server headers). For Red Hat and Ubuntu, the package names are usually "postgresql-dev" or "postgresql-devel"
 - LibXML2 development packages must be installed, usually "libxml2-dev" or "libxml2-devel".
 - CUnit packages must be installed, or [source built and installed](http://sourceforge.net/projects/cunit/ "CUnit").
 
-Build
------
+
+### Build ###
 
 - `./configure`
 - `make`
 - `sudo make install`
 
-Activate
---------
+
+### Activate ###
 
 - `CREATE DATABASE mynewdb`
 - `CREATE EXTENSION pointcloud`
 
 
-Schemas
-=======
+## Schemas ##
 
 LIDAR sensors quickly produce millions of points with large numbers of variables measured on each point. The challenge for a point cloud database extension is efficiently storing this data while allowing high fidelity access to the many variables stored. 
 
@@ -42,11 +38,9 @@ Schema documents are stored in the `pointcloud_formats` table, along with a `pci
 The central role of the schema document in interpreting the contents of a point cloud object means that care must be taken to ensure that the right `pcid` reference is being used in objects, and that it references a valid schema document in the `pointcloud_formats` table.
 
 
-Point Cloud Objects
-===================
+## Point Cloud Objects ##
 
-PcPoint
--------
+### PcPoint ###
 
 The basic point cloud type is a `PcPoint`. Every point has a (large?) number of dimensions, but at a minimum an X and Y coordinate that place it in space. 
 
@@ -57,8 +51,8 @@ Points can be rendered in a human-readable JSON form using the `PC_AsText(pcpoin
           "pt" : [0.01, 0.02, 0.03, 4]
     }
 
-PcPatch
--------
+
+### PcPatch ###
 
 The structure of database storage is such that storing billions of points as individual records in a table is not an efficient use of resources. Instead, we collect a group of `PcPoint` into a `PcPatch`. Each patch should hopefully contain points that are near together. 
 
@@ -75,8 +69,7 @@ Patches can be rendered into a human-readable JSON form using the `PC_AsText(pcp
     }
 
 
-Functions
-=========
+## Functions ##
 
 **PC_MakePoint(pcid integer, vals float8[])** returns **pcpoint**
 
@@ -86,8 +79,7 @@ Functions
 
     
 
-Binary Formats
-==============
+## Binary Formats ##
 
 In order to preserve some compactness in dump files and network transmissions, the binary formats need to retain their native compression.  All binary formats are hex-encoded before output. 
 
@@ -110,32 +102,28 @@ There are two compression schemes currently implemented
 
 ), Uncompressed binary is, as advertised, just hex-encoded points and sets of points.
 
-Point Binary
-------------
+### Point Binary ###
 
     byte:     endianness (1 = NDR, 0 = XDR)
     uint32:   pcid (key to POINTCLOUD_SCHEMAS)
     uchar[]:  pointdata (interpret relative to pcid)
 
-Patch Binary
-------------
+### Patch Binary ###
 
     byte:     endianness (1 = NDR, 0 = XDR)
     uint32:   pcid (key to POINTCLOUD_SCHEMAS)
     uint32:   compression (0 = no compression, 1 = dimensional, 2 = GHT)
+    uint32:       npoints
     uchar[]:  data (interpret relative to pcid and compression)
 
-Patch Binary (Uncompressed)
----------------------------
+### Patch Binary (Uncompressed) ####
 
     byte:         endianness (1 = NDR, 0 = XDR)
     uint32:       pcid (key to POINTCLOUD_SCHEMAS)
     uint32:       0 = no compression
-    uint32:       npoints
     pointdata[]:  interpret relative to pcid
 
-Patch Binary (Dimensional)
---------------------------
+### Patch Binary (Dimensional) ###
 
     byte:          endianness (1 = NDR, 0 = XDR)
     uint32:        pcid (key to POINTCLOUD_SCHEMAS)
