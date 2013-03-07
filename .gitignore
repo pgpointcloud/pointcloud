@@ -7,3 +7,4 @@ config.log
 confdefs.h
 aclocal.m4
 config.status
+config.mk
