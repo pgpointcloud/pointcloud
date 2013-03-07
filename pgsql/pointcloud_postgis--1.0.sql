@@ -16,24 +16,42 @@ CREATE OR REPLACE FUNCTION PC_Intersection(pcpatch, geometry)
 -----------------------------------------------------------------------------
 -- Cast from pcpatch to polygon
 --
-CREATE OR REPLACE FUNCTION pcpatch2geometry(pcpatch)
+CREATE OR REPLACE FUNCTION geometry(pcpatch)
     RETURNS geometry AS
     $$
         SELECT ST_GeomFromEWKB(PC_Envelope($1))
     $$ 
     LANGUAGE 'sql';
 
-CREATE CAST (pcpatch AS geometry) WITH FUNCTION pcpatch2geometry(pcpatch);
+CREATE CAST (pcpatch AS geometry) WITH FUNCTION geometry(pcpatch);
 
 -----------------------------------------------------------------------------
 -- Cast from pcpoint to point
 --
-CREATE OR REPLACE FUNCTION pcpoint2geometry(pcpoint)
+CREATE OR REPLACE FUNCTION geometry(pcpoint)
     RETURNS geometry AS
     $$
         SELECT ST_GeomFromEWKB(PC_AsBinary($1))
     $$ 
     LANGUAGE 'sql';
 
-CREATE CAST (pcpoint AS geometry) WITH FUNCTION pcpoint2geometry(pcpoint);
+CREATE CAST (pcpoint AS geometry) WITH FUNCTION geometry(pcpoint);
+
+
+-----------------------------------------------------------------------------
+-- Function to overlap polygon on patch
+--
+CREATE OR REPLACE FUNCTION PC_Intersects(pcpatch, geometry)
+    RETURNS pcpatch AS
+    $$
+        SELECT ST_Intersects($2, geometry($1))
+    $$ 
+    LANGUAGE 'sql';
+
+CREATE OR REPLACE FUNCTION PC_Intersects(geometry, pcpatch)
+    RETURNS pcpatch AS
+    $$
+        SELECT PC_Intersects($2, $1)
+    $$ 
+    LANGUAGE 'sql';
 
