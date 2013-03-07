@@ -24,10 +24,31 @@ AC_SUBST([EXESUFFIX])
 dnl
 dnl Search for flex/bison to build the parser
 dnl
-AC_PROG_LEX
-AC_PROG_YACC
-AC_SUBST([LEX])
-AC_SUBST([YACC])
+dnl AC_PROG_LEX
+dnl AC_PROG_YACC
+dnl AC_SUBST([LEX])
+dnl AC_SUBST([YACC])
+
+
+dnl ===========================================================================
+dnl Detect ZLib if it is installed 
+dnl ===========================================================================
+
+ZLIB_LDFLAGS=""
+AC_CHECK_HEADER([zlib.h], [
+	CUNIT_CPPFLAGS="$CPPFLAGS"
+	AC_CHECK_LIB([z], 
+	  [inflate], 
+	  [ZLIB_LDFLAGS="$LDFLAGS -lz"], 
+	  [AC_MSG_ERROR([could not locate zlib])]
+	  )
+	],
+	[
+	AC_MSG_ERROR([could not locate zlib])
+	])
+	
+AC_SUBST([ZLIB_CPPFLAGS])
+AC_SUBST([ZLIB_LDFLAGS])
 
 
 dnl ===========================================================================

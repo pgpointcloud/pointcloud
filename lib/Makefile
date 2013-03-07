@@ -19,14 +19,14 @@ OBJS = \
 	stringbuffer.o \
 	hashtable.o
 
-all: $(LIBPC_A)
+all: $(LIB_A)
 	$(MAKE) -C cunit $@
 
-$(LIBPC_A): $(OBJS)
+$(LIB_A): $(OBJS)
 	ar rs $@ $^
 
 clean:
-	@rm -f $(OBJS) $(LIBPC_A)
+	@rm -f $(OBJS) $(LIB_A)
 	$(MAKE) -C cunit $@
 
 install:

@@ -1,8 +1,6 @@
 
 include ../../config.mk
 
-LIBPC = ../$(LIBPC_A)
-
 CPPFLAGS = $(XML2_CPPFLAGS) $(CUNIT_CPPFLAGS) $(ZLIB_CPPFLAGS) -I..
 LDFLAGS = $(XML2_LDFLAGS) $(CUNIT_LDFLAGS) $(ZLIB_LDFLAGS)
 
@@ -23,11 +21,11 @@ check: $(EXE)
 	@./$(EXE)
 
 # Build the main unit test executable
-$(EXE): $(OBJS) $(LIBPC)
+$(EXE): $(OBJS) ../$(LIB_A)
 	$(CC) $(LDFLAGS) -o $@ $^
 
-$(LIBPC):
-	$(MAKE) -C .. $(LIBPC_A)
+../$(LIB_A):
+	$(MAKE) -C .. $(LIB_A)
 
 # Clean target
 clean:
