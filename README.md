@@ -169,26 +169,26 @@ Now that you have created two tables, you'll see entries for them in the `pointc
     
 > Return a JSON version of the data in that point.
 >
->    SELECT PC_AsText('010100000064CEFFFF94110000703000000400'::pcpoint);
+>     SELECT PC_AsText('010100000064CEFFFF94110000703000000400'::pcpoint);
 >
->    {"pcid":1,"pt":[-127,45,124,4]}
+>     {"pcid":1,"pt":[-127,45,124,4]}
 
 **PC_AsBinary(p pcpoint)** returns **bytea**
 
 > Return the OGC "well-known binary" format for the point.
 >
->    SELECT PC_AsBinary('010100000064CEFFFF94110000703000000400'::pcpoint);
+>     SELECT PC_AsBinary('010100000064CEFFFF94110000703000000400'::pcpoint);
 >
->    \x01010000800000000000c05fc000000000008046400000000000005f40
+>     \x01010000800000000000c05fc000000000008046400000000000005f40
 
 **PC_Get(pt pcpoint, dimname text)** returns **numeric**
 
 > Return the numeric value of the named dimension. The dimension name
 > must exist in the schema.
 >
->    SELECT PC_Get('010100000064CEFFFF94110000703000000400'::pcpoint, 'Intensity');
+>     SELECT PC_Get('010100000064CEFFFF94110000703000000400'::pcpoint, 'Intensity');
 >
->    4
+>     4
 
 **PC_Patch(pts pcpoint[])** returns **pcpatch**
 
