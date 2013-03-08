@@ -1,6 +1,8 @@
 To Do
 =====
 
+- *** dimensional compression and PC_Uncompress probably don't play will together... once serialized, patches don't know their compression anymore, so it's possible to pass a NONE patch up into deserialize and have it treated as a DIMENSIONAL
+
 - (?) convert PCBYTES to use PCDIMENSION* instead of holding all values as dupes
 - (??) convert PCBYTES handlign to pass-by-reference instead of pass-by-value
 
