@@ -335,11 +335,13 @@ One of the issues with LIDAR data is that there is a lot of it. To deal with dat
 There are currently two supported compressions:
 
 - **None**, which stores points and patches as byte arrays using the type and formats described in the schema document.
-- **Dimensional**, which stores points the same as 'none' but stores patches as collections of dimensional data arrays, with with an "appropriate" compression applied. Dimensional compression makes the most sense for smaller patch sizes, since small patches will tend to have more homogeneous dimensions.
+- **Dimensional**, which stores points the same as 'none' but stores patches as collections of dimensional data arrays, with an "appropriate" compression applied. Dimensional compression makes the most sense for smaller patch sizes, since small patches will tend to have more homogeneous dimensions.
 
 A third compression is in development:
 
-- **Geohashtree** or GHT, which stores the points in a tree where each node stores the common values shared by all nodes below. For larger patch sizes, GHT should provide effective compression and performance for patch-wise operations.
+- **GeoHashTree** or GHT, which stores the points in a tree where each node stores the common values shared by all nodes below. For larger patch sizes, GHT should provide effective compression and performance for patch-wise operations.
+
+If no compression is declared in `<pc:metadata>`, then a compression of "none" is assumed.
 
 ### Dimensional Compression ###
 
@@ -359,13 +361,13 @@ Becomes, notionally:
           [0,0,0,0,0,0]
          ]}
 
-The potential benefit for compression is that each dimension has quick different distribution characteristics, and is amenable to different approaches.  In this example, the fourth dimension (intensity) can be very highly compressed with run-length encoding (one run of six zereos). The first and second dimensions have relatively low variability relative to their magnitude and can be compressed by removing the repeated bits.
+The potential benefit for compression is that each dimension has quite different distribution characteristics, and is amenable to different approaches.  In this example, the fourth dimension (intensity) can be very highly compressed with run-length encoding (one run of six zeros). The first and second dimensions have relatively low variability relative to their magnitude and can be compressed by removing the repeated bits.
 
-Dimensional compression currently supports only three compression schemes:
+Dimensional compression currently uses only three compression schemes:
 
 - run-length encoding, for dimensions with low variability
 - common bits removal, for dimensions with variability in a narrow bit range
-- raw zlib compression, for dimensions that aren't amenable to the other schemes
+- raw deflate compression using zlib, for dimensions that aren't amenable to the other schemes
 
 For LIDAR data organized into patches of points that sample similar areas, *...INSERT COMPRESSION RATIO ESTIMATE HERE AFTER EXPERIMENTATION...*
 
