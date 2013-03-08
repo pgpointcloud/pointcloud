@@ -24,7 +24,6 @@ A PostgreSQL extension for storing point cloud (LIDAR) data.
 - `CREATE DATABASE mynewdb`
 - `CREATE EXTENSION pointcloud`
 
-
 ## Schemas ##
 
 LIDAR sensors quickly produce millions of points with large numbers of variables measured on each point. The challenge for a point cloud database extension is efficiently storing this data while allowing high fidelity access to the many variables stored. 
@@ -121,16 +120,81 @@ Patches can be rendered into a human-readable JSON form using the `PC_AsText(pcp
                  ]
     }
 
+## Tables ##
+
+Usually you will only be creating tables for storing `PcPatch` objects, and using `PcPoint` objects as transitional objects for filtering, but it is possible to create tables of both types. `PcPatch` and `PcPoint` columns both require an argument that indicate the `pcid` that will be used to interpret the column. 
+
+    -- This example requires the schema entry from the previous 
+    -- section to be loaded so that pcid==1 exists.
+    
+    -- A table of points
+    CREATE TABLE points (
+        id SERIAL PRIMARY KEY,
+        pt PCPOINT(1)
+    );
+
+    -- A table of patches
+    CREATE TABLE patches (
+        id SERIAL PRIMARY KEY,
+        pt PCPATCH(1)
+    );
+
+In addition to any tables you create, you will find two other system-provided point cloud tables,
+
+- the `pointcloud_formats` table that holds all the pcid entries and schema documents
+- the `pointcloud_columns` view, that displays all the columns in your database that contain point cloud objects
+
+Now that you have created two tables, you'll see entries for them in the `pointcloud_columns` view:
+
+    SELECT * FROM pointcloud_columns;
+
+     schema |    table    | column | pcid | srid |  type   
+    --------+-------------+--------+------+------+---------
+     public | points      | pt     |    1 | 4326 | pcpoint
+     public | patches     | pt     |    1 | 4326 | pcpatch
+
 
 ## Functions ##
 
 **PC_MakePoint(pcid integer, vals float8[])** returns **pcpoint**
 
-> Given a valid schema `pcid` and an array of doubles that matches the schema, construct a new PcPoint.
+> Given a valid `pcid` schema number and an array of doubles that matches the schema, construct a new `pcpoint`.
 > 
 >     SELECT PC_MakePoint(1, ARRAY[-127, 45, 124.0, 4.0]);
+>
+>     010100000064CEFFFF94110000703000000400
+>
 
+**PC_AsText(p pcpoint)** returns **text*
     
+> Return a JSON version of the data in that point.
+>
+>    SELECT PC_AsText('010100000064CEFFFF94110000703000000400'::pcpoint);
+>
+>    {"pcid":1,"pt":[-127,45,124,4]}
+
+**PC_AsBinary(p pcpoint)** returns **bytea**
+
+> Return the OGC "well-known binary" format for the point.
+>
+>    SELECT PC_AsBinary('010100000064CEFFFF94110000703000000400'::pcpoint);
+>
+>    \x01010000800000000000c05fc000000000008046400000000000005f40
+
+**PC_Get(pt pcpoint, dimname text)** returns **numeric**
+
+> Return the numeric value of the named dimension. The dimension name
+> must exist in the schema.
+>
+>    SELECT PC_Get('010100000064CEFFFF94110000703000000400'::pcpoint, 'Intensity');
+>
+>    4
+
+**PC_Patch(pts pcpoint[])** returns **pcpatch**
+
+> Aggregate function that collects `pcpoint` entries into a `pcpatch`.
+>
+
 
 ## Binary Formats ##
 
