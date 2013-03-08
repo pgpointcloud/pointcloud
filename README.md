@@ -334,12 +334,12 @@ One of the issues with LIDAR data is that there is a lot of it. To deal with dat
 
 There are currently two supported compressions:
 
-- **None** which stores points and patches as byte arrays using the type and formats described in the schema document.
-- **Dimensional** which stores points the same as 'none' but stores patches as collections of dimensional data arrays, with with an "appropriate" compression applied. Dimensional compression makes the most sense for smaller patch sizes, since small patches will tend to have more homogeneous dimensions.
+- **None**, which stores points and patches as byte arrays using the type and formats described in the schema document.
+- **Dimensional**, which stores points the same as 'none' but stores patches as collections of dimensional data arrays, with with an "appropriate" compression applied. Dimensional compression makes the most sense for smaller patch sizes, since small patches will tend to have more homogeneous dimensions.
 
 A third compression is in development:
 
-- **Geohashtree** or GHT which stores the points in a tree where each node stores the common values shared by all nodes below. For larger patch sizes, GHT should provide effective compression and performance for patch-wise operations.
+- **Geohashtree** or GHT, which stores the points in a tree where each node stores the common values shared by all nodes below. For larger patch sizes, GHT should provide effective compression and performance for patch-wise operations.
 
 ### Dimensional Compression ###
 
