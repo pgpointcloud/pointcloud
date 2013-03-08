@@ -184,7 +184,6 @@ Datum pcschema_get_ndims(PG_FUNCTION_ARGS)
 		elog(ERROR, "unable to load schema for pcid = %d", pcid);
 
 	ndims = schema->ndims;
-	pc_schema_free(schema);
 	PG_RETURN_INT32(ndims);
 }
 
@@ -223,7 +222,6 @@ Datum pcpoint_from_double_array(PG_FUNCTION_ARGS)
 
 	serpt = pc_point_serialize(pt);
 	pc_point_free(pt);
-	pc_schema_free(schema);
 	PG_RETURN_POINTER(serpt);
 }
 
