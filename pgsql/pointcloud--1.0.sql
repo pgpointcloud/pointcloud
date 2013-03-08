@@ -130,6 +130,11 @@ CREATE OR REPLACE FUNCTION PC_NumPoints(p pcpatch)
     RETURNS int4 AS 'MODULE_PATHNAME', 'pcpatch_numpoints'
     LANGUAGE 'c' IMMUTABLE STRICT;
 
+CREATE OR REPLACE FUNCTION PC_Intersects(p1 pcpatch, p2 pcpatch)
+    RETURNS boolean AS 'MODULE_PATHNAME', 'pcpatch_intersects'
+    LANGUAGE 'c' IMMUTABLE STRICT;
+
+
 -------------------------------------------------------------------
 --  POINTCLOUD_COLUMNS
 -------------------------------------------------------------------

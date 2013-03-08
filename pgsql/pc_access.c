@@ -17,6 +17,7 @@ Datum pcpatch_from_pcpoint_array(PG_FUNCTION_ARGS);
 Datum pcpatch_from_pcpatch_array(PG_FUNCTION_ARGS);
 Datum pcpatch_uncompress(PG_FUNCTION_ARGS);
 Datum pcpatch_numpoints(PG_FUNCTION_ARGS);
+Datum pcpatch_intersects(PG_FUNCTION_ARGS);
 
 /* Generic aggregation functions */
 Datum pointcloud_agg_transfn(PG_FUNCTION_ARGS);
@@ -526,5 +527,25 @@ Datum pcpatch_numpoints(PG_FUNCTION_ARGS)
 {
 	SERIALIZED_PATCH *serpa = PG_GETARG_SERPATCH_P(0);
     PG_RETURN_INT32(serpa->npoints);
+}
+
+PG_FUNCTION_INFO_V1(pcpatch_intersects);
+Datum pcpatch_intersects(PG_FUNCTION_ARGS)
+{
+	SERIALIZED_PATCH *serpa1 = PG_GETARG_SERPATCH_P(0);
+	SERIALIZED_PATCH *serpa2 = PG_GETARG_SERPATCH_P(1);
+	
+	if ( serpa1->pcid != serpa2->pcid )
+	    elog(ERROR, "pcpatch_intersects: pcid mismatch (%d != %d)", serpa1->pcid, serpa2->pcid);
+	
+	if ( serpa1->xmin > serpa2->xmax ||
+	     serpa1->xmax < serpa2->xmin ||
+	     serpa1->ymin > serpa2->ymax ||
+	     serpa1->ymax < serpa2->ymin )
+	{
+        PG_RETURN_BOOL(FALSE);
+    }
+	
+    PG_RETURN_BOOL(TRUE);
 }
 
