@@ -17,7 +17,7 @@
 PG_MODULE_MAGIC;
 
 /**********************************************************************************
-* POSTGRESQL MEMORY MANAGEMENT HOOKS 
+* POSTGRESQL MEMORY MANAGEMENT HOOKS
 */
 
 static void *
@@ -90,7 +90,7 @@ pgsql_info(const char *fmt, va_list ap)
 
 /**
 * On module load we want to hook the message writing and memory allocation
-* functions of libpc to the PostgreSQL ones. 
+* functions of libpc to the PostgreSQL ones.
 * TODO: also hook the libxml2 hooks into PostgreSQL.
 */
 void _PG_init(void);
@@ -132,9 +132,9 @@ pc_point_from_hexwkb(const char *hexwkb, size_t hexlen, FunctionCallInfoData *fc
 	uint32 pcid;
 	uint8 *wkb = bytes_from_hexbytes(hexwkb, hexlen);
 	size_t wkblen = hexlen/2;
-	pcid = wkb_get_pcid(wkb);	
+	pcid = wkb_get_pcid(wkb);
 	schema = pc_schema_from_pcid(pcid, fcinfo);
-	pt = pc_point_from_wkb(schema, wkb, wkblen);	
+	pt = pc_point_from_wkb(schema, wkb, wkblen);
 	pfree(wkb);
 	return pt;
 }
@@ -145,7 +145,7 @@ pc_point_to_hexwkb(const PCPOINT *pt)
 	uint8 *wkb;
 	size_t wkb_size;
 	char *hexwkb;
-	
+
 	wkb = pc_point_to_wkb(pt, &wkb_size);
 	hexwkb = hexbytes_from_bytes(wkb, wkb_size);
 	pfree(wkb);
@@ -165,9 +165,9 @@ pc_patch_from_hexwkb(const char *hexwkb, size_t hexlen, FunctionCallInfoData *fc
 	uint32 pcid;
 	uint8 *wkb = bytes_from_hexbytes(hexwkb, hexlen);
 	size_t wkblen = hexlen/2;
-	pcid = wkb_get_pcid(wkb);	
+	pcid = wkb_get_pcid(wkb);
 	schema = pc_schema_from_pcid(pcid, fcinfo);
-	patch = pc_patch_from_wkb(schema, wkb, wkblen);	
+	patch = pc_patch_from_wkb(schema, wkb, wkblen);
 	pfree(wkb);
 	return patch;
 }
@@ -178,7 +178,7 @@ pc_patch_to_hexwkb(const PCPATCH *patch)
 	uint8 *wkb;
 	size_t wkb_size;
 	char *hexwkb;
-	
+
 	wkb = pc_patch_to_wkb(patch, &wkb_size);
 	hexwkb = hexbytes_from_bytes(wkb, wkb_size);
 	pfree(wkb);
@@ -217,7 +217,7 @@ pc_schema_from_pcid_uncached(uint32 pcid)
 		return NULL;
 	}
 
-	sprintf(sql, "select %s, %s from %s where pcid = %d", 
+	sprintf(sql, "select %s, %s from %s where pcid = %d",
 	              POINTCLOUD_FORMATS_XML, POINTCLOUD_FORMATS_SRID, POINTCLOUD_FORMATS, pcid);
 	err = SPI_exec(sql, 1);
 
@@ -226,7 +226,7 @@ pc_schema_from_pcid_uncached(uint32 pcid)
 		SPI_finish();
 		elog(ERROR, "pc_schema_from_pcid: error (%d) executing query: %s", err, sql);
 		return NULL;
-	} 
+	}
 
 	/* No entry in POINTCLOUD_FORMATS */
 	if (SPI_processed <= 0)
@@ -238,7 +238,7 @@ pc_schema_from_pcid_uncached(uint32 pcid)
 
 	/* Result  */
 	xml_spi = SPI_getvalue(SPI_tuptable->vals[0], SPI_tuptable->tupdesc, 1);
-	srid_spi = SPI_getvalue(SPI_tuptable->vals[0], SPI_tuptable->tupdesc, 2);	
+	srid_spi = SPI_getvalue(SPI_tuptable->vals[0], SPI_tuptable->tupdesc, 2);
 
 	/* NULL result */
 	if ( ! ( xml_spi && srid_spi ) )
@@ -261,17 +261,17 @@ pc_schema_from_pcid_uncached(uint32 pcid)
 
 	/* Build the schema object */
 	err = pc_schema_from_xml(xml, &schema);
-	
+
 	if ( ! err )
 	{
         ereport(ERROR,
             (errcode(ERRCODE_NOT_AN_XML_DOCUMENT),
              errmsg("unable to parse XML for pcid = %d in \"%s\"", pcid, POINTCLOUD_FORMATS)));
 	}
-	
+
 	schema->pcid = pcid;
 	schema->srid = srid;
-	
+
 	return schema;
 }
 
@@ -302,24 +302,24 @@ typedef struct {
 * concert with PostGIS, so here we not only ape
 * the container, but avoid the first 10 slots,
 * so as to miss any existing cached PostGIS objects.
-*/ 
+*/
 typedef struct {
     GenericCache *entry[16];
 } GenericCacheCollection;
 
 #define PC_SCHEMA_CACHE 10
 #define PC_STATS_CACHE  11
- 
+
 /**
-* Get the generic collection off the statement, allocate a 
+* Get the generic collection off the statement, allocate a
 * new one if we don't have one already.
-*/ 
-static GenericCacheCollection * 
+*/
+static GenericCacheCollection *
 GetGenericCacheCollection(FunctionCallInfoData *fcinfo)
 {
     GenericCacheCollection *cache = fcinfo->flinfo->fn_extra;
 
-    if ( ! cache ) 
+    if ( ! cache )
     {
         cache = MemoryContextAlloc(fcinfo->flinfo->fn_mcxt, sizeof(GenericCacheCollection));
         memset(cache, 0, sizeof(GenericCacheCollection));
@@ -337,7 +337,7 @@ GetSchemaCache(FunctionCallInfoData* fcinfo)
 {
         GenericCacheCollection *generic_cache = GetGenericCacheCollection(fcinfo);
         SchemaCache* cache = (SchemaCache*)(generic_cache->entry[PC_SCHEMA_CACHE]);
-        
+
         if ( ! cache )
         {
                 /* Allocate in the upper context */
@@ -345,7 +345,7 @@ GetSchemaCache(FunctionCallInfoData* fcinfo)
                 memset(cache, 0, sizeof(SchemaCache));
                 cache->type = PC_SCHEMA_CACHE;
         }
-        
+
         generic_cache->entry[PC_SCHEMA_CACHE] = (GenericCache*)cache;
         return cache;
 }
@@ -358,7 +358,7 @@ pc_schema_from_pcid(uint32 pcid, FunctionCallInfoData *fcinfo)
     int i;
     PCSCHEMA *schema;
     MemoryContext oldcontext;
-    
+
     /* Unable to find/make a schema cache? Odd. */
     if ( ! schema_cache )
     {
@@ -366,7 +366,7 @@ pc_schema_from_pcid(uint32 pcid, FunctionCallInfoData *fcinfo)
             (errcode(ERRCODE_INTERNAL_ERROR),
              errmsg("unable to create/load statement level schema cache")));
     }
-    
+
     /* Find our PCID if it's in there (usually it will be first) */
     for ( i = 0; i < SchemaCacheSize; i++ )
     {
@@ -375,12 +375,12 @@ pc_schema_from_pcid(uint32 pcid, FunctionCallInfoData *fcinfo)
             return schema_cache->schemas[i];
         }
     }
-    
+
     /* Not in there, load one the old-fashioned way. */
     oldcontext = MemoryContextSwitchTo(fcinfo->flinfo->fn_mcxt);
     schema = pc_schema_from_pcid_uncached(pcid);
     MemoryContextSwitchTo(oldcontext);
-    
+
     /* Failed to load the XML? Odd. */
     if ( ! schema )
     {
@@ -402,7 +402,7 @@ pc_schema_from_pcid(uint32 pcid, FunctionCallInfoData *fcinfo)
 * SERIALIZATION/DESERIALIZATION UTILITIES
 */
 
-SERIALIZED_POINT * 
+SERIALIZED_POINT *
 pc_point_serialize(const PCPOINT *pcpt)
 {
 	size_t serpt_size = sizeof(SERIALIZED_POINT) - 1 + pcpt->schema->size;
@@ -413,13 +413,13 @@ pc_point_serialize(const PCPOINT *pcpt)
 	return serpt;
 }
 
-PCPOINT * 
+PCPOINT *
 pc_point_deserialize(const SERIALIZED_POINT *serpt, const PCSCHEMA *schema)
 {
 	PCPOINT *pcpt;
-	size_t pgsize = VARSIZE(serpt) + 1 - sizeof(SERIALIZED_POINT); 
-	/* 
-	* Big problem, the size on disk doesn't match what we expect, 
+	size_t pgsize = VARSIZE(serpt) + 1 - sizeof(SERIALIZED_POINT);
+	/*
+	* Big problem, the size on disk doesn't match what we expect,
 	* so we cannot reliably interpret the contents.
 	*/
 	if ( schema->size != pgsize )
@@ -458,16 +458,16 @@ pc_patch_serialized_size(const PCPATCH *patch)
     return -1;
 }
 
-static SERIALIZED_PATCH * 
+static SERIALIZED_PATCH *
 pc_patch_uncompressed_serialize(const PCPATCH *patch_in)
 {
 	size_t serpch_size;
 	SERIALIZED_PATCH *serpch;
     const PCPATCH_UNCOMPRESSED *patch = (PCPATCH_UNCOMPRESSED *)patch_in;
-	
+
     serpch_size = pc_patch_serialized_size(patch_in);
 	serpch = pcalloc(serpch_size);
-	
+
 	/* Copy */
 	serpch->pcid = patch->schema->pcid;
 	serpch->npoints = patch->npoints;
@@ -481,7 +481,7 @@ pc_patch_uncompressed_serialize(const PCPATCH *patch_in)
 }
 
 
-static SERIALIZED_PATCH * 
+static SERIALIZED_PATCH *
 pc_patch_dimensional_serialize(const PCPATCH *patch_in)
 {
     int i;
@@ -500,7 +500,7 @@ pc_patch_dimensional_serialize(const PCPATCH *patch_in)
 	serpch->ymin = patch->ymin;
 	serpch->xmax = patch->xmax;
 	serpch->ymax = patch->ymax;
-	
+
 	/* Copy byte buffers, one by one */
     buf = serpch->data;
     for ( i = 0; i < patch->schema->ndims; i++ )
@@ -521,12 +521,12 @@ pc_patch_dimensional_serialize(const PCPATCH *patch_in)
 * Userdata is currently only PCDIMSTATS, hopefully updated across
 * a number of iterations and saved.
 */
-SERIALIZED_PATCH * 
+SERIALIZED_PATCH *
 pc_patch_serialize(const PCPATCH *patch_in, void *userdata)
-{   
+{
     PCPATCH *patch = (PCPATCH*)patch_in;
     SERIALIZED_PATCH *serpatch;
-    /* 
+    /*
     * Convert the patch to the final target compression,
     * which is the one in the schema.
     */
@@ -534,7 +534,7 @@ pc_patch_serialize(const PCPATCH *patch_in, void *userdata)
     {
         patch = pc_patch_compress(patch_in, userdata);
     }
-    
+
     switch( patch->type )
     {
         case PC_NONE:
@@ -555,10 +555,10 @@ pc_patch_serialize(const PCPATCH *patch_in, void *userdata)
             pcerror("pc_patch_serialize: unsupported compression type %d", patch->type);
         }
     }
-    
+
     if ( patch != patch_in )
         pc_patch_free(patch);
-    
+
     return serpatch;
 }
 
@@ -568,23 +568,23 @@ pc_patch_serialize(const PCPATCH *patch_in, void *userdata)
 * Userdata is currently only PCDIMSTATS, hopefully updated across
 * a number of iterations and saved.
 */
-SERIALIZED_PATCH * 
+SERIALIZED_PATCH *
 pc_patch_serialize_uncompressed(const PCPATCH *patch_in)
-{   
+{
     PCPATCH *patch = (PCPATCH*)patch_in;
     SERIALIZED_PATCH *serpatch;
-    
+
     /*  Convert the patch to uncompressed, if necessary */
     if ( patch->type != PC_NONE )
     {
         patch = pc_patch_uncompress(patch_in);
     }
-    
+
     serpatch = pc_patch_uncompressed_serialize(patch);
-    
+
     if ( patch != patch_in )
         pc_patch_free(patch);
-    
+
     return serpatch;
 }
 
@@ -592,7 +592,7 @@ static PCPATCH *
 pc_patch_uncompressed_deserialize(const SERIALIZED_PATCH *serpatch, const PCSCHEMA *schema)
 {
 	PCPATCH_UNCOMPRESSED *patch;
-	
+
 	/* Reference the external data */
 	patch = pcalloc(sizeof(PCPATCH_UNCOMPRESSED));
 	patch->data = (uint8*)serpatch->data;
@@ -620,7 +620,7 @@ pc_patch_dimensional_deserialize(const SERIALIZED_PATCH *serpatch, const PCSCHEM
     const uint8_t *buf;
     int ndims = schema->ndims;
     int npoints = serpatch->npoints;
-    
+
 	/* Reference the external data */
 	patch = pcalloc(sizeof(PCPATCH_DIMENSIONAL));
 
@@ -637,22 +637,22 @@ pc_patch_dimensional_deserialize(const SERIALIZED_PATCH *serpatch, const PCSCHEM
     /* Set up dimensions */
     patch->bytes = pcalloc(ndims * sizeof(PCBYTES));
     buf = serpatch->data;
-    
+
     for ( i = 0; i < ndims; i++ )
     {
         PCBYTES *pcb = &(patch->bytes[i]);
         PCDIMENSION *dim = schema->dims[i];
         pc_bytes_deserialize(buf, dim, pcb, true /*readonly*/, false /*flipendian*/);
         pcb->npoints = npoints;
-        buf += pc_bytes_serialized_size(pcb); 
+        buf += pc_bytes_serialized_size(pcb);
     }
 
 	return (PCPATCH*)patch;
 }
 
-PCPATCH * 
+PCPATCH *
 pc_patch_deserialize(const SERIALIZED_PATCH *serpatch, const PCSCHEMA *schema)
-{   
+{
     switch(schema->compression)
     {
         case PC_NONE:

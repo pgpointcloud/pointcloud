@@ -18,7 +18,7 @@ pc_patch_uncompressed_to_string(const PCPATCH_UNCOMPRESSED *patch)
 	PCPOINTLIST *pl;
 	char *str;
 	int i, j;
-	
+
 	pl = pc_pointlist_from_uncompressed(patch);
 	stringbuffer_aprintf(sb, "{\"pcid\":%d,\"pts\":[", patch->schema->pcid);
 	for ( i = 0; i < pl->npoints; i++ )
@@ -77,11 +77,11 @@ pc_patch_uncompressed_to_wkb(const PCPATCH_UNCOMPRESSED *patch, size_t *wkbsize)
 	memcpy(wkb + 9, &npoints,     4); /* Write npoints */
 	memcpy(wkb + 13, patch->data, patch->datasize); /* Write data */
 	if ( wkbsize ) *wkbsize = size;
-	return wkb;	
+	return wkb;
 }
 
 
-PCPATCH * 
+PCPATCH *
 pc_patch_uncompressed_from_wkb(const PCSCHEMA *s, const uint8_t *wkb, size_t wkbsize)
 {
 	/*
@@ -96,7 +96,7 @@ pc_patch_uncompressed_from_wkb(const PCSCHEMA *s, const uint8_t *wkb, size_t wkb
 	uint8_t *data;
 	uint8_t swap_endian = (wkb[0] != machine_endian());
 	uint32_t npoints;
-	
+
 	if ( wkb_get_compression(wkb) != PC_NONE )
 	{
 		pcerror("pc_patch_uncompressed_from_wkb: call with wkb that is not uncompressed");
@@ -109,7 +109,7 @@ pc_patch_uncompressed_from_wkb(const PCSCHEMA *s, const uint8_t *wkb, size_t wkb
 		pcerror("pc_patch_uncompressed_from_wkb: wkb size and expected data size do not match");
 		return NULL;
 	}
-	
+
 	if ( swap_endian )
 	{
 		data = uncompressed_bytes_flip_endian(wkb+hdrsz, s, npoints);
@@ -119,7 +119,7 @@ pc_patch_uncompressed_from_wkb(const PCSCHEMA *s, const uint8_t *wkb, size_t wkb
 		data = pcalloc(npoints * s->size);
 		memcpy(data, wkb+hdrsz, npoints*s->size);
 	}
-	
+
 	patch = pcalloc(sizeof(PCPATCH_UNCOMPRESSED));
 	patch->npoints = npoints;
     patch->type = PC_NONE;
@@ -135,27 +135,27 @@ pc_patch_uncompressed_from_wkb(const PCSCHEMA *s, const uint8_t *wkb, size_t wkb
 	return (PCPATCH*)patch;
 }
 
-PCPATCH_UNCOMPRESSED * 
+PCPATCH_UNCOMPRESSED *
 pc_patch_uncompressed_make(const PCSCHEMA *s, uint32_t maxpoints)
 {
 	PCPATCH_UNCOMPRESSED *pch;
 	size_t datasize;
-	
+
 	if ( ! s )
 	{
 		pcerror("null schema passed into pc_patch_uncompressed_make");
 		return NULL;
 	}
-	
+
 	/* Width of the data area */
 	if ( ! s->size )
 	{
 		pcerror("invalid size calculation in pc_patch_uncompressed_make");
 		return NULL;
 	}
-	
+
 	/* Make our own data area */
-	pch = pcalloc(sizeof(PCPATCH_UNCOMPRESSED)); 
+	pch = pcalloc(sizeof(PCPATCH_UNCOMPRESSED));
 	datasize = s->size * maxpoints;
 	pch->data = pcalloc(datasize);
 	pch->datasize = datasize;
@@ -163,7 +163,7 @@ pc_patch_uncompressed_make(const PCSCHEMA *s, uint32_t maxpoints)
 	/* Initialize bounds */
 	pch->xmin = pch->ymin = MAXFLOAT;
 	pch->xmax = pch->ymax = -1 * MAXFLOAT;
-	
+
 	/* Set up basic info */
 	pch->readonly = PC_FALSE;
 	pch->npoints = 0;
@@ -182,7 +182,7 @@ pc_patch_uncompressed_compute_extent(PCPATCH_UNCOMPRESSED *patch)
 	/* Initialize bounds */
 	patch->xmin = patch->ymin = MAXFLOAT;
 	patch->xmax = patch->ymax = -1 * MAXFLOAT;
-	
+
 	/* Calculate bounds */
 	for ( i = 0; i < patch->npoints; i++ )
 	{
@@ -212,7 +212,7 @@ pc_patch_uncompressed_free(PCPATCH_UNCOMPRESSED *patch)
 
 
 
-PCPATCH_UNCOMPRESSED * 
+PCPATCH_UNCOMPRESSED *
 pc_patch_uncompressed_from_pointlist(const PCPOINTLIST *pl)
 {
 	PCPATCH_UNCOMPRESSED *pch;
@@ -221,7 +221,7 @@ pc_patch_uncompressed_from_pointlist(const PCPOINTLIST *pl)
 	uint8_t *ptr;
 	int i;
 	uint32_t numpts;
-	
+
 	if ( ! pl )
 	{
 		pcerror("null PCPOINTLIST passed into pc_patch_uncompressed_from_pointlist");
@@ -246,7 +246,7 @@ pc_patch_uncompressed_from_pointlist(const PCPOINTLIST *pl)
 		pcerror("pc_patch_uncompressed_from_pointlist: null schema encountered");
 		return NULL;
 	}
-	
+
 	/* Confirm width of a point data buffer */
 	if ( ! s->size )
 	{
@@ -255,7 +255,7 @@ pc_patch_uncompressed_from_pointlist(const PCPOINTLIST *pl)
 	}
 
 	/* Make our own data area */
-	pch = pcalloc(sizeof(PCPATCH_UNCOMPRESSED)); 
+	pch = pcalloc(sizeof(PCPATCH_UNCOMPRESSED));
 	pch->datasize = s->size * numpts;
 	pch->data = pcalloc(pch->datasize);
 	ptr = pch->data;
@@ -263,7 +263,7 @@ pc_patch_uncompressed_from_pointlist(const PCPOINTLIST *pl)
 	/* Initialize bounds */
 	pch->xmin = pch->ymin = MAXFLOAT;
 	pch->xmax = pch->ymax = -1 * MAXFLOAT;
-	
+
 	/* Set up basic info */
 	pch->readonly = PC_FALSE;
 	pch->maxpoints = numpts;
@@ -297,7 +297,7 @@ pc_patch_uncompressed_from_pointlist(const PCPOINTLIST *pl)
 		return NULL;
 	}
 
-	return pch;	
+	return pch;
 }
 
 
@@ -309,7 +309,7 @@ pc_patch_uncompressed_from_dimensional(const PCPATCH_DIMENSIONAL *pdl)
     PCPATCH_DIMENSIONAL *pdl_uncompressed;
     const PCSCHEMA *schema;
     uint8_t *buf;
-        
+
     npoints = pdl->npoints;
     schema = pdl->schema;
     patch = pcalloc(sizeof(PCPATCH_UNCOMPRESSED));
@@ -325,10 +325,10 @@ pc_patch_uncompressed_from_dimensional(const PCPATCH_DIMENSIONAL *pdl)
     patch->datasize = schema->size * pdl->npoints;
     patch->data = pcalloc(patch->datasize);
     buf = patch->data;
-    
+
     /* Can only read from uncompressed dimensions */
     pdl_uncompressed = pc_patch_dimensional_decompress(pdl);
-    
+
     for ( i = 0; i < npoints; i++ )
     {
         for ( j = 0; j < schema->ndims; j++ )
@@ -340,26 +340,26 @@ pc_patch_uncompressed_from_dimensional(const PCPATCH_DIMENSIONAL *pdl)
         }
         buf += schema->size;
     }
-    
+
     pc_patch_dimensional_free(pdl_uncompressed);
-    
+
     return patch;
 }
 
 
-int 
+int
 pc_patch_uncompressed_add_point(PCPATCH_UNCOMPRESSED *c, const PCPOINT *p)
 {
 	size_t sz;
 	uint8_t *ptr;
 	double x, y;
-	
+
 	if ( ! ( c && p ) )
 	{
 		pcerror("pc_patch_uncompressed_add_point: null point or patch argument");
 		return PC_FAILURE;
 	}
-	
+
 	if ( c->schema->pcid != p->schema->pcid )
 	{
 		pcerror("pc_patch_uncompressed_add_point: pcids of point (%d) and patch (%d) not equal", c->schema->pcid, p->schema->pcid);
@@ -377,9 +377,9 @@ pc_patch_uncompressed_add_point(PCPATCH_UNCOMPRESSED *c, const PCPOINT *p)
 		pcerror("pc_patch_uncompressed_add_point: cannot add point to compressed patch");
 		return PC_FAILURE;
 	}
-	
+
 	sz = c->schema->size;
-	
+
 	/* Double the data buffer if it's already full */
 	if ( c->npoints == c->maxpoints )
 	{
@@ -387,12 +387,12 @@ pc_patch_uncompressed_add_point(PCPATCH_UNCOMPRESSED *c, const PCPOINT *p)
 		c->datasize = c->maxpoints * sz;
 		c->data = pcrealloc(c->data, c->datasize);
 	}
-	
+
 	/* Copy the data buffer from point to patch */
 	ptr = c->data + sz * c->npoints;
 	memcpy(ptr, p->data, sz);
 	c->npoints += 1;
-	
+
 	/* Update bounding box */
 	x = pc_point_get_x(p);
 	y = pc_point_get_y(p);
@@ -400,6 +400,6 @@ pc_patch_uncompressed_add_point(PCPATCH_UNCOMPRESSED *c, const PCPOINT *p)
 	if ( c->ymin > y ) c->ymin = y;
 	if ( c->xmax < x ) c->xmax = x;
 	if ( c->ymax < y ) c->ymax = y;
-	
-	return PC_SUCCESS;	
+
+	return PC_SUCCESS;
 }

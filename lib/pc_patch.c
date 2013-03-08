@@ -41,7 +41,7 @@ pc_patch_free(PCPATCH *patch)
 		{
 			pc_patch_uncompressed_free((PCPATCH_UNCOMPRESSED*)patch);
             break;
-		}	
+		}
 		case PC_GHT:
 	    {
 			pcerror("pc_patch_free: GHT not supported");
@@ -61,7 +61,7 @@ pc_patch_free(PCPATCH *patch)
 }
 
 
-PCPATCH * 
+PCPATCH *
 pc_patch_from_pointlist(const PCPOINTLIST *ptl)
 {
     return (PCPATCH*)pc_patch_uncompressed_from_pointlist(ptl);
@@ -73,8 +73,8 @@ pc_patch_compress(const PCPATCH *patch, void *userdata)
 {
 	uint32_t schema_compression = patch->schema->compression;
 	uint32_t patch_compression = patch->type;
-	
-    if ( schema_compression == PC_DIMENSIONAL && 
+
+    if ( schema_compression == PC_DIMENSIONAL &&
           patch_compression == PC_NONE )
     {
         PCPATCH_DIMENSIONAL *pcdu = pc_patch_dimensional_from_uncompressed((PCPATCH_UNCOMPRESSED*)patch);
@@ -82,14 +82,14 @@ pc_patch_compress(const PCPATCH *patch, void *userdata)
         pc_patch_dimensional_free(pcdu);
         return (PCPATCH*)pcdd;
     }
-    
-    if ( schema_compression == PC_DIMENSIONAL && 
+
+    if ( schema_compression == PC_DIMENSIONAL &&
           patch_compression == PC_DIMENSIONAL )
     {
         return (PCPATCH*)pc_patch_dimensional_compress((PCPATCH_DIMENSIONAL*)patch, (PCDIMSTATS*)userdata);
     }
-    
-    if ( schema_compression == PC_NONE && 
+
+    if ( schema_compression == PC_NONE &&
           patch_compression == PC_NONE )
     {
         return (PCPATCH*)patch;
@@ -104,30 +104,30 @@ PCPATCH *
 pc_patch_uncompress(const PCPATCH *patch)
 {
 	uint32_t patch_compression = patch->type;
-	
+
     if ( patch_compression == PC_DIMENSIONAL )
     {
         PCPATCH_UNCOMPRESSED *pu = pc_patch_uncompressed_from_dimensional((PCPATCH_DIMENSIONAL*)patch);
         return (PCPATCH*)pu;
     }
-    
+
     if ( patch_compression == PC_NONE )
     {
         return (PCPATCH*)patch;
     }
-    
+
     if ( patch_compression == PC_GHT )
     {
         pcerror("pc_patch_uncompress: GHT compression not yet supported");
         return NULL;
     }
-    
+
     return NULL;
 }
 
 
 
-PCPATCH * 
+PCPATCH *
 pc_patch_from_wkb(const PCSCHEMA *s, uint8_t *wkb, size_t wkbsize)
 {
 	/*
@@ -137,12 +137,12 @@ pc_patch_from_wkb(const PCSCHEMA *s, uint8_t *wkb, size_t wkbsize)
     uchar[]:  data (interpret relative to pcid and compression)
 	*/
 	uint32_t compression, pcid;
-	
+
 	if ( ! wkbsize )
 	{
 		pcerror("pc_patch_from_wkb: zero length wkb");
 	}
-	
+
 	/*
 	* It is possible for the WKB compression to be different from the
 	* schema compression at this point. The schema compression is only
@@ -155,7 +155,7 @@ pc_patch_from_wkb(const PCSCHEMA *s, uint8_t *wkb, size_t wkbsize)
 	{
 		pcerror("pc_patch_from_wkb: wkb pcid (%d) not consistent with schema pcid (%d)", pcid, s->pcid);
 	}
-	
+
 	switch ( compression )
 	{
 		case PC_NONE:
@@ -172,7 +172,7 @@ pc_patch_from_wkb(const PCSCHEMA *s, uint8_t *wkb, size_t wkbsize)
 			return NULL;
 		}
 	}
-	
+
 	/* Don't get here */
 	pcerror("pc_patch_from_wkb: unknown compression '%d' requested", compression);
 	return NULL;
@@ -204,7 +204,7 @@ pc_patch_to_wkb(const PCPATCH *patch, size_t *wkbsize)
 			pcerror("pc_patch_to_wkb: GHT compression not yet supported");
 			return NULL;
 		}
-	}	
+	}
 	pcerror("pc_patch_to_wkb: unknown compression requested '%d'", patch->schema->compression);
 	return NULL;
 }
@@ -257,7 +257,7 @@ pc_patch_to_geometry_wkb_envelope(const PCPATCH *pa, size_t *wkbsize)
 	int has_srid = PC_FALSE;
 	size_t size = 1 + 4 + 4 + 4 + 2*npoints*8; /* endian + type + nrings + npoints + 5 dbl pts */
 	double x, y;
-	
+
 	if ( pa->schema->srid > 0 )
 	{
 		has_srid = PC_TRUE;
@@ -267,39 +267,39 @@ pc_patch_to_geometry_wkb_envelope(const PCPATCH *pa, size_t *wkbsize)
 
 	wkb = pcalloc(size);
 	ptr = wkb;
-	
+
 	ptr = pc_patch_wkb_set_char(ptr, machine_endian()); /* Endian flag */
-	
+
 	ptr = pc_patch_wkb_set_int32(ptr, wkbtype); /* TYPE = Polygon */
-	
+
 	if ( has_srid )
 	{
 		ptr = pc_patch_wkb_set_int32(ptr, pa->schema->srid); /* SRID */
 	}
-	
+
 	ptr = pc_patch_wkb_set_int32(ptr, nrings);  /* NRINGS = 1 */
 	ptr = pc_patch_wkb_set_int32(ptr, npoints); /* NPOINTS = 5 */
-	
+
 	/* Point 0 */
 	ptr = pc_patch_wkb_set_double(ptr, pa->xmin);
 	ptr = pc_patch_wkb_set_double(ptr, pa->ymin);
-	
+
 	/* Point 1 */
 	ptr = pc_patch_wkb_set_double(ptr, pa->xmin);
 	ptr = pc_patch_wkb_set_double(ptr, pa->ymax);
-	
+
 	/* Point 2 */
 	ptr = pc_patch_wkb_set_double(ptr, pa->xmax);
 	ptr = pc_patch_wkb_set_double(ptr, pa->ymax);
-	
+
 	/* Point 3 */
 	ptr = pc_patch_wkb_set_double(ptr, pa->xmax);
 	ptr = pc_patch_wkb_set_double(ptr, pa->ymin);
-	
+
 	/* Point 4 */
 	ptr = pc_patch_wkb_set_double(ptr, pa->xmin);
 	ptr = pc_patch_wkb_set_double(ptr, pa->ymin);
-	
+
 	if ( wkbsize ) *wkbsize = size;
 	return wkb;
 }
@@ -312,13 +312,13 @@ pc_patch_from_patchlist(PCPATCH **palist, int numpatches)
     PCPATCH_UNCOMPRESSED *paout;
     const PCSCHEMA *schema = NULL;
     uint8_t *buf;
-    
+
     assert(palist);
     assert(numpatches);
-    
+
     /* All schemas better be the same... */
     schema = palist[0]->schema;
-    
+
     /* How many points will this output have? */
     for ( i = 0; i < numpatches; i++ )
     {
@@ -329,11 +329,11 @@ pc_patch_from_patchlist(PCPATCH **palist, int numpatches)
         }
         totalpoints += palist[i]->npoints;
     }
-    
+
     /* Blank output */
     paout = pc_patch_uncompressed_make(schema, totalpoints);
     buf = paout->data;
-    
+
     /* Uncompress dimensionals, copy uncompressed */
     for ( i = 0; i < numpatches; i++ )
     {
@@ -344,7 +344,7 @@ pc_patch_from_patchlist(PCPATCH **palist, int numpatches)
         if ( pa->ymin < paout->ymin ) paout->ymin = pa->ymin;
         if ( pa->xmax > paout->xmax ) paout->xmax = pa->xmax;
         if ( pa->ymax > paout->ymax ) paout->ymax = pa->ymax;
-        
+
         switch ( pa->type )
         {
             case PC_DIMENSIONAL:
@@ -376,7 +376,7 @@ pc_patch_from_patchlist(PCPATCH **palist, int numpatches)
             }
         }
     }
-    
+
     paout->npoints = totalpoints;
     return (PCPATCH*)paout;
 }

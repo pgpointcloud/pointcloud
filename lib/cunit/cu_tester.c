@@ -162,10 +162,10 @@ int main(int argc, char *argv[])
  * Log message in a global var instead of printing in stderr
  *
  * CAUTION: Not stop execution on rterror case !!!
-static void cu_error_reporter(const char *fmt, va_list ap) 
+static void cu_error_reporter(const char *fmt, va_list ap)
 {
 	char *msg;
-	if (!vasprintf (&msg, fmt, ap)) 
+	if (!vasprintf (&msg, fmt, ap))
 	{
 		va_end (ap);
 		return;
@@ -190,7 +190,7 @@ file_to_str(const char *fname)
 	char *str = pcalloc(sz);
 	char *ptr = str;
 	char *ln;
-	
+
 	fr = fopen (fname, "rt");
 	while( ln = fgetln(fr, &lnsz) )
 	{
@@ -202,9 +202,9 @@ file_to_str(const char *fname)
 			ptr = str + bsz;
 		}
 		memcpy(ptr, ln, lnsz);
-		ptr += lnsz;		
+		ptr += lnsz;
 	}
 	fclose(fr);
-	
+
 	return str;
 }

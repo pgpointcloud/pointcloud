@@ -20,8 +20,8 @@ double pc_value_scale_offset(double val, const PCDIMENSION *dim)
 	/* Offset value */
 	if ( dim->offset )
 		val += dim->offset;
-	
-    return val;    
+
+    return val;
 }
 
 double
@@ -31,10 +31,10 @@ pc_value_from_ptr(const uint8_t *ptr, const PCDIMENSION *dim)
     return pc_value_scale_offset(val, dim);
 }
 
-double 
+double
 pc_double_from_ptr(const uint8_t *ptr, uint32_t interpretation)
-{	
-	switch( interpretation ) 
+{
+	switch( interpretation )
 	{
 		case PC_UINT8:
 		{
@@ -105,10 +105,10 @@ pc_double_from_ptr(const uint8_t *ptr, uint32_t interpretation)
 }
 
 
-int 
+int
 pc_double_to_ptr(uint8_t *ptr, uint32_t interpretation, double val)
-{	
-	switch( interpretation ) 
+{
+	switch( interpretation )
 	{
 		case PC_UINT8:
 		{

@@ -52,13 +52,13 @@ Datum pcpoint_get_value(PG_FUNCTION_ARGS)
     PCSCHEMA *schema = pc_schema_from_pcid(serpt->pcid, fcinfo);
 	PCPOINT *pt = pc_point_deserialize(serpt, schema);
 	if ( ! pt )
-		PG_RETURN_NULL();	
+		PG_RETURN_NULL();
 
-	dim_str = text_to_cstring(dim_name);		
+	dim_str = text_to_cstring(dim_name);
 	if ( ! pc_point_get_double_by_name(pt, dim_str, &double_result) )
 	{
 		pc_point_free(pt);
-		elog(ERROR, "dimension \"%s\" does not exist in schema", dim_str);		
+		elog(ERROR, "dimension \"%s\" does not exist in schema", dim_str);
 	}
 	pfree(dim_str);
 	pc_point_free(pt);
@@ -99,9 +99,9 @@ pcpatch_from_point_array(ArrayType *array, FunctionCallInfoData *fcinfo)
 	bitmap = ARR_NULLBITMAP(array);
 
 	/* Empty array? Null return */
-	if ( nelems == 0 ) 
+	if ( nelems == 0 )
         return NULL;
-	
+
 	/* Make our holder */
 	pl = pc_pointlist_make(nelems);
 
@@ -115,13 +115,13 @@ pcpatch_from_point_array(ArrayType *array, FunctionCallInfoData *fcinfo)
 		{
 			SERIALIZED_POINT *serpt = (SERIALIZED_POINT *)(ARR_DATA_PTR(array)+offset);
 			PCPOINT *pt;
-			
+
 			if ( ! schema )
 			{
                 schema = pc_schema_from_pcid(serpt->pcid, fcinfo);
 		    }
-			
-			if ( ! pcid ) 
+
+			if ( ! pcid )
 			{
 				pcid = serpt->pcid;
 			}
@@ -129,20 +129,20 @@ pcpatch_from_point_array(ArrayType *array, FunctionCallInfoData *fcinfo)
 			{
 				elog(ERROR, "pcpatch_from_point_array: pcid mismatch (%d != %d)", serpt->pcid, pcid);
 			}
-			
+
 			pt = pc_point_deserialize(serpt, schema);
 			if ( ! pt )
 			{
 				elog(ERROR, "pcpatch_from_point_array: point deserialization failed");
 			}
-			
+
 			pc_pointlist_add_point(pl, pt);
 
-			offset += INTALIGN(VARSIZE(serpt));			
+			offset += INTALIGN(VARSIZE(serpt));
 		}
 
 	}
-	
+
 	if ( pl->npoints == 0 )
 		return NULL;
 
@@ -173,9 +173,9 @@ pcpatch_from_patch_array(ArrayType *array, FunctionCallInfoData *fcinfo)
 	bitmap = ARR_NULLBITMAP(array);
 
 	/* Empty array? Null return */
-	if ( nelems == 0 ) 
+	if ( nelems == 0 )
         return NULL;
-	
+
 	/* Make our temporary list of patches */
 	palist = pcalloc(nelems*sizeof(PCPATCH*));
 
@@ -189,13 +189,13 @@ pcpatch_from_patch_array(ArrayType *array, FunctionCallInfoData *fcinfo)
 		if ( ! array_get_isnull(bitmap, i) )
 		{
 			SERIALIZED_PATCH *serpatch = (SERIALIZED_PATCH *)(ARR_DATA_PTR(array)+offset);
-			
+
 			if ( ! schema )
 			{
                 schema = pc_schema_from_pcid(serpatch->pcid, fcinfo);
 		    }
-			
-			if ( ! pcid ) 
+
+			if ( ! pcid )
 			{
 				pcid = serpatch->pcid;
 			}
@@ -203,34 +203,34 @@ pcpatch_from_patch_array(ArrayType *array, FunctionCallInfoData *fcinfo)
 			{
 				elog(ERROR, "pcpatch_from_patch_array: pcid mismatch (%d != %d)", serpatch->pcid, pcid);
 			}
-			
+
 			pa = pc_patch_deserialize(serpatch, schema);
 			if ( ! pa )
 			{
 				elog(ERROR, "pcpatch_from_patch_array: patch deserialization failed");
 			}
-			
+
             palist[numpatches++] = pa;
 
 			offset += INTALIGN(VARSIZE(serpatch));
 		}
 
 	}
-	
+
 	/* Can't do anything w/ NULL */
 	if ( numpatches == 0 )
 		return NULL;
 
     /* Pass to the lib to build the output patch from the list */
 	pa = pc_patch_from_patchlist(palist, numpatches);
-	
+
 	/* Free the temporary patch list */
     for ( i = 0; i < numpatches; i++ )
     {
         pc_patch_free(palist[i]);
     }
     pcfree(palist);
-    
+
     return pa;
 }
 
@@ -359,7 +359,7 @@ pointcloud_agg_final(abs_trans *a, MemoryContext mctx, FunctionCallInfo fcinfo)
 	state = a->s;
 	dims[0] = state->nelems;
 	lbs[0] = 1;
-	return makeMdArrayResult(state, 1, dims, lbs, mctx, false);	
+	return makeMdArrayResult(state, 1, dims, lbs, mctx, false);
 }
 
 PG_FUNCTION_INFO_V1(pcpoint_agg_final_array);
@@ -370,9 +370,9 @@ Datum pcpoint_agg_final_array(PG_FUNCTION_ARGS)
 
 	if (PG_ARGISNULL(0))
 		PG_RETURN_NULL();   /* returns null iff no input values */
-	
+
 	a = (abs_trans*) PG_GETARG_POINTER(0);
-	
+
 	result = pointcloud_agg_final(a, CurrentMemoryContext, fcinfo);
 	PG_RETURN_DATUM(result);
 }
@@ -386,9 +386,9 @@ Datum pcpatch_agg_final_array(PG_FUNCTION_ARGS)
 
 	if (PG_ARGISNULL(0))
 		PG_RETURN_NULL();   /* returns null iff no input values */
-	
+
 	a = (abs_trans*) PG_GETARG_POINTER(0);
-	
+
 	result = pointcloud_agg_final(a, CurrentMemoryContext, fcinfo);
 	PG_RETURN_DATUM(result);
 }
@@ -411,7 +411,7 @@ Datum pcpoint_agg_final_pcpatch(PG_FUNCTION_ARGS)
     pa = pcpatch_from_point_array(array, fcinfo);
     if ( ! pa )
         PG_RETURN_NULL();
-	
+
     serpa = pc_patch_serialize(pa, NULL);
     pc_patch_free(pa);
     PG_RETURN_POINTER(serpa);
@@ -435,7 +435,7 @@ Datum pcpatch_agg_final_pcpatch(PG_FUNCTION_ARGS)
     pa = pcpatch_from_patch_array(array, fcinfo);
     if ( ! pa )
         PG_RETURN_NULL();
-	
+
     serpa = pc_patch_serialize(pa, NULL);
     pc_patch_free(pa);
     PG_RETURN_POINTER(serpa);
@@ -458,10 +458,10 @@ Datum pcpatch_unnest(PG_FUNCTION_ARGS)
 
 	/* stuff done only on the first call of the function */
 	if (SRF_IS_FIRSTCALL())
-	{		
+	{
 		PCPATCH *patch;
 		SERIALIZED_PATCH *serpatch;
-		
+
 		/* create a function context for cross-call persistence */
 		funcctx = SRF_FIRSTCALL_INIT();
 
@@ -536,10 +536,10 @@ Datum pcpatch_intersects(PG_FUNCTION_ARGS)
 {
 	SERIALIZED_PATCH *serpa1 = PG_GETARG_SERPATCH_P(0);
 	SERIALIZED_PATCH *serpa2 = PG_GETARG_SERPATCH_P(1);
-	
+
 	if ( serpa1->pcid != serpa2->pcid )
 	    elog(ERROR, "pcpatch_intersects: pcid mismatch (%d != %d)", serpa1->pcid, serpa2->pcid);
-	
+
 	if ( serpa1->xmin > serpa2->xmax ||
 	     serpa1->xmax < serpa2->xmin ||
 	     serpa1->ymin > serpa2->ymax ||
@@ -547,7 +547,7 @@ Datum pcpatch_intersects(PG_FUNCTION_ARGS)
 	{
         PG_RETURN_BOOL(FALSE);
     }
-	
+
     PG_RETURN_BOOL(TRUE);
 }
 

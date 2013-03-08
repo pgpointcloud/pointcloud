@@ -37,9 +37,9 @@ pcid_consistent(const uint32 pcid, const uint32 column_pcid)
 	{
         ereport(ERROR, (
             errcode(ERRCODE_DATATYPE_MISMATCH),
-            errmsg("point/patch pcid (%u) does not match column pcid (%d)", pcid, column_pcid) 
+            errmsg("point/patch pcid (%u) does not match column pcid (%d)", pcid, column_pcid)
             ));
-	} 
+	}
 }
 
 
@@ -52,8 +52,8 @@ Datum pcpoint_in(PG_FUNCTION_ARGS)
     uint32 pcid = 0;
 	PCPOINT *pt;
 	SERIALIZED_POINT *serpt;
-	
-	if ( (PG_NARGS()>2) && (!PG_ARGISNULL(2)) ) 
+
+	if ( (PG_NARGS()>2) && (!PG_ARGISNULL(2)) )
 	{
 		typmod = PG_GETARG_INT32(2);
         pcid = pcid_from_typmod(typmod);
@@ -67,7 +67,7 @@ Datum pcpoint_in(PG_FUNCTION_ARGS)
 
 	/* Binary or text form? Let's find out. */
 	if ( str[0] == '0' )
-	{		
+	{
 		/* Hex-encoded binary */
 		pt = pc_point_from_hexwkb(str, strlen(str), fcinfo);
         pcid_consistent(pt->schema->pcid, pcid);
@@ -107,8 +107,8 @@ Datum pcpatch_in(PG_FUNCTION_ARGS)
     uint32 typmod = 0, pcid = 0;
 	PCPATCH *patch;
 	SERIALIZED_PATCH *serpatch;
-	
-	if ( (PG_NARGS()>2) && (!PG_ARGISNULL(2)) ) 
+
+	if ( (PG_NARGS()>2) && (!PG_ARGISNULL(2)) )
 	{
 		typmod = PG_GETARG_INT32(2);
         pcid = pcid_from_typmod(typmod);
@@ -122,7 +122,7 @@ Datum pcpatch_in(PG_FUNCTION_ARGS)
 
 	/* Binary or text form? Let's find out. */
 	if ( str[0] == '0' )
-	{		
+	{
 		/* Hex-encoded binary */
 		patch = pc_patch_from_hexwkb(str, strlen(str), fcinfo);
         pcid_consistent(patch->schema->pcid, pcid);
@@ -162,7 +162,7 @@ Datum pcschema_is_valid(PG_FUNCTION_ARGS)
 	PCSCHEMA *schema;
 	int err = pc_schema_from_xml(xmlstr, &schema);
 	pfree(xmlstr);
-	
+
 	if ( ! err )
 	{
 		PG_RETURN_BOOL(FALSE);
@@ -206,17 +206,17 @@ Datum pcpoint_from_double_array(PG_FUNCTION_ARGS)
 
 	if ( ARR_ELEMTYPE(arrptr) != FLOAT8OID )
 		elog(ERROR, "array must be of float8[]");
-		
+
 	if ( ARR_NDIM(arrptr) != 1 )
 		elog(ERROR, "float8[] must have only one dimension");
 
 	if ( ARR_HASNULL(arrptr) )
 		elog(ERROR, "float8[] must not have null elements");
-	
+
 	nelems = ARR_DIMS(arrptr)[0];
 	if ( nelems != schema->ndims || ARR_LBOUND(arrptr)[0] > 1 )
 		elog(ERROR, "array dimenensions do not match schema dimensions of pcid = %d", pcid);
-	
+
 	vals = (float8*) ARR_DATA_PTR(arrptr);
     pt = pc_point_from_double_array(schema, vals, nelems);
 
@@ -233,9 +233,9 @@ Datum pcpoint_as_text(PG_FUNCTION_ARGS)
 	char *str;
     PCSCHEMA *schema = pc_schema_from_pcid(serpt->pcid, fcinfo);
 	PCPOINT *pt = pc_point_deserialize(serpt, schema);
-	if ( ! pt ) 
-		PG_RETURN_NULL();	
-	
+	if ( ! pt )
+		PG_RETURN_NULL();
+
 	str = pc_point_to_string(pt);
 	pc_point_free(pt);
 	txt = cstring_to_text(str);
@@ -251,9 +251,9 @@ Datum pcpatch_as_text(PG_FUNCTION_ARGS)
 	char *str;
     PCSCHEMA *schema = pc_schema_from_pcid(serpatch->pcid, fcinfo);
 	PCPATCH *patch = pc_patch_deserialize(serpatch, schema);
-	if ( ! patch ) 
-		PG_RETURN_NULL();	
-	
+	if ( ! patch )
+		PG_RETURN_NULL();
+
 	str = pc_patch_to_string(patch);
 	pc_patch_free(patch);
 	txt = cstring_to_text(str);
@@ -272,15 +272,15 @@ Datum pcpoint_as_bytea(PG_FUNCTION_ARGS)
     PCSCHEMA *schema = pc_schema_from_pcid(serpt->pcid, fcinfo);
 	PCPOINT *pt = pc_point_deserialize(serpt, schema);
 
-	if ( ! pt ) 
-		PG_RETURN_NULL();	
+	if ( ! pt )
+		PG_RETURN_NULL();
 
 	bytes = pc_point_to_geometry_wkb(pt, &bytes_size);
 	wkb_size = VARHDRSZ + bytes_size;
 	wkb = palloc(wkb_size);
 	memcpy(VARDATA(wkb), bytes, bytes_size);
 	SET_VARSIZE(wkb, wkb_size);
-	
+
 	pc_point_free(pt);
 	pfree(bytes);
 
@@ -298,15 +298,15 @@ Datum pcpatch_bytea_envelope(PG_FUNCTION_ARGS)
     PCSCHEMA *schema = pc_schema_from_pcid(serpatch->pcid, fcinfo);
 	PCPATCH *pa = pc_patch_deserialize(serpatch, schema);
 
-	if ( ! pa ) 
-		PG_RETURN_NULL();	
+	if ( ! pa )
+		PG_RETURN_NULL();
 
 	bytes = pc_patch_to_geometry_wkb_envelope(pa, &bytes_size);
 	wkb_size = VARHDRSZ + bytes_size;
 	wkb = palloc(wkb_size);
 	memcpy(VARDATA(wkb), bytes, bytes_size);
 	SET_VARSIZE(wkb, wkb_size);
-	
+
 	pc_patch_free(pa);
 	pfree(bytes);
 
@@ -364,7 +364,7 @@ Datum pc_typmod_out(PG_FUNCTION_ARGS)
     char *str = (char*)palloc(64);
     uint32 typmod = PG_GETARG_INT32(0);
     uint32 pcid = pcid_from_typmod(typmod);
-    
+
 
     /* No PCID value? Then no typmod at all. Return empty string. */
     if ( ! pcid )

@@ -40,7 +40,7 @@ static uint8_t hex2char[256] = {
 };
 
 
-uint8_t* 
+uint8_t*
 bytes_from_hexbytes(const char *hexbuf, size_t hexsize)
 {
 	uint8_t *buf = NULL;
@@ -69,13 +69,13 @@ bytes_from_hexbytes(const char *hexbuf, size_t hexsize)
 	return buf;
 }
 
-char* 
+char*
 hexbytes_from_bytes(const uint8_t *bytebuf, size_t bytesize)
 {
 	char *buf = pcalloc(2*bytesize + 1); /* 2 chars per byte + null terminator */
 	int i;
 	char *ptr = buf;
-	
+
 	for ( i = 0; i < bytesize; i++ )
 	{
 		int incr = snprintf(ptr, 3, "%02X", bytebuf[i]);
@@ -86,7 +86,7 @@ hexbytes_from_bytes(const uint8_t *bytebuf, size_t bytesize)
 		}
 		ptr += incr;
 	}
-	
+
 	return buf;
 }
 
@@ -136,7 +136,7 @@ wkb_get_int32(const uint8_t *wkb, int flip_endian)
 {
     int32_t i;
     memcpy(&i, wkb, 4);
-    if ( flip_endian ) 
+    if ( flip_endian )
         return int32_flip_endian(i);
     else
         return i;
@@ -147,7 +147,7 @@ wkb_get_int16(const uint8_t *wkb, int flip_endian)
 {
     int16_t i;
     memcpy(&i, wkb, 2);
-    if ( flip_endian ) 
+    if ( flip_endian )
         return int16_flip_endian(i);
     else
         return i;
@@ -203,7 +203,7 @@ wkb_get_npoints(const uint8_t *wkb)
 	}
 	return npoints;
 }
-uint8_t* 
+uint8_t*
 uncompressed_bytes_flip_endian(const uint8_t *bytebuf, const PCSCHEMA *schema, uint32_t npoints)
 {
 	int i, j, k;
@@ -211,14 +211,14 @@ uncompressed_bytes_flip_endian(const uint8_t *bytebuf, const PCSCHEMA *schema, u
 	uint8_t *buf = pcalloc(bufsize);
 
 	memcpy(buf, bytebuf, bufsize);
-	
+
 	for ( i = 0; i < npoints ; i++ )
 	{
 		for ( j = 0; j < schema->ndims; j++ )
 		{
 			PCDIMENSION *dimension = schema->dims[j];
 			uint8_t *ptr = buf + i * schema->size + dimension->byteoffset;
-            
+
 			for ( k = 0; k < ((dimension->size)/2); k++ )
 			{
 				int l = dimension->size - k - 1;
@@ -228,17 +228,17 @@ uncompressed_bytes_flip_endian(const uint8_t *bytebuf, const PCSCHEMA *schema, u
 			}
 		}
 	}
-	
+
 	return buf;
 }
 
-typedef struct 
+typedef struct
 {
     uint8_t *buf;
     uint8_t *ptr;
     size_t sz;
 } bytebuffer_t;
-    
+
 static bytebuffer_t *
 bytebuffer_new(void)
 {
@@ -248,7 +248,7 @@ bytebuffer_new(void)
     bb->ptr = bb->buf;
 }
 
-static void 
+static void
 bytebuffer_destroy(bytebuffer_t *bb)
 {
     pcfree(bb->buf);

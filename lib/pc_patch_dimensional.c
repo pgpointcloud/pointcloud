@@ -18,7 +18,7 @@ typedef struct
     int type;
 	int8_t readonly;
 	const PCSCHEMA *schema;
-	uint32_t npoints; 
+	uint32_t npoints;
 	double xmin, xmax, ymin, ymax;
     PCBYTES *bytes;
 } PCPATCH_DIMENSIONAL;
@@ -62,19 +62,19 @@ pc_patch_dimensional_from_uncompressed(const PCPATCH_UNCOMPRESSED *pa)
 
     /* Cannot handle empty patches */
     if ( npoints == 0 ) return NULL;
-    
+
     /* Initialize list */
     pdl = pcalloc(sizeof(PCPATCH_DIMENSIONAL));
     pdl->schema = schema;
     pdl->npoints = npoints;
-    pdl->bytes = pcalloc(ndims * sizeof(PCBYTES));    
+    pdl->bytes = pcalloc(ndims * sizeof(PCBYTES));
     pdl->readonly = PC_FALSE;
     pdl->type = PC_DIMENSIONAL;
     pdl->xmin = pa->xmin;
     pdl->xmax = pa->xmax;
     pdl->ymin = pa->ymin;
     pdl->ymax = pa->ymax;
-    
+
     for ( i = 0; i < ndims; i++ )
     {
         PCDIMENSION *dim = pc_schema_get_dimension(schema, i);
@@ -95,27 +95,27 @@ pc_patch_dimensional_compress(const PCPATCH_DIMENSIONAL *pdl, PCDIMSTATS *pds)
     int i;
     int ndims = pdl->schema->ndims;
     PCPATCH_DIMENSIONAL *pdl_compressed;
-    
+
     assert(pdl);
     assert(pdl->schema);
-    
+
     if ( ! pds )
         pds = pc_dimstats_make(pdl->schema);
-    
+
     /* Still sampling, update stats */
     if ( pds->total_points < PCDIMSTATS_MIN_SAMPLE )
         pc_dimstats_update(pds, pdl);
-    
+
     pdl_compressed = pcalloc(sizeof(PCPATCH_DIMENSIONAL));
     memcpy(pdl_compressed, pdl, sizeof(PCPATCH_DIMENSIONAL));
     pdl_compressed->bytes = pcalloc(ndims*sizeof(PCBYTES));
-    
+
     /* Compress each dimension as dictated by stats */
     for ( i = 0; i < ndims; i++ )
     {
         pdl_compressed->bytes[i] = pc_bytes_encode(pdl->bytes[i], pds->stats[i].recommended_compression);
     }
-    
+
     return pdl_compressed;
 }
 
@@ -137,7 +137,7 @@ pc_patch_dimensional_decompress(const PCPATCH_DIMENSIONAL *pdl)
     for ( i = 0; i < ndims; i++ )
     {
         pdl_decompressed->bytes[i] = pc_bytes_decode(pdl->bytes[i]);
-    }    
+    }
 
     return pdl_decompressed;
 }
@@ -148,7 +148,7 @@ pc_patch_dimensional_free(PCPATCH_DIMENSIONAL *pdl)
     int i;
     assert(pdl);
     assert(pdl->schema);
-    
+
     if ( pdl->bytes )
     {
         for ( i = 0; i < pdl->schema->ndims; i++ )
@@ -156,7 +156,7 @@ pc_patch_dimensional_free(PCPATCH_DIMENSIONAL *pdl)
 
         pcfree(pdl->bytes);
     }
-    
+
     pcfree(pdl);
 }
 
@@ -167,10 +167,10 @@ pc_patch_dimensional_compute_extent(PCPATCH_DIMENSIONAL *pdl)
     double xmin, xmax, ymin, ymax;
     int rv;
     PCBYTES *pcb;
-    
+
     assert(pdl);
     assert(pdl->schema);
-    
+
     /* Get x extremes */
     pcb = &(pdl->bytes[pdl->schema->x_position]);
     rv = pc_bytes_minmax(pcb, &xmin, &xmax);
@@ -186,7 +186,7 @@ pc_patch_dimensional_compute_extent(PCPATCH_DIMENSIONAL *pdl)
     ymax = pc_value_scale_offset(xmax, pdl->schema->dims[pdl->schema->y_position]);
     pdl->ymin = ymin;
     pdl->ymax = ymax;
-    
+
 	return PC_SUCCESS;
 }
 
@@ -221,7 +221,7 @@ pc_patch_dimensional_to_wkb(const PCPATCH_DIMENSIONAL *patch, size_t *wkbsize)
         size_t bsz;
         PCBYTES *pcb = &(patch->bytes[i]);
 // XXX        printf("pcb->(size=%d, interp=%d, npoints=%d, compression=%d, readonly=%d)\n",pcb->size, pcb->interpretation, pcb->npoints, pcb->compression, pcb->readonly);
-        
+
         pc_bytes_serialize(pcb, buf, &bsz);
         buf += bsz;
     }
@@ -231,7 +231,7 @@ pc_patch_dimensional_to_wkb(const PCPATCH_DIMENSIONAL *patch, size_t *wkbsize)
 }
 
 
-PCPATCH * 
+PCPATCH *
 pc_patch_dimensional_from_wkb(const PCSCHEMA *schema, const uint8_t *wkb, size_t wkbsize)
 {
 	/*
@@ -247,16 +247,16 @@ pc_patch_dimensional_from_wkb(const PCSCHEMA *schema, const uint8_t *wkb, size_t
 	uint32_t npoints, ndims;
     const uint8_t *buf;
     int i;
-	
+
 	if ( wkb_get_compression(wkb) != PC_DIMENSIONAL )
 	{
 		pcerror("pc_patch_dimensional_from_wkb: call with wkb that is not dimensionally compressed");
 		return NULL;
 	}
-	
+
 	npoints = wkb_get_npoints(wkb);
     ndims = schema->ndims;
-	
+
 	patch = pcalloc(sizeof(PCPATCH_DIMENSIONAL));
 	patch->npoints = npoints;
     patch->type = PC_DIMENSIONAL;

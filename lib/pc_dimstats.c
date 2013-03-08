@@ -62,10 +62,10 @@ pc_dimstats_to_string(const PCDIMSTATS *pds)
     int i;
     stringbuffer_t *sb = stringbuffer_create();
 	char *str;
-    
-    stringbuffer_aprintf(sb,"{\"ndims\":%d,\"total_points\":%d,\"total_patches\":%d,\"dims\":[", 
-                pds->ndims, 
-                pds->total_points, 
+
+    stringbuffer_aprintf(sb,"{\"ndims\":%d,\"total_points\":%d,\"total_patches\":%d,\"dims\":[",
+                pds->ndims,
+                pds->total_points,
                 pds->total_patches
     );
 
@@ -73,8 +73,8 @@ pc_dimstats_to_string(const PCDIMSTATS *pds)
     {
         if ( i ) stringbuffer_append(sb, ",");
         stringbuffer_aprintf(sb, "{\"total_runs\":%d,\"total_commonbits\":%d,\"recommended_compression\":%d}",
-                pds->stats[i].total_runs, 
-                pds->stats[i].total_commonbits, 
+                pds->stats[i].total_runs,
+                pds->stats[i].total_commonbits,
                 pds->stats[i].recommended_compression
         );
     }
@@ -91,11 +91,11 @@ pc_dimstats_update(PCDIMSTATS *pds, const PCPATCH_DIMENSIONAL *pdl)
     int i, j;
     uint32_t nelems = pdl->npoints;
     const PCSCHEMA *schema = pdl->schema;
-    
+
     /* Update global stats */
     pds->total_points += pdl->npoints;
     pds->total_patches += 1;
-    
+
     /* Update dimensional stats */
     for ( i = 0; i < pds->ndims; i++ )
     {
@@ -103,7 +103,7 @@ pc_dimstats_update(PCDIMSTATS *pds, const PCPATCH_DIMENSIONAL *pdl)
         pds->stats[i].total_runs += pc_bytes_run_count(&pcb);
         pds->stats[i].total_commonbits += pc_bytes_sigbits_count(&pcb);
     }
-    
+
     /* Update recommended compression schema */
     for ( i = 0; i < pds->ndims; i++ )
     {

@@ -16,7 +16,7 @@ static PCSCHEMA *schema = NULL;
 static const char *xmlfile = "data/pdal-schema.xml";
 
 /* Setup/teardown for this suite */
-static int 
+static int
 init_suite(void)
 {
     char *xmlstr = file_to_str(xmlfile);
@@ -25,7 +25,7 @@ init_suite(void)
 	return rv == PC_FAILURE;
 }
 
-static int 
+static int
 clean_suite(void)
 {
 	pc_schema_free(schema);
@@ -35,8 +35,8 @@ clean_suite(void)
 
 /* TESTS **************************************************************/
 
-static void 
-test_schema_from_xml() 
+static void
+test_schema_from_xml()
 {
     static PCSCHEMA *myschema = NULL;
 	char *xmlstr = file_to_str(xmlfile);
@@ -47,23 +47,23 @@ test_schema_from_xml()
 	// printf("ndims %d\n", schema->ndims);
 	// printf("name0 %s\n", schema->dims[0]->name);
 	// printf("%s\n", schemastr);
-	
+
 	CU_ASSERT(myschema != NULL);
     pc_schema_free(myschema);
 }
 
-static void 
-test_schema_size() 
+static void
+test_schema_size()
 {
 	size_t sz = schema->size;
 	CU_ASSERT_EQUAL(sz, 37);
 }
 
-static void 
-test_dimension_get() 
+static void
+test_dimension_get()
 {
 	PCDIMENSION *d;
-	
+
 	d = pc_schema_get_dimension(schema, 0);
 	CU_ASSERT_EQUAL(d->position, 0);
 	CU_ASSERT_STRING_EQUAL(d->name, "X");
@@ -90,15 +90,15 @@ test_dimension_get()
 	CU_ASSERT_STRING_EQUAL(d->name, "Y");
 }
 
-static void 
-test_dimension_byteoffsets() 
+static void
+test_dimension_byteoffsets()
 {
 	PCDIMENSION *d;
 	int i;
 	int prev_byteoffset;
 	int prev_size;
 	int pc_size;
-	
+
 	for ( i = 0; i < schema->ndims; i++ )
 	{
 		d = pc_schema_get_dimension(schema, i);
@@ -112,17 +112,17 @@ test_dimension_byteoffsets()
 		prev_size = d->size;
 		pc_size = pc_interpretation_size(d->interpretation);
 	}
-	
+
 }
 
-static void 
-test_point_access() 
+static void
+test_point_access()
 {
 	PCPOINT *pt;
 	int rv;
 	double a1, a2, a3, a4, b1, b2, b3, b4;
 	int idx = 0;
-	
+
 	pt = pc_point_make(schema);
 	CU_ASSERT( pt != NULL );
 
@@ -144,9 +144,9 @@ test_point_access()
 	rv = pc_point_set_double_by_name(pt, "NumberOfReturns", a3);
 	rv = pc_point_get_double_by_name(pt, "NumberOfReturns", &b3);
 	CU_ASSERT_DOUBLE_EQUAL(a3, b3, 0.0000001);
-	
+
 	pc_point_free(pt);
-	
+
 	/* All at once */
 	pt = pc_point_make(schema);
 	a1 = 1.5;
@@ -165,9 +165,9 @@ test_point_access()
 	CU_ASSERT_DOUBLE_EQUAL(a2, b2, 0.0000001);
 	CU_ASSERT_DOUBLE_EQUAL(a3, b3, 0.0000001);
 	CU_ASSERT_DOUBLE_EQUAL(a4, b4, 0.0000001);
-	
+
 	pc_point_free(pt);
-	
+
 }
 
 static void

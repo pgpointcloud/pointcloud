@@ -2,7 +2,7 @@
 * pc_mem.c
 *
 *  Memory and message management routines.
-*  Allow this library to be used both inside and outside a 
+*  Allow this library to be used both inside and outside a
 *  PgSQL backend.
 *
 * Portions Copyright (c) 2012, OpenGeo
@@ -12,7 +12,7 @@
 #include <stdarg.h>
 #include "pc_api_internal.h"
 
-struct pc_context_t 
+struct pc_context_t
 {
 	pc_allocator alloc;
 	pc_reallocator realloc;
@@ -104,7 +104,7 @@ void pc_set_handlers(pc_allocator allocator, pc_reallocator reallocator,
 
 
 void *
-pcalloc(size_t size) 
+pcalloc(size_t size)
 {
 	void *mem = pc_context.alloc(size);
 	memset(mem, 0, size); /* Always clean memory */

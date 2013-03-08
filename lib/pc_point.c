@@ -11,18 +11,18 @@
 #include "pc_api_internal.h"
 #include "stringbuffer.h"
 
-PCPOINT * 
+PCPOINT *
 pc_point_make(const PCSCHEMA *s)
 {
 	size_t sz;
 	PCPOINT *pt;
-	
+
 	if ( ! s )
 	{
 		pcerror("null schema passed into pc_point_make");
 		return NULL;
 	}
-	
+
 	/* Width of the data area */
 	sz = s->size;
 	if ( ! sz )
@@ -30,34 +30,34 @@ pc_point_make(const PCSCHEMA *s)
 		pcerror("invalid size calculation in pc_point_make");
 		return NULL;
 	}
-	
+
 	/* Make our own data area */
-	pt = pcalloc(sizeof(PCPOINT)); 
+	pt = pcalloc(sizeof(PCPOINT));
 	pt->data = pcalloc(sz);
-	
+
 	/* Set up basic info */
 	pt->schema = s;
 	pt->readonly = PC_FALSE;
 	return pt;
 };
 
-PCPOINT * 
+PCPOINT *
 pc_point_from_data(const PCSCHEMA *s, const uint8_t *data)
 {
 	size_t sz;
 	PCPOINT *pt;
 	uint32_t pcid;
-	
+
 	if ( ! s )
 	{
 		pcerror("null schema passed into pc_point_from_data");
 		return NULL;
 	}
-	
+
 	/* Reference the external data */
 	pt = pcalloc(sizeof(PCPOINT));
 	pt->data = (uint8_t*)data;
-	
+
 	/* Set up basic info */
 	pt->schema = s;
 	pt->readonly = PC_TRUE;
@@ -80,7 +80,7 @@ pc_point_get_double(const PCPOINT *pt, const PCDIMENSION *dim, double *d)
 {
 	uint8_t *ptr;
 	double val;
-	
+
 	/* Read raw value from byte buffer */
 	ptr = pt->data + dim->byteoffset;
 	val = pc_double_from_ptr(ptr, dim->interpretation);
@@ -92,7 +92,7 @@ pc_point_get_double(const PCPOINT *pt, const PCDIMENSION *dim, double *d)
 	/* Offset value */
 	if ( dim->offset )
 		val += dim->offset;
-	
+
 	*d = val;
 	return PC_SUCCESS;
 }
@@ -115,7 +115,7 @@ pc_point_get_double_by_index(const PCPOINT *pt, uint32_t idx, double *d)
 	return pc_point_get_double(pt, dim, d);
 }
 
-int 
+int
 pc_point_set_double(PCPOINT *pt, const PCDIMENSION *d, double val)
 {
 	uint8_t *ptr;
@@ -130,11 +130,11 @@ pc_point_set_double(PCPOINT *pt, const PCDIMENSION *d, double val)
 
 	/* Get pointer into byte buffer */
 	ptr = pt->data + d->byteoffset;
-	
+
 	return pc_double_to_ptr(ptr, d->interpretation, val);
 }
 
-int 
+int
 pc_point_set_double_by_index(PCPOINT *pt, uint32_t idx, double val)
 {
 	PCDIMENSION *d;
@@ -142,7 +142,7 @@ pc_point_set_double_by_index(PCPOINT *pt, uint32_t idx, double val)
 	return pc_point_set_double(pt, d, val);
 }
 
-int 
+int
 pc_point_set_double_by_name(PCPOINT *pt, const char *name, double val)
 {
 	PCDIMENSION *d;
@@ -158,7 +158,7 @@ pc_point_get_x(const PCPOINT *pt)
 	return d;
 }
 
-double 
+double
 pc_point_get_y(const PCPOINT *pt)
 {
 	double d;
@@ -173,7 +173,7 @@ pc_point_to_string(const PCPOINT *pt)
 	stringbuffer_t *sb = stringbuffer_create();
 	char *str;
 	int i;
-	
+
 	stringbuffer_aprintf(sb, "{\"pcid\":%d,\"pt\":[", pt->schema->pcid);
 	for ( i = 0; i < pt->schema->ndims; i++ )
 	{
@@ -194,7 +194,7 @@ pc_point_to_string(const PCPOINT *pt)
 	return str;
 }
 
-PCPOINT * 
+PCPOINT *
 pc_point_from_double_array(const PCSCHEMA *s, double *array, uint32_t nelems)
 {
 	int i;
@@ -205,7 +205,7 @@ pc_point_from_double_array(const PCSCHEMA *s, double *array, uint32_t nelems)
 		pcerror("null schema passed into pc_point_from_double_array");
 		return NULL;
 	}
-	
+
 	if ( s->ndims != nelems )
 	{
 		pcerror("number of elements in schema and array differ in pc_point_from_double_array");
@@ -213,11 +213,11 @@ pc_point_from_double_array(const PCSCHEMA *s, double *array, uint32_t nelems)
 	}
 
 	/* Reference the external data */
-	pt = pcalloc(sizeof(PCPOINT)); 
+	pt = pcalloc(sizeof(PCPOINT));
 	pt->data = pcalloc(s->size);
 	pt->schema = s;
 	pt->readonly = PC_FALSE;
-	
+
 	for ( i = 0; i < nelems; i++ )
 	{
 		if ( PC_FAILURE == pc_point_set_double_by_index(pt, i, array[i]) )
@@ -226,7 +226,7 @@ pc_point_from_double_array(const PCSCHEMA *s, double *array, uint32_t nelems)
 			return NULL;
 		}
 	}
-	
+
 	return pt;
 }
 
@@ -243,20 +243,20 @@ pc_point_from_wkb(const PCSCHEMA *schema, uint8_t *wkb, size_t wkblen)
 	uint32_t pcid;
 	uint8_t *data;
 	PCPOINT *pt;
-	
+
 	if ( ! wkblen )
 	{
 		pcerror("pc_point_from_wkb: zero length wkb");
 	}
-	
+
 	wkb_endian = wkb[0];
 	pcid = wkb_get_pcid(wkb);
-	
+
 	if ( (wkblen-hdrsz) != schema->size )
 	{
 		pcerror("pc_point_from_wkb: wkb size inconsistent with schema size");
 	}
-	
+
 	if ( wkb_endian != machine_endian() )
 	{
 		/* uncompressed_bytes_flip_endian creates a flipped copy */
@@ -302,10 +302,10 @@ pc_point_to_geometry_wkb(const PCPOINT *pt, size_t *wkbsize)
 	uint32_t srid;
 	int has_srid = PC_FALSE, has_z = PC_FALSE;
 	double x, y, z;
-	
+
 	x = pc_point_get_x(pt);
 	y = pc_point_get_y(pt);
-	
+
 	if ( pt->schema->srid > 0 )
 	{
 		has_srid = PC_TRUE;
@@ -313,7 +313,7 @@ pc_point_to_geometry_wkb(const PCPOINT *pt, size_t *wkbsize)
 		size += 4;
 		srid = pt->schema->srid;
 	}
-	
+
 	if ( pc_point_get_double_by_name(pt, "Z", &z) )
 	{
 		has_z = PC_TRUE;
@@ -326,19 +326,19 @@ pc_point_to_geometry_wkb(const PCPOINT *pt, size_t *wkbsize)
 
 	ptr[0] = machine_endian(); /* Endian flag */
 	ptr += 1;
-	
+
 	memcpy(ptr, &wkbtype, 4); /* WKB type */
 	ptr += 4;
-	
+
 	if ( has_srid )
 	{
 		memcpy(ptr, &srid, 4); /* SRID */
 		ptr += 4;
 	}
-	
+
 	memcpy(ptr, &x, 8); /* X */
 	ptr += 8;
-	
+
 	memcpy(ptr, &y, 8); /* Y */
 	ptr += 8;
 
@@ -347,7 +347,7 @@ pc_point_to_geometry_wkb(const PCPOINT *pt, size_t *wkbsize)
 		memcpy(ptr, &z, 8); /* Z */
 		ptr += 8;
 	}
-	
+
 	if ( wkbsize ) *wkbsize = size;
 	return wkb;
 }
