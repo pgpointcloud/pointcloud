@@ -278,12 +278,9 @@ Now that you have created two tables, you'll see entries for them in the `pointc
 **PC_Explode(p pcpatch)** returns **SetOf[pcpoint]**
 
 > Set-returning function, converts patch into result set of one point record for each point in the patch.
->
->     WITH pts AS ( 
->        SELECT PC_Explode(pa) AS pt, id 
->        FROM patches WHERE PC_NumPoints(pa) = 9 
->     ) 
->     SELECT PC_AsText(pt), id FROM pts;
+>     
+>     SELECT PC_AsText(PC_Explode(pa)), id 
+>     FROM patches WHERE PC_NumPoints(pa) = 9;
 >
 >                  pc_astext              | id 
 >     -------------------------------------+----
