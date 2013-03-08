@@ -136,7 +136,7 @@ Usually you will only be creating tables for storing `PcPatch` objects, and usin
     -- A table of patches
     CREATE TABLE patches (
         id SERIAL PRIMARY KEY,
-        pt PCPATCH(1)
+        pa PCPATCH(1)
     );
 
 In addition to any tables you create, you will find two other system-provided point cloud tables,
@@ -151,7 +151,7 @@ Now that you have created two tables, you'll see entries for them in the `pointc
      schema |    table    | column | pcid | srid |  type   
     --------+-------------+--------+------+------+---------
      public | points      | pt     |    1 | 4326 | pcpoint
-     public | patches     | pt     |    1 | 4326 | pcpatch
+     public | patches     | pa     |    1 | 4326 | pcpatch
 
 
 ## Functions ##
@@ -164,8 +164,20 @@ Now that you have created two tables, you'll see entries for them in the `pointc
 >
 >     010100000064CEFFFF94110000703000000400
 >
+> Insert some test values into the `points` table.
+>
+>     INSERT INTO points (pt)
+>     SELECT PC_MakePoint(1, ARRAY[x,y,z,intensity])
+>     FROM (
+>       SELECT  
+>       -127+a/100.0 AS x, 
+>         45+a/100.0 AS y,
+>              1.0*a AS z,
+>               a/10 AS intensity
+>       FROM generate_series(1,100) AS a
+>     ) AS values;
 
-**PC_AsText(p pcpoint)** returns **text*
+**PC_AsText(p pcpoint)** returns **text**
     
 > Return a JSON version of the data in that point.
 >
@@ -192,8 +204,99 @@ Now that you have created two tables, you'll see entries for them in the `pointc
 
 **PC_Patch(pts pcpoint[])** returns **pcpatch**
 
-> Aggregate function that collects `pcpoint` entries into a `pcpatch`.
+> Aggregate function that collects a result set of `pcpoint` values into a `pcpatch`.
 >
+>     INSERT INTO patches (pa)
+>     SELECT PC_Patch(pt) FROM points GROUP BY id/10;
+
+**PC_NumPoints(p pcpatch)** returns **integer**
+
+> Return the number of points in this patch.
+>
+>     SELECT PC_NumPoints(pa) FROM patches LIMIT 1;
+> 
+>     9     
+ 
+**PC_Envelope(p pcpatch)** returns **bytea**
+
+> Return the OGC "well-known binary" format for *bounds* of the patch.
+> Useful for performing intersection tests with geometries.
+> 
+>     SELECT PC_Envelope(pa) FROM patches LIMIT 1;
+>
+>     \x0103000000010000000500000090c2f5285cbf5fc0e17a
+>     14ae4781464090c2f5285cbf5fc0ec51b81e858b46400ad7
+>     a3703dba5fc0ec51b81e858b46400ad7a3703dba5fc0e17a
+>     14ae4781464090c2f5285cbf5fc0e17a14ae47814640
+ 
+**PC_AsText(p pcpatch)** returns **text**
+
+> Return a JSON version of the data in that patch.
+> 
+>     SELECT PC_AsText(pa) FROM patches LIMIT 1;
+>
+>     {"pcid":1,"pts":[
+>      [-126.99,45.01,1,0],[-126.98,45.02,2,0],[-126.97,45.03,3,0],
+>      [-126.96,45.04,4,0],[-126.95,45.05,5,0],[-126.94,45.06,6,0],
+>      [-126.93,45.07,7,0],[-126.92,45.08,8,0],[-126.91,45.09,9,0]
+>     ]}
+
+**PC_Uncompress(p pcpatch)** returns **pcpatch**
+
+> Returns an uncompressed version of the patch (compression type 'none').
+> In order to return an uncompressed patch on the wire, this must be the
+> outer function with return type `pcpatch` in your SQL query. All 
+> other functions that return `pcpatch` will compress output to the
+> schema-specified compression before returning.
+>
+>     SELECT PC_Uncompress(pa) FROM patches 
+>        WHERE PC_NumPoints(pa) = 1;
+>
+>     01010000000000000001000000C8CEFFFFF8110000102700000A00 
+
+**PC_Union(p pcpatch[])** returns **pcpatch**
+
+> Aggregate function merges a result set of `pcpatch` entries into a single `pcpatch`.
+>
+>     -- Compare npoints(sum(patches)) to sum(npoints(patches))
+>     SELECT PC_NumPoints(PC_Union(pa)) FROM patches;
+>     SELECT Sum(PC_NumPoints(pa)) FROM patches;
+>
+>     100 
+
+**PC_Intersects(p1 pcpatch, p2 pcpatch)** returns **boolean**
+
+> Returns true if the bounds of p1 intersect the bounds of p2.
+>
+>     -- Patch should intersect itself
+>     SELECT PC_Intersects(
+>              '01010000000000000001000000C8CEFFFFF8110000102700000A00'::pcpatch,
+>              '01010000000000000001000000C8CEFFFFF8110000102700000A00'::pcpatch);
+>
+>     t
+
+**PC_Explode(p pcpatch)** returns **SetOf[pcpoint]**
+
+> Set-returning function, converts patch into result set of one point record for each point in the patch.
+>
+>     WITH pts AS ( 
+>        SELECT PC_Explode(pa) AS pt, id 
+>        FROM patches WHERE PC_NumPoints(pa) = 9 
+>     ) 
+>     SELECT PC_AsText(pt), id FROM pts;
+>
+>                  pc_astext              | id 
+>     -------------------------------------+----
+>      {"pcid":1,"pt":[-126.99,45.01,1,0]} |  1
+>      {"pcid":1,"pt":[-126.98,45.02,2,0]} |  1
+>      {"pcid":1,"pt":[-126.97,45.03,3,0]} |  1
+>      {"pcid":1,"pt":[-126.96,45.04,4,0]} |  1
+>      {"pcid":1,"pt":[-126.95,45.05,5,0]} |  1
+>      {"pcid":1,"pt":[-126.94,45.06,6,0]} |  1
+>      {"pcid":1,"pt":[-126.93,45.07,7,0]} |  1
+>      {"pcid":1,"pt":[-126.92,45.08,8,0]} |  1
+>      {"pcid":1,"pt":[-126.91,45.09,9,0]} |  1
+
 
 
 ## Binary Formats ##
