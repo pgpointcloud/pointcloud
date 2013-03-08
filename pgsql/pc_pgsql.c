@@ -4,7 +4,9 @@
 *  Utility functions to bind pc_api.h functions to PgSQL, including
 *  memory management and serialization/deserializations.
 *
-* Portions Copyright (c) 2012, OpenGeo
+*  PgSQL Pointcloud is free and open source software provided 
+*  by the Government of Canada
+*  Copyright (c) 2013 Natural Resources Canada
 *
 ***********************************************************************/
 

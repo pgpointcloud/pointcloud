@@ -3,7 +3,9 @@ dnl * configure.ac
 dnl *
 dnl *  Pointclound build configuration.
 dnl *
-dnl * Copyright (c) 2012, OpenGeo
+dnl *  PgSQL Pointcloud is free and open source software provided 
+dnl *  by the Government of Canada
+dnl *  Copyright (c) 2013 Natural Resources Canada
 dnl *
 dnl ***********************************************************************/
 

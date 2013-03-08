@@ -4,7 +4,9 @@
 *  Pointclound point handling. Create, get and set values from the
 *  basic PCPOINT structure.
 *
-* Portions Copyright (c) 2012, OpenGeo
+*  PgSQL Pointcloud is free and open source software provided 
+*  by the Government of Canada
+*  Copyright (c) 2013 Natural Resources Canada
 *
 ***********************************************************************/
 

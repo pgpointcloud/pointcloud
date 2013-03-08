@@ -1,7 +1,12 @@
 /***********************************************************************
 * pc_patch_uncompressed.c
 *
-* Portions Copyright (c) 2012, OpenGeo
+*  Pointclound patch handling. Create, get and set values from the
+*  uncompressed PCPATCH structure.
+*
+*  PgSQL Pointcloud is free and open source software provided 
+*  by the Government of Canada
+*  Copyright (c) 2013 Natural Resources Canada
 *
 ***********************************************************************/
 
