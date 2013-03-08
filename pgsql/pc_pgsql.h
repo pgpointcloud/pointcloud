@@ -36,7 +36,7 @@
 * the spatial reference system is indicated, and the data
 * packing scheme is indicated.
 */
-typedef struct 
+typedef struct
 {
 	uint32_t size;
 	uint32_t pcid;
@@ -54,7 +54,7 @@ SERIALIZED_POINT;
 * the spatial reference system is indicated, and the data
 * packing scheme is indicated.
 */
-typedef struct 
+typedef struct
 {
 	uint32_t size;
 	uint32_t pcid;

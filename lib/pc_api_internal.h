@@ -1,7 +1,7 @@
 /***********************************************************************
 * pc_api_internal.h
 *
-*  Signatures we need to share within the library, but not for 
+*  Signatures we need to share within the library, but not for
 *  use outside it.
 *
 * Portions Copyright (c) 2012, OpenGeo

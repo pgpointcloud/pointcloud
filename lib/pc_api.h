@@ -147,7 +147,7 @@ typedef struct
 	uint32_t npoints; /* How many points we have */
 	double xmin, xmax, ymin, ymax;
 } PCPATCH;
-    
+
 typedef struct
 {
     int type;
