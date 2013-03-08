@@ -134,6 +134,13 @@ CREATE OR REPLACE FUNCTION PC_Intersects(p1 pcpatch, p2 pcpatch)
     RETURNS boolean AS 'MODULE_PATHNAME', 'pcpatch_intersects'
     LANGUAGE 'c' IMMUTABLE STRICT;
 
+CREATE OR REPLACE FUNCTION PC_MemSize(p pcpatch)
+    RETURNS int4 AS 'MODULE_PATHNAME', 'pcpatch_size'
+    LANGUAGE 'c' IMMUTABLE STRICT;
+
+CREATE OR REPLACE FUNCTION PC_MemSize(p pcpoint)
+    RETURNS int4 AS 'MODULE_PATHNAME', 'pcpoint_size'
+    LANGUAGE 'c' IMMUTABLE STRICT;
 
 -------------------------------------------------------------------
 --  POINTCLOUD_COLUMNS
@@ -278,13 +285,13 @@ CREATE OR REPLACE FUNCTION PC_PatchMax(p pcpatch, attr text)
     LANGUAGE 'sql';
 
 -- Utility to get MINIMUM value from patch
-CREATE OR REPLACE FUNCTION PC_PatchMax(p pcpatch, attr text)
+CREATE OR REPLACE FUNCTION PC_PatchMin(p pcpatch, attr text)
     RETURNS numeric AS
     $$
         WITH pts AS (
         SELECT PC_Explode(p) AS pt
         )
-        SELECT max(PC_Get(pt, attr)) FROM pts
+        SELECT min(PC_Get(pt, attr)) FROM pts
     $$ 
     LANGUAGE 'sql';
 

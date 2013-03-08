@@ -42,14 +42,14 @@ CREATE CAST (pcpoint AS geometry) WITH FUNCTION geometry(pcpoint);
 -- Function to overlap polygon on patch
 --
 CREATE OR REPLACE FUNCTION PC_Intersects(pcpatch, geometry)
-    RETURNS pcpatch AS
+    RETURNS boolean AS
     $$
         SELECT ST_Intersects($2, geometry($1))
     $$ 
     LANGUAGE 'sql';
 
 CREATE OR REPLACE FUNCTION PC_Intersects(geometry, pcpatch)
-    RETURNS pcpatch AS
+    RETURNS boolean AS
     $$
         SELECT PC_Intersects($2, $1)
     $$ 

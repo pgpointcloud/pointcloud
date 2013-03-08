@@ -124,9 +124,10 @@ Patches can be rendered into a human-readable JSON form using the `PC_AsText(pcp
 
 Usually you will only be creating tables for storing `PcPatch` objects, and using `PcPoint` objects as transitional objects for filtering, but it is possible to create tables of both types. `PcPatch` and `PcPoint` columns both require an argument that indicate the `pcid` that will be used to interpret the column. 
 
+    ```sql
     -- This example requires the schema entry from the previous 
     -- section to be loaded so that pcid==1 exists.
-    
+
     -- A table of points
     CREATE TABLE points (
         id SERIAL PRIMARY KEY,
@@ -137,7 +138,7 @@ Usually you will only be creating tables for storing `PcPatch` objects, and usin
     CREATE TABLE patches (
         id SERIAL PRIMARY KEY,
         pa PCPATCH(1)
-    );
+    );```
 
 In addition to any tables you create, you will find two other system-provided point cloud tables,
 
@@ -294,6 +295,81 @@ Now that you have created two tables, you'll see entries for them in the `pointc
 >      {"pcid":1,"pt":[-126.92,45.08,8,0]} |  1
 >      {"pcid":1,"pt":[-126.91,45.09,9,0]} |  1
 
+**PC_PatchAvg(p pcpatch, dimname text)** returns **numeric**
+
+> Reads the values of the requested dimension for all points in the patch 
+> and returns the *average* of those values. Dimension name must exist in the schema.
+>
+>     SELECT PC_PatchAvg(pa, 'intensity') 
+>     FROM patches WHERE id = 7;
+>
+>     5.0000000000000000
+
+**PC_PatchMax(p pcpatch, dimname text)** returns **numeric**
+
+> Reads the values of the requested dimension for all points in the patch 
+> and returns the *maximum* of those values. Dimension name must exist in the schema.
+>
+>     SELECT PC_PatchMax(pa, 'x') 
+>     FROM patches WHERE id = 7;
+>
+>     -126.41
+
+**PC_PatchMin(p pcpatch, dimname text)** returns **numeric**
+
+> Reads the values of the requested dimension for all points in the patch 
+> and returns the *minimum* of those values. Dimension name must exist in the schema.
+>
+>     SELECT PC_PatchMin(pa, 'y') 
+>     FROM patches WHERE id = 7;
+>
+>     45.5
+
+## Compressions ##
+
+One of the issues with LIDAR data is that there is a lot of it. To deal with data volumes, PostgreSQL Pointcloud allows schemas to declare their preferred compression method in the `<pc:metadata>` block of the schema document. In the example schema, we declared our compression as follows:
+
+    ```xml
+    <pc:metadata>
+      <Metadata name="compression">dimensional</Metadata>
+    </pc:metadata>```
+
+There are currently two supported compressions:
+
+- "**None**" which stores points and patches as byte arrays using the type and formats described in the schema document.
+- "**Dimensional**" which stores points the same as 'none' but stores patches as collections of dimensional data arrays, with with an "appropriate" compression applied. Dimensional compression makes the most sense for smaller patch sizes, since small patches will tend to have more homogeneous dimensions.
+
+A third compression is in development:
+
+- "**Geohashtree**" or GHT which stores the points in a tree where each node stores the common values shared by all nodes below. For larger patch sizes, GHT should provide effective compression and performance for patch-wise operations.
+
+### Dimensional Compression ###
+
+Dimensional compression first flips the patch representation from a list of N points containing M dimension values to a list of M dimensions each containing N values.
+
+    "pcid":1,"pts":[
+          [-126.99,45.01,1,0],[-126.98,45.02,2,0],[-126.97,45.03,3,0],
+          [-126.96,45.04,4,0],[-126.95,45.05,5,0],[-126.94,45.06,6,0]
+         ]}
+
+Becomes
+
+    "pcid":1,"dims":[
+          [-126.99,-126.98,-126.97,-126.96,-126.95,-126.94],
+          [45.01,45.02,45.03,45.04,45.05,45.06],
+          [1,2,3,4,5,6],
+          [0,0,0,0,0,0]
+         ]}
+
+The potential benefit for compression is that each dimension has quick different distribution characteristics, and is amenable to different approaches.  In this example, the fourth dimension (intensity) can be very highly compressed with run-length encoding (one run of six zereos). The first and second dimensions have relatively low variability relative to their magnitude and can be compressed by removing the repeated bits.
+
+Dimensional compression currently supports only three compression schemes:
+
+- run-length encoding, for dimensions with low variability
+- common bits removal, for dimensions with variability in a narrow bit range
+- raw zlib compression, for dimensions that aren't amenable to the other schemes
+
+For LIDAR data organized into patches of points that sample similar areas, **...INSERT COMPRESSION RATIO ESTIMATE HERE AFTER EXPERIMENTATION..**
 
 
 ## Binary Formats ##
@@ -310,14 +386,6 @@ The patch binary formats have additional standard header information:
 - the compression number, which indicates how to interpret the data
 - the number of points in the patch
 
-After the header comes the data. Data are packed into the data area following the data types and sizes 
-
-
-There are two compression schemes currently implemented
-
-- 0, uncompressed, is a simple set of points
-
-), Uncompressed binary is, as advertised, just hex-encoded points and sets of points.
 
 ### Point Binary ###
 
