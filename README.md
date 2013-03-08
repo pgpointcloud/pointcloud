@@ -124,7 +124,6 @@ Patches can be rendered into a human-readable JSON form using the `PC_AsText(pcp
 
 Usually you will only be creating tables for storing `PcPatch` objects, and using `PcPoint` objects as transitional objects for filtering, but it is possible to create tables of both types. `PcPatch` and `PcPoint` columns both require an argument that indicate the `pcid` that will be used to interpret the column. 
 
-    ```sql
     -- This example requires the schema entry from the previous 
     -- section to be loaded so that pcid==1 exists.
 
@@ -138,7 +137,7 @@ Usually you will only be creating tables for storing `PcPatch` objects, and usin
     CREATE TABLE patches (
         id SERIAL PRIMARY KEY,
         pa PCPATCH(1)
-    );```
+    );
 
 In addition to any tables you create, you will find two other system-provided point cloud tables,
 
@@ -329,32 +328,31 @@ Now that you have created two tables, you'll see entries for them in the `pointc
 
 One of the issues with LIDAR data is that there is a lot of it. To deal with data volumes, PostgreSQL Pointcloud allows schemas to declare their preferred compression method in the `<pc:metadata>` block of the schema document. In the example schema, we declared our compression as follows:
 
-    ```xml
     <pc:metadata>
       <Metadata name="compression">dimensional</Metadata>
-    </pc:metadata>```
+    </pc:metadata>
 
 There are currently two supported compressions:
 
-- "**None**" which stores points and patches as byte arrays using the type and formats described in the schema document.
-- "**Dimensional**" which stores points the same as 'none' but stores patches as collections of dimensional data arrays, with with an "appropriate" compression applied. Dimensional compression makes the most sense for smaller patch sizes, since small patches will tend to have more homogeneous dimensions.
+- **None** which stores points and patches as byte arrays using the type and formats described in the schema document.
+- **Dimensional** which stores points the same as 'none' but stores patches as collections of dimensional data arrays, with with an "appropriate" compression applied. Dimensional compression makes the most sense for smaller patch sizes, since small patches will tend to have more homogeneous dimensions.
 
 A third compression is in development:
 
-- "**Geohashtree**" or GHT which stores the points in a tree where each node stores the common values shared by all nodes below. For larger patch sizes, GHT should provide effective compression and performance for patch-wise operations.
+- **Geohashtree** or GHT which stores the points in a tree where each node stores the common values shared by all nodes below. For larger patch sizes, GHT should provide effective compression and performance for patch-wise operations.
 
 ### Dimensional Compression ###
 
 Dimensional compression first flips the patch representation from a list of N points containing M dimension values to a list of M dimensions each containing N values.
 
-    "pcid":1,"pts":[
+    {"pcid":1,"pts":[
           [-126.99,45.01,1,0],[-126.98,45.02,2,0],[-126.97,45.03,3,0],
           [-126.96,45.04,4,0],[-126.95,45.05,5,0],[-126.94,45.06,6,0]
          ]}
 
-Becomes
+Becomes, notionally:
 
-    "pcid":1,"dims":[
+    {"pcid":1,"dims":[
           [-126.99,-126.98,-126.97,-126.96,-126.95,-126.94],
           [45.01,45.02,45.03,45.04,45.05,45.06],
           [1,2,3,4,5,6],
@@ -369,7 +367,7 @@ Dimensional compression currently supports only three compression schemes:
 - common bits removal, for dimensions with variability in a narrow bit range
 - raw zlib compression, for dimensions that aren't amenable to the other schemes
 
-For LIDAR data organized into patches of points that sample similar areas, **...INSERT COMPRESSION RATIO ESTIMATE HERE AFTER EXPERIMENTATION..**
+For LIDAR data organized into patches of points that sample similar areas, *...INSERT COMPRESSION RATIO ESTIMATE HERE AFTER EXPERIMENTATION...*
 
 
 ## Binary Formats ##
