@@ -195,13 +195,7 @@ SELECT PC_AsText(PC_Union(pa)) FROM pa_test;
  {"pcid":1,"pts":[[0.02,0.03,0.05,6],[0.02,0.03,0.05,8],[0.06,0.07,0.05,6],[0.09,0.1,0.05,10],[0.06,0.07,0.05,6],[0.09,0.1,0.05,10],[0.06,0.07,0.05,6],[0.09,0.1,0.05,10]]}
 (1 row)
 
-SELECT sum(PC_NumPoints(pa)) FROM pa_test ;
- sum 
------
-   8
-(1 row)
-
-SELECT sum(PC_NumPoints(pa)) FROM pa_test ;
+SELECT sum(PC_NumPoints(pa)) FROM pa_test;
  sum 
 -----
    8
@@ -220,6 +214,36 @@ INSERT INTO pa_test_dim (pa) VALUES ('000000001400000000000000020000000200000003
 INSERT INTO pa_test_dim (pa) VALUES ('000000001400000000000000020000000600000007000000050006000000090000000A00000005000A');
 INSERT INTO pa_test_dim (pa) VALUES ('0000000014000000000000000200000002000000030000000500060000000200000003000000050003');
 INSERT INTO pa_test_dim (pa) VALUES ('0000000014000000000000000200000002000000030000000500060000000200000003000000050001');
+SELECT Sum(PC_NumPoints(pa)) FROM pa_test_dim;
+ sum 
+-----
+   8
+(1 row)
+
+SELECT Sum(PC_MemSize(pa)) FROM pa_test_dim;
+ sum 
+-----
+ 516
+(1 row)
+
+SELECT Sum(PC_MemSize(pt)) FROM pt_test;
+ sum 
+-----
+  75
+(1 row)
+
+SELECT Sum(PC_PatchMax(pa,'x')) FROM pa_test_dim;
+ sum  
+------
+ 0.15
+(1 row)
+
+SELECT Sum(PC_PatchMin(pa,'x')) FROM pa_test_dim;
+ sum  
+------
+ 0.12
+(1 row)
+
 --DROP TABLE pts_collection;
 --DROP TABLE pt_test;
 --DROP TABLE pa_test;

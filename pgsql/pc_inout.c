@@ -20,6 +20,9 @@ Datum pcpatch_out(PG_FUNCTION_ARGS);
 /* Typmod support */
 Datum pc_typmod_in(PG_FUNCTION_ARGS);
 Datum pc_typmod_out(PG_FUNCTION_ARGS);
+Datum pc_typmod_pcid(PG_FUNCTION_ARGS);
+Datum pcpatch_enforce_typmod(PG_FUNCTION_ARGS);
+Datum pcpoint_enforce_typmod(PG_FUNCTION_ARGS);
 
 /* Other SQL functions */
 Datum pcschema_is_valid(PG_FUNCTION_ARGS);
@@ -29,7 +32,6 @@ Datum pcpoint_as_text(PG_FUNCTION_ARGS);
 Datum pcpatch_as_text(PG_FUNCTION_ARGS);
 Datum pcpoint_as_bytea(PG_FUNCTION_ARGS);
 Datum pcpatch_bytea_envelope(PG_FUNCTION_ARGS);
-Datum pc_typmod_pcid(PG_FUNCTION_ARGS);
 
 
 static void
@@ -394,3 +396,34 @@ Datum pc_typmod_pcid(PG_FUNCTION_ARGS)
 }
 
 
+PG_FUNCTION_INFO_V1(pcpatch_enforce_typmod);
+Datum pcpatch_enforce_typmod(PG_FUNCTION_ARGS)
+{
+	    SERIALIZED_PATCH *arg = PG_GETARG_SERPATCH_P(0);
+        uint32 typmod = PG_GETARG_INT32(1);
+        uint32 pcid = pcid_from_typmod(typmod);
+        /* We don't need to have different behavior based on explicitness. */
+        /* bool isExplicit = PG_GETARG_BOOL(2); */
+
+        /* Check if column typmod is consistent with the object */
+        if ( pcid != arg->pcid )
+            elog(ERROR, "column pcid (%d) and patch pcid (%d) are not consistent", pcid, arg->pcid);
+
+        PG_RETURN_POINTER(arg);
+}
+
+PG_FUNCTION_INFO_V1(pcpoint_enforce_typmod);
+Datum pcpoint_enforce_typmod(PG_FUNCTION_ARGS)
+{
+	    SERIALIZED_POINT *arg = PG_GETARG_SERPOINT_P(0);
+        int32 typmod = PG_GETARG_INT32(1);
+        uint32 pcid = pcid_from_typmod(typmod);
+        /* We don't need to have different behavior based on explicitness. */
+        /* bool isExplicit = PG_GETARG_BOOL(2); */
+
+        /* Check if column typmod is consistent with the object */
+        if ( pcid != arg->pcid )
+            elog(ERROR, "column pcid (%d) and point pcid (%d) are not consistent", pcid, arg->pcid);
+
+        PG_RETURN_POINTER(arg);
+}

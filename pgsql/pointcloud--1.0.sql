@@ -8,7 +8,7 @@
 -------------------------------------------------------------------
 
 -- Confirm the XML representation of a schema has everything we need
-CREATE OR REPLACE FUNCTION PC_SchemaIsValid(xml text)
+CREATE OR REPLACE FUNCTION PC_SchemaIsValid(schemaxml text)
 	RETURNS boolean AS 'MODULE_PATHNAME','pcschema_is_valid'
     LANGUAGE 'c' IMMUTABLE STRICT;
 
@@ -37,12 +37,12 @@ CREATE OR REPLACE FUNCTION pc_typmod_in(cstring[])
     LANGUAGE 'c' IMMUTABLE STRICT;
 
 -- Write typmod number to string
-CREATE OR REPLACE FUNCTION pc_typmod_out(integer)
+CREATE OR REPLACE FUNCTION pc_typmod_out(typmod integer)
     RETURNS cstring AS 'MODULE_PATHNAME','pc_typmod_out'
     LANGUAGE 'c' IMMUTABLE STRICT;
 
 -- Read pcid from typmod number
-CREATE OR REPLACE FUNCTION pc_typmod_pcid(integer)
+CREATE OR REPLACE FUNCTION pc_typmod_pcid(typmod integer)
     RETURNS int4 AS 'MODULE_PATHNAME','pc_typmod_pcid'
     LANGUAGE 'c' IMMUTABLE STRICT;
 
@@ -170,6 +170,19 @@ CREATE OR REPLACE VIEW pointcloud_columns AS
     AND has_table_privilege( c.oid, 'SELECT'::text );
 
 
+-- Special cast for enforcing typmod restrictions
+CREATE OR REPLACE FUNCTION pcpatch(p pcpatch, typmod integer, explicit boolean)
+    RETURNS pcpatch AS 'MODULE_PATHNAME', 'pcpatch_enforce_typmod'
+    LANGUAGE 'c' IMMUTABLE STRICT; 
+
+CREATE CAST (pcpatch AS pcpatch) WITH FUNCTION pcpatch(pcpatch, integer, boolean) AS IMPLICIT;
+
+CREATE OR REPLACE FUNCTION pcpoint(p pcpoint, typmod integer, explicit boolean)
+    RETURNS pcpoint AS 'MODULE_PATHNAME', 'pcpoint_enforce_typmod'
+    LANGUAGE 'c' IMMUTABLE STRICT; 
+
+CREATE CAST (pcpoint AS pcpoint) WITH FUNCTION pcpoint(pcpoint, integer, boolean) AS IMPLICIT;
+
 -------------------------------------------------------------------
 --  AGGREGATE GENERIC SUPPORT
 -------------------------------------------------------------------
@@ -253,7 +266,7 @@ CREATE AGGREGATE PC_Union (
         FINALFUNC = pcpatch_agg_final_pcpatch
 );
 
-CREATE OR REPLACE FUNCTION PC_Explode(pcpatch)
+CREATE OR REPLACE FUNCTION PC_Explode(p pcpatch)
 	RETURNS setof pcpoint AS 'MODULE_PATHNAME', 'pcpatch_unnest'
 	LANGUAGE 'c' IMMUTABLE STRICT;
 
