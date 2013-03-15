@@ -146,6 +146,25 @@ SELECT Sum(PC_MemSize(pa)) FROM pa_test_dim;
 SELECT Sum(PC_PatchMax(pa,'x')) FROM pa_test_dim;
 SELECT Sum(PC_PatchMin(pa,'x')) FROM pa_test_dim;
 
+DELETE FROM pa_test_dim;
+INSERT INTO pa_test_dim (pa)
+SELECT PC_Patch(PC_MakePoint(3, ARRAY[x,y,z,intensity]))
+FROM (
+ SELECT  
+ -127+a/100.0 AS x, 
+   45+a/100.0 AS y,
+        1.0*a AS z,
+         a/10 AS intensity,
+         a/400 AS gid
+ FROM generate_series(1,1600) AS a
+) AS values GROUP BY gid;
+
+SELECT Sum(PC_NumPoints(pa)) FROM pa_test_dim;
+SELECT Sum(PC_MemSize(pa)) FROM pa_test_dim;
+
+SELECT Max(PC_PatchMax(pa,'x')) FROM pa_test_dim;
+SELECT Min(PC_PatchMin(pa,'x')) FROM pa_test_dim;
+SELECT Min(PC_PatchMin(pa,'z')) FROM pa_test_dim;
 
 --DROP TABLE pts_collection;
 --DROP TABLE pt_test;
