@@ -460,28 +460,6 @@ pc_patch_serialized_size(const PCPATCH *patch)
     return -1;
 }
 
-static SERIALIZED_PATCH *
-pc_patch_uncompressed_serialize(const PCPATCH *patch_in)
-{
-	size_t serpch_size;
-	SERIALIZED_PATCH *serpch;
-    const PCPATCH_UNCOMPRESSED *patch = (PCPATCH_UNCOMPRESSED *)patch_in;
-
-    serpch_size = pc_patch_serialized_size(patch_in);
-	serpch = pcalloc(serpch_size);
-
-	/* Copy */
-	serpch->pcid = patch->schema->pcid;
-	serpch->npoints = patch->npoints;
-	serpch->xmin = patch->xmin;
-	serpch->ymin = patch->ymin;
-	serpch->xmax = patch->xmax;
-	serpch->ymax = patch->ymax;
-	memcpy(serpch->data, patch->data, patch->datasize);
-	SET_VARSIZE(serpch, serpch_size);
-	return serpch;
-}
-
 
 static SERIALIZED_PATCH *
 pc_patch_dimensional_serialize(const PCPATCH *patch_in)
@@ -502,6 +480,7 @@ pc_patch_dimensional_serialize(const PCPATCH *patch_in)
 	serpch->ymin = patch->ymin;
 	serpch->xmax = patch->xmax;
 	serpch->ymax = patch->ymax;
+    serpch->compression = patch->type;
 
 	/* Copy byte buffers, one by one */
     buf = serpch->data;
@@ -513,6 +492,29 @@ pc_patch_dimensional_serialize(const PCPATCH *patch_in)
         buf += bsize;
     }
 
+	SET_VARSIZE(serpch, serpch_size);
+	return serpch;
+}
+
+static SERIALIZED_PATCH *
+pc_patch_uncompressed_serialize(const PCPATCH *patch_in)
+{
+	size_t serpch_size;
+	SERIALIZED_PATCH *serpch;
+    const PCPATCH_UNCOMPRESSED *patch = (PCPATCH_UNCOMPRESSED *)patch_in;
+
+    serpch_size = pc_patch_serialized_size(patch_in);
+	serpch = pcalloc(serpch_size);
+
+	/* Copy */
+	serpch->compression = patch->type;
+	serpch->pcid = patch->schema->pcid;
+	serpch->npoints = patch->npoints;
+	serpch->xmin = patch->xmin;
+	serpch->ymin = patch->ymin;
+	serpch->xmax = patch->xmax;
+	serpch->ymax = patch->ymax;
+	memcpy(serpch->data, patch->data, patch->datasize);
 	SET_VARSIZE(serpch, serpch_size);
 	return serpch;
 }
@@ -565,13 +567,15 @@ pc_patch_serialize(const PCPATCH *patch_in, void *userdata)
 }
 
 
+
+
 /**
 * Convert struct to byte array.
 * Userdata is currently only PCDIMSTATS, hopefully updated across
 * a number of iterations and saved.
 */
 SERIALIZED_PATCH *
-pc_patch_serialize_uncompressed(const PCPATCH *patch_in)
+pc_patch_serialize_to_uncompressed(const PCPATCH *patch_in)
 {
     PCPATCH *patch = (PCPATCH*)patch_in;
     SERIALIZED_PATCH *serpatch;
@@ -601,7 +605,7 @@ pc_patch_uncompressed_deserialize(const SERIALIZED_PATCH *serpatch, const PCSCHE
 	patch->datasize = VARSIZE(serpatch) - sizeof(SERIALIZED_PATCH) + 1;
 
 	/* Set up basic info */
-    patch->type = PC_NONE;
+    patch->type = serpatch->compression;
 	patch->schema = schema;
 	patch->readonly = true;
 	patch->npoints = serpatch->npoints;
@@ -627,7 +631,7 @@ pc_patch_dimensional_deserialize(const SERIALIZED_PATCH *serpatch, const PCSCHEM
 	patch = pcalloc(sizeof(PCPATCH_DIMENSIONAL));
 
 	/* Set up basic info */
-    patch->type = PC_DIMENSIONAL;
+    patch->type = serpatch->compression;
 	patch->schema = schema;
 	patch->readonly = true;
 	patch->npoints = npoints;
@@ -655,7 +659,7 @@ pc_patch_dimensional_deserialize(const SERIALIZED_PATCH *serpatch, const PCSCHEM
 PCPATCH *
 pc_patch_deserialize(const SERIALIZED_PATCH *serpatch, const PCSCHEMA *schema)
 {
-    switch(schema->compression)
+    switch(serpatch->compression)
     {
         case PC_NONE:
             return pc_patch_uncompressed_deserialize(serpatch, schema);

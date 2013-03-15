@@ -60,6 +60,7 @@ typedef struct
 {
 	uint32_t size;
 	uint32_t pcid;
+    uint32_t compression;
 	uint32_t npoints;
 	double xmin, xmax, ymin, ymax;
 	uint8_t data[1];
@@ -95,7 +96,7 @@ size_t pc_patch_serialized_size(const PCPATCH *patch);
 SERIALIZED_PATCH* pc_patch_serialize(const PCPATCH *patch, void *userdata);
 
 /** Turn a PCPATCH into an uncompressed byte buffer */
-SERIALIZED_PATCH* pc_patch_serialize_uncompressed(const PCPATCH *patch);
+SERIALIZED_PATCH* pc_patch_serialize_to_uncompressed(const PCPATCH *patch);
 
 /** Turn a byte buffer into a PCPATCH for processing */
 PCPATCH* pc_patch_deserialize(const SERIALIZED_PATCH *serpatch, const PCSCHEMA *schema);
