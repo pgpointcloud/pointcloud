@@ -369,7 +369,7 @@ Dimensional compression currently uses only three compression schemes:
 - common bits removal, for dimensions with variability in a narrow bit range
 - raw deflate compression using zlib, for dimensions that aren't amenable to the other schemes
 
-For LIDAR data organized into patches of points that sample similar areas, *...INSERT COMPRESSION RATIO ESTIMATE HERE AFTER EXPERIMENTATION...*
+For LIDAR data organized into patches of points that sample similar areas, the dimensional scheme compresses at between 3:1 and 5:1 efficiency.
 
 
 ## Binary Formats ##
@@ -395,12 +395,6 @@ The patch binary formats have additional standard header information:
 
 ### Patch Binary ###
 
-    byte:     endianness (1 = NDR, 0 = XDR)
-    uint32:   pcid (key to POINTCLOUD_SCHEMAS)
-    uint32:   compression (0 = no compression, 1 = GHT, 2 = dimensional)
-    uint32:       npoints
-    uchar[]:  data (interpret relative to pcid and compression)
-
 ### Patch Binary (Uncompressed) ####
 
     byte:         endianness (1 = NDR, 0 = XDR)
@@ -412,11 +406,50 @@ The patch binary formats have additional standard header information:
 
     byte:          endianness (1 = NDR, 0 = XDR)
     uint32:        pcid (key to POINTCLOUD_SCHEMAS)
-    uint32:        1 = dimensional compression
+    uint32:        2 = dimensional compression
     uint32:        npoints
     dimensions[]:  dimensionally compressed data for each dimension
 
-    /* dimensional compression */
-    byte:          dimensional compression type (0 = none, 1 = significant bits, 2 = deflate, 3 = run-length)
+There are four possible compression types used in dimensional compression:
+
+- no compression = 0,
+- run-length compression = 1,
+- significant bits removal = 2,
+- deflate = 3
+
+Each compressed dimension starts with a byte, that gives the compression type, and then a uint32 that gives the size of the segment in bytes.
+
+    byte:           dimensional compression type (0-3)
+    uint32:         size of the compressed dimension in bytes
+    data[]:         the compressed dimensional values
     
-    /* TO DO, more on dimensional compression contents */
+#### No compression ####
+
+For dimensional compression 0 (no compression) the values just appear in order. The length of words in this dimension must be determined from the schema document.
+
+    word[]:
+
+#### Run-length compression ####
+
+For run-length compression, the data stream consists of a set of pairs: a byte value indicating the length of the run, and a data value indicating the value that is repeated.
+
+     byte:          number of times the word repeats
+     word:          value of the word being repeated
+     ....           repeated for the number of runs
+
+The length of words in this dimension must be determined from the schema document.
+
+#### Significant bits removal ####
+
+Significant bits removal starts with two words. The first word just gives the number of bits that are "significant", that is the number of bits left after the common bits are removed from any given word. The second word is a bitmask of the common bits, with the final, variable bits zeroed out.
+
+     word1:          number of variable bits in this dimension
+     word2:          the bits that are shared by every word in this dimension
+     data[]:         variable bits packed into a data buffer
+
+#### deflate ####
+
+Where simple compression schemes fail, general purpose compression is applied to the dimension using zlib. The data area is a raw zlib buffer suitable for passing directly to the inflate() function. The size of the input buffer is given in the common dimension header. The size of the output buffer can be derived from the patch metadata by multiplying the dimension word size by the number of points in the patch.
+
+
+
