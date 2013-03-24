@@ -410,6 +410,12 @@ The patch binary formats have additional standard header information:
     uint32:        npoints
     dimensions[]:  dimensionally compressed data for each dimension
 
+Each compressed dimension starts with a byte, that gives the compression type, and then a uint32 that gives the size of the segment in bytes.
+
+    byte:           dimensional compression type (0-3)
+    uint32:         size of the compressed dimension in bytes
+    data[]:         the compressed dimensional values
+
 There are four possible compression types used in dimensional compression:
 
 - no compression = 0,
@@ -417,11 +423,6 @@ There are four possible compression types used in dimensional compression:
 - significant bits removal = 2,
 - deflate = 3
 
-Each compressed dimension starts with a byte, that gives the compression type, and then a uint32 that gives the size of the segment in bytes.
-
-    byte:           dimensional compression type (0-3)
-    uint32:         size of the compressed dimension in bytes
-    data[]:         the compressed dimensional values
     
 #### No compression ####
 
@@ -447,7 +448,7 @@ Significant bits removal starts with two words. The first word just gives the nu
      word2:          the bits that are shared by every word in this dimension
      data[]:         variable bits packed into a data buffer
 
-#### deflate ####
+#### Deflate ####
 
 Where simple compression schemes fail, general purpose compression is applied to the dimension using zlib. The data area is a raw zlib buffer suitable for passing directly to the inflate() function. The size of the input buffer is given in the common dimension header. The size of the output buffer can be derived from the patch metadata by multiplying the dimension word size by the number of points in the patch.
 
