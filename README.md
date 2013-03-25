@@ -367,9 +367,9 @@ The `pointcloud_postgis` extension adds functions that allow you to use PostgreS
 > Cast PcPoint to the PostGIS geometry equivalent, placing the x/y/z of the 
 > PcPoint into the x/y/z of the PostGIS point. 
 > 
->    SELECT ST_AsText(PC_MakePoint(1, ARRAY[-127, 45, 124.0, 4.0])::geometry);
+>     SELECT ST_AsText(PC_MakePoint(1, ARRAY[-127, 45, 124.0, 4.0])::geometry);
 > 
->    POINT Z (-127 45 124)
+>     POINT Z (-127 45 124)
 
 ## Compressions ##
 
