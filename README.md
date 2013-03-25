@@ -355,11 +355,11 @@ The `pointcloud_postgis` extension adds functions that allow you to use PostgreS
 >     FROM patches WHERE id = 7;
 >
 >                  pc_astext               
->    --------------------------------------
->     {"pcid":1,"pt":[-126.44,45.56,56,5]}
->     {"pcid":1,"pt":[-126.43,45.57,57,5]}
->     {"pcid":1,"pt":[-126.42,45.58,58,5]}
->     {"pcid":1,"pt":[-126.41,45.59,59,5]}
+>     --------------------------------------
+>      {"pcid":1,"pt":[-126.44,45.56,56,5]}
+>      {"pcid":1,"pt":[-126.43,45.57,57,5]}
+>      {"pcid":1,"pt":[-126.42,45.58,58,5]}
+>      {"pcid":1,"pt":[-126.41,45.59,59,5]}
 
 **Geometry(pcpoint)** returns **geometry**<br/>
 **pcpoint::geometry** returns **geometry**
