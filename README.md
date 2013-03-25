@@ -333,7 +333,7 @@ The `pointcloud_postgis` extension adds functions that allow you to use PostgreS
     CREATE EXTENSION pointcloud;
     CREATE EXTENSION pointcloud_postgis;
     
-**PC_Intersects(p pcpatch, g geometry)** returns **boolean**
+**PC_Intersects(p pcpatch, g geometry)** returns **boolean**<br/>
 **PC_Intersects(g geometry, p pcpatch)** returns **boolean**
 
 > Returns true if the bounds of the patch intersect the geometry.
@@ -361,7 +361,7 @@ The `pointcloud_postgis` extension adds functions that allow you to use PostgreS
 >     {"pcid":1,"pt":[-126.42,45.58,58,5]}
 >     {"pcid":1,"pt":[-126.41,45.59,59,5]}
 
-**Geometry(pcpoint)** returns **geometry**
+**Geometry(pcpoint)** returns **geometry**<br/>
 **pcpoint::geometry** returns **geometry**
 
 > Cast PcPoint to the PostGIS geometry equivalent, placing the x/y/z of the 
