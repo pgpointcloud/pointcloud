@@ -280,19 +280,20 @@ Now that you have created two tables, you'll see entries for them in the `pointc
 > Set-returning function, converts patch into result set of one point record for each point in the patch.
 >     
 >     SELECT PC_AsText(PC_Explode(pa)), id 
->     FROM patches WHERE PC_NumPoints(pa) = 9;
+>     FROM patches WHERE id = 7;
 >
->                  pc_astext              | id 
->     -------------------------------------+----
->      {"pcid":1,"pt":[-126.99,45.01,1,0]} |  1
->      {"pcid":1,"pt":[-126.98,45.02,2,0]} |  1
->      {"pcid":1,"pt":[-126.97,45.03,3,0]} |  1
->      {"pcid":1,"pt":[-126.96,45.04,4,0]} |  1
->      {"pcid":1,"pt":[-126.95,45.05,5,0]} |  1
->      {"pcid":1,"pt":[-126.94,45.06,6,0]} |  1
->      {"pcid":1,"pt":[-126.93,45.07,7,0]} |  1
->      {"pcid":1,"pt":[-126.92,45.08,8,0]} |  1
->      {"pcid":1,"pt":[-126.91,45.09,9,0]} |  1
+>                   pc_astext               | id 
+>     --------------------------------------+----
+>      {"pcid":1,"pt":[-126.5,45.5,50,5]}   |  7
+>      {"pcid":1,"pt":[-126.49,45.51,51,5]} |  7
+>      {"pcid":1,"pt":[-126.48,45.52,52,5]} |  7
+>      {"pcid":1,"pt":[-126.47,45.53,53,5]} |  7
+>      {"pcid":1,"pt":[-126.46,45.54,54,5]} |  7
+>      {"pcid":1,"pt":[-126.45,45.55,55,5]} |  7
+>      {"pcid":1,"pt":[-126.44,45.56,56,5]} |  7
+>      {"pcid":1,"pt":[-126.43,45.57,57,5]} |  7
+>      {"pcid":1,"pt":[-126.42,45.58,58,5]} |  7
+>      {"pcid":1,"pt":[-126.41,45.59,59,5]} |  7
 
 **PC_PatchAvg(p pcpatch, dimname text)** returns **numeric**
 
@@ -323,6 +324,52 @@ Now that you have created two tables, you'll see entries for them in the `pointc
 >     FROM patches WHERE id = 7;
 >
 >     45.5
+
+## PostGIS Integration ##
+
+The `pointcloud_postgis` extension adds functions that allow you to use PostgreSQL Pointcloud with PostGIS, converting PcPoint and PcPatch to Geometry and doing spatial filtering on point cloud data. The `pointcloud_postgis` extension depends on both the `postgis` and `pointcloud` extensions, so they must be installed first:
+
+    CREATE EXTENSION postgis;
+    CREATE EXTENSION pointcloud;
+    CREATE EXTENSION pointcloud_postgis;
+    
+**PC_Intersects(p pcpatch, g geometry)** returns **boolean**
+**PC_Intersects(g geometry, p pcpatch)** returns **boolean**
+
+> Returns true if the bounds of the patch intersect the geometry.
+>
+>     SELECT PC_Intersects('SRID=4326;POINT(-126.451 45.552)'::geometry, pa)
+>     FROM patches WHERE id = 7;
+>
+>     t
+
+**PC_Intersection(pcpatch, geometry)** returns **pcpatch**
+
+> Returns a PcPatch which only contains points that intersected the 
+> geometry.
+>
+>     SELECT PC_AsText(PC_Explode(PC_Intersection(
+>           pa, 
+>           'SRID=4326;POLYGON((-126.451 45.552, -126.42 47.55, -126.40 45.552, -126.451 45.552))'::geometry
+>     )))
+>     FROM patches WHERE id = 7;
+>
+>                  pc_astext               
+>    --------------------------------------
+>     {"pcid":1,"pt":[-126.44,45.56,56,5]}
+>     {"pcid":1,"pt":[-126.43,45.57,57,5]}
+>     {"pcid":1,"pt":[-126.42,45.58,58,5]}
+>     {"pcid":1,"pt":[-126.41,45.59,59,5]}
+
+**Geometry(pcpoint)** returns **geometry**
+**pcpoint::geometry** returns **geometry**
+
+> Cast PcPoint to the PostGIS geometry equivalent, placing the x/y/z of the 
+> PcPoint into the x/y/z of the PostGIS point. 
+> 
+>    SELECT ST_AsText(PC_MakePoint(1, ARRAY[-127, 45, 124.0, 4.0])::geometry);
+> 
+>    POINT Z (-127 45 124)
 
 ## Compressions ##
 
