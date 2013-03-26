@@ -12,3 +12,13 @@ To Do
 
 
 - TESTS for pc_patch_dimensional_from_uncompressed() and pc_patch_dimensional_compress()
+
+
+frustrum filtering
+raster overlaying
+filtering on attribute values
+filtering on spatial polygons (in *and* out)
+find the k nearest points to point P
+gridding/binning ("avg intensity per cell", "max z per cell", "agv red per cell", "rgb into grid/picture")
+reprojection / re-schema
+
