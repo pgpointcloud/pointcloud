@@ -22,3 +22,4 @@ find the k nearest points to point P
 gridding/binning ("avg intensity per cell", "max z per cell", "agv red per cell", "rgb into grid/picture")
 reprojection / re-schema
 
+- PC_Get(pcpatch, dimname) returns Array(numeric)
