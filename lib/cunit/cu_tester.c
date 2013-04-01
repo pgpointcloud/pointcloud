@@ -190,10 +190,16 @@ file_to_str(const char *fname)
 	char *str = pcalloc(sz);
 	char *ptr = str;
 	char *ln;
+	size_t MAXLINELEN = 8192;
+	char buf[MAXLINELEN];
 
 	fr = fopen (fname, "rt");
-	while( ln = fgetln(fr, &lnsz) )
-	{
+
+	while (fgets(buf, MAXLINELEN, fr) != NULL) {
+//		buf[strcspn(buf, "\n")] = '\0';
+		if (buf[0] == '\0')
+			continue;
+		lnsz = strlen(buf);
 		if ( ptr - str + lnsz > sz )
 		{
 			size_t bsz = ptr - str;
@@ -201,10 +207,11 @@ file_to_str(const char *fname)
 			str = pcrealloc(str, sz);
 			ptr = str + bsz;
 		}
-		memcpy(ptr, ln, lnsz);
+		memcpy(ptr, buf, lnsz);
 		ptr += lnsz;
 	}
-	fclose(fr);
+	
+    *ptr = '\0';
 
 	return str;
 }
