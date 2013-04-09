@@ -168,7 +168,13 @@ pc_patch_from_hexwkb(const char *hexwkb, size_t hexlen, FunctionCallInfoData *fc
 	uint8 *wkb = bytes_from_hexbytes(hexwkb, hexlen);
 	size_t wkblen = hexlen/2;
 	pcid = wkb_get_pcid(wkb);
+	if ( ! pcid )
+		elog(ERROR, "pc_patch_from_hexwkb: pcid is zero");
+	
 	schema = pc_schema_from_pcid(pcid, fcinfo);
+	if ( ! schema )
+	    elog(ERROR, "pc_patch_from_hexwkb: unable to look up schema entry");		
+	
 	patch = pc_patch_from_wkb(schema, wkb, wkblen);
 	pfree(wkb);
 	return patch;

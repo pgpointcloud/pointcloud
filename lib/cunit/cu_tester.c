@@ -196,7 +196,6 @@ file_to_str(const char *fname)
 	fr = fopen (fname, "rt");
 
 	while (fgets(buf, MAXLINELEN, fr) != NULL) {
-//		buf[strcspn(buf, "\n")] = '\0';
 		if (buf[0] == '\0')
 			continue;
 		lnsz = strlen(buf);
