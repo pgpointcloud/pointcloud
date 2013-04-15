@@ -113,6 +113,8 @@ static PCDIMENSION*
 pc_dimension_new()
 {
 	PCDIMENSION *pcd = pcalloc(sizeof(PCDIMENSION));
+	/* Default scaling value is 1! */
+	pcd->scale = 1.0;
 	return pcd;
 }
 

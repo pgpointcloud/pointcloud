@@ -16,7 +16,7 @@
 double pc_value_scale_offset(double val, const PCDIMENSION *dim)
 {
 	/* Scale value */
-	if ( dim->scale )
+	if ( dim->scale != 1 )
 		val *= dim->scale;
 
 	/* Offset value */
@@ -30,7 +30,7 @@ double
 pc_value_from_ptr(const uint8_t *ptr, const PCDIMENSION *dim)
 {
 	double val = pc_double_from_ptr(ptr, dim->interpretation);
-    return pc_value_scale_offset(val, dim);
+	return pc_value_scale_offset(val, dim);
 }
 
 double

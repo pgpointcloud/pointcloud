@@ -88,7 +88,7 @@ pc_point_get_double(const PCPOINT *pt, const PCDIMENSION *dim, double *d)
 	val = pc_double_from_ptr(ptr, dim->interpretation);
 
 	/* Scale value */
-	if ( dim->scale )
+	if ( dim->scale != 1 )
 		val *= dim->scale;
 
 	/* Offset value */
@@ -127,7 +127,7 @@ pc_point_set_double(PCPOINT *pt, const PCDIMENSION *d, double val)
 		val -= d->offset;
 
 	/* Scale value */
-	if ( d->scale )
+	if ( d->scale != 1 )
 		val /= d->scale;
 
 	/* Get pointer into byte buffer */
