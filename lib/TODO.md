@@ -9,6 +9,9 @@ To Do
 - TESTS for pc_patch_dimensional_from_uncompressed() and pc_patch_dimensional_compress()
 - Add Min/Max values to dimensional compression serialization (???)
 
+- Before doing dimensional compression, sort by geohash (actually by a localized geohash based on the patch bounds). This will enhance the autocorrelation of values and improve run-length encoding in particular
+- Add Min/Max values to front of GHT serialization
+
 Use Cases to Support
 --------------------
 

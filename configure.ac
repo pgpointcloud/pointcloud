@@ -11,6 +11,7 @@ dnl ***********************************************************************/
 
 AC_INIT()
 AC_CONFIG_MACRO_DIR([macros])
+AC_CONFIG_HEADERS([lib/pc_config.h])
 
 dnl
 dnl Compilers
@@ -38,7 +39,7 @@ dnl ===========================================================================
 
 ZLIB_LDFLAGS=""
 AC_CHECK_HEADER([zlib.h], [
-	CUNIT_CPPFLAGS="$CPPFLAGS"
+	ZLIB_CPPFLAGS="$CPPFLAGS"
 	AC_CHECK_LIB([z], 
 	  [inflate], 
 	  [ZLIB_LDFLAGS="$LDFLAGS -lz"], 
@@ -217,6 +218,59 @@ AC_SUBST([LIBXML2_VERSION])
 AC_SUBST([XML2_LDFLAGS])
 AC_SUBST([XML2_CPPFLAGS])
 
+dnl ===========================================================================
+dnl Detect LibGHT
+dnl ===========================================================================
+
+AC_ARG_WITH([libght], 
+	[AS_HELP_STRING([--with-libght=DIR], [specify the base libght installation directory])], 
+	[GHTDIR="$withval"], [GHTDIR=""])
+
+if test "x$GHTDIR" = "xyes"; then
+	AC_MSG_ERROR([you must specify a parameter to --with-libght, e.g. --with-libght=/opt/local])
+fi
+
+if test "x$GHTDIR" = "x"; then
+	dnl GHTDIR was not specified, so search in usual system places
+  AC_CHECK_HEADER([ght.h], [FOUND_GHT_H="YES"], [FOUND_GHT_H=""])
+  AC_CHECK_LIB([ght], [ght_init], [FOUND_GHT_LIB="YES"], [FOUND_GHT_LIB=""])
+else
+  dnl GHTDIR was specified, so let's look there!
+
+
+  dnl Extract the linker and include flags 
+  GHT_LDFLAGS="-L${GHTDIR}/lib -lght"
+  GHT_CPPFLAGS="-I${GHTDIR}/include"
+
+  dnl Check headers file
+  CPPFLAGS_SAVE="$CPPFLAGS"
+  CPPFLAGS="$GHT_CPPFLAGS $XML2_CPPFLAGS"
+
+  AC_MSG_RESULT([  usr def ght check $GHT_CPPFLAGS])
+
+  dnl Check libraries file
+  LIBS_SAVE="$LIBS"
+  LIBS="$GHT_LDFLAGS $XML2_LDFLAGS"
+
+  AC_CHECK_HEADER([ght.h], [FOUND_GHT_H="YES"], [FOUND_GHT_H=""])
+  AC_CHECK_LIB([ght], [ght_init], [FOUND_GHT_LIB="YES"], [FOUND_GHT_LIB=""])
+  
+  dnl back to the originals
+  LIBS="${LIBS_SAVE}"
+  CPPFLAGS="${CPPFLAGS_SAVE}"
+fi
+
+if test $FOUND_GHT_H -a $FOUND_GHT_LIB; then
+	AC_DEFINE([HAVE_LIBGHT], [], [])
+  AC_SUBST([GHT_LDFLAGS])
+  AC_SUBST([GHT_CPPFLAGS])
+  GHT_STATUS="found"
+  if test $GHTDIR; then
+    GHT_STATUS="$GHTDIR"
+  fi
+else
+  GHT_STATUS="not found"
+fi  
 
 dnl ===========================================================================
 dnl Output the relevant files
@@ -241,4 +295,5 @@ AC_MSG_RESULT([  PostgreSQL config:    ${PGCONFIG}])
 AC_MSG_RESULT([  PostgreSQL version:   ${PGSQL_FULL_VERSION}])
 AC_MSG_RESULT([  Libxml2 config:       ${XML2CONFIG}])
 AC_MSG_RESULT([  Libxml2 version:      ${LIBXML2_VERSION}])
+AC_MSG_RESULT([  LibGHT status:        ${GHT_STATUS}])
 AC_MSG_RESULT()
