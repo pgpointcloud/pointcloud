@@ -164,6 +164,10 @@ PCPATCH_UNCOMPRESSED* pc_patch_uncompressed_from_pointlist(const PCPOINTLIST *pl
 PCPATCH_UNCOMPRESSED* pc_patch_uncompressed_from_dimensional(const PCPATCH_DIMENSIONAL *pdl);
 int pc_patch_uncompressed_add_point(PCPATCH_UNCOMPRESSED *c, const PCPOINT *p);
 
+/* GHT PATCHES */
+PCPATCH_GHT* pc_patch_ght_from_uncompressed(const PCPATCH_UNCOMPRESSED *pa);
+PCPATCH_GHT* pc_patch_ght_from_pointlist(const PCPOINTLIST *pdl);
+
 
 
 /****************************************************************************

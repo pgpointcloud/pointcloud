@@ -104,6 +104,18 @@ void pc_set_handlers(pc_allocator allocator, pc_reallocator reallocator,
 	pc_context.info = info_handler;
 }
 
+void pc_set_ght_handlers(pc_allocator allocator, pc_reallocator reallocator,
+                     pc_deallocator deallocator, pc_message_handler error_handler,
+                     pc_message_handler info_handler, pc_message_handler warn_handler)
+{
+#ifdef HAVE_LIBGHT
+    ght_set_handlers((GhtAllocator)allocator, (GhtReallocator)reallocator,
+                     (GhtDeallocator)deallocator, (GhtMessageHandler)error_handler,
+                     (GhtMessageHandler)info_handler, (GhtMessageHandler)warn_handler);
+#endif
+    return;
+}
+
 
 void *
 pcalloc(size_t size)

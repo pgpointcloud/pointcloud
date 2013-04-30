@@ -18,7 +18,12 @@
 #include <string.h>
 #include <stdint.h>
 
+#include "pc_config.h"
 #include "hashtable.h"
+
+#ifdef HAVE_LIBGHT
+#include "ght.h"
+#endif 
 
 /**********************************************************************
 * DATA STRUCTURES
@@ -179,7 +184,9 @@ typedef struct
 	const PCSCHEMA *schema;
 	uint32_t npoints; /* How many points we have */
 	double xmin, xmax, ymin, ymax;
-    uint8_t *data;
+#ifdef HAVE_LIBGHT
+    GhtTree *ght;
+#endif
 } PCPATCH_GHT;
 
 
@@ -211,6 +218,10 @@ void  pcwarn(const char *fmt, ...);
 
 /** Set custom memory allocators and messaging (used by PgSQL module) */
 void pc_set_handlers(pc_allocator allocator, pc_reallocator reallocator,
+                     pc_deallocator deallocator, pc_message_handler error_handler,
+                     pc_message_handler info_handler, pc_message_handler warning_handler);
+
+void pc_set_ght_handlers(pc_allocator allocator, pc_reallocator reallocator,
                      pc_deallocator deallocator, pc_message_handler error_handler,
                      pc_message_handler info_handler, pc_message_handler warning_handler);
 
@@ -251,6 +262,10 @@ PCDIMENSION* pc_schema_get_dimension_by_name(const PCSCHEMA *s, const char *name
 uint32_t pc_schema_is_valid(const PCSCHEMA *s);
 /** Create a full copy of the schema and dimensions it contains */
 PCSCHEMA* pc_schema_clone(const PCSCHEMA *s);
+/** Add/overwrite a dimension in a schema */
+void pc_schema_set_dimension(PCSCHEMA *s, PCDIMENSION *d);
+/** Check/set the x/y position in the dimension list */
+void pc_schema_check_xy(PCSCHEMA *s);
 
 
 /**********************************************************************
@@ -291,6 +306,9 @@ int pc_point_get_double_by_name(const PCPOINT *pt, const char *name, double *d);
 
 /** Casts dimension value to double and scale/offset appropriately before returning */
 int pc_point_get_double_by_index(const PCPOINT *pt, uint32_t idx, double *d);
+
+/** Reads a double right off the data area */
+int pc_point_get_double(const PCPOINT *pt, const PCDIMENSION *dim, double *d);
 
 /** Returns X coordinate */
 double pc_point_get_x(const PCPOINT *pt);

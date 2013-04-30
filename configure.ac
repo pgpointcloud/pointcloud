@@ -260,15 +260,18 @@ fi
 
 if test $FOUND_GHT_H -a $FOUND_GHT_LIB; then
 	AC_DEFINE([HAVE_LIBGHT])
-  AC_SUBST([GHT_LDFLAGS])
-  AC_SUBST([GHT_CPPFLAGS])
-  GHT_STATUS="found"
+  GHT_STATUS="enabled"
   if test $GHTDIR; then
     GHT_STATUS="$GHTDIR"
   fi
 else
-  GHT_STATUS="not found"
-fi  
+  GHT_LDFLAGS=""
+  GHT_CPPFLAGS=""
+  GHT_STATUS="disabled"
+fi
+
+AC_SUBST([GHT_LDFLAGS])
+AC_SUBST([GHT_CPPFLAGS])
 
 dnl ===========================================================================
 dnl Output the relevant files

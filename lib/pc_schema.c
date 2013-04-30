@@ -172,11 +172,12 @@ pc_schema_calculate_byteoffsets(PCSCHEMA *pcs)
     pcs->size = byteoffset;
 }
 
-static int
+void
 pc_schema_set_dimension(PCSCHEMA *s, PCDIMENSION *d)
 {
 	s->dims[d->position] = d;
 	hashtable_insert(s->namehash, d->name, d);
+    pc_schema_calculate_byteoffsets(s);
 }
 
 
@@ -278,9 +279,28 @@ pc_schema_to_json(const PCSCHEMA *pcs)
 	return str;
 }
 
-
-static void pc_schema_check_xy(const PCSCHEMA *s)
+void pc_schema_check_xy(PCSCHEMA *s)
 {
+    int i;
+    for ( i = 0; i < s->ndims; i++ )
+    {
+        char *dimname = s->dims[i]->name;
+        if ( strcasecmp(dimname, "X") == 0 ||
+             strcasecmp(dimname, "Longitude") == 0 ||
+             strcasecmp(dimname, "Lon") == 0 )
+        {
+            s->x_position = i;
+            continue;
+        }
+        if ( strcasecmp(dimname, "Y") == 0 ||
+             strcasecmp(dimname, "Latitude") == 0 ||
+             strcasecmp(dimname, "Lat") == 0 )
+        {
+            s->y_position = i;
+            continue;
+        }
+    } 
+    
 	if ( s->x_position < 0 )
 		pcerror("pc_schema_check_xy: invalid x_position '%d'", s->x_position);
 

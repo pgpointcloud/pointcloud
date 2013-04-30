@@ -77,7 +77,7 @@ pc_point_free(PCPOINT *pt)
 	pcfree(pt);
 }
 
-static int
+int
 pc_point_get_double(const PCPOINT *pt, const PCDIMENSION *dim, double *d)
 {
 	uint8_t *ptr;
