@@ -246,8 +246,6 @@ else
   CPPFLAGS_SAVE="$CPPFLAGS"
   CPPFLAGS="$GHT_CPPFLAGS $XML2_CPPFLAGS"
 
-  AC_MSG_RESULT([  usr def ght check $GHT_CPPFLAGS])
-
   dnl Check libraries file
   LIBS_SAVE="$LIBS"
   LIBS="$GHT_LDFLAGS $XML2_LDFLAGS"
@@ -261,7 +259,7 @@ else
 fi
 
 if test $FOUND_GHT_H -a $FOUND_GHT_LIB; then
-	AC_DEFINE([HAVE_LIBGHT], [], [])
+	AC_DEFINE([HAVE_LIBGHT])
   AC_SUBST([GHT_LDFLAGS])
   AC_SUBST([GHT_CPPFLAGS])
   GHT_STATUS="found"
