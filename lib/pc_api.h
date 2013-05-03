@@ -184,8 +184,11 @@ typedef struct
 	const PCSCHEMA *schema;
 	uint32_t npoints; /* How many points we have */
 	double xmin, xmax, ymin, ymax;
+    size_t ghtsize;
 #ifdef HAVE_LIBGHT
-    GhtTree *ght;
+    GhtTreePtr ght;
+#else
+    uint8_t *ght
 #endif
 } PCPATCH_GHT;
 
@@ -315,6 +318,12 @@ double pc_point_get_x(const PCPOINT *pt);
 
 /** Returns Y coordinate */
 double pc_point_get_y(const PCPOINT *pt);
+
+/** Set the X coordinate */
+double pc_point_set_x(PCPOINT *pt, double val);
+
+/** Set the Y coordinate */
+double pc_point_set_y(PCPOINT *pt, double val);
 
 /** Create a new readwrite PCPOINT from a hex byte array */
 PCPOINT* pc_point_from_wkb(const PCSCHEMA *s, uint8_t *wkb, size_t wkbsize);

@@ -78,57 +78,34 @@ ght_type_from_pc_type(const int pctype)
     }
 }
 
-static GhtDimension *
-ght_dimension_from_pc_dimension(const PCDIMENSION *pcdim)
+static GhtDimensionPtr 
+ght_dimension_from_pc_dimension(const PCDIMENSION *d)
 {
     int i;
-    GhtDimension *dim;
-    
-    ght_dimension_new(&dim);
-
-    if ( pcdim->name )
-    {
-        dim->name = pcstrdup(pcdim->name);
-    }
-    if ( pcdim->description )
-    {
-        dim->description = pcstrdup(pcdim->description);
-    }
-    dim->scale = pcdim->scale;
-    dim->offset = pcdim->offset;
-    dim->type = ght_type_from_pc_type(pcdim->interpretation);
-    
+    GhtDimensionPtr dim;
+    GhtType type = ght_type_from_pc_type(d->interpretation);    
+    ght_dimension_new_from_parameters(d->name, d->description, type, d->scale, d->offset, &dim);
     return dim;
 }
 
 
-static GhtSchema *
+static GhtSchemaPtr 
 ght_schema_from_pc_schema(const PCSCHEMA *pcschema)
 {
     int i;
-    GhtSchema *schema;
+    GhtSchemaPtr schema;
     
     ght_schema_new(&schema);
 
     for ( i = 0; i < pcschema->ndims; i++ )
     {
-        GhtDimension *dim = ght_dimension_from_pc_dimension(pcschema->dims[i]);
+        GhtDimensionPtr dim = ght_dimension_from_pc_dimension(pcschema->dims[i]);
         ght_schema_add_dimension(schema, dim);
     }
 
     return schema;
 }
 #endif /* HAVE_LIBGHT */
-
-void
-pc_init_ght_handlers()
-{
-#ifdef HAVE_LIBGHT
-
-#else
-    return;
-#endif
-}
 
 PCPATCH_GHT *
 pc_patch_ght_from_pointlist(const PCPOINTLIST *pdl)
@@ -149,10 +126,10 @@ pc_patch_ght_from_uncompressed(const PCPATCH_UNCOMPRESSED *pa)
 
     int i, j;
     int pointcount = 0;
-    GhtSchema *schema;
-    GhtTree *tree;
+    GhtSchemaPtr schema;
+    GhtTreePtr tree;
     GhtCoordinate coord;
-    GhtNode *node;
+    GhtNodePtr node;
     GhtErr err;
     PCPOINT pt;
     PCDIMENSION *xdim, *ydim;
@@ -183,12 +160,14 @@ pc_patch_ght_from_uncompressed(const PCPATCH_UNCOMPRESSED *pa)
         /* TODO, make resolution configurable from the schema */
         if ( ght_node_new_from_coordinate(&coord, GHT_MAX_HASH_LENGTH, &node) == GHT_OK )
         {
+            unsigned int num_dims;
+            ght_schema_get_num_dimensions(schema, &num_dims);
             /* Add attributes to the node */
-            for ( j = 0; j < schema->num_dims; j++ )
+            for ( j = 0; j < num_dims; j++ )
             {
                 PCDIMENSION *dim;
-                GhtDimension *ghtdim;
-                GhtAttribute *attr;
+                GhtDimensionPtr ghtdim;
+                GhtAttributePtr attr;
                 double val;
 
                 /* Don't add X or Y as attributes, they are already embodied in the hash */
@@ -225,6 +204,7 @@ pc_patch_ght_from_uncompressed(const PCPATCH_UNCOMPRESSED *pa)
     /* Compact the tree */
     if ( ght_tree_compact_attributes(tree) == GHT_OK )
     {
+        GhtWriterPtr writer;
         paght = pcalloc(sizeof(PCPATCH_GHT));
         paght->type = PC_GHT;
         paght->readonly = PC_FALSE;
@@ -234,15 +214,18 @@ pc_patch_ght_from_uncompressed(const PCPATCH_UNCOMPRESSED *pa)
         paght->xmax = pa->xmax;
         paght->ymin = pa->ymin;
         paght->ymax = pa->ymax;
-        paght->ght = tree;
+        
+        /* Convert the tree to a memory buffer */
+        ght_writer_new_mem(&writer);
+        ght_tree_write(tree, writer);
+        ght_writer_get_size(writer, &(paght->ghtsize));
+        paght->ght = pcalloc(paght->ghtsize);
+        ght_writer_get_bytes(writer, paght->ght);
+        ght_writer_free(writer);
     }
-    else
-    {
-        ght_tree_free(tree);
-    }
-    
+        
+    ght_tree_free(tree);    
     return paght;
-
 #endif
 }
 
@@ -266,54 +249,112 @@ pc_patch_ght_free(PCPATCH_GHT *paght)
 #endif
 }
 
-#if 0
-
-/* Done */
-PCPATCH_UNCOMPRESSED *
-pc_patch_uncompressed_from_ght(const PCPATCH_GHT *pdl)
+static GhtTreePtr 
+ght_tree_from_pc_patch(const PCPATCH_GHT *paght)
 {
+    GhtTreePtr tree;
+    GhtReaderPtr reader;
+    GhtSchemaPtr ghtschema;
+    
+    ghtschema = ght_schema_from_pc_schema(paght->schema);
+    if ( ! ghtschema ) 
+        return NULL;
+    
+    if ( GHT_OK != ght_reader_new_mem(paght->ght, paght->ghtsize, ghtschema, &reader) )
+        return NULL;
+        
+    if ( GHT_OK != ght_tree_read(reader, &tree) )
+        return NULL;
+        
+    return tree;
+}
+
+PCPATCH_UNCOMPRESSED *
+pc_patch_uncompressed_from_ght(const PCPATCH_GHT *paght)
+{
+#ifndef HAVE_LIBGHT
+    pcerror("%s: libght support is not enabled", __func__);
+    return NULL;
+#else
     int i, j, npoints;
     PCPATCH_UNCOMPRESSED *patch;
-    PCPATCH_DIMENSIONAL *pdl_uncompressed;
+    PCPOINT point;
     const PCSCHEMA *schema;
-    uint8_t *buf;
+    GhtNodeListPtr nodelist;
+    GhtCoordinate coord;
+    GhtNodePtr node;
+    GhtTreePtr tree;
+    GhtHash *hash;
+    GhtAttributePtr attr;
 
-    npoints = pdl->npoints;
-    schema = pdl->schema;
+    /* Build a structured tree from the tree serialization */
+    if ( ! paght || ! paght->ght ) return NULL;
+    tree = ght_tree_from_pc_patch(paght);
+    if ( ! tree ) return NULL;
+
+    /* Convert tree to nodelist */
+    ght_nodelist_new(paght->npoints, &nodelist);
+    ght_tree_to_nodelist(tree, nodelist);
+    
+    /* Allocate uncompressed patch */
+    ght_nodelist_get_num_nodes(nodelist, &npoints);
+    schema = paght->schema;
     patch = pcalloc(sizeof(PCPATCH_UNCOMPRESSED));
     patch->schema = schema;
     patch->npoints = npoints;
     patch->maxpoints = npoints;
     patch->readonly = PC_FALSE;
     patch->type = PC_NONE;
-    patch->xmin = pdl->xmin;
-    patch->xmax = pdl->xmax;
-    patch->ymin = pdl->ymin;
-    patch->ymax = pdl->ymax;
-    patch->datasize = schema->size * pdl->npoints;
+    patch->xmin = paght->xmin;
+    patch->xmax = paght->xmax;
+    patch->ymin = paght->ymin;
+    patch->ymax = paght->ymax;
+    patch->datasize = schema->size * npoints;
     patch->data = pcalloc(patch->datasize);
-    buf = patch->data;
+    
+    /* Set up utility point */
+    point.schema = schema;
+    point.readonly = PC_FALSE;
+    point.data = patch->data;
 
-    /* Can only read from uncompressed dimensions */
-    pdl_uncompressed = pc_patch_dimensional_decompress(pdl);
-
+    /* Process each point... */
     for ( i = 0; i < npoints; i++ )
     {
-        for ( j = 0; j < schema->ndims; j++ )
+        double val;
+        
+        /* Read and set X and Y */
+        ght_nodelist_get_node(nodelist, i, &node);
+        ght_node_get_coordinate(node, &coord);
+        pc_point_set_x(&point, coord.x);
+        pc_point_set_y(&point, coord.y);
+        
+        /* Read and set all the attributes */
+        ght_node_get_attributes(node, &attr);
+        while ( attr )
         {
-            PCDIMENSION *dim = pc_schema_get_dimension(schema, j);
-            uint8_t *in = pdl_uncompressed->bytes[j].bytes + dim->size * i;
-            uint8_t *out = buf + dim->byteoffset;
-            memcpy(out, in, dim->size);
-        }
-        buf += schema->size;
+            GhtDimensionPtr dim;
+            const char *name;
+            ght_attribute_get_value(attr, &val);
+            ght_attribute_get_dimension(attr, &dim);
+            ght_dimension_get_name(dim, &name);
+            pc_point_set_double_by_name(&point, name, val);
+            ght_attribute_get_next(attr, &attr);
+        }        
+        point.data += schema->size;
     }
 
-    pc_patch_dimensional_free(pdl_uncompressed);
-
+    /* Done w/ nodelist and tree */
+    ght_nodelist_free_deep(nodelist);
+    ght_tree_free(tree);
+    
+    /* Done */
     return patch;
+#endif
 }
 
+
+
+#if 0
 
 
 char *

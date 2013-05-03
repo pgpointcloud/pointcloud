@@ -168,6 +168,18 @@ pc_point_get_y(const PCPOINT *pt)
 	return d;
 }
 
+double
+pc_point_set_x(PCPOINT *pt, double val)
+{
+	return pc_point_set_double_by_index(pt, pt->schema->x_position, val);
+}
+
+double
+pc_point_set_y(PCPOINT *pt, double val)
+{
+	return pc_point_set_double_by_index(pt, pt->schema->y_position, val);
+}
+
 char *
 pc_point_to_string(const PCPOINT *pt)
 {

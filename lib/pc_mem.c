@@ -109,9 +109,9 @@ void pc_set_ght_handlers(pc_allocator allocator, pc_reallocator reallocator,
                      pc_message_handler info_handler, pc_message_handler warn_handler)
 {
 #ifdef HAVE_LIBGHT
-    ght_set_handlers((GhtAllocator)allocator, (GhtReallocator)reallocator,
-                     (GhtDeallocator)deallocator, (GhtMessageHandler)error_handler,
-                     (GhtMessageHandler)info_handler, (GhtMessageHandler)warn_handler);
+    ght_set_handlers((void *)allocator, (void *)reallocator,
+                     (void *)deallocator, (void *)error_handler,
+                     (void *)info_handler, (void *)warn_handler);
 #endif
     return;
 }

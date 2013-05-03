@@ -30,5 +30,6 @@ More Functions
 - PC_FilterLessThan(patch, dimension, value) returns patch
 - PC_FilterGreaterThan(patch, dimension, value) returns patch
 - PC_FilterBetween(patch, dimension, valuemin, valuemax) returns patch
+- PC_FilterPolygon(patch, wkb) returns patch
 - PC_Filter(patch, dimension, expression) returns patch
 - PC_Get(pcpatch, dimname) returns Array(numeric)
