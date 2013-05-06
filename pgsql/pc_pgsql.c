@@ -104,10 +104,6 @@ _PG_init(void)
 	                pgsql_free, pgsql_error,
 					pgsql_info, pgsql_warn);
 
-    /* This will just no-op if LibGHT is not present */
-    pc_set_ght_handlers(pgsql_alloc, pgsql_realloc,
-            	        pgsql_free, pgsql_error,
-            	        pgsql_info, pgsql_warn);
 }
 
 /* Module unload callback */

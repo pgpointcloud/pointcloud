@@ -11,7 +11,8 @@ OBJS =	\
 	cu_tester.o \
 	cu_pc_schema.o \
 	cu_pc_point.o \
-	cu_pc_patch.o
+	cu_pc_patch.o \
+	cu_pc_patch_ght.o
 
 # Build the unit tester
 all: $(EXE)

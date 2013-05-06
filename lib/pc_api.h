@@ -220,10 +220,6 @@ void pc_set_handlers(pc_allocator allocator, pc_reallocator reallocator,
                      pc_deallocator deallocator, pc_message_handler error_handler,
                      pc_message_handler info_handler, pc_message_handler warning_handler);
 
-void pc_set_ght_handlers(pc_allocator allocator, pc_reallocator reallocator,
-                     pc_deallocator deallocator, pc_message_handler error_handler,
-                     pc_message_handler info_handler, pc_message_handler warning_handler);
-
 /** Set program to use system memory allocators and messaging */
 void pc_install_default_handlers(void);
 
