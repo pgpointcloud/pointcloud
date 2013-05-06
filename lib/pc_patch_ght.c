@@ -417,7 +417,7 @@ pc_patch_ght_compute_extent(PCPATCH_GHT *patch)
 {
 #ifndef HAVE_LIBGHT
     pcerror("%s: libght support is not enabled", __func__);
-    return NULL;
+    return PC_FAILURE;
 #else
     
     GhtTreePtr tree;
