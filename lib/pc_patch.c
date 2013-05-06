@@ -72,29 +72,90 @@ pc_patch_compress(const PCPATCH *patch, void *userdata)
 	uint32_t schema_compression = patch->schema->compression;
 	uint32_t patch_compression = patch->type;
 
-    if ( schema_compression == PC_DIMENSIONAL &&
-          patch_compression == PC_NONE )
+    switch ( schema_compression )
     {
-        PCPATCH_DIMENSIONAL *pcdu = pc_patch_dimensional_from_uncompressed((PCPATCH_UNCOMPRESSED*)patch);
-        PCPATCH_DIMENSIONAL *pcdd = pc_patch_dimensional_compress(pcdu, (PCDIMSTATS*)userdata);
-        pc_patch_dimensional_free(pcdu);
-        return (PCPATCH*)pcdd;
+        case PC_DIMENSIONAL:
+        {
+            if ( patch_compression == PC_NONE )
+            {
+                /* Dimensionalize, dimensionally compress, return */
+                PCPATCH_DIMENSIONAL *pcdu = pc_patch_dimensional_from_uncompressed((PCPATCH_UNCOMPRESSED*)patch);
+                PCPATCH_DIMENSIONAL *pcdd = pc_patch_dimensional_compress(pcdu, (PCDIMSTATS*)userdata);
+                pc_patch_dimensional_free(pcdu);
+                return (PCPATCH*)pcdd;                
+            }
+            else if ( patch_compression == PC_DIMENSIONAL )
+            {
+                /* Make sure it's compressed, return */
+                return (PCPATCH*)pc_patch_dimensional_compress((PCPATCH_DIMENSIONAL*)patch, (PCDIMSTATS*)userdata);
+            }
+            else if ( patch_compression == PC_GHT )
+            {
+                /* Uncompress, dimensionalize, dimensionally compress, return */
+                PCPATCH_UNCOMPRESSED *pcu = pc_patch_uncompressed_from_ght((PCPATCH_GHT*)patch);
+                PCPATCH_DIMENSIONAL *pcdu  = pc_patch_dimensional_from_uncompressed(pcu);
+                PCPATCH_DIMENSIONAL *pcdc  = pc_patch_dimensional_compress(pcdu, NULL);
+                pc_patch_dimensional_free(pcdu);
+                return (PCPATCH*)pcdc;
+            }
+            else 
+            {
+                pcerror("%s: unknown patch compression type %d", __func__, patch_compression);
+            }
+        }
+        case PC_NONE:
+        {
+            if ( patch_compression == PC_NONE )
+            {
+                return (PCPATCH*)patch;
+            }
+            else if ( patch_compression == PC_DIMENSIONAL )
+            {
+                PCPATCH_UNCOMPRESSED *pcu = pc_patch_uncompressed_from_dimensional((PCPATCH_DIMENSIONAL*)patch);
+                return (PCPATCH*)pcu;
+                
+            }
+            else if ( patch_compression == PC_GHT )
+            {
+                PCPATCH_UNCOMPRESSED *pcu = pc_patch_uncompressed_from_ght((PCPATCH_GHT*)patch);
+                return (PCPATCH*)pcu;
+            }
+            else
+            {
+                pcerror("%s: unknown patch compression type %d", __func__, patch_compression);
+            }
+        }
+        case PC_GHT:
+        {
+            if ( patch_compression == PC_NONE )
+            {
+                PCPATCH_GHT *pgc = pc_patch_ght_from_uncompressed((PCPATCH_UNCOMPRESSED*)patch);
+                return (PCPATCH*)pgc;
+            }
+            else if ( patch_compression == PC_DIMENSIONAL )
+            {
+                PCPATCH_UNCOMPRESSED *pcu = pc_patch_uncompressed_from_dimensional((PCPATCH_DIMENSIONAL*)patch);
+                PCPATCH_GHT *pgc = pc_patch_ght_from_uncompressed((PCPATCH_UNCOMPRESSED*)patch);
+                pc_patch_uncompressed_free(pcu);
+                return (PCPATCH*)pgc;
+            }
+            else if ( patch_compression == PC_GHT )
+            {
+                return (PCPATCH*)patch;
+            }
+            else
+            {
+                pcerror("%s: unknown patch compression type %d", __func__, patch_compression);
+            }            
+        }
+        default:
+        {
+            pcerror("%s: unknown schema compression type %d", __func__, schema_compression);
+        }
     }
-
-    if ( schema_compression == PC_DIMENSIONAL &&
-          patch_compression == PC_DIMENSIONAL )
-    {
-        return (PCPATCH*)pc_patch_dimensional_compress((PCPATCH_DIMENSIONAL*)patch, (PCDIMSTATS*)userdata);
-    }
-
-    if ( schema_compression == PC_NONE &&
-          patch_compression == PC_NONE )
-    {
-        return (PCPATCH*)patch;
-    }
-
-    pcerror("%s: cannot convert patch compressed %d to compressed %d", __func__, patch_compression, schema_compression);
-    return NULL;
+    
+    pcerror("%s: fatal error", __func__);
+    return NULL;   
 }
 
 
@@ -116,8 +177,8 @@ pc_patch_uncompress(const PCPATCH *patch)
 
     if ( patch_compression == PC_GHT )
     {
-        pcerror("%s: GHT compression not yet supported", __func__);
-        return NULL;
+        PCPATCH_UNCOMPRESSED *pu = pc_patch_uncompressed_from_ght((PCPATCH_GHT*)patch);
+        return (PCPATCH*)pu;
     }
 
     return NULL;
