@@ -118,7 +118,7 @@ pc_pointlist_from_patch(const PCPATCH *patch)
 		}
 		case PC_GHT:
 		{
-			// return pc_pointlist_from_patch_ght(patch);
+            return pc_pointlist_from_ght((PCPATCH_GHT*)patch);
 		}
 		case PC_DIMENSIONAL:
 		{

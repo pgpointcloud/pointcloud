@@ -454,7 +454,7 @@ pc_patch_serialized_size(const PCPATCH *patch)
 		case PC_GHT:
 		{
 		    PCPATCH_GHT *pg = (PCPATCH_GHT*)patch;
-            return sizeof(SERIALIZED_PATCH) - 1 + pg->ghtsize;
+            return sizeof(SERIALIZED_PATCH) - 1 + 4 + pg->ghtsize;
 		}
 		case PC_DIMENSIONAL:
 		{
@@ -508,12 +508,26 @@ pc_patch_dimensional_serialize(const PCPATCH *patch_in)
 static SERIALIZED_PATCH *
 pc_patch_ght_serialize(const PCPATCH *patch_in)
 {
+    // typedef struct
+    // {
+    //  uint32_t size;
+    //  uint32_t pcid;
+    //  uint32_t compression;
+    //  uint32_t npoints;
+    //  double xmin, xmax, ymin, ymax;
+    //  data:
+    //    uint32_t ghtsize;
+    //    uint8_t ght[];
+    // }
+    // SERIALIZED_PATCH;
+    
 	size_t serpch_size = pc_patch_serialized_size(patch_in);
 	SERIALIZED_PATCH *serpch = pcalloc(serpch_size);
     const PCPATCH_GHT *patch = (PCPATCH_GHT*)patch_in;
+    uint8_t *buf = serpch->data;
 
-    assert(patch_in);
-    assert(patch_in->type == PC_GHT);
+    assert(patch);
+    assert(patch->type == PC_GHT);
 
 	/* Copy basics */
 	serpch->pcid = patch->schema->pcid;
@@ -524,7 +538,12 @@ pc_patch_ght_serialize(const PCPATCH *patch_in)
 	serpch->ymax = patch->ymax;
     serpch->compression = patch->type;
 
-	memcpy(serpch->data, patch->ght, patch->ghtsize);
+    /* Write tree buffer size */
+    memcpy(buf, &(patch->ghtsize), 4);
+    buf += 4;
+    
+    /* Write tree buffer */
+	memcpy(buf, patch->ght, patch->ghtsize);
 	SET_VARSIZE(serpch, serpch_size);
 	return serpch;
 }
@@ -575,8 +594,10 @@ pc_patch_serialize(const PCPATCH *patch_in, void *userdata)
     switch( patch->type )
     {
         case PC_NONE:
+        {
             serpatch = pc_patch_uncompressed_serialize(patch);
             break;
+        }
         case PC_DIMENSIONAL:
         {
             serpatch = pc_patch_dimensional_serialize(patch);
