@@ -46,7 +46,7 @@ pc_patch_free(PCPATCH *patch)
 		}
 		case PC_GHT:
 	    {
-			pcerror("pc_patch_free: GHT not supported");
+			pc_patch_ght_free((PCPATCH_GHT*)patch);
             break;
 		}
 		case PC_DIMENSIONAL:
@@ -97,7 +97,7 @@ pc_patch_compress(const PCPATCH *patch, void *userdata)
         return (PCPATCH*)patch;
     }
 
-    pcerror("pc_patch_compress: cannot convert patch compressed %d to compressed %d", patch_compression, schema_compression);
+    pcerror("%s: cannot convert patch compressed %d to compressed %d", __func__, patch_compression, schema_compression);
     return NULL;
 }
 
@@ -120,7 +120,7 @@ pc_patch_uncompress(const PCPATCH *patch)
 
     if ( patch_compression == PC_GHT )
     {
-        pcerror("pc_patch_uncompress: GHT compression not yet supported");
+        pcerror("%s: GHT compression not yet supported", __func__);
         return NULL;
     }
 
@@ -142,7 +142,7 @@ pc_patch_from_wkb(const PCSCHEMA *s, uint8_t *wkb, size_t wkbsize)
 
 	if ( ! wkbsize )
 	{
-		pcerror("pc_patch_from_wkb: zero length wkb");
+		pcerror("%s: zero length wkb", __func__);
 	}
 
 	/*
@@ -155,7 +155,7 @@ pc_patch_from_wkb(const PCSCHEMA *s, uint8_t *wkb, size_t wkbsize)
 
 	if ( pcid != s->pcid )
 	{
-		pcerror("pc_patch_from_wkb: wkb pcid (%d) not consistent with schema pcid (%d)", pcid, s->pcid);
+		pcerror("%s: wkb pcid (%d) not consistent with schema pcid (%d)", __func__, pcid, s->pcid);
 	}
 
 	switch ( compression )
@@ -170,13 +170,13 @@ pc_patch_from_wkb(const PCSCHEMA *s, uint8_t *wkb, size_t wkbsize)
 		}
 		case PC_GHT:
 		{
-			pcerror("pc_patch_from_wkb: GHT compression not yet supported");
+			pcerror("%s: GHT compression not yet supported", __func__);
 			return NULL;
 		}
 	}
 
 	/* Don't get here */
-	pcerror("pc_patch_from_wkb: unknown compression '%d' requested", compression);
+	pcerror("%s: unknown compression '%d' requested", __func__, compression);
 	return NULL;
 }
 
@@ -203,11 +203,11 @@ pc_patch_to_wkb(const PCPATCH *patch, size_t *wkbsize)
 		}
 		case PC_GHT:
 		{
-			pcerror("pc_patch_to_wkb: GHT compression not yet supported");
+			pcerror("%s: GHT compression not yet supported", __func__);
 			return NULL;
 		}
 	}
-	pcerror("pc_patch_to_wkb: unknown compression requested '%d'", patch->schema->compression);
+	pcerror("%s: unknown compression requested '%d'", __func__, patch->schema->compression);
 	return NULL;
 }
 
@@ -221,7 +221,7 @@ pc_patch_to_string(const PCPATCH *patch)
         case PC_DIMENSIONAL:
             return pc_patch_dimensional_to_string((PCPATCH_DIMENSIONAL*)patch);
     }
-    pcerror("pc_patch_to_string: unsupported compression %d requested", patch->type);
+    pcerror("%s: unsupported compression %d requested", __func__, patch->type);
 }
 
 static uint8_t *
@@ -326,7 +326,7 @@ pc_patch_from_patchlist(PCPATCH **palist, int numpatches)
     {
         if ( schema->pcid != palist[i]->schema->pcid )
         {
-            pcerror("pc_patch_from_patchlist: inconsistent schemas in input");
+            pcerror("%s: inconsistent schemas in input", __func__);
             return NULL;
         }
         totalpoints += palist[i]->npoints;
@@ -360,7 +360,11 @@ pc_patch_from_patchlist(PCPATCH **palist, int numpatches)
             }
             case PC_GHT:
             {
-                pcerror("pc_patch_from_patchlist: GHT compression not yet supported");
+                PCPATCH_UNCOMPRESSED *pu = pc_patch_uncompressed_from_ght((const PCPATCH_GHT*)pa);
+                size_t sz = pu->schema->size * pu->npoints;
+                memcpy(buf, pu->data, sz);
+                buf += sz;
+                pc_patch_uncompressed_free(pu);
                 break;
             }
             case PC_NONE:
@@ -373,7 +377,7 @@ pc_patch_from_patchlist(PCPATCH **palist, int numpatches)
             }
             default:
             {
-                pcerror("pc_patch_from_patchlist: unknown compresseion type", pa->type);
+                pcerror("%s: unknown compresseion type", __func__, pa->type);
                 break;
             }
         }

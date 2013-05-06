@@ -174,11 +174,11 @@ pc_patch_from_hexwkb(const char *hexwkb, size_t hexlen, FunctionCallInfoData *fc
 	size_t wkblen = hexlen/2;
 	pcid = wkb_get_pcid(wkb);
 	if ( ! pcid )
-		elog(ERROR, "pc_patch_from_hexwkb: pcid is zero");
+		elog(ERROR, "%s: pcid is zero", __func__);
 	
 	schema = pc_schema_from_pcid(pcid, fcinfo);
 	if ( ! schema )
-	    elog(ERROR, "pc_patch_from_hexwkb: unable to look up schema entry");		
+	    elog(ERROR, "%s: unable to look up schema entry", __func__);		
 	
 	patch = pc_patch_from_wkb(schema, wkb, wkblen);
 	pfree(wkb);
@@ -226,7 +226,7 @@ pc_schema_from_pcid_uncached(uint32 pcid)
 	if (SPI_OK_CONNECT != SPI_connect ())
 	{
 		SPI_finish();
-		elog(ERROR, "pc_schema_from_pcid: could not connect to SPI manager");
+		elog(ERROR, "%s: could not connect to SPI manager", __func__);
 		return NULL;
 	}
 
@@ -237,7 +237,7 @@ pc_schema_from_pcid_uncached(uint32 pcid)
 	if ( err < 0 )
 	{
 		SPI_finish();
-		elog(ERROR, "pc_schema_from_pcid: error (%d) executing query: %s", err, sql);
+		elog(ERROR, "%s: error (%d) executing query: %s", __func__, err, sql);
 		return NULL;
 	}
 
@@ -457,7 +457,8 @@ pc_patch_serialized_size(const PCPATCH *patch)
 		}
 		case PC_GHT:
 		{
-            pcerror("pc_patch_serialized_size: GHT format not yet supported");
+		    PCPATCH_GHT *pg = (PCPATCH_GHT*)patch;
+            return sizeof(SERIALIZED_PATCH) - 1 + pg->ghtsize;
 		}
 		case PC_DIMENSIONAL:
 		{
@@ -465,7 +466,7 @@ pc_patch_serialized_size(const PCPATCH *patch)
 		}
 		default:
 		{
-		    pcerror("pc_patch_serialized_size: unknown compresed %d", patch->type);
+		    pcerror("%s: unknown compresed %d", __func__, patch->type);
 	    }
 	}
     return -1;
@@ -503,6 +504,31 @@ pc_patch_dimensional_serialize(const PCPATCH *patch_in)
         buf += bsize;
     }
 
+	SET_VARSIZE(serpch, serpch_size);
+	return serpch;
+}
+
+
+static SERIALIZED_PATCH *
+pc_patch_ght_serialize(const PCPATCH *patch_in)
+{
+	size_t serpch_size = pc_patch_serialized_size(patch_in);
+	SERIALIZED_PATCH *serpch = pcalloc(serpch_size);
+    const PCPATCH_GHT *patch = (PCPATCH_GHT*)patch_in;
+
+    assert(patch_in);
+    assert(patch_in->type == PC_GHT);
+
+	/* Copy basics */
+	serpch->pcid = patch->schema->pcid;
+	serpch->npoints = patch->npoints;
+	serpch->xmin = patch->xmin;
+	serpch->ymin = patch->ymin;
+	serpch->xmax = patch->xmax;
+	serpch->ymax = patch->ymax;
+    serpch->compression = patch->type;
+
+	memcpy(serpch->data, patch->ght, patch->ghtsize);
 	SET_VARSIZE(serpch, serpch_size);
 	return serpch;
 }
@@ -562,12 +588,12 @@ pc_patch_serialize(const PCPATCH *patch_in, void *userdata)
         }
         case PC_GHT:
         {
-            pcerror("pc_patch_serialize: GHT compression currently unsupported");
+            serpatch = pc_patch_ght_serialize(patch);
             break;
         }
         default:
         {
-            pcerror("pc_patch_serialize: unsupported compression type %d", patch->type);
+            pcerror("%s: unsupported compression type %d", __func__, patch->type);
         }
     }
 
@@ -632,6 +658,18 @@ pc_patch_uncompressed_deserialize(const SERIALIZED_PATCH *serpatch, const PCSCHE
 static PCPATCH *
 pc_patch_dimensional_deserialize(const SERIALIZED_PATCH *serpatch, const PCSCHEMA *schema)
 {
+    // typedef struct
+    // {
+    //  uint32_t size;
+    //  uint32_t pcid;
+    //  uint32_t compression;
+    //  uint32_t npoints;
+    //  double xmin, xmax, ymin, ymax;
+    //  data:
+    //    pcbytes[ndims];
+    // }
+    // SERIALIZED_PATCH;
+    
  	PCPATCH_DIMENSIONAL *patch;
     int i;
     const uint8_t *buf;
@@ -667,6 +705,54 @@ pc_patch_dimensional_deserialize(const SERIALIZED_PATCH *serpatch, const PCSCHEM
 	return (PCPATCH*)patch;
 }
 
+/*
+* We don't do any radical deserialization here. Don't build out the tree, just
+* set up pointers to the start of the buffer, so we can build it out later
+* if necessary.
+*/
+static PCPATCH *
+pc_patch_ght_deserialize(const SERIALIZED_PATCH *serpatch, const PCSCHEMA *schema)
+{
+    // typedef struct
+    // {
+    //  uint32_t size;
+    //  uint32_t pcid;
+    //  uint32_t compression;
+    //  uint32_t npoints;
+    //  double xmin, xmax, ymin, ymax;
+    //  data:
+    //    uint32_t ghtsize;
+    //    uint8_t ght[];
+    // }
+    // SERIALIZED_PATCH;
+    
+ 	PCPATCH_GHT *patch;
+    uint32_t ghtsize;
+    const uint8_t *buf = serpatch->data;
+    int npoints = serpatch->npoints;
+
+	/* Reference the external data */
+	patch = pcalloc(sizeof(PCPATCH_GHT));
+
+	/* Set up basic info */
+    patch->type = serpatch->compression;
+	patch->schema = schema;
+	patch->readonly = true;
+	patch->npoints = npoints;
+	patch->xmin = serpatch->xmin;
+	patch->ymin = serpatch->ymin;
+	patch->xmax = serpatch->xmax;
+	patch->ymax = serpatch->ymax;
+
+    /* Set up ght buffer */
+    memcpy(&ghtsize, buf, 4);
+    patch->ghtsize = ghtsize;
+    patch->ght = buf + 4;
+
+    /* That's it */
+	return (PCPATCH*)patch;
+}
+
 PCPATCH *
 pc_patch_deserialize(const SERIALIZED_PATCH *serpatch, const PCSCHEMA *schema)
 {
@@ -677,8 +763,8 @@ pc_patch_deserialize(const SERIALIZED_PATCH *serpatch, const PCSCHEMA *schema)
         case PC_DIMENSIONAL:
             return pc_patch_dimensional_deserialize(serpatch, schema);
         case PC_GHT:
-            pcerror("pc_patch_deserialize: GHT compression currently unsupported");
+            return pc_patch_ght_deserialize(serpatch, schema);
     }
-    pcerror("pc_patch_deserialize: unsupported compression type");
+    pcerror("%s: unsupported compression type", __func__);
     return NULL;
 }

@@ -1,13 +1,17 @@
 To Do
 =====
 
-- **IMPORTANT** dimensional compression and PC_Uncompress probably don't play will together... once serialized, patches don't know their compression anymore, so it's possible to pass a NONE patch up into deserialize and have it treated as a DIMENSIONAL
 - (?) convert PCBYTES to use PCDIMENSION* instead of holding all values as dupes
 - (??) convert PCBYTES handling to pass-by-reference instead of pass-by-value
-- implement PC_PatchAvg/PC_PatchMin/PC_PatchMax as C functions against patches with dimensional and uncompressed implementations
-- update pc_patch_from_patchlist to merge dimensional patchlists directly
-- TESTS for pc_patch_dimensional_from_uncompressed() and pc_patch_dimensional_compress()
+- implement PC\_PatchAvg/PC\_PatchMin/PC\_PatchMax as C functions against patches with dimensional and uncompressed implementations
+- TESTS for pc\_patch\_dimensional\_from\_uncompressed() and pc\_patch\_dimensional\_compress()
+- Add in dimensional stats caching to speed up dimensional compression in batch cases
+
 - Add Min/Max values to dimensional compression serialization (???)
+- Add Min/Max values to GHT compression serialization (???)
+
+- Update pc\_patch\_from\_patchlist() to merge GHT patches without decompression
+- Update pc\_patch\_from\_patchlist() to merge dimensional patches directly
 
 - Before doing dimensional compression, sort by geohash (actually by a localized geohash based on the patch bounds). This will enhance the autocorrelation of values and improve run-length encoding in particular
 - Add Min/Max values to front of GHT serialization
@@ -26,10 +30,10 @@ Use Cases to Support
 More Functions
 --------------
 
-- PC_FilterEquals(patch, dimension, value) returns patch
-- PC_FilterLessThan(patch, dimension, value) returns patch
-- PC_FilterGreaterThan(patch, dimension, value) returns patch
-- PC_FilterBetween(patch, dimension, valuemin, valuemax) returns patch
-- PC_FilterPolygon(patch, wkb) returns patch
-- PC_Filter(patch, dimension, expression) returns patch
-- PC_Get(pcpatch, dimname) returns Array(numeric)
+- PC\_FilterEquals(patch, dimension, value) returns patch
+- PC\_FilterLessThan(patch, dimension, value) returns patch
+- PC\_FilterGreaterThan(patch, dimension, value) returns patch
+- PC\_FilterBetween(patch, dimension, valuemin, valuemax) returns patch
+- PC\_FilterPolygon(patch, wkb) returns patch
+- PC\_Filter(patch, dimension, expression) returns patch
+- PC\_Get(pcpatch, dimname) returns Array(numeric)

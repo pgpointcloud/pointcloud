@@ -224,7 +224,7 @@ pc_patch_ght_from_uncompressed(const PCPATCH_UNCOMPRESSED *pa)
         ght_writer_free(writer);
     }
         
-    ght_tree_free(tree);    
+    ght_tree_free(tree);
     return paght;
 #endif
 }
@@ -240,9 +240,11 @@ pc_patch_ght_free(PCPATCH_GHT *paght)
     assert(paght);
     assert(paght->schema);
 
-    if ( paght->ght )
+    /* A readonly tree won't own it's ght buffer, */
+    /* so only free a readwrite tree */
+    if ( ! paght->readonly )
     {
-        ght_tree_free(paght->ght);
+        pcfree(paght->ght);
     }
 
     pcfree(paght);
@@ -353,10 +355,78 @@ pc_patch_uncompressed_from_ght(const PCPATCH_GHT *paght)
 }
 
 
+PCPATCH *
+pc_patch_ght_from_wkb(const PCSCHEMA *schema, const uint8_t *wkb, size_t wkbsize)
+{
+#ifndef HAVE_LIBGHT
+    pcerror("%s: libght support is not enabled", __func__);
+    return NULL;
+#else
+    
+	/*
+    byte:     endianness (1 = NDR, 0 = XDR)
+    uint32:   pcid (key to POINTCLOUD_SCHEMAS)
+    uint32:   compression (0 = no compression, 1 = dimensional, 2 = GHT)
+    uint32:   npoints
+    uint32:   ghtsize
+    uint8[]:  ghtbuffer
+	*/
+	
+	static size_t hdrsz = 1+4+4+4; /* endian + pcid + compression + npoints */
+	PCPATCH_GHT *patch;
+	uint8_t swap_endian = (wkb[0] != machine_endian());
+    uint32_t npoints;
+	size_t ghtsize;
+    const uint8_t *buf;
+    GhtTreePtr tree;
+    GhtArea area;
+
+	if ( wkb_get_compression(wkb) != PC_GHT )
+	{
+		pcerror("%s: call with wkb that is not GHT compressed", __func__);
+		return NULL;
+	}
+
+	npoints = wkb_get_npoints(wkb);
+
+	patch = pcalloc(sizeof(PCPATCH_GHT));
+	patch->npoints = npoints;
+    patch->type = PC_GHT;
+	patch->schema = schema;
+    patch->readonly = PC_FALSE;
+
+    /* Start on the GHT */
+    buf = wkb+hdrsz;
+    ghtsize = wkb_get_int32(buf, swap_endian);
+    buf += sizeof(int32_t); /* Move to start of GHT buffer */
+
+    /* Copy in the tree buffer */
+    patch->ght = pcalloc(ghtsize);
+    memcpy(patch->ght, buf, ghtsize);
+
+    /* Get a tree */
+    tree = ght_tree_from_pc_patch(patch);
+    if ( ! tree ) return NULL;
+
+    /* Calculate bounds and save */
+    if ( GHT_OK != ght_tree_get_extent(tree, &area) )
+        return NULL;
+
+    patch->xmin = area.x.min;
+    patch->xmax = area.x.min;
+    patch->ymin = area.y.min;
+    patch->ymax = area.y.min;
+
+    ght_tree_free(tree);
+
+	return (PCPATCH*)patch;
+#endif
+}
+
+
+
 
 #if 0
-
-
 char *
 pc_patch_ght_to_string(const PCPATCH_GHT *pa)
 {
@@ -438,54 +508,7 @@ pc_patch_ght_to_wkb(const PCPATCH_GHT *patch, size_t *wkbsize)
 }
 
 
-PCPATCH *
-pc_patch_ght_from_wkb(const PCSCHEMA *schema, const uint8_t *wkb, size_t wkbsize)
-{
-	/*
-    byte:     endianness (1 = NDR, 0 = XDR)
-    uint32:   pcid (key to POINTCLOUD_SCHEMAS)
-    uint32:   compression (0 = no compression, 1 = dimensional, 2 = GHT)
-    uint32:   npoints
-    dimensions[]:  dims (interpret relative to pcid and compressions)
-	*/
-	static size_t hdrsz = 1+4+4+4; /* endian + pcid + compression + npoints */
-	PCPATCH_GHT *patch;
-	uint8_t swap_endian = (wkb[0] != machine_endian());
-	uint32_t npoints, ndims;
-    const uint8_t *buf;
-    int i;
 
-	if ( wkb_get_compression(wkb) != PC_DIMENSIONAL )
-	{
-		pcerror("pc_patch_ght_from_wkb: call with wkb that is not dimensionally compressed");
-		return NULL;
-	}
-
-	npoints = wkb_get_npoints(wkb);
-    ndims = schema->ndims;
-
-	patch = pcalloc(sizeof(PCPATCH_GHT));
-	patch->npoints = npoints;
-    patch->type = PC_DIMENSIONAL;
-	patch->schema = schema;
-    patch->readonly = PC_FALSE;
-    patch->bytes = pcalloc(ndims*sizeof(PCBYTES));
-
-    buf = wkb+hdrsz;
-    for ( i = 0; i < ndims; i++ )
-    {
-        PCBYTES *pcb = &(patch->bytes[i]);
-        PCDIMENSION *dim = schema->dims[i];
-        pc_bytes_deserialize(buf, dim, pcb, PC_FALSE /*readonly*/, swap_endian);
-        pcb->npoints = npoints;
-        buf += pc_bytes_serialized_size(pcb);
-    }
-
-	if ( PC_FAILURE == pc_patch_ght_compute_extent(patch) )
-		pcerror("pc_patch_ght_compute_extent failed");
-
-	return (PCPATCH*)patch;
-}
 
 #endif 
 

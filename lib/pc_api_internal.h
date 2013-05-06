@@ -168,6 +168,7 @@ int pc_patch_uncompressed_add_point(PCPATCH_UNCOMPRESSED *c, const PCPOINT *p);
 PCPATCH_GHT* pc_patch_ght_from_uncompressed(const PCPATCH_UNCOMPRESSED *pa);
 PCPATCH_GHT* pc_patch_ght_from_pointlist(const PCPOINTLIST *pdl);
 PCPATCH_UNCOMPRESSED* pc_patch_uncompressed_from_ght(const PCPATCH_GHT *pght);
+void pc_patch_ght_free(PCPATCH_GHT *paght);
 
 
 

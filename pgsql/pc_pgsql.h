@@ -58,12 +58,12 @@ SERIALIZED_POINT;
 */
 typedef struct
 {
-	uint32_t size;
-	uint32_t pcid;
+    uint32_t size;
+    uint32_t pcid;
     uint32_t compression;
-	uint32_t npoints;
-	double xmin, xmax, ymin, ymax;
-	uint8_t data[1];
+    uint32_t npoints;
+    double xmin, xmax, ymin, ymax;
+    uint8_t data[1];
 }
 SERIALIZED_PATCH;
 

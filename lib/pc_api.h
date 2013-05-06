@@ -185,11 +185,7 @@ typedef struct
 	uint32_t npoints; /* How many points we have */
 	double xmin, xmax, ymin, ymax;
     size_t ghtsize;
-#ifdef HAVE_LIBGHT
-    GhtTreePtr ght;
-#else
-    uint8_t *ght
-#endif
+    uint8_t *ght;
 } PCPATCH_GHT;
 
 
