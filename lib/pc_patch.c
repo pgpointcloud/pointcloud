@@ -52,7 +52,7 @@ pc_patch_free(PCPATCH *patch)
 		}
 		default:
 		{
-        	pcerror("pc_patch_free: unknown compression type %d", patch->type);
+        	pcerror("%s: unknown compression type %d", __func__, patch->type);
             break;
 	    }
 	}
@@ -166,8 +166,7 @@ pc_patch_from_wkb(const PCSCHEMA *s, uint8_t *wkb, size_t wkbsize)
 		}
 		case PC_GHT:
 		{
-			pcerror("%s: GHT compression not yet supported", __func__);
-			return NULL;
+            return pc_patch_ght_from_wkb(s, wkb, wkbsize);
 		}
 	}
 
@@ -199,8 +198,7 @@ pc_patch_to_wkb(const PCPATCH *patch, size_t *wkbsize)
 		}
 		case PC_GHT:
 		{
-			pcerror("%s: GHT compression not yet supported", __func__);
-			return NULL;
+            return pc_patch_ght_to_wkb((PCPATCH_GHT*)patch, wkbsize);
 		}
 	}
 	pcerror("%s: unknown compression requested '%d'", __func__, patch->schema->compression);

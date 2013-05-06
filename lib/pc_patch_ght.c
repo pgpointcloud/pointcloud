@@ -456,54 +456,41 @@ pc_patch_ght_to_string(const PCPATCH_GHT *pa)
 #endif
 }
 
-
-#if 0
-
-
-
-
 uint8_t *
 pc_patch_ght_to_wkb(const PCPATCH_GHT *patch, size_t *wkbsize)
 {
+#ifndef HAVE_LIBGHT
+    pcerror("%s: libght support is not enabled", __func__);
+    return NULL;
+#else
 	/*
     byte:     endianness (1 = NDR, 0 = XDR)
     uint32:   pcid (key to POINTCLOUD_SCHEMAS)
     uint32:   compression (0 = no compression, 1 = dimensional, 2 = GHT)
     uint32:   npoints
-    dimensions[]:  pcbytes (interpret relative to pcid and compressions)
+    uint32:   ghtsize
+    uint8[]:  ghtbuffer
 	*/
-    int ndims = patch->schema->ndims;
-    int i;
+	
     uint8_t *buf;
 	char endian = machine_endian();
-	/* endian + pcid + compression + npoints + datasize */
-	size_t size = 1 + 4 + 4 + 4 + pc_patch_ght_serialized_size(patch);
+	/* endian + pcid + compression + npoints + ghtsize + ght */
+	size_t size = 1 + 4 + 4 + 4 + 4 + patch->ghtsize;
+	
 	uint8_t *wkb = pcalloc(size);
 	uint32_t compression = patch->type;
 	uint32_t npoints = patch->npoints;
 	uint32_t pcid = patch->schema->pcid;
+    uint32_t ghtsize = patch->ghtsize;
 	wkb[0] = endian; /* Write endian flag */
 	memcpy(wkb + 1, &pcid,        4); /* Write PCID */
 	memcpy(wkb + 5, &compression, 4); /* Write compression */
 	memcpy(wkb + 9, &npoints,     4); /* Write npoints */
+	memcpy(wkb + 9, &ghtsize,     4); /* Write ght buffer size */
 
-    buf = wkb + 13;
-    for ( i = 0; i < ndims; i++ )
-    {
-        size_t bsz;
-        PCBYTES *pcb = &(patch->bytes[i]);
-// XXX        printf("pcb->(size=%d, interp=%d, npoints=%d, compression=%d, readonly=%d)\n",pcb->size, pcb->interpretation, pcb->npoints, pcb->compression, pcb->readonly);
-
-        pc_bytes_serialize(pcb, buf, &bsz);
-        buf += bsz;
-    }
-
+    buf = wkb + 17;
+    memcpy(buf, patch->ght, patch->ghtsize);
 	if ( wkbsize ) *wkbsize = size;
 	return wkb;
+#endif
 }
-
-
-
-
-#endif 
-
