@@ -37,3 +37,5 @@ More Functions
 - PC\_FilterPolygon(patch, wkb) returns patch
 - PC\_Filter(patch, dimension, expression) returns patch
 - PC\_Get(pcpatch, dimname) returns Array(numeric)
+
+- PC\_Transform(pcpatch, newpcid) 

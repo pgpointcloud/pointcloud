@@ -165,10 +165,12 @@ PCPATCH_UNCOMPRESSED* pc_patch_uncompressed_from_dimensional(const PCPATCH_DIMEN
 int pc_patch_uncompressed_add_point(PCPATCH_UNCOMPRESSED *c, const PCPOINT *p);
 
 /* GHT PATCHES */
+char* pc_patch_ght_to_string(const PCPATCH_GHT *patch);
 PCPATCH_GHT* pc_patch_ght_from_uncompressed(const PCPATCH_UNCOMPRESSED *pa);
 PCPATCH_GHT* pc_patch_ght_from_pointlist(const PCPOINTLIST *pdl);
 PCPATCH_UNCOMPRESSED* pc_patch_uncompressed_from_ght(const PCPATCH_GHT *pght);
 void pc_patch_ght_free(PCPATCH_GHT *paght);
+int pc_patch_ght_compute_extent(PCPATCH_GHT *patch);
 
 
 

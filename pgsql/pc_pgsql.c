@@ -728,7 +728,7 @@ pc_patch_ght_deserialize(const SERIALIZED_PATCH *serpatch, const PCSCHEMA *schem
     
  	PCPATCH_GHT *patch;
     uint32_t ghtsize;
-    const uint8_t *buf = serpatch->data;
+    uint8_t *buf = (uint8_t *)serpatch->data;
     int npoints = serpatch->npoints;
 
 	/* Reference the external data */

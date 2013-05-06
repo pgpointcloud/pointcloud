@@ -15,10 +15,6 @@
 #include "pc_api_internal.h"
 #include "stringbuffer.h"
 
-
-
-
-
 int
 pc_patch_compute_extent(PCPATCH *patch)
 {
@@ -27,7 +23,7 @@ pc_patch_compute_extent(PCPATCH *patch)
 		case PC_NONE:
 			return pc_patch_uncompressed_compute_extent((PCPATCH_UNCOMPRESSED*)patch);
 		case PC_GHT:
-			return PC_FAILURE;
+            return pc_patch_ght_compute_extent((PCPATCH_GHT*)patch);
 		case PC_DIMENSIONAL:
 			return pc_patch_dimensional_compute_extent((PCPATCH_DIMENSIONAL*)patch);
 	}
@@ -220,6 +216,8 @@ pc_patch_to_string(const PCPATCH *patch)
             return pc_patch_uncompressed_to_string((PCPATCH_UNCOMPRESSED*)patch);
         case PC_DIMENSIONAL:
             return pc_patch_dimensional_to_string((PCPATCH_DIMENSIONAL*)patch);
+        case PC_GHT:
+            return pc_patch_ght_to_string((PCPATCH_GHT*)patch);
     }
     pcerror("%s: unsupported compression %d requested", __func__, patch->type);
 }

@@ -105,6 +105,26 @@ ght_schema_from_pc_schema(const PCSCHEMA *pcschema)
 
     return schema;
 }
+
+static GhtTreePtr 
+ght_tree_from_pc_patch(const PCPATCH_GHT *paght)
+{
+    GhtTreePtr tree;
+    GhtReaderPtr reader;
+    GhtSchemaPtr ghtschema;
+    
+    ghtschema = ght_schema_from_pc_schema(paght->schema);
+    if ( ! ghtschema ) 
+        return NULL;
+    
+    if ( GHT_OK != ght_reader_new_mem(paght->ght, paght->ghtsize, ghtschema, &reader) )
+        return NULL;
+        
+    if ( GHT_OK != ght_tree_read(reader, &tree) )
+        return NULL;
+        
+    return tree;
+}
 #endif /* HAVE_LIBGHT */
 
 PCPATCH_GHT *
@@ -251,25 +271,7 @@ pc_patch_ght_free(PCPATCH_GHT *paght)
 #endif
 }
 
-static GhtTreePtr 
-ght_tree_from_pc_patch(const PCPATCH_GHT *paght)
-{
-    GhtTreePtr tree;
-    GhtReaderPtr reader;
-    GhtSchemaPtr ghtschema;
-    
-    ghtschema = ght_schema_from_pc_schema(paght->schema);
-    if ( ! ghtschema ) 
-        return NULL;
-    
-    if ( GHT_OK != ght_reader_new_mem(paght->ght, paght->ghtsize, ghtschema, &reader) )
-        return NULL;
-        
-    if ( GHT_OK != ght_tree_read(reader, &tree) )
-        return NULL;
-        
-    return tree;
-}
+
 
 PCPATCH_UNCOMPRESSED *
 pc_patch_uncompressed_from_ght(const PCPATCH_GHT *paght)
@@ -378,8 +380,6 @@ pc_patch_ght_from_wkb(const PCSCHEMA *schema, const uint8_t *wkb, size_t wkbsize
     uint32_t npoints;
 	size_t ghtsize;
     const uint8_t *buf;
-    GhtTreePtr tree;
-    GhtArea area;
 
 	if ( wkb_get_compression(wkb) != PC_GHT )
 	{
@@ -404,13 +404,32 @@ pc_patch_ght_from_wkb(const PCSCHEMA *schema, const uint8_t *wkb, size_t wkbsize
     patch->ght = pcalloc(ghtsize);
     memcpy(patch->ght, buf, ghtsize);
 
+    if ( PC_SUCCESS != pc_patch_ght_compute_extent(patch) )
+        return NULL;
+
+	return (PCPATCH*)patch;
+#endif
+}
+
+
+int
+pc_patch_ght_compute_extent(PCPATCH_GHT *patch)
+{
+#ifndef HAVE_LIBGHT
+    pcerror("%s: libght support is not enabled", __func__);
+    return NULL;
+#else
+    
+    GhtTreePtr tree;
+    GhtArea area;
+    
     /* Get a tree */
     tree = ght_tree_from_pc_patch(patch);
-    if ( ! tree ) return NULL;
+    if ( ! tree ) return PC_FAILURE;
 
     /* Calculate bounds and save */
     if ( GHT_OK != ght_tree_get_extent(tree, &area) )
-        return NULL;
+        return PC_FAILURE;
 
     patch->xmin = area.x.min;
     patch->xmax = area.x.min;
@@ -418,54 +437,30 @@ pc_patch_ght_from_wkb(const PCSCHEMA *schema, const uint8_t *wkb, size_t wkbsize
     patch->ymax = area.y.min;
 
     ght_tree_free(tree);
-
-	return (PCPATCH*)patch;
+    
+	return PC_SUCCESS;
 #endif
 }
 
-
-
-
-#if 0
 char *
 pc_patch_ght_to_string(const PCPATCH_GHT *pa)
 {
+#ifndef HAVE_LIBGHT
+    pcerror("%s: libght support is not enabled", __func__);
+    return NULL;
+#else
     PCPATCH_UNCOMPRESSED *patch = pc_patch_uncompressed_from_ght(pa);
     char *str = pc_patch_uncompressed_to_string(patch);
     pc_patch_uncompressed_free(patch);
     return str;
+#endif
 }
 
 
-int
-pc_patch_ght_compute_extent(PCPATCH_GHT *pdl)
-{
-	int i;
-    double xmin, xmax, ymin, ymax;
-    int rv;
-    PCBYTES *pcb;
+#if 0
 
-    assert(pdl);
-    assert(pdl->schema);
 
-    /* Get x extremes */
-    pcb = &(pdl->bytes[pdl->schema->x_position]);
-    rv = pc_bytes_minmax(pcb, &xmin, &xmax);
-    xmin = pc_value_scale_offset(xmin, pdl->schema->dims[pdl->schema->x_position]);
-    xmax = pc_value_scale_offset(xmax, pdl->schema->dims[pdl->schema->x_position]);
-    pdl->xmin = xmin;
-    pdl->xmax = xmax;
 
-    /* Get y extremes */
-    pcb = &(pdl->bytes[pdl->schema->y_position]);
-    rv = pc_bytes_minmax(pcb, &ymin, &ymax);
-    ymin = pc_value_scale_offset(xmin, pdl->schema->dims[pdl->schema->y_position]);
-    ymax = pc_value_scale_offset(xmax, pdl->schema->dims[pdl->schema->y_position]);
-    pdl->ymin = ymin;
-    pdl->ymax = ymax;
-
-	return PC_SUCCESS;
-}
 
 uint8_t *
 pc_patch_ght_to_wkb(const PCPATCH_GHT *patch, size_t *wkbsize)
