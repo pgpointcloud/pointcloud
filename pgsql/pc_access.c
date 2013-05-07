@@ -530,7 +530,8 @@ Datum pcpatch_uncompress(PG_FUNCTION_ARGS)
 PG_FUNCTION_INFO_V1(pcpatch_numpoints);
 Datum pcpatch_numpoints(PG_FUNCTION_ARGS)
 {
-	SERIALIZED_PATCH *serpa = PG_GETARG_SERPATCH_P(0);
+    Datum d = PG_GETARG_DATUM(0);
+	SERIALIZED_PATCH *serpa = PG_DETOAST_DATUM_SLICE(d, 0, sizeof(SERIALIZED_PATCH));
     PG_RETURN_INT32(serpa->npoints);
 }
 
