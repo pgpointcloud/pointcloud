@@ -109,5 +109,8 @@ PCPATCH* pc_patch_from_hexwkb(const char *hexwkb, size_t hexlen, FunctionCallInf
 /** Create a hex representation of a PCPOINT */
 char* pc_patch_to_hexwkb(const PCPATCH *patch);
 
+/** Returns OGC WKB for envelope of PCPATCH */
+uint8_t* pc_patch_to_geometry_wkb_envelope(const SERIALIZED_PATCH *pa, const PCSCHEMA *schema, size_t *wkbsize);
+
 /** Read the first few bytes off an object to get the datum */
 uint32 pcid_from_datum(Datum d);

@@ -361,9 +361,6 @@ uint8_t* pc_patch_to_wkb(const PCPATCH *patch, size_t *wkbsize);
 /** Returns text form of patch */
 char* pc_patch_to_string(const PCPATCH *patch);
 
-/** Returns OGC WKB for envelope of PCPATCH */
-uint8_t* pc_patch_to_geometry_wkb_envelope(const PCPATCH *pa, size_t *wkbsize);
-
 /** */
 size_t pc_patch_dimensional_serialized_size(const PCPATCH_DIMENSIONAL *patch);
 
