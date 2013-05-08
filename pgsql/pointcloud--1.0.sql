@@ -46,6 +46,11 @@ CREATE OR REPLACE FUNCTION pc_typmod_pcid(typmod integer)
     RETURNS int4 AS 'MODULE_PATHNAME','pc_typmod_pcid'
     LANGUAGE 'c' IMMUTABLE STRICT;
 
+-- Return the library version number
+CREATE OR REPLACE FUNCTION pc_version()
+    RETURNS text AS 'MODULE_PATHNAME', 'pc_version'
+    LANGUAGE 'c' IMMUTABLE STRICT;
+
 -------------------------------------------------------------------
 --  PCPOINT
 -------------------------------------------------------------------

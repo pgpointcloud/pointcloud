@@ -23,6 +23,7 @@ Datum pcpatch_compression(PG_FUNCTION_ARGS);
 Datum pcpatch_intersects(PG_FUNCTION_ARGS);
 Datum pcpatch_size(PG_FUNCTION_ARGS);
 Datum pcpoint_size(PG_FUNCTION_ARGS);
+Datum pc_version(PG_FUNCTION_ARGS);
 
 /* Generic aggregation functions */
 Datum pointcloud_agg_transfn(PG_FUNCTION_ARGS);
@@ -573,5 +574,15 @@ Datum pcpoint_size(PG_FUNCTION_ARGS)
 {
 	SERIALIZED_POINT *serpt = PG_GETARG_SERPOINT_P(0);
     PG_RETURN_INT32(VARSIZE(serpt));
+}
+
+PG_FUNCTION_INFO_V1(pc_version);
+Datum pc_version(PG_FUNCTION_ARGS)
+{
+    text *version_text;
+    char version[64];
+    snprintf(version, 64, "%s", POINTCLOUD_VERSION);
+    version_text = cstring_to_text(version);
+    PG_RETURN_TEXT_P(version_text);
 }
 
