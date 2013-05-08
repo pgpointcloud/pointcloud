@@ -530,26 +530,25 @@ Datum pcpatch_uncompress(PG_FUNCTION_ARGS)
 PG_FUNCTION_INFO_V1(pcpatch_numpoints);
 Datum pcpatch_numpoints(PG_FUNCTION_ARGS)
 {
-    Datum d = PG_GETARG_DATUM(0);
-	SERIALIZED_PATCH *serpa = PG_DETOAST_DATUM_SLICE(d, 0, sizeof(SERIALIZED_PATCH));
+    SERIALIZED_PATCH *serpa = PG_GETHEADER_SERPATCH_P(0);
     PG_RETURN_INT32(serpa->npoints);
 }
 
 PG_FUNCTION_INFO_V1(pcpatch_compression);
 Datum pcpatch_compression(PG_FUNCTION_ARGS)
 {
-	SERIALIZED_PATCH *serpa = PG_GETARG_SERPATCH_P(0);
+	SERIALIZED_PATCH *serpa = PG_GETHEADER_SERPATCH_P(0);
     PG_RETURN_INT32(serpa->compression);
 }
 
 PG_FUNCTION_INFO_V1(pcpatch_intersects);
 Datum pcpatch_intersects(PG_FUNCTION_ARGS)
 {
-	SERIALIZED_PATCH *serpa1 = PG_GETARG_SERPATCH_P(0);
-	SERIALIZED_PATCH *serpa2 = PG_GETARG_SERPATCH_P(1);
+	SERIALIZED_PATCH *serpa1 = PG_GETHEADER_SERPATCH_P(0);
+	SERIALIZED_PATCH *serpa2 = PG_GETHEADER_SERPATCH_P(1);
 
 	if ( serpa1->pcid != serpa2->pcid )
-	    elog(ERROR, "pcpatch_intersects: pcid mismatch (%d != %d)", serpa1->pcid, serpa2->pcid);
+	    elog(ERROR, "%s: pcid mismatch (%d != %d)", __func__, serpa1->pcid, serpa2->pcid);
 
 	if ( serpa1->xmin > serpa2->xmax ||
 	     serpa1->xmax < serpa2->xmin ||
@@ -565,7 +564,7 @@ Datum pcpatch_intersects(PG_FUNCTION_ARGS)
 PG_FUNCTION_INFO_V1(pcpatch_size);
 Datum pcpatch_size(PG_FUNCTION_ARGS)
 {
-	SERIALIZED_PATCH *serpa = PG_GETARG_SERPATCH_P(0);
+	SERIALIZED_PATCH *serpa = PG_GETHEADER_SERPATCH_P(0);
     PG_RETURN_INT32(VARSIZE(serpa));
 }
 

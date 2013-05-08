@@ -16,6 +16,8 @@ To Do
 - Before doing dimensional compression, sort by geohash (actually by a localized geohash based on the patch bounds). This will enhance the autocorrelation of values and improve run-length encoding in particular
 - Add Min/Max values to front of GHT serialization
 
+- Improve extent reading to only pull a slice of patch out of the datum
+
 Use Cases to Support
 --------------------
 
