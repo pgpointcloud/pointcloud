@@ -564,7 +564,7 @@ Datum pcpatch_intersects(PG_FUNCTION_ARGS)
 PG_FUNCTION_INFO_V1(pcpatch_size);
 Datum pcpatch_size(PG_FUNCTION_ARGS)
 {
-	SERIALIZED_PATCH *serpa = PG_GETHEADER_SERPATCH_P(0);
+	SERIALIZED_PATCH *serpa = PG_GETARG_SERPATCH_P(0);
     PG_RETURN_INT32(VARSIZE(serpa));
 }
 
