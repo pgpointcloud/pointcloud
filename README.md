@@ -81,7 +81,6 @@ Here is a simple 4-dimensional schema document you can insert into `pointcloud_f
       </pc:dimension>
       <pc:metadata>
         <Metadata name="compression">dimensional</Metadata>
-        <Metadata name="spatialreference" type="id">4326</Metadata>
       </pc:metadata>
     </pc:PointCloudSchema>');
 
