@@ -532,6 +532,7 @@ First, you will need to install the many, many dependencies of PDAL.
  - Install the "boost" package if your system has one
  - Install the "soci" add-on for boost, and ensure the PgSQL plug-in is built: http://soci.sourceforge.net/
  - Install the "proj4" library: https://trac.osgeo.org/proj/
+ - Install the "geos" library: https://trac.osgeo.org/geos/
  - Install the "geotiff" library: http://trac.osgeo.org/geotiff/
  - Install the "gdal" library: http://gdal.org/
  - Install the "liblas" library: http://liblas.org/
