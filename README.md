@@ -543,6 +543,7 @@ Then, clone the Pointcloud PDAL repository, that contains the latest version of 
  - Make a build directory: `mkdir PDAL-build`
  - Enter the build directory: `cd PDAL-build`
  - Run CMake to find dependencies: `cmake ../PDAL`
+   - Or, see https://github.com/pramsey/PDAL/blob/master/pramsey-config.sh
  - If dependencies are not found, manually set them: `ccmake ../PDAL`
  - Once CMake has found all dependencies, run the build: `make all`
  - And install the artifacts: `make install`
