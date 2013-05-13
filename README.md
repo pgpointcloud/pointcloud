@@ -556,7 +556,7 @@ PDAL pipelines are XML files, which nest together readers, filters, and writers 
 
 To execute a pipeline file, run it through the `pcpipeline` command:
 
-    `pcpipeline pipelinefile.xml`
+    pcpipeline pipelinefile.xml
 
 Here is a simple example pipeline that reads a LAS file and writes into a PostgreSQL Pointcloud database.
 
