@@ -539,7 +539,7 @@ First, you will need to install the many, many dependencies of PDAL.
 
 Then, clone the Pointcloud PDAL repository, that contains the latest version of the Pointcloud driver for PDAL (as well as the latest version of PDAL itself):
 
- - Clone into a source directory: `git clone https://github.com/pramsey/PDAL/tree/pgnative PDAL`
+ - Clone into a source directory: `git clone https://github.com/pramsey/PDAL PDAL`
  - Make a build directory: `mkdir PDAL-build`
  - Enter the build directory: `cd PDAL-build`
  - Run CMake to find dependencies: `cmake ../PDAL`
