@@ -10,9 +10,11 @@ A PostgreSQL extension for storing point cloud (LIDAR) data.
 - PostgreSQL and PostgreSQL development packages must be installed (pg_config and server headers). For Red Hat and Ubuntu, the package names are usually "postgresql-dev" or "postgresql-devel"
 - LibXML2 development packages must be installed, usually "libxml2-dev" or "libxml2-devel".
 - CUnit packages must be installed, or [source built and installed](http://sourceforge.net/projects/cunit/ "CUnit").
-
+- [Optional] GHT library may be installed for GHT compression support, [built from source](http://github.com/pramsey/libght/ "LibGHT")
 
 ### Build ###
+
+Run `./configure --help` to get a complete listing of configuration options.
 
 - `./configure`
 - `make`
@@ -21,8 +23,9 @@ A PostgreSQL extension for storing point cloud (LIDAR) data.
 
 ### Activate ###
 
-- `CREATE DATABASE mynewdb`
-- `CREATE EXTENSION pointcloud`
+- Create a new database: `CREATE DATABASE mynewdb`
+- Connect to that database.
+- Activate the pointcloud extension: `CREATE EXTENSION pointcloud`
 
 ## Schemas ##
 
@@ -378,14 +381,11 @@ One of the issues with LIDAR data is that there is a lot of it. To deal with dat
       <Metadata name="compression">dimensional</Metadata>
     </pc:metadata>
 
-There are currently two supported compressions:
+There are currently three supported compressions:
 
 - **None**, which stores points and patches as byte arrays using the type and formats described in the schema document.
 - **Dimensional**, which stores points the same as 'none' but stores patches as collections of dimensional data arrays, with an "appropriate" compression applied. Dimensional compression makes the most sense for smaller patch sizes, since small patches will tend to have more homogeneous dimensions.
-
-A third compression is in development:
-
-- **GeoHashTree** or GHT, which stores the points in a tree where each node stores the common values shared by all nodes below. For larger patch sizes, GHT should provide effective compression and performance for patch-wise operations.
+- **GHT** or "GeoHash Tree", which stores the points in a tree where each node stores the common values shared by all nodes below. For larger patch sizes, GHT should provide effective compression and performance for patch-wise operations. You must build Pointcloud with libght support to make use of the GHT compression.
 
 If no compression is declared in `<pc:metadata>`, then a compression of "none" is assumed.
 
@@ -470,13 +470,13 @@ There are four possible compression types used in dimensional compression:
 - deflate = 3
 
     
-#### No compression ####
+#### No dimension compress ####
 
 For dimensional compression 0 (no compression) the values just appear in order. The length of words in this dimension must be determined from the schema document.
 
     word[]:
 
-#### Run-length compression ####
+#### Run-length compress dimension ####
 
 For run-length compression, the data stream consists of a set of pairs: a byte value indicating the length of the run, and a data value indicating the value that is repeated.
 
@@ -486,7 +486,7 @@ For run-length compression, the data stream consists of a set of pairs: a byte v
 
 The length of words in this dimension must be determined from the schema document.
 
-#### Significant bits removal ####
+#### Significant bits removal on dimension ####
 
 Significant bits removal starts with two words. The first word just gives the number of bits that are "significant", that is the number of bits left after the common bits are removed from any given word. The second word is a bitmask of the common bits, with the final, variable bits zeroed out.
 
@@ -494,9 +494,134 @@ Significant bits removal starts with two words. The first word just gives the nu
      word2:          the bits that are shared by every word in this dimension
      data[]:         variable bits packed into a data buffer
 
-#### Deflate ####
+#### Deflate dimension ####
 
 Where simple compression schemes fail, general purpose compression is applied to the dimension using zlib. The data area is a raw zlib buffer suitable for passing directly to the inflate() function. The size of the input buffer is given in the common dimension header. The size of the output buffer can be derived from the patch metadata by multiplying the dimension word size by the number of points in the patch.
 
+### Patch Binary (GHT) ####
 
+    byte:          endianness (1 = NDR, 0 = XDR)
+    uint32:        pcid (key to POINTCLOUD_SCHEMAS)
+    uint32:        1 = GHT compression
+    uint32:        npoints
+    uint32:        GHT data size
+    uint8:         GHT data
+
+GHT patches are much like dimensional patches, except their internal structure is more opaque. Use LibGHT to read the GHT data buffer out into a GHT tree in memory.
+
+## Loading Data ##
+
+The examples above show how to form patches from array of doubles, and well-known binary. You can write your own loader, using the uncompressed WKB format, or more simply you can load existing LIDAR files using the [PDAL](http://pointcloud.org "PDAL") processing and format conversion library.
+
+### From WKB ###
+
+If you are writing your own loading system and want to write into Pointcloud types, create well-known binary inputs, in uncompressed format. If you schema indicates that your patch storage is compressed, Pointcloud will automatically compress your patch before storing it, so you can create patches in uncompressed WKB without worrying about the nuances of particular internal compression schemes.
+
+The only issues to watch when creating WKB patches are: ensuring the data you write is sized according to the schema (use the specified dimension type); ensuring that the endianness of the data matches the declared endianness of the patch.
+
+### From PDAL ###
+
+#### Build and Install PDAL ####
+
+Support for PostgreSQL Pointcloud in PDAL is currently brand-new and will have to be [built from source](http://www.pointcloud.org/compilation/index.html). The PostgresSQL Pointcloud driver uses the "soci" module for database read/write, which can be difficult to compile. Future versions will convert to using the `libpq` PostgreSQL client libraries directly, for a simpler install.
+
+First, you will need to install the many, many dependencies of PDAL.
+
+ - Read the compilation instructions: http://www.pointcloud.org/compilation/index.html
+ - Read the dependency information: http://www.pointcloud.org/compilation/dependencies.html
+ - Install the "boost" package if your system has one
+ - Install the "soci" add-on for boost, and ensure the PgSQL plug-in is built: http://soci.sourceforge.net/
+ - Install the "proj4" library: https://trac.osgeo.org/proj/
+ - Install the "geotiff" library: http://trac.osgeo.org/geotiff/
+ - Install the "gdal" library: http://gdal.org/
+ - Install the "liblas" library: http://liblas.org/
+
+Then, clone the Pointcloud PDAL repository, that contains the latest version of the Pointcloud driver for PDAL (as well as the latest version of PDAL itself):
+
+ - Clone into a source directory: `git clone https://github.com/pramsey/PDAL/tree/pgnative PDAL`
+ - Make a build directory: `mkdir PDAL-build`
+ - Enter the build directory: `cd PDAL-build`
+ - Run CMake to find dependencies: `cmake ../PDAL`
+ - If dependencies are not found, manually set them: `ccmake ../PDAL`
+ - Once CMake has found all dependencies, run the build: `make all`
+ - And install the artifacts: `make install`
+ 
+If all the dependencies were found, including the `soci` driver for PostgreSQL, you're ready to run a PDAL import into PostgreSQL Pointcloud!
+
+#### Running `pcpipeline` ####
+
+PDAL includes a limited command-line program, `pc2pc` that does simple transformations, but in order to load data into Pointcloud we use a "PDAL pipeline". A pipeline combines a format reader, and format writer, with filters that can alter or group the points together.
+
+PDAL pipelines are XML files, which nest together readers, filters, and writers into a processing chain that will be applied to the LIDAR data. 
+
+To execute a pipeline file, run it through the `pcpipeline` command:
+
+    `pcpipeline pipelinefile.xml`
+
+Here is a simple example pipeline that reads a LAS file and writes into a PostgreSQL Pointcloud database.
+
+    <?xml version="1.0" encoding="utf-8"?>
+    <Pipeline version="1.0">
+        <Writer type="drivers.pgpointcloud.writer">
+            <Option name="connection">host='localhost' dbname='pc' user='lidar'</Option>
+            <Option name="table">sthsm</Option>
+            <Option name="srid">26910</Option>
+            <Filter type="filters.chipper">
+                <Option name="capacity">400</Option>
+                <Filter type="filters.cache"><Option name="max_cache_blocks">3</Option>
+                    <Option name="cache_block_size">32184</Option>
+                    <Reader type="drivers.las.reader">
+                        <Option name="filename">/home/lidar/st-helens-small.las</Option>
+                        <Option name="spatialreference">EPSG:26910</Option>
+                    </Reader>
+                </Filter>
+            </Filter>
+        </Writer>
+    </Pipeline>
+
+PostgreSQL Pointcloud storage of LIDAR works best when each "patch" of points consists of points that are close together, and when most patches do not overlap. In order to convert unordered data from a LIDAR file into patch-organized data in the database, we need to pass it through a filter to "chip" the data into compact patches. The "chipper" is one of the filters we need to apply to the data while loading.
+
+Similarly, reading data from a PostgreSQL Pointcloud uses a Pointcloud reader and a file writer of some sort. This example reads from the database and writes to a CSV text file:
+
+    <?xml version="1.0" encoding="utf-8"?>
+    <Pipeline version="1.0">
+        <Writer type="drivers.text.writer">
+            <Option name="filename">/home/lidar/st-helens-small-out.txt</Option>
+            <Option name="cache_block_size">32184</Option>
+            <Option name="spatialreference">EPSG:26910</Option>
+            <Reader type="drivers.pgpointcloud.reader">
+                <Option name="connection">host='localhost' dbname='pc' user='lidar'</Option>
+                <Option name="table">sthsm</Option>
+                <Option name="column">pa</Option>
+                <Option name="srid">26910</Option>
+            </Reader>
+        </Writer>
+    </Pipeline>
+
+Note that we do not need to chip the data stream when reading from the database, as the writer does not care if the points are blocked into patches or not.
+
+#### PDAL pgpointcloud Reader/Writer Options ####
+
+The PDAL **drivers.pgpointcloud.writer** for PostgreSQL Pointcloud takes the following options:
+
+- **connection**: The PostgreSQL database connection string. E.g. `host=localhost user=username password=pw db=dbname port=5432`
+- **table**: The database table create to write the patches to.
+- **schema**: The schema to create the table in. [Optional]
+- **column**: The column name to use in the patch table. [Optional: "pa"]
+- **compression**: The patch compression format to use [Optional: "dimensional"]
+- **overwrite**: Replace any existing table [Optional: true]
+- **capacity**: How many points to store in each patch [Optional: 400]
+- **srid**: The spatial reference id to store data in [Optional: 4326]
+- **pcid**: An existing PCID to use for the point cloud schema [Optional]
+- **pre_sql**: Before the pipeline runs, read and execute this SQL file or command [Optional]
+- **post_sql**: After the pipeline runs, read and execute this SQL file or command [Optional]
+ 
+The PDAL **drivers.pgpointcloud.reader** for PostgreSQL Pointcloud takes the following options:
+
+- **connection**: The PostgreSQL database connection string. E.g. `host=localhost user=username password=pw db=dbname port=5432`
+- **table**: The database table to read the patches from.
+- **schema**: The schema to read the table from. [Optional] 
+- **column**: The column name in the patch table to read from. [Optional: "pa"]
+- **where**: SQL where clause to constrain the query [Optional]
+- **spatialreference**: Overrides the database declared SRID [Optional]
 
