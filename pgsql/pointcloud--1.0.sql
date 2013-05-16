@@ -287,34 +287,19 @@ CREATE OR REPLACE FUNCTION PC_Explode(p pcpatch)
 -- Utility to get AVERAGE value from patch
 CREATE OR REPLACE FUNCTION PC_PatchAvg(p pcpatch, attr text)
     RETURNS numeric AS 
-    $$
-        WITH pts AS (
-        SELECT PC_Explode(p) AS pt
-        )
-        SELECT avg(PC_Get(pt, attr)) FROM pts
-    $$ 
+    'WITH pts AS ( SELECT PC_Explode($1) AS pt) SELECT avg(PC_Get(pt, $2)) FROM pts' 
     LANGUAGE 'sql';
 
 -- Utility to get MAXIMUM value from patch
 CREATE OR REPLACE FUNCTION PC_PatchMax(p pcpatch, attr text)
     RETURNS numeric AS 
-    $$
-        WITH pts AS (
-        SELECT PC_Explode(p) AS pt
-        )
-        SELECT max(PC_Get(pt, attr)) FROM pts
-    $$ 
+    'WITH pts AS ( SELECT PC_Explode($1) AS pt) SELECT max(PC_Get(pt, $2)) FROM pts' 
     LANGUAGE 'sql';
 
 -- Utility to get MINIMUM value from patch
 CREATE OR REPLACE FUNCTION PC_PatchMin(p pcpatch, attr text)
     RETURNS numeric AS
-    $$
-        WITH pts AS (
-        SELECT PC_Explode(p) AS pt
-        )
-        SELECT min(PC_Get(pt, attr)) FROM pts
-    $$ 
+    'WITH pts AS ( SELECT PC_Explode($1) AS pt) SELECT min(PC_Get(pt, $2)) FROM pts' 
     LANGUAGE 'sql';
 
 
