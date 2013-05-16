@@ -232,8 +232,8 @@ fi
 
 if test "x$GHTDIR" = "x"; then
   dnl GHTDIR was not specified, so search in usual system places
-  AC_CHECK_HEADER([ght.h], [GHT_CPPFLAGS="$CPPFLAGS" FOUND_GHT_H="YES"], [FOUND_GHT_H=""])
-  AC_CHECK_LIB([ght], [ght_init], [GHT_LDFLAGS="-lght" FOUND_GHT_LIB="YES"], [FOUND_GHT_LIB=""])
+  AC_CHECK_HEADER([ght.h], [GHT_CPPFLAGS="$CPPFLAGS" FOUND_GHT_H="YES"], [FOUND_GHT_H="NO"])
+  AC_CHECK_LIB([ght], [ght_init], [GHT_LDFLAGS="-lght" FOUND_GHT_LIB="YES"], [FOUND_GHT_LIB="NO"])
 else
   dnl GHTDIR was specified, so let's look there!
 
@@ -250,15 +250,15 @@ else
   LIBS_SAVE="$LIBS"
   LIBS="$GHT_LDFLAGS $XML2_LDFLAGS"
 
-  AC_CHECK_HEADER([ght.h], [FOUND_GHT_H="YES"], [FOUND_GHT_H=""])
-  AC_CHECK_LIB([ght], [ght_init], [FOUND_GHT_LIB="YES"], [FOUND_GHT_LIB=""])
+  AC_CHECK_HEADER([ght.h], [FOUND_GHT_H="YES"], [FOUND_GHT_H="NO"])
+  AC_CHECK_LIB([ght], [ght_init], [FOUND_GHT_LIB="YES"], [FOUND_GHT_LIB="NO"])
   
   dnl back to the originals
   LIBS="${LIBS_SAVE}"
   CPPFLAGS="${CPPFLAGS_SAVE}"
 fi
 
-if test $FOUND_GHT_H -a $FOUND_GHT_LIB; then
+if test $FOUND_GHT_H = "YES" -a $FOUND_GHT_LIB = "YES"; then
   AC_DEFINE([HAVE_LIBGHT])
   GHT_STATUS="enabled"
   if test $GHTDIR; then
