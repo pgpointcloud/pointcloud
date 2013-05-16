@@ -20,7 +20,7 @@
 
 #include <stdarg.h>
 #include <assert.h>
-#include <math.h>
+#include <float.h>
 #include "pc_api_internal.h"
 #include "zlib.h"
 
@@ -1190,8 +1190,8 @@ pc_bytes_uncompressed_minmax(const PCBYTES *pcb, double *min, double *max)
     int i;
     int element_size = pc_interpretation_size(pcb->interpretation);
     double d;
-    double mn = MAXFLOAT;
-    double mx = -1*MAXFLOAT;
+    double mn = FLT_MAX;
+    double mx = -1*FLT_MAX;
     for ( i = 0; i < pcb->npoints; i++ )
     {
         d = pc_double_from_ptr(pcb->bytes + i*element_size, pcb->interpretation);
@@ -1208,8 +1208,8 @@ static int
 pc_bytes_run_length_minmax(const PCBYTES *pcb, double *min, double *max)
 {
     int element_size = pc_interpretation_size(pcb->interpretation);
-    double mn = MAXFLOAT;
-    double mx = -1*MAXFLOAT;
+    double mn = FLT_MAX;
+    double mx = -1*FLT_MAX;
     double d;
     uint8_t *ptr = pcb->bytes;
     uint8_t *ptr_end = pcb->bytes + pcb->size;

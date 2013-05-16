@@ -10,7 +10,7 @@
 *
 ***********************************************************************/
 
-#include <math.h>
+#include <float.h>
 #include "pc_api_internal.h"
 #include "stringbuffer.h"
 
@@ -166,8 +166,8 @@ pc_patch_uncompressed_make(const PCSCHEMA *s, uint32_t maxpoints)
 	pch->datasize = datasize;
 
 	/* Initialize bounds */
-	pch->xmin = pch->ymin = MAXFLOAT;
-	pch->xmax = pch->ymax = -1 * MAXFLOAT;
+	pch->xmin = pch->ymin = FLT_MAX;
+	pch->xmax = pch->ymax = -1 * FLT_MAX;
 
 	/* Set up basic info */
 	pch->readonly = PC_FALSE;
@@ -185,8 +185,8 @@ pc_patch_uncompressed_compute_extent(PCPATCH_UNCOMPRESSED *patch)
 	PCPOINT *pt = pc_point_from_data(patch->schema, patch->data);
 
 	/* Initialize bounds */
-	patch->xmin = patch->ymin = MAXFLOAT;
-	patch->xmax = patch->ymax = -1 * MAXFLOAT;
+	patch->xmin = patch->ymin = FLT_MAX;
+	patch->xmax = patch->ymax = -1 * FLT_MAX;
 
 	/* Calculate bounds */
 	for ( i = 0; i < patch->npoints; i++ )
@@ -266,8 +266,8 @@ pc_patch_uncompressed_from_pointlist(const PCPOINTLIST *pl)
 	ptr = pch->data;
 
 	/* Initialize bounds */
-	pch->xmin = pch->ymin = MAXFLOAT;
-	pch->xmax = pch->ymax = -1 * MAXFLOAT;
+	pch->xmin = pch->ymin = FLT_MAX;
+	pch->xmax = pch->ymax = -1 * FLT_MAX;
 
 	/* Set up basic info */
 	pch->readonly = PC_FALSE;
