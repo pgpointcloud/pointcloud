@@ -15,6 +15,7 @@ OBJS = \
 	pc_point.o \
 	pc_pointlist.o \
 	pc_schema.o \
+	pc_stats.o \
 	pc_util.o \
 	pc_val.o \
 	stringbuffer.o \

@@ -83,7 +83,24 @@ typedef struct
 	hashtable *namehash;  /* Look-up from dimension name to pointer */
 } PCSCHEMA;
 
+/* Used for generic patch statistics */
+typedef struct
+{
+    double max;
+    double min;
+    double sum;
+}
+PCSTAT;
 
+typedef struct
+{
+    uint32_t ndims;
+    uint32_t num_points;
+    PCSTAT *stats;
+}
+PCSTATS;
+
+/* Used for dimensional patch statistics */
 typedef struct
 {
     uint32_t total_runs;

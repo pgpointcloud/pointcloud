@@ -6,7 +6,9 @@
 *
 *  PgSQL Pointcloud is free and open source software provided 
 *  by the Government of Canada
+* 
 *  Copyright (c) 2013 Natural Resources Canada
+*  Copyright (c) 2013 OpenGeo
 *
 ***********************************************************************/
 
