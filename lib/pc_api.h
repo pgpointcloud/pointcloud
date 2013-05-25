@@ -83,23 +83,6 @@ typedef struct
 	hashtable *namehash;  /* Look-up from dimension name to pointer */
 } PCSCHEMA;
 
-/* Used for generic patch statistics */
-typedef struct
-{
-    double max;
-    double min;
-    double sum;
-}
-PCSTAT;
-
-typedef struct
-{
-    uint32_t ndims;
-    uint32_t num_points;
-    PCSTAT *stats;
-}
-PCSTATS;
-
 /* Used for dimensional patch statistics */
 typedef struct
 {
@@ -156,6 +139,15 @@ typedef struct
     double ymax;
 } PCBOUNDS;
 
+/* Used for generic patch statistics */
+typedef struct
+{
+    PCPOINT max;
+    PCPOINT min;
+    PCPOINT avg;
+}
+PCSTATS;
+
 /**
 * Uncompressed Structure for in-memory handling
 * of patches. A read-only PgSQL patch can be wrapped in
@@ -170,6 +162,7 @@ typedef struct
 	const PCSCHEMA *schema;
 	uint32_t npoints; /* How many points we have */
 	double xmin, xmax, ymin, ymax;
+    PCSTATS *stats;
 } PCPATCH;
 
 typedef struct
@@ -179,6 +172,7 @@ typedef struct
 	const PCSCHEMA *schema;
 	uint32_t npoints; /* How many points we have */
 	double xmin, xmax, ymin, ymax;
+    PCSTATS *stats;
 	uint32_t maxpoints; /* How man points we can hold (or 0 for read-only) */
 	size_t datasize;
 	uint8_t *data; /* A serialized version of the data */
@@ -191,6 +185,7 @@ typedef struct
 	const PCSCHEMA *schema;
 	uint32_t npoints; /* How many points we have */
 	double xmin, xmax, ymin, ymax;
+    PCSTATS *stats;
     PCBYTES *bytes;
 } PCPATCH_DIMENSIONAL;
 
@@ -201,6 +196,7 @@ typedef struct
 	const PCSCHEMA *schema;
 	uint32_t npoints; /* How many points we have */
 	double xmin, xmax, ymin, ymax;
+    PCSTATS *stats;
     size_t ghtsize;
     uint8_t *ght;
 } PCPATCH_GHT;

@@ -356,7 +356,7 @@ pc_patch_from_patchlist(PCPATCH **palist, int numpatches)
             }
             default:
             {
-                pcerror("%s: unknown compresseion type", __func__, pa->type);
+                pcerror("%s: unknown compression type", __func__, pa->type);
                 break;
             }
         }
@@ -365,3 +365,4 @@ pc_patch_from_patchlist(PCPATCH **palist, int numpatches)
     paout->npoints = totalpoints;
     return (PCPATCH*)paout;
 }
+

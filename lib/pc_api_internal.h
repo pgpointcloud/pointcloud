@@ -83,10 +83,6 @@ enum DIMCOMPRESSIONS {
     PC_DIM_ZLIB = 3
 };
 
-
-
-
-
 /** What is the endianness of this system? */
 char machine_endian(void);
 
