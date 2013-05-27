@@ -472,6 +472,14 @@ pc_patch_serialized_size(const PCPATCH *patch)
 static SERIALIZED_PATCH *
 pc_patch_dimensional_serialize(const PCPATCH *patch_in)
 {
+    //  uint32_t size;
+    //  uint32_t pcid;
+    //  uint32_t compression;
+    //  uint32_t npoints;
+    //  double xmin, xmax, ymin, ymax;
+    //  data:
+    //    serialized_pcbytes [];
+
     int i;
     uint8_t *buf;
 	size_t serpch_size = pc_patch_serialized_size(patch_in);
@@ -508,8 +516,6 @@ pc_patch_dimensional_serialize(const PCPATCH *patch_in)
 static SERIALIZED_PATCH *
 pc_patch_ght_serialize(const PCPATCH *patch_in)
 {
-    // typedef struct
-    // {
     //  uint32_t size;
     //  uint32_t pcid;
     //  uint32_t compression;
@@ -518,8 +524,6 @@ pc_patch_ght_serialize(const PCPATCH *patch_in)
     //  data:
     //    uint32_t ghtsize;
     //    uint8_t ght[];
-    // }
-    // SERIALIZED_PATCH;
     
 	size_t serpch_size = pc_patch_serialized_size(patch_in);
 	SERIALIZED_PATCH *serpch = pcalloc(serpch_size);
@@ -551,6 +555,14 @@ pc_patch_ght_serialize(const PCPATCH *patch_in)
 static SERIALIZED_PATCH *
 pc_patch_uncompressed_serialize(const PCPATCH *patch_in)
 {
+    //  uint32_t size;
+    //  uint32_t pcid;
+    //  uint32_t compression;
+    //  uint32_t npoints;
+    //  double xmin, xmax, ymin, ymax;
+    //  data:
+    //    pcpoint [];
+
 	size_t serpch_size;
 	SERIALIZED_PATCH *serpch;
     const PCPATCH_UNCOMPRESSED *patch = (PCPATCH_UNCOMPRESSED *)patch_in;
@@ -642,6 +654,7 @@ pc_patch_serialize_to_uncompressed(const PCPATCH *patch_in)
 
     serpatch = pc_patch_uncompressed_serialize(patch);
 
+    /* An uncompressed input won't result in a copy */
     if ( patch != patch_in )
         pc_patch_free(patch);
 
