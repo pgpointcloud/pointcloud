@@ -468,6 +468,46 @@ pc_patch_serialized_size(const PCPATCH *patch)
     return -1;
 }
 
+static uint8_t *
+pc_patch_stats_serialize(uint8_t *buf, const PCPATCH *pa)
+{
+    size_t sz = pa->schema->size;
+    PCSTATS *stats = pa->stats;
+    
+    /* Calculate stats before trying to serialize */
+    if ( ! stats )
+        stats = pc_patch_calculate_stats(pa);
+    
+    /* Copy min */
+    memcpy(buf, stats->min.data, sz);
+    buf += sz;
+	
+    /* Copy max */
+    memcpy(buf, stats->max.data, sz);
+    buf += sz;
+    
+    /* Copy avg */
+    memcpy(buf, stats->avg.data, sz);
+    buf += sz;
+    
+    return buf;
+}
+
+/**
+* Stats are always three PCPOINT serializations in a row, 
+* min, max, avg. Their size is the uncompressed buffer size for
+* a point, the schema->size.
+*/
+static PCSTATS *
+pc_patch_stats_deserialize(const PCSCHEMA *schema, uint8_t *buf)
+{
+    size_t sz = schema->size;
+    uint8_t *buf_min = buf;
+    uint8_t *buf_max = buf + sz;
+    uint8_t *buf_avg = buf + 2*sz;
+
+    return pc_stats_new_from_data(schema, buf_min, buf_max, buf_avg);
+}
 
 static SERIALIZED_PATCH *
 pc_patch_dimensional_serialize(const PCPATCH *patch_in)
@@ -498,8 +538,13 @@ pc_patch_dimensional_serialize(const PCPATCH *patch_in)
 	serpch->ymax = patch->ymax;
     serpch->compression = patch->type;
 
-	/* Copy byte buffers, one by one */
+	/* Get a pointer to the data area */
     buf = serpch->data;
+    
+    /* Write stats into the buffer */
+    buf = pc_patch_stats_serialize(buf, patch_in);
+
+    /* Write each dimension in after the stats */
     for ( i = 0; i < patch->schema->ndims; i++ )
     {
         size_t bsize = 0;
@@ -542,6 +587,9 @@ pc_patch_ght_serialize(const PCPATCH *patch_in)
 	serpch->ymax = patch->ymax;
     serpch->compression = patch->type;
 
+    /* Write stats into the buffer first */
+    buf = pc_patch_stats_serialize(buf, patch_in);
+
     /* Write tree buffer size */
     memcpy(buf, &(patch->ghtsize), 4);
     buf += 4;
@@ -563,6 +611,7 @@ pc_patch_uncompressed_serialize(const PCPATCH *patch_in)
     //  data:
     //    pcpoint [];
 
+    uint8_t *buf;
 	size_t serpch_size;
 	SERIALIZED_PATCH *serpch;
     const PCPATCH_UNCOMPRESSED *patch = (PCPATCH_UNCOMPRESSED *)patch_in;
@@ -570,7 +619,7 @@ pc_patch_uncompressed_serialize(const PCPATCH *patch_in)
     serpch_size = pc_patch_serialized_size(patch_in);
 	serpch = pcalloc(serpch_size);
 
-	/* Copy */
+	/* Copy basic */
 	serpch->compression = patch->type;
 	serpch->pcid = patch->schema->pcid;
 	serpch->npoints = patch->npoints;
@@ -578,7 +627,13 @@ pc_patch_uncompressed_serialize(const PCPATCH *patch_in)
 	serpch->ymin = patch->ymin;
 	serpch->xmax = patch->xmax;
 	serpch->ymax = patch->ymax;
-	memcpy(serpch->data, patch->data, patch->datasize);
+	
+	/* Write stats into the buffer first */
+    buf = serpch->data;
+    buf = pc_patch_stats_serialize(buf, patch_in);
+    
+	/* Copy point list into data buffer */
+	memcpy(buf, patch->data, patch->datasize);
 	SET_VARSIZE(serpch, serpch_size);
 	return serpch;
 }
@@ -664,12 +719,31 @@ pc_patch_serialize_to_uncompressed(const PCPATCH *patch_in)
 static PCPATCH *
 pc_patch_uncompressed_deserialize(const SERIALIZED_PATCH *serpatch, const PCSCHEMA *schema)
 {
+    // typedef struct
+    // {
+    //  uint32_t size;
+    //  uint32_t pcid;
+    //  uint32_t compression;
+    //  uint32_t npoints;
+    //  double xmin, xmax, ymin, ymax;
+    //  data:
+    //    pcpoint[3] pcstats(min, max, avg)
+    //    pcpoint[npoints]
+    // }
+    // SERIALIZED_PATCH;
+    
 	PCPATCH_UNCOMPRESSED *patch;
+    uint8_t *buf = (uint8_t*)serpatch->data;
+    size_t stats_size = 3*schema->size; // 3 pcpoints worth of stats
 
 	/* Reference the external data */
 	patch = pcalloc(sizeof(PCPATCH_UNCOMPRESSED));
-	patch->data = (uint8*)serpatch->data;
-	patch->datasize = VARSIZE(serpatch) - sizeof(SERIALIZED_PATCH) + 1;
+	/* Advance data pointer past the stats serialization */
+    patch->data = buf + stats_size;
+    /* Calculate the point data buffer size */
+	patch->datasize = VARSIZE(serpatch) - sizeof(SERIALIZED_PATCH) + 1 - stats_size;
+	/* Point into the stats area */
+    patch->stats = pc_patch_stats_deserialize(schema, patch->data);
 
 	/* Set up basic info */
     patch->type = serpatch->compression;
@@ -696,6 +770,7 @@ pc_patch_dimensional_deserialize(const SERIALIZED_PATCH *serpatch, const PCSCHEM
     //  uint32_t npoints;
     //  double xmin, xmax, ymin, ymax;
     //  data:
+    //    pcpoint[3] pcstats(min, max, avg)
     //    pcbytes[ndims];
     // }
     // SERIALIZED_PATCH;
@@ -705,6 +780,7 @@ pc_patch_dimensional_deserialize(const SERIALIZED_PATCH *serpatch, const PCSCHEM
     const uint8_t *buf;
     int ndims = schema->ndims;
     int npoints = serpatch->npoints;
+    size_t stats_size = 3*schema->size; // 3 pcpoints worth of stats
 
 	/* Reference the external data */
 	patch = pcalloc(sizeof(PCPATCH_DIMENSIONAL));
@@ -721,7 +797,7 @@ pc_patch_dimensional_deserialize(const SERIALIZED_PATCH *serpatch, const PCSCHEM
 
     /* Set up dimensions */
     patch->bytes = pcalloc(ndims * sizeof(PCBYTES));
-    buf = serpatch->data;
+    buf = serpatch->data + stats_size;
 
     for ( i = 0; i < ndims; i++ )
     {
@@ -751,6 +827,7 @@ pc_patch_ght_deserialize(const SERIALIZED_PATCH *serpatch, const PCSCHEMA *schem
     //  uint32_t npoints;
     //  double xmin, xmax, ymin, ymax;
     //  data:
+    //    pcpoint[3] pcstats(min, max, avg)
     //    uint32_t ghtsize;
     //    uint8_t ght[];
     // }
@@ -758,8 +835,9 @@ pc_patch_ght_deserialize(const SERIALIZED_PATCH *serpatch, const PCSCHEMA *schem
     
  	PCPATCH_GHT *patch;
     uint32_t ghtsize;
-    uint8_t *buf = (uint8_t *)serpatch->data;
     int npoints = serpatch->npoints;
+    size_t stats_size = 3*schema->size; // 3 pcpoints worth of stats
+    uint8_t *buf = (uint8_t*)serpatch->data + stats_size;
 
 	/* Reference the external data */
 	patch = pcalloc(sizeof(PCPATCH_GHT));

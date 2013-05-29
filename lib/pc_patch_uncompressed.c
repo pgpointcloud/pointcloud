@@ -172,6 +172,7 @@ pc_patch_uncompressed_make(const PCSCHEMA *s, uint32_t maxpoints)
 	/* Set up basic info */
 	pch->readonly = PC_FALSE;
 	pch->npoints = 0;
+    pch->stats = NULL;
     pch->type = PC_NONE;
 	pch->maxpoints = maxpoints;
 	pch->schema = s;

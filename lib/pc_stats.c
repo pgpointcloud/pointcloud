@@ -22,6 +22,7 @@ typedef struct
 /* PCDOUBLESTATS are internal to calculating stats in this module */
 typedef struct
 {
+    uint32_t npoints;
     PCDOUBLESTAT *dims;
 } PCDOUBLESTATS;
 
@@ -41,6 +42,7 @@ pc_dstats_new(int ndims)
         stats->dims[i].max = DBL_MAX;
         stats->dims[i].sum = 0;
     }
+    stats->npoints = 0;
     return stats;
 }
 
@@ -56,7 +58,7 @@ pc_dstats_free(PCDOUBLESTATS *stats)
 /**
 * Free the standard stats object for in memory patches
 */
-static void
+void
 pc_stats_free(PCSTATS *stats)
 {
     if ( ! stats->min.readonly )
@@ -120,7 +122,10 @@ pc_stats_new(const PCSCHEMA *schema)
     return stats;
 }
 
-
+/**
+* Allocate and populate a new PCSTATS from the raw data in
+* a PCDOUBLESTATS
+*/
 static PCSTATS *
 pc_stats_new_from_dstats(const PCSCHEMA *schema, const PCDOUBLESTATS *dstats)
 {
@@ -130,24 +135,31 @@ pc_stats_new_from_dstats(const PCSCHEMA *schema, const PCDOUBLESTATS *dstats)
     for ( i = 0; i < schema->ndims; i++ )
     {
         pc_point_set_double(&(stats->min), schema->dims[i], dstats->dims[i].min);
+        pc_point_set_double(&(stats->max), schema->dims[i], dstats->dims[i].max);
+        pc_point_set_double(&(stats->avg), schema->dims[i], dstats->dims[i].sum / dstats->npoints);
     }
     return stats;
 }
 
 
-static int 
-pc_patch_uncompressed_calculate_stats(PCPATCH_UNCOMPRESSED *pa)
+static PCSTATS * 
+pc_patch_uncompressed_calculate_stats(const PCPATCH_UNCOMPRESSED *pa)
 {
     int i, j;
     const PCSCHEMA *schema = pa->schema;
     double val;
     PCDOUBLESTATS *dstats = pc_dstats_new(pa->schema->ndims);
-    
+    PCSTATS *stats;
+
+
     /* Point on stack for fast access to values in patch */
     PCPOINT pt;
     pt.readonly = PC_TRUE;
     pt.schema = schema;
     pt.data = pa->data;
+
+    /* We know npoints right away */
+    dstats->npoints = pa->npoints;
     
     for ( i = 0; i < pa->npoints; i++ )
     {
@@ -167,20 +179,18 @@ pc_patch_uncompressed_calculate_stats(PCPATCH_UNCOMPRESSED *pa)
         pt.data += schema->size;
     }
     
-    pa->stats = pc_stats_new_from_dstats(pa->schema, dstats);
+    stats = pc_stats_new_from_dstats(pa->schema, dstats);
     pc_dstats_free(dstats);
-    return PC_SUCCESS;
+    return stats;
 }
 
 /**
 * Calculate or re-calculate statistics for a patch.
 */
-int
-pc_patch_calculate_stats(PCPATCH *pa)
+PCSTATS *
+pc_patch_calculate_stats(const PCPATCH *pa)
 {
     if ( ! pa ) return PC_FAILURE;
-    if ( pa->stats )
-        pcfree(pa->stats);
 
     switch ( pa->type )
     {
@@ -206,7 +216,7 @@ pc_patch_calculate_stats(PCPATCH *pa)
     }
 
     pcerror("%s: fatal error", __func__);
-    return PC_FAILURE;
+    return NULL;
 }
 
 

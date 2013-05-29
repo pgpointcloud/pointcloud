@@ -266,7 +266,7 @@ pc_patch_ght_free(PCPATCH_GHT *paght)
     {
         pcfree(paght->ght);
     }
-
+    
     pcfree(paght);
 #endif
 }

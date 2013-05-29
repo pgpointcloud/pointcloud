@@ -33,6 +33,11 @@ pc_patch_compute_extent(PCPATCH *patch)
 void
 pc_patch_free(PCPATCH *patch)
 {
+    if ( patch->stats )
+    {
+        pc_stats_free( patch->stats );
+    }
+    
 	switch( patch->type )
 	{
 		case PC_NONE:
