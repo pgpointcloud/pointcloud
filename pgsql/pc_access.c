@@ -551,15 +551,11 @@ Datum pcpatch_intersects(PG_FUNCTION_ARGS)
 	if ( serpa1->pcid != serpa2->pcid )
 	    elog(ERROR, "%s: pcid mismatch (%d != %d)", __func__, serpa1->pcid, serpa2->pcid);
 
-	if ( serpa1->xmin > serpa2->xmax ||
-	     serpa1->xmax < serpa2->xmin ||
-	     serpa1->ymin > serpa2->ymax ||
-	     serpa1->ymax < serpa2->ymin )
+	if ( pc_bounds_intersects(&(serpa1->bounds), &(serpa2->bounds)) )
 	{
-        PG_RETURN_BOOL(FALSE);
+        PG_RETURN_BOOL(TRUE);
     }
-
-    PG_RETURN_BOOL(TRUE);
+    PG_RETURN_BOOL(FALSE);
 }
 
 PG_FUNCTION_INFO_V1(pcpatch_size);

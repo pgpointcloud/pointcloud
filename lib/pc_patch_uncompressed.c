@@ -10,7 +10,6 @@
 *
 ***********************************************************************/
 
-#include <float.h>
 #include "pc_api_internal.h"
 #include "stringbuffer.h"
 
@@ -39,7 +38,7 @@ pc_patch_uncompressed_to_string(const PCPATCH_UNCOMPRESSED *patch)
 			double d;
 			if ( ! pc_point_get_double_by_index(pt, j, &d))
 			{
-				pcerror("pc_patch_to_string: unable to read double at index %d", j);
+				pcerror("%s: unable to read double at index %d", __func__, j);
 			}
 			if ( j )
 			{
@@ -104,14 +103,14 @@ pc_patch_uncompressed_from_wkb(const PCSCHEMA *s, const uint8_t *wkb, size_t wkb
 
 	if ( wkb_get_compression(wkb) != PC_NONE )
 	{
-		pcerror("pc_patch_uncompressed_from_wkb: call with wkb that is not uncompressed");
+		pcerror("%s: call with wkb that is not uncompressed", __func__);
 		return NULL;
 	}
 
 	npoints = wkb_get_npoints(wkb);
 	if ( (wkbsize - hdrsz) != (s->size * npoints) )
 	{
-		pcerror("pc_patch_uncompressed_from_wkb: wkb size and expected data size do not match");
+		pcerror("%s: wkb size and expected data size do not match", __func__);
 		return NULL;
 	}
 
@@ -126,16 +125,13 @@ pc_patch_uncompressed_from_wkb(const PCSCHEMA *s, const uint8_t *wkb, size_t wkb
 	}
 
 	patch = pcalloc(sizeof(PCPATCH_UNCOMPRESSED));
-	patch->npoints = npoints;
     patch->type = PC_NONE;
-	patch->maxpoints = npoints;
+    patch->readonly = PC_FALSE;
 	patch->schema = s;
+	patch->npoints = npoints;
+	patch->maxpoints = npoints;
 	patch->datasize = (wkbsize - hdrsz);
 	patch->data = data;
-    patch->readonly = PC_FALSE;
-
-	if ( PC_FAILURE == pc_patch_uncompressed_compute_extent(patch) )
-		pcerror("pc_patch_uncompressed_compute_extent failed");
 
 	return (PCPATCH*)patch;
 }
@@ -148,34 +144,33 @@ pc_patch_uncompressed_make(const PCSCHEMA *s, uint32_t maxpoints)
 
 	if ( ! s )
 	{
-		pcerror("null schema passed into pc_patch_uncompressed_make");
+		pcerror("%s: null schema passed in", __func__);
 		return NULL;
 	}
 
 	/* Width of the data area */
 	if ( ! s->size )
 	{
-		pcerror("invalid size calculation in pc_patch_uncompressed_make");
+		pcerror("%s, invalid size calculation", __func__);
 		return NULL;
 	}
 
-	/* Make our own data area */
+	/* Set up basic info */
 	pch = pcalloc(sizeof(PCPATCH_UNCOMPRESSED));
+    pch->type = PC_NONE;
+	pch->readonly = PC_FALSE;
+	pch->schema = s;
+	pch->npoints = 0;
+    pch->stats = NULL;
+	pch->maxpoints = maxpoints;
+
+	/* Make our own data area */
 	datasize = s->size * maxpoints;
 	pch->data = pcalloc(datasize);
 	pch->datasize = datasize;
+    
+    pc_bounds_init(&(pch->bounds));
 
-	/* Initialize bounds */
-	pch->xmin = pch->ymin = FLT_MAX;
-	pch->xmax = pch->ymax = -1 * FLT_MAX;
-
-	/* Set up basic info */
-	pch->readonly = PC_FALSE;
-	pch->npoints = 0;
-    pch->stats = NULL;
-    pch->type = PC_NONE;
-	pch->maxpoints = maxpoints;
-	pch->schema = s;
 	return pch;
 }
 
@@ -184,25 +179,24 @@ pc_patch_uncompressed_compute_extent(PCPATCH_UNCOMPRESSED *patch)
 {
 	int i;
 	PCPOINT *pt = pc_point_from_data(patch->schema, patch->data);
-
-	/* Initialize bounds */
-	patch->xmin = patch->ymin = FLT_MAX;
-	patch->xmax = patch->ymax = -1 * FLT_MAX;
+    PCBOUNDS b;
+	double x, y;
 
 	/* Calculate bounds */
+    pc_bounds_init(&b);
 	for ( i = 0; i < patch->npoints; i++ )
 	{
-		double x, y;
 		/* Just push the data buffer forward by one point at a time */
 		pt->data = patch->data + i * patch->schema->size;
 		x = pc_point_get_x(pt);
 		y = pc_point_get_y(pt);
-		if ( patch->xmin > x ) patch->xmin = x;
-		if ( patch->ymin > y ) patch->ymin = y;
-		if ( patch->xmax < x ) patch->xmax = x;
-		if ( patch->ymax < y ) patch->ymax = y;
+		if ( b.xmin > x ) b.xmin = x;
+		if ( b.ymin > y ) b.ymin = y;
+		if ( b.xmax < x ) b.xmax = x;
+		if ( b.ymax < y ) b.ymax = y;
 	}
-
+	
+    patch->bounds = b;
 	return PC_SUCCESS;
 }
 
@@ -230,14 +224,14 @@ pc_patch_uncompressed_from_pointlist(const PCPOINTLIST *pl)
 
 	if ( ! pl )
 	{
-		pcerror("null PCPOINTLIST passed into pc_patch_uncompressed_from_pointlist");
+		pcerror("%s: null PCPOINTLIST passed in", __func__);
 		return NULL;
 	}
 
 	numpts = pl->npoints;
 	if ( ! numpts )
 	{
-		pcerror("zero size PCPOINTLIST passed into pc_patch_uncompressed_from_pointlist");
+		pcerror("%s: zero size PCPOINTLIST passed in", __func__);
 		return NULL;
 	}
 
@@ -249,14 +243,14 @@ pc_patch_uncompressed_from_pointlist(const PCPOINTLIST *pl)
 	/* Confirm we have a schema pointer */
 	if ( ! s )
 	{
-		pcerror("pc_patch_uncompressed_from_pointlist: null schema encountered");
+		pcerror("%s: null schema encountered", __func__);
 		return NULL;
 	}
 
 	/* Confirm width of a point data buffer */
 	if ( ! s->size )
 	{
-		pcerror("pc_patch_uncompressed_from_pointlist: invalid point size");
+		pcerror("%s: invalid point size", __func__);
 		return NULL;
 	}
 
@@ -267,8 +261,7 @@ pc_patch_uncompressed_from_pointlist(const PCPOINTLIST *pl)
 	ptr = pch->data;
 
 	/* Initialize bounds */
-	pch->xmin = pch->ymin = FLT_MAX;
-	pch->xmax = pch->ymax = -1 * FLT_MAX;
+    pc_bounds_init(&(pch->bounds));
 
 	/* Set up basic info */
 	pch->readonly = PC_FALSE;
@@ -284,7 +277,7 @@ pc_patch_uncompressed_from_pointlist(const PCPOINTLIST *pl)
 		{
 			if ( pt->schema->pcid != s->pcid )
 			{
-				pcerror("pc_patch_uncompressed_from_pointlist: points do not share a schema");
+				pcerror("%s: points do not share a schema", __func__);
 				return NULL;
 			}
 			memcpy(ptr, pt->data, s->size);
@@ -293,13 +286,19 @@ pc_patch_uncompressed_from_pointlist(const PCPOINTLIST *pl)
 		}
 		else
 		{
-			pcwarn("pc_patch_uncompressed_from_pointlist: encountered null point");
+			pcwarn("%s: encountered null point", __func__);
 		}
 	}
-
-	if ( ! pc_patch_compute_extent(pch) )
+ 
+	if ( PC_FAILURE == pc_patch_uncompressed_compute_extent(pch) )
 	{
-		pcerror("pc_patch_uncompressed_from_pointlist: failed to compute patch extent");
+		pcerror("%s: failed to compute patch extent", __func__);
+		return NULL;
+	}
+
+	if ( PC_FAILURE == pc_patch_uncompressed_compute_stats(pch) )
+	{
+		pcerror("%s: failed to compute patch stats", __func__);
 		return NULL;
 	}
 
@@ -319,15 +318,12 @@ pc_patch_uncompressed_from_dimensional(const PCPATCH_DIMENSIONAL *pdl)
     npoints = pdl->npoints;
     schema = pdl->schema;
     patch = pcalloc(sizeof(PCPATCH_UNCOMPRESSED));
+    patch->type = PC_NONE;
+    patch->readonly = PC_FALSE;
     patch->schema = schema;
     patch->npoints = npoints;
     patch->maxpoints = npoints;
-    patch->readonly = PC_FALSE;
-    patch->type = PC_NONE;
-    patch->xmin = pdl->xmin;
-    patch->xmax = pdl->xmax;
-    patch->ymin = pdl->ymin;
-    patch->ymax = pdl->ymax;
+    patch->bounds = pdl->bounds;
     patch->datasize = schema->size * pdl->npoints;
     patch->data = pcalloc(patch->datasize);
     buf = patch->data;
@@ -362,25 +358,25 @@ pc_patch_uncompressed_add_point(PCPATCH_UNCOMPRESSED *c, const PCPOINT *p)
 
 	if ( ! ( c && p ) )
 	{
-		pcerror("pc_patch_uncompressed_add_point: null point or patch argument");
+		pcerror("%s: null point or patch argument", __func__);
 		return PC_FAILURE;
 	}
 
 	if ( c->schema->pcid != p->schema->pcid )
 	{
-		pcerror("pc_patch_uncompressed_add_point: pcids of point (%d) and patch (%d) not equal", c->schema->pcid, p->schema->pcid);
+		pcerror("%s: pcids of point (%d) and patch (%d) not equal", __func__, c->schema->pcid, p->schema->pcid);
 		return PC_FAILURE;
 	}
 
 	if ( c->readonly )
 	{
-		pcerror("pc_patch_uncompressed_add_point: cannot add point to readonly patch");
+		pcerror("%s: cannot add point to readonly patch", __func__);
 		return PC_FAILURE;
 	}
 
 	if ( c->type != PC_NONE )
 	{
-		pcerror("pc_patch_uncompressed_add_point: cannot add point to compressed patch");
+		pcerror("%s: cannot add point to compressed patch", __func__);
 		return PC_FAILURE;
 	}
 
@@ -402,10 +398,10 @@ pc_patch_uncompressed_add_point(PCPATCH_UNCOMPRESSED *c, const PCPOINT *p)
 	/* Update bounding box */
 	x = pc_point_get_x(p);
 	y = pc_point_get_y(p);
-	if ( c->xmin > x ) c->xmin = x;
-	if ( c->ymin > y ) c->ymin = y;
-	if ( c->xmax < x ) c->xmax = x;
-	if ( c->ymax < y ) c->ymax = y;
+	if ( c->bounds.xmin > x ) c->bounds.xmin = x;
+	if ( c->bounds.ymin > y ) c->bounds.ymin = y;
+	if ( c->bounds.xmax < x ) c->bounds.xmax = x;
+	if ( c->bounds.ymax < y ) c->bounds.ymax = y;
 
 	return PC_SUCCESS;
 }

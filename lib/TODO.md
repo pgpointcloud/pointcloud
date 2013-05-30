@@ -1,22 +1,23 @@
 To Do
 =====
 
+- Add in dimensional stats caching to speed up dimensional compression in batch cases
+
 - (?) convert PCBYTES to use PCDIMENSION* instead of holding all values as dupes
 - (??) convert PCBYTES handling to pass-by-reference instead of pass-by-value
 - implement PC\_PatchAvg/PC\_PatchMin/PC\_PatchMax as C functions against patches with dimensional and uncompressed implementations
 - TESTS for pc\_patch\_dimensional\_from\_uncompressed() and pc\_patch\_dimensional\_compress()
-- Add in dimensional stats caching to speed up dimensional compression in batch cases
-
-- Add Min/Max values to dimensional compression serialization (???)
-- Add Min/Max values to GHT compression serialization (???)
 
 - Update pc\_patch\_from\_patchlist() to merge GHT patches without decompression
 - Update pc\_patch\_from\_patchlist() to merge dimensional patches directly
 
-- Before doing dimensional compression, sort by geohash (actually by a localized geohash based on the patch bounds). This will enhance the autocorrelation of values and improve run-length encoding in particular
-- Add Min/Max values to front of GHT serialization
+- Before doing dimensional compression, sort by geohash (actually by a localized geohash based on the patch bounds). This will (?) enhance the autocorrelation of values and improve run-length encoding in particular
 
-- Improve extent reading to only pull a slice of patch out of the datum
+- Compute PCSTATS in WKB reading code for all patch variants, not just uncompressed
+  - compute stats in libght
+  - compute stats of dimensional
+- Remove extents in favour of PCSTATS
+- Make PCSTATS a static member of the PCPATCH, not a pointer
 
 Use Cases to Support
 --------------------

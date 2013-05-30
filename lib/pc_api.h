@@ -155,48 +155,37 @@ PCSTATS;
 * PgSQL memory and setting the capacity to 0
 * to indicate it is read-only.
 */
+
+#define PCPATCH_COMMON \
+    int type; \
+    int8_t readonly; \
+    const PCSCHEMA *schema; \
+    uint32_t npoints;  \
+    PCBOUNDS bounds; \
+    PCSTATS *stats;
+
 typedef struct
 {
-    int type;
-	int8_t readonly;
-	const PCSCHEMA *schema;
-	uint32_t npoints; /* How many points we have */
-	double xmin, xmax, ymin, ymax;
-    PCSTATS *stats;
+    PCPATCH_COMMON
 } PCPATCH;
 
 typedef struct
 {
-    int type;
-	int8_t readonly;
-	const PCSCHEMA *schema;
-	uint32_t npoints; /* How many points we have */
-	double xmin, xmax, ymin, ymax;
-    PCSTATS *stats;
-	uint32_t maxpoints; /* How man points we can hold (or 0 for read-only) */
+    PCPATCH_COMMON
+	uint32_t maxpoints; /* How many points we can hold (or 0 for read-only) */
 	size_t datasize;
 	uint8_t *data; /* A serialized version of the data */
 } PCPATCH_UNCOMPRESSED;
 
 typedef struct
 {
-    int type;
-	int8_t readonly;
-	const PCSCHEMA *schema;
-	uint32_t npoints; /* How many points we have */
-	double xmin, xmax, ymin, ymax;
-    PCSTATS *stats;
+    PCPATCH_COMMON
     PCBYTES *bytes;
 } PCPATCH_DIMENSIONAL;
 
 typedef struct
 {
-    int type;
-	int8_t readonly;
-	const PCSCHEMA *schema;
-	uint32_t npoints; /* How many points we have */
-	double xmin, xmax, ymin, ymax;
-    PCSTATS *stats;
+    PCPATCH_COMMON
     size_t ghtsize;
     uint8_t *ght;
 } PCPATCH_GHT;
@@ -390,7 +379,11 @@ int pc_bytes_deserialize(const uint8_t *buf, const PCDIMENSION *dim, PCBYTES *pc
 PCSTATS* pc_stats_new_from_data(const PCSCHEMA *schema, uint8_t *mindata, uint8_t *maxdata, uint8_t *avgdata);\
 
 /** Calculate stats from an existing patch */
-PCSTATS* pc_patch_calculate_stats(const PCPATCH *pa);
+int pc_patch_compute_stats(PCPATCH *patch);
+int pc_patch_compute_extent(PCPATCH *patch);
+
+int pc_bounds_intersects(const PCBOUNDS *b1, const PCBOUNDS *b2);
+
 
 
 #endif /* _PC_API_H */

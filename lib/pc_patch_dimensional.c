@@ -22,6 +22,7 @@ typedef struct
 	const PCSCHEMA *schema;
 	uint32_t npoints;
 	double xmin, xmax, ymin, ymax;
+	PCSTATS *stats;
     PCBYTES *bytes;
 } PCPATCH_DIMENSIONAL;
 */
@@ -65,17 +66,15 @@ pc_patch_dimensional_from_uncompressed(const PCPATCH_UNCOMPRESSED *pa)
     /* Cannot handle empty patches */
     if ( npoints == 0 ) return NULL;
 
-    /* Initialize list */
+    /* Initialize dimensional */
     pdl = pcalloc(sizeof(PCPATCH_DIMENSIONAL));
+    pdl->type = PC_DIMENSIONAL;
+    pdl->readonly = PC_FALSE;
     pdl->schema = schema;
     pdl->npoints = npoints;
+    pdl->bounds = pa->bounds;
+    pdl->stats = pa->stats;
     pdl->bytes = pcalloc(ndims * sizeof(PCBYTES));
-    pdl->readonly = PC_FALSE;
-    pdl->type = PC_DIMENSIONAL;
-    pdl->xmin = pa->xmin;
-    pdl->xmax = pa->xmax;
-    pdl->ymin = pa->ymin;
-    pdl->ymax = pa->ymax;
 
     for ( i = 0; i < ndims; i++ )
     {
@@ -178,16 +177,16 @@ pc_patch_dimensional_compute_extent(PCPATCH_DIMENSIONAL *pdl)
     rv = pc_bytes_minmax(pcb, &xmin, &xmax);
     xmin = pc_value_scale_offset(xmin, pdl->schema->dims[pdl->schema->x_position]);
     xmax = pc_value_scale_offset(xmax, pdl->schema->dims[pdl->schema->x_position]);
-    pdl->xmin = xmin;
-    pdl->xmax = xmax;
+    pdl->bounds.xmin = xmin;
+    pdl->bounds.xmax = xmax;
 
     /* Get y extremes */
     pcb = &(pdl->bytes[pdl->schema->y_position]);
     rv = pc_bytes_minmax(pcb, &ymin, &ymax);
     ymin = pc_value_scale_offset(xmin, pdl->schema->dims[pdl->schema->y_position]);
     ymax = pc_value_scale_offset(xmax, pdl->schema->dims[pdl->schema->y_position]);
-    pdl->ymin = ymin;
-    pdl->ymax = ymax;
+    pdl->bounds.ymin = ymin;
+    pdl->bounds.ymax = ymax;
 
 	return PC_SUCCESS;
 }
@@ -252,7 +251,7 @@ pc_patch_dimensional_from_wkb(const PCSCHEMA *schema, const uint8_t *wkb, size_t
 
 	if ( wkb_get_compression(wkb) != PC_DIMENSIONAL )
 	{
-		pcerror("pc_patch_dimensional_from_wkb: call with wkb that is not dimensionally compressed");
+		pcerror("%s: call with wkb that is not dimensionally compressed", __func__);
 		return NULL;
 	}
 
@@ -260,10 +259,10 @@ pc_patch_dimensional_from_wkb(const PCSCHEMA *schema, const uint8_t *wkb, size_t
     ndims = schema->ndims;
 
 	patch = pcalloc(sizeof(PCPATCH_DIMENSIONAL));
-	patch->npoints = npoints;
     patch->type = PC_DIMENSIONAL;
-	patch->schema = schema;
     patch->readonly = PC_FALSE;
+	patch->schema = schema;
+	patch->npoints = npoints;
     patch->bytes = pcalloc(ndims*sizeof(PCBYTES));
 
     buf = wkb+hdrsz;
@@ -275,9 +274,6 @@ pc_patch_dimensional_from_wkb(const PCSCHEMA *schema, const uint8_t *wkb, size_t
         pcb->npoints = npoints;
         buf += pc_bytes_serialized_size(pcb);
     }
-
-	if ( PC_FAILURE == pc_patch_dimensional_compute_extent(patch) )
-		pcerror("pc_patch_dimensional_compute_extent failed");
 
 	return (PCPATCH*)patch;
 }

@@ -65,8 +65,8 @@ test_patch_ght()
     CU_ASSERT_EQUAL(npts, pag->npoints);
     CU_ASSERT_EQUAL(npts, pu->npoints);
 
-    CU_ASSERT_DOUBLE_EQUAL(pag->xmax, 45.0004, 0.0001);
-    CU_ASSERT_DOUBLE_EQUAL(pag->ymax, 45.000165, 0.000001);
+    CU_ASSERT_DOUBLE_EQUAL(pag->bounds.xmax, 45.0004, 0.0001);
+    CU_ASSERT_DOUBLE_EQUAL(pag->bounds.ymax, 45.000165, 0.000001);
 
     // pl2 = pc_pointlist_from_uncompressed(pu);
     // for ( i = 0; i < npts; i++ )

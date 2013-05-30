@@ -64,7 +64,7 @@ typedef struct
     uint32_t pcid;
     uint32_t compression;
     uint32_t npoints;
-    double xmin, xmax, ymin, ymax;
+    PCBOUNDS bounds;
     uint8_t data[1];
 }
 SERIALIZED_PATCH;

@@ -10,6 +10,7 @@
 ***********************************************************************/
 
 #include "pc_api_internal.h"
+#include <float.h>
 
 /**********************************************************************************
 * WKB AND ENDIANESS UTILITIES
@@ -285,3 +286,24 @@ bytebuffer_copy(bytebuffer_t *bb)
     return (void *)buf;
 }
 
+
+
+int
+pc_bounds_intersects(const PCBOUNDS *b1, const PCBOUNDS *b2)
+{
+    if ( b1->xmin > b2->xmax ||
+         b1->xmax < b2->xmin ||
+         b1->ymin > b2->ymax ||
+         b1->ymax < b2->ymin )
+    {
+        return PC_FALSE;
+    }
+    return PC_TRUE;   
+}
+
+void
+pc_bounds_init(PCBOUNDS *b)
+{
+    b->xmin = b->ymin = DBL_MAX;
+    b->xmax = b->ymax = -1*DBL_MAX;
+}

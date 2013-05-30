@@ -721,7 +721,7 @@ test_patch_wkb()
     pa1 = (PCPATCH*)pc_patch_dimensional_from_pointlist(pl1);
     wkb1 = pc_patch_to_wkb(pa1, &z1);
     str = hexbytes_from_bytes(wkb1, z1);
-    // printf("str\n%s\n",str)'
+    // printf("str\n%s\n",str);
     pa2 = pc_patch_from_wkb(simpleschema, wkb1, z1);
 
     // printf("pa2\n%s\n",pc_patch_to_string(pa2));

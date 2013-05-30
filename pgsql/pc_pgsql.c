@@ -444,21 +444,22 @@ pc_point_deserialize(const SERIALIZED_POINT *serpt, const PCSCHEMA *schema)
 size_t
 pc_patch_serialized_size(const PCPATCH *patch)
 {
+    size_t stats_size = patch->schema->size * 3;
 	switch( patch->type )
 	{
 		case PC_NONE:
 		{
             PCPATCH_UNCOMPRESSED *pu = (PCPATCH_UNCOMPRESSED*)patch;
-            return sizeof(SERIALIZED_PATCH) - 1 + pu->datasize;
+            return sizeof(SERIALIZED_PATCH) - 1 + stats_size + pu->datasize;
 		}
 		case PC_GHT:
 		{
 		    PCPATCH_GHT *pg = (PCPATCH_GHT*)patch;
-            return sizeof(SERIALIZED_PATCH) - 1 + 4 + pg->ghtsize;
+            return sizeof(SERIALIZED_PATCH) - 1 + stats_size + 4 + pg->ghtsize;
 		}
 		case PC_DIMENSIONAL:
 		{
-            return sizeof(SERIALIZED_PATCH) - 1 + pc_patch_dimensional_serialized_size((PCPATCH_DIMENSIONAL*)patch);
+            return sizeof(SERIALIZED_PATCH) - 1 + stats_size + pc_patch_dimensional_serialized_size((PCPATCH_DIMENSIONAL*)patch);
 		}
 		default:
 		{
@@ -469,14 +470,9 @@ pc_patch_serialized_size(const PCPATCH *patch)
 }
 
 static uint8_t *
-pc_patch_stats_serialize(uint8_t *buf, const PCPATCH *pa)
+pc_patch_stats_serialize(uint8_t *buf, const PCSCHEMA *schema, const PCSTATS *stats)
 {
-    size_t sz = pa->schema->size;
-    PCSTATS *stats = pa->stats;
-    
-    /* Calculate stats before trying to serialize */
-    if ( ! stats )
-        stats = pc_patch_calculate_stats(pa);
+    size_t sz = schema->size;
     
     /* Copy min */
     memcpy(buf, stats->min.data, sz);
@@ -532,17 +528,21 @@ pc_patch_dimensional_serialize(const PCPATCH *patch_in)
 	/* Copy basics */
 	serpch->pcid = patch->schema->pcid;
 	serpch->npoints = patch->npoints;
-	serpch->xmin = patch->xmin;
-	serpch->ymin = patch->ymin;
-	serpch->xmax = patch->xmax;
-	serpch->ymax = patch->ymax;
+	serpch->bounds = patch->bounds;
     serpch->compression = patch->type;
 
 	/* Get a pointer to the data area */
     buf = serpch->data;
     
     /* Write stats into the buffer */
-    buf = pc_patch_stats_serialize(buf, patch_in);
+    if ( patch->stats )
+    {
+        buf = pc_patch_stats_serialize(buf, patch->schema, patch->stats);
+    }
+    else
+    {
+        pcerror("%s: stats missing!", __func__);
+    }
 
     /* Write each dimension in after the stats */
     for ( i = 0; i < patch->schema->ndims; i++ )
@@ -581,14 +581,18 @@ pc_patch_ght_serialize(const PCPATCH *patch_in)
 	/* Copy basics */
 	serpch->pcid = patch->schema->pcid;
 	serpch->npoints = patch->npoints;
-	serpch->xmin = patch->xmin;
-	serpch->ymin = patch->ymin;
-	serpch->xmax = patch->xmax;
-	serpch->ymax = patch->ymax;
+	serpch->bounds = patch->bounds;
     serpch->compression = patch->type;
 
     /* Write stats into the buffer first */
-    buf = pc_patch_stats_serialize(buf, patch_in);
+    if ( patch->stats )
+    {
+        buf = pc_patch_stats_serialize(buf, patch->schema, patch->stats);
+    }
+    else
+    {
+        pcerror("%s: stats missing!", __func__);
+    }
 
     /* Write tree buffer size */
     memcpy(buf, &(patch->ghtsize), 4);
@@ -623,14 +627,18 @@ pc_patch_uncompressed_serialize(const PCPATCH *patch_in)
 	serpch->compression = patch->type;
 	serpch->pcid = patch->schema->pcid;
 	serpch->npoints = patch->npoints;
-	serpch->xmin = patch->xmin;
-	serpch->ymin = patch->ymin;
-	serpch->xmax = patch->xmax;
-	serpch->ymax = patch->ymax;
+	serpch->bounds = patch->bounds;
 	
 	/* Write stats into the buffer first */
     buf = serpch->data;
-    buf = pc_patch_stats_serialize(buf, patch_in);
+    if ( patch->stats )
+    {
+        buf = pc_patch_stats_serialize(buf, patch->schema, patch->stats);
+    }
+    else
+    {
+        pcerror("%s: stats missing!", __func__);
+    }
     
 	/* Copy point list into data buffer */
 	memcpy(buf, patch->data, patch->datasize);
@@ -649,6 +657,13 @@ pc_patch_serialize(const PCPATCH *patch_in, void *userdata)
 {
     PCPATCH *patch = (PCPATCH*)patch_in;
     SERIALIZED_PATCH *serpatch;
+    /*
+    * Ensure the patch has stats calculated before going on
+    */
+    if ( ! patch->stats )
+    {
+        pc_patch_compute_stats(patch);
+    }
     /*
     * Convert the patch to the final target compression,
     * which is the one in the schema.
@@ -751,10 +766,7 @@ pc_patch_uncompressed_deserialize(const SERIALIZED_PATCH *serpatch, const PCSCHE
 	patch->readonly = true;
 	patch->npoints = serpatch->npoints;
 	patch->maxpoints = 0;
-	patch->xmin = serpatch->xmin;
-	patch->ymin = serpatch->ymin;
-	patch->xmax = serpatch->xmax;
-	patch->ymax = serpatch->ymax;
+	patch->bounds = serpatch->bounds;
 
 	return (PCPATCH*)patch;
 }
@@ -790,10 +802,7 @@ pc_patch_dimensional_deserialize(const SERIALIZED_PATCH *serpatch, const PCSCHEM
 	patch->schema = schema;
 	patch->readonly = true;
 	patch->npoints = npoints;
-	patch->xmin = serpatch->xmin;
-	patch->ymin = serpatch->ymin;
-	patch->xmax = serpatch->xmax;
-	patch->ymax = serpatch->ymax;
+	patch->bounds = serpatch->bounds;
 
     /* Set up dimensions */
     patch->bytes = pcalloc(ndims * sizeof(PCBYTES));
@@ -847,10 +856,7 @@ pc_patch_ght_deserialize(const SERIALIZED_PATCH *serpatch, const PCSCHEMA *schem
 	patch->schema = schema;
 	patch->readonly = true;
 	patch->npoints = npoints;
-	patch->xmin = serpatch->xmin;
-	patch->ymin = serpatch->ymin;
-	patch->xmax = serpatch->xmax;
-	patch->ymax = serpatch->ymax;
+	patch->bounds = serpatch->bounds;
 
     /* Set up ght buffer */
     memcpy(&ghtsize, buf, 4);
@@ -944,24 +950,24 @@ pc_patch_to_geometry_wkb_envelope(const SERIALIZED_PATCH *pa, const PCSCHEMA *sc
 	ptr = pc_patch_wkb_set_int32(ptr, npoints); /* NPOINTS = 5 */
 
 	/* Point 0 */
-	ptr = pc_patch_wkb_set_double(ptr, pa->xmin);
-	ptr = pc_patch_wkb_set_double(ptr, pa->ymin);
+	ptr = pc_patch_wkb_set_double(ptr, pa->bounds.xmin);
+	ptr = pc_patch_wkb_set_double(ptr, pa->bounds.ymin);
 
 	/* Point 1 */
-	ptr = pc_patch_wkb_set_double(ptr, pa->xmin);
-	ptr = pc_patch_wkb_set_double(ptr, pa->ymax);
+	ptr = pc_patch_wkb_set_double(ptr, pa->bounds.xmin);
+	ptr = pc_patch_wkb_set_double(ptr, pa->bounds.ymax);
 
 	/* Point 2 */
-	ptr = pc_patch_wkb_set_double(ptr, pa->xmax);
-	ptr = pc_patch_wkb_set_double(ptr, pa->ymax);
+	ptr = pc_patch_wkb_set_double(ptr, pa->bounds.xmax);
+	ptr = pc_patch_wkb_set_double(ptr, pa->bounds.ymax);
 
 	/* Point 3 */
-	ptr = pc_patch_wkb_set_double(ptr, pa->xmax);
-	ptr = pc_patch_wkb_set_double(ptr, pa->ymin);
+	ptr = pc_patch_wkb_set_double(ptr, pa->bounds.xmax);
+	ptr = pc_patch_wkb_set_double(ptr, pa->bounds.ymin);
 
 	/* Point 4 */
-	ptr = pc_patch_wkb_set_double(ptr, pa->xmin);
-	ptr = pc_patch_wkb_set_double(ptr, pa->ymin);
+	ptr = pc_patch_wkb_set_double(ptr, pa->bounds.xmin);
+	ptr = pc_patch_wkb_set_double(ptr, pa->bounds.ymin);
 
 	if ( wkbsize ) *wkbsize = size;
 	return wkb;

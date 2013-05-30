@@ -38,8 +38,8 @@ pc_dstats_new(int ndims)
     stats->dims = pcalloc(sizeof(PCDOUBLESTAT)*ndims);
     for ( i = 0; i < ndims; i++ )
     {
-        stats->dims[i].min = -1 * DBL_MAX;
-        stats->dims[i].max = DBL_MAX;
+        stats->dims[i].min = DBL_MAX;
+        stats->dims[i].max = -1 * DBL_MAX;
         stats->dims[i].sum = 0;
     }
     stats->npoints = 0;
@@ -117,7 +117,7 @@ pc_stats_new(const PCSCHEMA *schema)
     stats->max.readonly = PC_FALSE;
     stats->avg.readonly = PC_FALSE;
     stats->min.data = pcalloc(schema->size);
-    stats->max.data = pcalloc(schema->size);;
+    stats->max.data = pcalloc(schema->size);
     stats->avg.data = pcalloc(schema->size);;
     return stats;
 }
@@ -141,16 +141,30 @@ pc_stats_new_from_dstats(const PCSCHEMA *schema, const PCDOUBLESTATS *dstats)
     return stats;
 }
 
+PCSTATS *
+pc_stats_clone(const PCSTATS *stats)
+{
+    PCSTATS *snew = pcalloc(sizeof(PCSTATS));
+    memcpy(snew, stats, sizeof(PCSTATS));
+    snew->min.data = pcalloc(stats->min.schema->size);
+    snew->max.data = pcalloc(stats->max.schema->size);
+    snew->avg.data = pcalloc(stats->avg.schema->size);
+    memcpy(snew->min.data, stats->min.data, stats->min.schema->size);
+    memcpy(snew->max.data, stats->max.data, stats->max.schema->size);
+    memcpy(snew->avg.data, stats->avg.data, stats->avg.schema->size);
+    return snew;    
+}
 
-static PCSTATS * 
-pc_patch_uncompressed_calculate_stats(const PCPATCH_UNCOMPRESSED *pa)
+int
+pc_patch_uncompressed_compute_stats(PCPATCH_UNCOMPRESSED *pa)
 {
     int i, j;
     const PCSCHEMA *schema = pa->schema;
     double val;
     PCDOUBLESTATS *dstats = pc_dstats_new(pa->schema->ndims);
-    PCSTATS *stats;
-
+    
+    if ( pa->stats )
+        pc_stats_free(pa->stats);
 
     /* Point on stack for fast access to values in patch */
     PCPOINT pt;
@@ -179,45 +193,11 @@ pc_patch_uncompressed_calculate_stats(const PCPATCH_UNCOMPRESSED *pa)
         pt.data += schema->size;
     }
     
-    stats = pc_stats_new_from_dstats(pa->schema, dstats);
+    pa->stats = pc_stats_new_from_dstats(pa->schema, dstats);
     pc_dstats_free(dstats);
-    return stats;
+    return PC_SUCCESS;
 }
 
-/**
-* Calculate or re-calculate statistics for a patch.
-*/
-PCSTATS *
-pc_patch_calculate_stats(const PCPATCH *pa)
-{
-    if ( ! pa ) return PC_FAILURE;
-
-    switch ( pa->type )
-    {
-        case PC_DIMENSIONAL:
-        {
-            pcerror("%s: stats calculation not enabled for patch type %d", __func__, pa->type);
-            break;
-        }
-        case PC_GHT:
-        {
-            pcerror("%s: stats calculation not enabled for patch type %d", __func__, pa->type);
-            break;
-        }
-        case PC_NONE:
-        {
-            return pc_patch_uncompressed_calculate_stats((PCPATCH_UNCOMPRESSED*)pa);
-        }
-        default:
-        {
-            pcerror("%s: unknown compression type", __func__, pa->type);
-            break;
-        }
-    }
-
-    pcerror("%s: fatal error", __func__);
-    return NULL;
-}
 
 
 

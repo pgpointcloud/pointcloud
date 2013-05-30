@@ -156,6 +156,7 @@ uint8_t* pc_patch_uncompressed_to_wkb(const PCPATCH_UNCOMPRESSED *patch, size_t 
 PCPATCH* pc_patch_uncompressed_from_wkb(const PCSCHEMA *s, const uint8_t *wkb, size_t wkbsize);
 PCPATCH_UNCOMPRESSED* pc_patch_uncompressed_make(const PCSCHEMA *s, uint32_t maxpoints);
 int pc_patch_uncompressed_compute_extent(PCPATCH_UNCOMPRESSED *patch);
+int pc_patch_uncompressed_compute_stats(PCPATCH_UNCOMPRESSED *patch);
 void pc_patch_uncompressed_free(PCPATCH_UNCOMPRESSED *patch);
 PCPOINTLIST* pc_pointlist_from_uncompressed(const PCPATCH_UNCOMPRESSED *patch);
 PCPATCH_UNCOMPRESSED* pc_patch_uncompressed_from_pointlist(const PCPOINTLIST *pl);
@@ -213,6 +214,14 @@ uint16_t pc_bytes_sigbits_count_16(const PCBYTES *pcb, uint32_t *nsigbits);
 uint32_t pc_bytes_sigbits_count_32(const PCBYTES *pcb, uint32_t *nsigbits);
 /** Using an 64-bit word, what is the common word and number of bits in common? */
 uint64_t pc_bytes_sigbits_count_64(const PCBYTES *pcb, uint32_t *nsigbits);
+
+/****************************************************************************
+* BOUNDS
+*/
+
+/** Initialize with very large mins and very small maxes */
+void pc_bounds_init(PCBOUNDS *b);
+PCSTATS* pc_stats_clone(const PCSTATS *stats);
 
 
 #endif /* _PC_API_INTERNAL_H */

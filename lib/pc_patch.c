@@ -16,18 +16,58 @@
 #include "stringbuffer.h"
 
 int
-pc_patch_compute_extent(PCPATCH *patch)
+pc_patch_compute_extent(PCPATCH *pa)
 {
-	switch( patch->type )
+    if ( ! pa ) return PC_FAILURE;
+	switch ( pa->type )
 	{
 		case PC_NONE:
-			return pc_patch_uncompressed_compute_extent((PCPATCH_UNCOMPRESSED*)patch);
+			return pc_patch_uncompressed_compute_extent((PCPATCH_UNCOMPRESSED*)pa);
 		case PC_GHT:
-            return pc_patch_ght_compute_extent((PCPATCH_GHT*)patch);
+            return pc_patch_ght_compute_extent((PCPATCH_GHT*)pa);
 		case PC_DIMENSIONAL:
-			return pc_patch_dimensional_compute_extent((PCPATCH_DIMENSIONAL*)patch);
+			return pc_patch_dimensional_compute_extent((PCPATCH_DIMENSIONAL*)pa);
 	}
 	return PC_FAILURE;
+}
+
+/**
+* Calculate or re-calculate statistics for a patch.
+*/
+int 
+pc_patch_compute_stats(PCPATCH *pa)
+{
+    if ( ! pa ) return PC_FAILURE;
+
+    switch ( pa->type )
+    {
+        case PC_NONE:
+            return pc_patch_uncompressed_compute_stats((PCPATCH_UNCOMPRESSED*)pa);
+
+        case PC_DIMENSIONAL:
+        {
+            PCPATCH_UNCOMPRESSED *pu = pc_patch_uncompressed_from_dimensional((PCPATCH_DIMENSIONAL*)pa);
+            pc_patch_uncompressed_compute_stats(pu);
+            pa->stats = pc_stats_clone(pu->stats);
+            pc_patch_uncompressed_free(pu);
+            return PC_SUCCESS;
+        }
+        case PC_GHT:
+        {
+            PCPATCH_UNCOMPRESSED *pu = pc_patch_uncompressed_from_ght((PCPATCH_GHT*)pa);
+            pc_patch_uncompressed_compute_stats(pu);
+            pa->stats = pc_stats_clone(pu->stats);
+            pc_patch_uncompressed_free(pu);
+            return PC_SUCCESS;
+        }
+        default:
+        {
+            pcerror("%s: unknown compression type", __func__, pa->type);
+            return PC_FAILURE;
+        }
+    }
+
+    return PC_FAILURE;
 }
 
 void
@@ -201,6 +241,7 @@ pc_patch_from_wkb(const PCSCHEMA *s, uint8_t *wkb, size_t wkbsize)
     uchar[]:  data (interpret relative to pcid and compression)
 	*/
 	uint32_t compression, pcid;
+    PCPATCH *patch;
 
 	if ( ! wkbsize )
 	{
@@ -224,21 +265,35 @@ pc_patch_from_wkb(const PCSCHEMA *s, uint8_t *wkb, size_t wkbsize)
 	{
 		case PC_NONE:
 		{
-			return pc_patch_uncompressed_from_wkb(s, wkb, wkbsize);
+			patch = pc_patch_uncompressed_from_wkb(s, wkb, wkbsize);
+            break;
 		}
 		case PC_DIMENSIONAL:
 		{
-			return pc_patch_dimensional_from_wkb(s, wkb, wkbsize);
+			patch = pc_patch_dimensional_from_wkb(s, wkb, wkbsize);
+            break;
 		}
 		case PC_GHT:
 		{
-            return pc_patch_ght_from_wkb(s, wkb, wkbsize);
+            patch = pc_patch_ght_from_wkb(s, wkb, wkbsize);
+            break;
 		}
+		default:
+		{
+        	/* Don't get here */
+        	pcerror("%s: unknown compression '%d' requested", __func__, compression);
+        	return NULL;
+	    }
 	}
 
-	/* Don't get here */
-	pcerror("%s: unknown compression '%d' requested", __func__, compression);
-	return NULL;
+	if ( PC_FAILURE == pc_patch_compute_extent(patch) )
+		pcerror("%s: pc_patch_compute_extent failed", __func__);
+
+	if ( PC_FAILURE == pc_patch_compute_stats(patch) )
+		pcerror("%s: pc_patch_compute_stats failed", __func__);
+
+    return patch;
+
 }
 
 
@@ -326,10 +381,10 @@ pc_patch_from_patchlist(PCPATCH **palist, int numpatches)
         const PCPATCH *pa = palist[i];
 
         /* Update bounds */
-        if ( pa->xmin < paout->xmin ) paout->xmin = pa->xmin;
-        if ( pa->ymin < paout->ymin ) paout->ymin = pa->ymin;
-        if ( pa->xmax > paout->xmax ) paout->xmax = pa->xmax;
-        if ( pa->ymax > paout->ymax ) paout->ymax = pa->ymax;
+        if ( pa->bounds.xmin < paout->bounds.xmin ) paout->bounds.xmin = pa->bounds.xmin;
+        if ( pa->bounds.ymin < paout->bounds.ymin ) paout->bounds.ymin = pa->bounds.ymin;
+        if ( pa->bounds.xmax > paout->bounds.xmax ) paout->bounds.xmax = pa->bounds.xmax;
+        if ( pa->bounds.ymax > paout->bounds.ymax ) paout->bounds.ymax = pa->bounds.ymax;
 
         switch ( pa->type )
         {
@@ -361,13 +416,20 @@ pc_patch_from_patchlist(PCPATCH **palist, int numpatches)
             }
             default:
             {
-                pcerror("%s: unknown compression type", __func__, pa->type);
+                pcerror("%s: unknown compression type (%d)", __func__, pa->type);
                 break;
             }
         }
     }
 
     paout->npoints = totalpoints;
+
+    if ( PC_FAILURE == pc_patch_uncompressed_compute_stats(paout) )
+    {
+        pcerror("%s: stats computation failed", __func__);
+        return NULL;
+    }
+    
     return (PCPATCH*)paout;
 }
 

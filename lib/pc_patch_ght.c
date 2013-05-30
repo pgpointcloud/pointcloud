@@ -230,10 +230,8 @@ pc_patch_ght_from_uncompressed(const PCPATCH_UNCOMPRESSED *pa)
         paght->readonly = PC_FALSE;
         paght->schema = pa->schema;
         paght->npoints = pointcount;
-        paght->xmin = pa->xmin;
-        paght->xmax = pa->xmax;
-        paght->ymin = pa->ymin;
-        paght->ymax = pa->ymax;
+        paght->bounds = pa->bounds;
+        paght->stats = pa->stats;
         
         /* Convert the tree to a memory buffer */
         ght_writer_new_mem(&writer);
@@ -304,15 +302,13 @@ pc_patch_uncompressed_from_ght(const PCPATCH_GHT *paght)
     ght_nodelist_get_num_nodes(nodelist, &npoints);
     schema = paght->schema;
     patch = pcalloc(sizeof(PCPATCH_UNCOMPRESSED));
+    patch->type = PC_NONE;
+    patch->readonly = PC_FALSE;
     patch->schema = schema;
     patch->npoints = npoints;
+    patch->bounds = paght->bounds;
+    patch->stats = paght->stats;
     patch->maxpoints = npoints;
-    patch->readonly = PC_FALSE;
-    patch->type = PC_NONE;
-    patch->xmin = paght->xmin;
-    patch->xmax = paght->xmax;
-    patch->ymin = paght->ymin;
-    patch->ymax = paght->ymax;
     patch->datasize = schema->size * npoints;
     patch->data = pcalloc(patch->datasize);
     
@@ -390,10 +386,10 @@ pc_patch_ght_from_wkb(const PCSCHEMA *schema, const uint8_t *wkb, size_t wkbsize
 	npoints = wkb_get_npoints(wkb);
 
 	patch = pcalloc(sizeof(PCPATCH_GHT));
-	patch->npoints = npoints;
     patch->type = PC_GHT;
-	patch->schema = schema;
     patch->readonly = PC_FALSE;
+	patch->schema = schema;
+	patch->npoints = npoints;
 
     /* Start on the GHT */
     buf = wkb+hdrsz;
@@ -403,9 +399,6 @@ pc_patch_ght_from_wkb(const PCSCHEMA *schema, const uint8_t *wkb, size_t wkbsize
     /* Copy in the tree buffer */
     patch->ght = pcalloc(ghtsize);
     memcpy(patch->ght, buf, ghtsize);
-
-    if ( PC_SUCCESS != pc_patch_ght_compute_extent(patch) )
-        return NULL;
 
 	return (PCPATCH*)patch;
 #endif
@@ -431,10 +424,10 @@ pc_patch_ght_compute_extent(PCPATCH_GHT *patch)
     if ( GHT_OK != ght_tree_get_extent(tree, &area) )
         return PC_FAILURE;
 
-    patch->xmin = area.x.min;
-    patch->xmax = area.x.min;
-    patch->ymin = area.y.min;
-    patch->ymax = area.y.min;
+    patch->bounds.xmin = area.x.min;
+    patch->bounds.xmax = area.x.min;
+    patch->bounds.ymin = area.y.min;
+    patch->bounds.ymax = area.y.min;
 
     ght_tree_free(tree);
     
