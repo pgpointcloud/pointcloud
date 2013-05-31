@@ -74,7 +74,7 @@ CREATE TYPE pcpoint (
 	-- delimiter = ':',
 	-- alignment = double,
 	-- analyze = geometry_analyze,
-	storage = main
+	storage = external -- do not try to compress it please
 );
 
 CREATE OR REPLACE FUNCTION PC_Get(pt pcpoint, dimname text)
