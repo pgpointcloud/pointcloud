@@ -151,6 +151,18 @@ CREATE OR REPLACE FUNCTION PC_MemSize(p pcpoint)
     RETURNS int4 AS 'MODULE_PATHNAME', 'pcpoint_size'
     LANGUAGE 'c' IMMUTABLE STRICT;
 
+CREATE OR REPLACE FUNCTION PC_PatchMax(p pcpatch, attr text, stat text default 'max')
+	RETURNS numeric AS 'MODULE_PATHNAME', 'pcpatch_get_stat'
+    LANGUAGE 'c' IMMUTABLE STRICT;
+
+CREATE OR REPLACE FUNCTION PC_PatchMin(p pcpatch, attr text, stat text default 'min')
+	RETURNS numeric AS 'MODULE_PATHNAME', 'pcpatch_get_stat'
+    LANGUAGE 'c' IMMUTABLE STRICT;
+
+CREATE OR REPLACE FUNCTION PC_PatchAvg(p pcpatch, attr text, stat text default 'avg')
+	RETURNS numeric AS 'MODULE_PATHNAME', 'pcpatch_get_stat'
+    LANGUAGE 'c' IMMUTABLE STRICT;
+
 -------------------------------------------------------------------
 --  POINTCLOUD_COLUMNS
 -------------------------------------------------------------------
@@ -283,17 +295,4 @@ CREATE OR REPLACE FUNCTION PC_Explode(p pcpatch)
 -------------------------------------------------------------------
 --  SQL Utility Functions
 -------------------------------------------------------------------
-
-
-CREATE OR REPLACE FUNCTION PC_PatchMax(p pcpatch, attr text, stat text default 'max')
-	RETURNS numeric AS 'MODULE_PATHNAME', 'pcpatch_get_stat'
-    LANGUAGE 'c' IMMUTABLE STRICT;
-
-CREATE OR REPLACE FUNCTION PC_PatchMin(p pcpatch, attr text, stat text default 'min')
-	RETURNS numeric AS 'MODULE_PATHNAME', 'pcpatch_get_stat'
-    LANGUAGE 'c' IMMUTABLE STRICT;
-
-CREATE OR REPLACE FUNCTION PC_PatchAvg(p pcpatch, attr text, stat text default 'avg')
-	RETURNS numeric AS 'MODULE_PATHNAME', 'pcpatch_get_stat'
-    LANGUAGE 'c' IMMUTABLE STRICT;
 
