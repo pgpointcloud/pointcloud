@@ -229,7 +229,7 @@ uint64_t pc_bytes_sigbits_count_64(const PCBYTES *pcb, uint32_t *nsigbits);
 /** Initialize with very large mins and very small maxes */
 void pc_bounds_init(PCBOUNDS *b);
 PCSTATS* pc_stats_clone(const PCSTATS *stats);
-size_t pc_stats_size(const PCSCHEMA *schema);
+void pc_bounds_merge(PCBOUNDS *b1, const PCBOUNDS *b2);
 
 
 #endif /* _PC_API_INTERNAL_H */

@@ -382,10 +382,7 @@ pc_patch_from_patchlist(PCPATCH **palist, int numpatches)
         const PCPATCH *pa = palist[i];
 
         /* Update bounds */
-        if ( pa->bounds.xmin < paout->bounds.xmin ) paout->bounds.xmin = pa->bounds.xmin;
-        if ( pa->bounds.ymin < paout->bounds.ymin ) paout->bounds.ymin = pa->bounds.ymin;
-        if ( pa->bounds.xmax > paout->bounds.xmax ) paout->bounds.xmax = pa->bounds.xmax;
-        if ( pa->bounds.ymax > paout->bounds.ymax ) paout->bounds.ymax = pa->bounds.ymax;
+        pc_bounds_merge(&(paout->bounds), &(pa->bounds));
 
         switch ( pa->type )
         {

@@ -286,8 +286,6 @@ bytebuffer_copy(bytebuffer_t *bb)
     return (void *)buf;
 }
 
-
-
 int
 pc_bounds_intersects(const PCBOUNDS *b1, const PCBOUNDS *b2)
 {
@@ -306,4 +304,12 @@ pc_bounds_init(PCBOUNDS *b)
 {
     b->xmin = b->ymin = DBL_MAX;
     b->xmax = b->ymax = -1*DBL_MAX;
+}
+
+void pc_bounds_merge(PCBOUNDS *b1, const PCBOUNDS *b2)
+{
+    if ( b2->xmin < b1->xmin ) b1->xmin = b2->xmin;
+    if ( b2->ymin < b1->ymin ) b1->ymin = b2->ymin;
+    if ( b2->xmax > b1->xmax ) b1->xmax = b2->xmax;
+    if ( b2->ymax > b1->ymax ) b1->ymax = b2->ymax;
 }

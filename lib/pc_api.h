@@ -383,10 +383,16 @@ PCSTATS* pc_stats_new_from_data(const PCSCHEMA *schema, const uint8_t *mindata, 
 /** Free a stats object */
 void pc_stats_free(PCSTATS *stats);
 
-/** Calculate stats from an existing patch */
+/** How big is the serialzation of a stats? */
+size_t pc_stats_size(const PCSCHEMA *schema);
+
+/** Calculate stats on an existing patch */
 int pc_patch_compute_stats(PCPATCH *patch);
+
+/** Calculate extent on an existing patch */
 int pc_patch_compute_extent(PCPATCH *patch);
 
+/** True/false if bounds intersect */
 int pc_bounds_intersects(const PCBOUNDS *b1, const PCBOUNDS *b2);
 
 

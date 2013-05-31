@@ -601,9 +601,9 @@ Datum pcpatch_get_stat(PG_FUNCTION_ARGS)
     float8 double_result;
 	int rv;
     
-    if ( stats_size_guess < 3*schema->size )
+    if ( stats_size_guess < pc_stats_size(schema) )
     {
-        serpa = PG_GETHEADERX_SERPATCH_P(0, 3*schema->size);
+        serpa = PG_GETHEADERX_SERPATCH_P(0, pc_stats_size(schema) );
     }
 
     stats = pc_patch_stats_deserialize(schema, serpa->data);
