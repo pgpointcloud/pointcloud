@@ -599,3 +599,9 @@ pc_schema_get_dimension_by_name(const PCSCHEMA *s, const char *name)
 	return hashtable_search(s->namehash, name);
 }
 
+size_t
+pc_schema_get_size(const PCSCHEMA *s)
+{
+    return s->size;
+}
+

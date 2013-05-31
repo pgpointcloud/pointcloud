@@ -2,7 +2,7 @@ CREATE EXTENSION pointcloud;
 SELECT PC_Version();
  pc_version 
 ------------
- 1.0
+ 0.1
 (1 row)
 
 INSERT INTO pointcloud_formats (pcid, srid, schema)
@@ -272,7 +272,7 @@ SELECT Sum(PC_NumPoints(pa)) FROM pa_test_dim;
 SELECT Sum(PC_MemSize(pa)) FROM pa_test_dim;
  sum 
 -----
- 516
+ 684
 (1 row)
 
 SELECT Sum(PC_PatchMax(pa,'x')) FROM pa_test_dim;
@@ -308,7 +308,7 @@ SELECT Sum(PC_NumPoints(pa)) FROM pa_test_dim;
 SELECT Sum(PC_MemSize(pa)) FROM pa_test_dim;
  sum  
 ------
- 8523
+ 8733
 (1 row)
 
 SELECT Max(PC_PatchMax(pa,'x')) FROM pa_test_dim;
@@ -351,7 +351,7 @@ SELECT Sum(PC_NumPoints(pa)) FROM pa_test_ght;
 SELECT Sum(PC_MemSize(pa)) FROM pa_test_ght;
  sum 
 -----
- 420
+ 588
 (1 row)
 
 SELECT Sum(PC_PatchMax(pa,'x')) FROM pa_test_ght;
@@ -387,7 +387,7 @@ SELECT Sum(PC_NumPoints(pa)) FROM pa_test_ght;
 SELECT Sum(PC_MemSize(pa)) FROM pa_test_ght;
   sum  
 -------
- 38471
+ 38681
 (1 row)
 
 SELECT Max(PC_PatchMax(pa,'x')) FROM pa_test_ght;

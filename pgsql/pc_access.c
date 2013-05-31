@@ -21,6 +21,7 @@ Datum pcpatch_uncompress(PG_FUNCTION_ARGS);
 Datum pcpatch_numpoints(PG_FUNCTION_ARGS);
 Datum pcpatch_compression(PG_FUNCTION_ARGS);
 Datum pcpatch_intersects(PG_FUNCTION_ARGS);
+Datum pcpatch_get_stat(PG_FUNCTION_ARGS);
 Datum pcpatch_size(PG_FUNCTION_ARGS);
 Datum pcpoint_size(PG_FUNCTION_ARGS);
 Datum pc_version(PG_FUNCTION_ARGS);
@@ -582,3 +583,53 @@ Datum pc_version(PG_FUNCTION_ARGS)
     PG_RETURN_TEXT_P(version_text);
 }
 
+/**
+* Read a named dimension statistic from a PCPATCH
+* PC_PatchMax(patch pcpatch, dimname text) returns Numeric
+* PC_PatchMin(patch pcpatch, dimname text) returns Numeric
+* PC_PatchAvg(patch pcpatch, dimname text) returns Numeric
+*/
+PG_FUNCTION_INFO_V1(pcpatch_get_stat);
+Datum pcpatch_get_stat(PG_FUNCTION_ARGS)
+{
+    static int stats_size_guess = 400;
+    SERIALIZED_PATCH *serpa = PG_GETHEADERX_SERPATCH_P(0, stats_size_guess);
+    PCSCHEMA *schema = pc_schema_from_pcid(serpa->pcid, fcinfo);
+    char *dim_str = text_to_cstring(PG_GETARG_TEXT_P(1));
+    char *stat_str = text_to_cstring(PG_GETARG_TEXT_P(2));
+    PCSTATS *stats;
+    float8 double_result;
+	int rv;
+    
+    if ( stats_size_guess < 3*schema->size )
+    {
+        serpa = PG_GETHEADERX_SERPATCH_P(0, 3*schema->size);
+    }
+
+    stats = pc_patch_stats_deserialize(schema, serpa->data);
+	
+	if ( ! stats )
+		PG_RETURN_NULL();
+
+	/* Max */
+	if ( 0 == strcasecmp("max", stat_str) )
+        rv = pc_point_get_double_by_name(&(stats->max), dim_str, &double_result);
+	/* Min */
+	else if ( 0 == strcasecmp("min", stat_str) )
+        rv = pc_point_get_double_by_name(&(stats->min), dim_str, &double_result);
+	/* Avg */
+	else if ( 0 == strcasecmp("avg", stat_str) )
+        rv = pc_point_get_double_by_name(&(stats->avg), dim_str, &double_result);
+    /* Unsupported */
+    else
+		elog(ERROR, "stat type \"%s\" is not supported", stat_str);	
+    
+    pfree(stat_str);	
+    pc_stats_free(stats);
+    
+    if ( ! rv )
+		elog(ERROR, "dimension \"%s\" does not exist in schema", dim_str);	
+
+	pfree(dim_str);	
+	PG_RETURN_DATUM(DirectFunctionCall1(float8_numeric, Float8GetDatum(double_result)));
+}

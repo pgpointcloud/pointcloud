@@ -29,6 +29,10 @@
 
 #define PG_GETHEADER_SERPATCH_P(argnum) (SERIALIZED_PATCH*)PG_DETOAST_DATUM_SLICE(PG_GETARG_DATUM(argnum), 0, sizeof(SERIALIZED_PATCH))
 
+#define PG_GETHEADERX_SERPATCH_P(argnum, extra) (SERIALIZED_PATCH*)PG_DETOAST_DATUM_SLICE(PG_GETARG_DATUM(argnum), 0, sizeof(SERIALIZED_PATCH)+extra)
+
+#define PG_GETHEADER_STATS_P(argnum, statsize) (uint8_t*)(((SERIALIZED_PATCH*)PG_DETOAST_DATUM_SLICE(PG_GETARG_DATUM(argnum), 0, sizeof(SERIALIZED_PATCH) + statsize))->data)
+
 #define AUTOCOMPRESS_NO 0
 #define AUTOCOMPRESS_YES 1
 
@@ -114,3 +118,5 @@ uint8_t* pc_patch_to_geometry_wkb_envelope(const SERIALIZED_PATCH *pa, const PCS
 
 /** Read the first few bytes off an object to get the datum */
 uint32 pcid_from_datum(Datum d);
+
+PCSTATS* pc_patch_stats_deserialize(const PCSCHEMA *schema, const uint8_t *buf);

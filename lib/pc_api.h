@@ -142,8 +142,8 @@ typedef struct
 /* Used for generic patch statistics */
 typedef struct
 {
-    PCPOINT max;
     PCPOINT min;
+    PCPOINT max;
     PCPOINT avg;
 }
 PCSTATS;
@@ -263,6 +263,8 @@ PCSCHEMA* pc_schema_clone(const PCSCHEMA *s);
 void pc_schema_set_dimension(PCSCHEMA *s, PCDIMENSION *d);
 /** Check/set the x/y position in the dimension list */
 void pc_schema_check_xy(PCSCHEMA *s);
+/** Get the width in bytes of a single point in the schema */
+size_t pc_schema_get_size(const PCSCHEMA *s);
 
 
 /**********************************************************************
@@ -376,7 +378,10 @@ int pc_bytes_serialize(const PCBYTES *pcb, uint8_t *buf, size_t *size);
 int pc_bytes_deserialize(const uint8_t *buf, const PCDIMENSION *dim, PCBYTES *pcb, int readonly, int flip_endian);
 
 /** Wrap serialized stats in a new stats objects */
-PCSTATS* pc_stats_new_from_data(const PCSCHEMA *schema, const uint8_t *mindata, const uint8_t *maxdata, const uint8_t *avgdata);\
+PCSTATS* pc_stats_new_from_data(const PCSCHEMA *schema, const uint8_t *mindata, const uint8_t *maxdata, const uint8_t *avgdata);
+
+/** Free a stats object */
+void pc_stats_free(PCSTATS *stats);
 
 /** Calculate stats from an existing patch */
 int pc_patch_compute_stats(PCPATCH *patch);

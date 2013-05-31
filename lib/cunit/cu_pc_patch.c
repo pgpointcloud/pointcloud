@@ -111,10 +111,18 @@ test_patch_hex_in()
 	uint8_t *wkb = bytes_from_hexbytes(hexbuf, hexsize);
 	PCPATCH *pa = pc_patch_from_wkb(simpleschema, wkb, hexsize/2);
 	PCPOINTLIST *pl = pc_pointlist_from_patch(pa);
+
 	pc_point_get_double_by_name(pc_pointlist_get_point(pl, 0), "X", &d);
 	CU_ASSERT_DOUBLE_EQUAL(d, 0.02, 0.000001);
 	pc_point_get_double_by_name(pc_pointlist_get_point(pl, 1), "Intensity", &d);
 	CU_ASSERT_DOUBLE_EQUAL(d, 8, 0.000001);
+
+	pc_point_get_double_by_name(&(pa->stats->min), "Intensity", &d);
+	CU_ASSERT_DOUBLE_EQUAL(d, 6, 0.000001);
+	pc_point_get_double_by_name(&(pa->stats->max), "Intensity", &d);
+	CU_ASSERT_DOUBLE_EQUAL(d, 8, 0.000001);
+	pc_point_get_double_by_name(&(pa->stats->avg), "Intensity", &d);
+	CU_ASSERT_DOUBLE_EQUAL(d, 7, 0.000001);
 
 	str = pc_patch_to_string(pa);
 	CU_ASSERT_STRING_EQUAL(str, "{\"pcid\":0,\"pts\":[[0.02,0.03,0.05,6],[0.02,0.03,0.05,8]]}");
