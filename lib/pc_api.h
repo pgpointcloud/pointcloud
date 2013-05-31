@@ -376,7 +376,7 @@ int pc_bytes_serialize(const PCBYTES *pcb, uint8_t *buf, size_t *size);
 int pc_bytes_deserialize(const uint8_t *buf, const PCDIMENSION *dim, PCBYTES *pcb, int readonly, int flip_endian);
 
 /** Wrap serialized stats in a new stats objects */
-PCSTATS* pc_stats_new_from_data(const PCSCHEMA *schema, uint8_t *mindata, uint8_t *maxdata, uint8_t *avgdata);\
+PCSTATS* pc_stats_new_from_data(const PCSCHEMA *schema, const uint8_t *mindata, const uint8_t *maxdata, const uint8_t *avgdata);\
 
 /** Calculate stats from an existing patch */
 int pc_patch_compute_stats(PCPATCH *patch);

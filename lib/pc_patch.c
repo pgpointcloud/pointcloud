@@ -76,6 +76,7 @@ pc_patch_free(PCPATCH *patch)
     if ( patch->stats )
     {
         pc_stats_free( patch->stats );
+        patch->stats = NULL;
     }
     
 	switch( patch->type )

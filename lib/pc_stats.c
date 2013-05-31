@@ -61,13 +61,13 @@ pc_dstats_free(PCDOUBLESTATS *stats)
 void
 pc_stats_free(PCSTATS *stats)
 {
-    if ( ! stats->min.readonly )
+    if ( stats->min.readonly != PC_TRUE )
         pcfree(stats->min.data);
 
-    if ( ! stats->max.readonly )
+    if ( stats->max.readonly != PC_TRUE )
         pcfree(stats->max.data);
 
-    if ( ! stats->avg.readonly )
+    if ( stats->avg.readonly != PC_TRUE )
         pcfree(stats->avg.data);
 
     pcfree(stats);
@@ -80,7 +80,7 @@ pc_stats_free(PCSTATS *stats)
 * serialization.
 */
 PCSTATS *
-pc_stats_new_from_data(const PCSCHEMA *schema, uint8_t *mindata, uint8_t *maxdata, uint8_t *avgdata)
+pc_stats_new_from_data(const PCSCHEMA *schema, const uint8_t *mindata, const uint8_t *maxdata, const uint8_t *avgdata)
 {
     size_t sz = schema->size;
     PCSTATS *stats = pcalloc(sizeof(PCSTATS));
@@ -89,9 +89,9 @@ pc_stats_new_from_data(const PCSCHEMA *schema, uint8_t *mindata, uint8_t *maxdat
     stats->max.schema = schema;
     stats->avg.schema = schema;
     /* Data points into serialization */
-    stats->min.data = mindata;
-    stats->max.data = maxdata;
-    stats->avg.data = avgdata;
+    stats->min.data = (uint8_t*)mindata;
+    stats->max.data = (uint8_t*)maxdata;
+    stats->avg.data = (uint8_t*)avgdata;
     /* Can't modify external data */
     stats->min.readonly = PC_TRUE;
     stats->max.readonly = PC_TRUE;
@@ -118,7 +118,7 @@ pc_stats_new(const PCSCHEMA *schema)
     stats->avg.readonly = PC_FALSE;
     stats->min.data = pcalloc(schema->size);
     stats->max.data = pcalloc(schema->size);
-    stats->avg.data = pcalloc(schema->size);;
+    stats->avg.data = pcalloc(schema->size);
     return stats;
 }
 
@@ -144,15 +144,20 @@ pc_stats_new_from_dstats(const PCSCHEMA *schema, const PCDOUBLESTATS *dstats)
 PCSTATS *
 pc_stats_clone(const PCSTATS *stats)
 {
-    PCSTATS *snew = pcalloc(sizeof(PCSTATS));
-    memcpy(snew, stats, sizeof(PCSTATS));
-    snew->min.data = pcalloc(stats->min.schema->size);
-    snew->max.data = pcalloc(stats->max.schema->size);
-    snew->avg.data = pcalloc(stats->avg.schema->size);
-    memcpy(snew->min.data, stats->min.data, stats->min.schema->size);
-    memcpy(snew->max.data, stats->max.data, stats->max.schema->size);
-    memcpy(snew->avg.data, stats->avg.data, stats->avg.schema->size);
-    return snew;    
+    PCSTATS *s;
+    if ( ! stats ) return NULL;
+    s = pcalloc(sizeof(PCSTATS));
+    s->min.readonly = s->max.readonly = s->avg.readonly = PC_FALSE;
+    s->min.schema = stats->min.schema;
+    s->max.schema = stats->max.schema;
+    s->avg.schema = stats->avg.schema;
+    s->min.data = pcalloc(stats->min.schema->size);
+    s->max.data = pcalloc(stats->max.schema->size);
+    s->avg.data = pcalloc(stats->avg.schema->size);
+    memcpy(s->min.data, stats->min.data, stats->min.schema->size);
+    memcpy(s->max.data, stats->max.data, stats->max.schema->size);
+    memcpy(s->avg.data, stats->avg.data, stats->avg.schema->size);
+    return s;
 }
 
 int

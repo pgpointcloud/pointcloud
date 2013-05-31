@@ -231,7 +231,7 @@ pc_patch_ght_from_uncompressed(const PCPATCH_UNCOMPRESSED *pa)
         paght->schema = pa->schema;
         paght->npoints = pointcount;
         paght->bounds = pa->bounds;
-        paght->stats = pa->stats;
+        paght->stats = pc_stats_clone(pa->stats);
         
         /* Convert the tree to a memory buffer */
         ght_writer_new_mem(&writer);
@@ -307,7 +307,7 @@ pc_patch_uncompressed_from_ght(const PCPATCH_GHT *paght)
     patch->schema = schema;
     patch->npoints = npoints;
     patch->bounds = paght->bounds;
-    patch->stats = paght->stats;
+    patch->stats = pc_stats_clone(paght->stats);
     patch->maxpoints = npoints;
     patch->datasize = schema->size * npoints;
     patch->data = pcalloc(patch->datasize);
@@ -360,7 +360,6 @@ pc_patch_ght_from_wkb(const PCSCHEMA *schema, const uint8_t *wkb, size_t wkbsize
     pcerror("%s: libght support is not enabled", __func__);
     return NULL;
 #else
-    
 	/*
     byte:     endianness (1 = NDR, 0 = XDR)
     uint32:   pcid (key to POINTCLOUD_SCHEMAS)
@@ -369,7 +368,6 @@ pc_patch_ght_from_wkb(const PCSCHEMA *schema, const uint8_t *wkb, size_t wkbsize
     uint32:   ghtsize
     uint8[]:  ghtbuffer
 	*/
-	
 	static size_t hdrsz = 1+4+4+4; /* endian + pcid + compression + npoints */
 	PCPATCH_GHT *patch;
 	uint8_t swap_endian = (wkb[0] != machine_endian());
@@ -394,10 +392,11 @@ pc_patch_ght_from_wkb(const PCSCHEMA *schema, const uint8_t *wkb, size_t wkbsize
     /* Start on the GHT */
     buf = wkb+hdrsz;
     ghtsize = wkb_get_int32(buf, swap_endian);
-    buf += sizeof(int32_t); /* Move to start of GHT buffer */
+    buf += 4; /* Move to start of GHT buffer */
 
     /* Copy in the tree buffer */
     patch->ght = pcalloc(ghtsize);
+    patch->ghtsize = ghtsize;
     memcpy(patch->ght, buf, ghtsize);
 
 	return (PCPATCH*)patch;
@@ -476,10 +475,10 @@ pc_patch_ght_to_wkb(const PCPATCH_GHT *patch, size_t *wkbsize)
 	uint32_t pcid = patch->schema->pcid;
     uint32_t ghtsize = patch->ghtsize;
 	wkb[0] = endian; /* Write endian flag */
-	memcpy(wkb + 1, &pcid,        4); /* Write PCID */
-	memcpy(wkb + 5, &compression, 4); /* Write compression */
-	memcpy(wkb + 9, &npoints,     4); /* Write npoints */
-	memcpy(wkb + 9, &ghtsize,     4); /* Write ght buffer size */
+	memcpy(wkb +  1, &pcid,        4); /* Write PCID */
+	memcpy(wkb +  5, &compression, 4); /* Write compression */
+	memcpy(wkb +  9, &npoints,     4); /* Write npoints */
+	memcpy(wkb + 13, &ghtsize,     4); /* Write ght buffer size */
 
     buf = wkb + 17;
     memcpy(buf, patch->ght, patch->ghtsize);

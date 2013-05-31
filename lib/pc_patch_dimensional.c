@@ -73,7 +73,7 @@ pc_patch_dimensional_from_uncompressed(const PCPATCH_UNCOMPRESSED *pa)
     pdl->schema = schema;
     pdl->npoints = npoints;
     pdl->bounds = pa->bounds;
-    pdl->stats = pa->stats;
+    pdl->stats = pc_stats_clone(pa->stats);
     pdl->bytes = pcalloc(ndims * sizeof(PCBYTES));
 
     for ( i = 0; i < ndims; i++ )
