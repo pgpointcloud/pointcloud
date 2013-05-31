@@ -83,6 +83,13 @@ enum DIMCOMPRESSIONS {
     PC_DIM_ZLIB = 3
 };
 
+typedef enum {
+    PC_GT,
+    PC_LT,
+    PC_EQUALS,
+    PC_BETWEEN
+} PC_FILTERTYPE;
+
 /** What is the endianness of this system? */
 char machine_endian(void);
 
@@ -222,6 +229,7 @@ uint64_t pc_bytes_sigbits_count_64(const PCBYTES *pcb, uint32_t *nsigbits);
 /** Initialize with very large mins and very small maxes */
 void pc_bounds_init(PCBOUNDS *b);
 PCSTATS* pc_stats_clone(const PCSTATS *stats);
+size_t pc_stats_size(const PCSCHEMA *schema);
 
 
 #endif /* _PC_API_INTERNAL_H */

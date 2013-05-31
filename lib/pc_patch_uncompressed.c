@@ -405,3 +405,4 @@ pc_patch_uncompressed_add_point(PCPATCH_UNCOMPRESSED *c, const PCPOINT *p)
 
 	return PC_SUCCESS;
 }
+

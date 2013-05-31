@@ -1,8 +1,7 @@
 /***********************************************************************
 * pc_stats.c
 *
-*  Pointclound schema handling. Parse and emit the XML format for
-*  representing packed multidimensional point data.
+*  Pointclound patch statistics generation.
 *
 *  Copyright (c) 2013 OpenGeo
 *
@@ -203,6 +202,11 @@ pc_patch_uncompressed_compute_stats(PCPATCH_UNCOMPRESSED *pa)
     return PC_SUCCESS;
 }
 
+size_t
+pc_stats_size(const PCSCHEMA *schema)
+{
+    return 3*schema->size;
+}
 
 
 

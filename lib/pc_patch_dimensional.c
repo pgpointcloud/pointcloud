@@ -286,3 +286,4 @@ pc_patch_dimensional_from_pointlist(const PCPOINTLIST *pdl)
     pc_patch_uncompressed_free(patch);
     return dimpatch;
 }
+
