@@ -86,7 +86,7 @@ enum DIMCOMPRESSIONS {
 typedef enum {
     PC_GT,
     PC_LT,
-    PC_EQUALS,
+    PC_EQUAL,
     PC_BETWEEN
 } PC_FILTERTYPE;
 
