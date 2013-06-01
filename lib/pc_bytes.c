@@ -1185,13 +1185,14 @@ pc_bytes_deserialize(const uint8_t *buf, const PCDIMENSION *dim, PCBYTES *pcb, i
 
 
 static int
-pc_bytes_uncompressed_minmax(const PCBYTES *pcb, double *min, double *max)
+pc_bytes_uncompressed_minmax(const PCBYTES *pcb, double *min, double *max, double *avg)
 {
     int i;
     int element_size = pc_interpretation_size(pcb->interpretation);
     double d;
     double mn = FLT_MAX;
     double mx = -1*FLT_MAX;
+    double sm = 0.0;
     for ( i = 0; i < pcb->npoints; i++ )
     {
         d = pc_double_from_ptr(pcb->bytes + i*element_size, pcb->interpretation);
@@ -1199,71 +1200,83 @@ pc_bytes_uncompressed_minmax(const PCBYTES *pcb, double *min, double *max)
             mn = d;
         if ( d > mx )
             mx = d;
+        sm += d;
     }
     *min = mn;
     *max = mx;
+    *avg = sm / pcb->npoints;
 }
 
 static int
-pc_bytes_run_length_minmax(const PCBYTES *pcb, double *min, double *max)
+pc_bytes_run_length_minmax(const PCBYTES *pcb, double *min, double *max, double *avg)
 {
     int element_size = pc_interpretation_size(pcb->interpretation);
     double mn = FLT_MAX;
     double mx = -1*FLT_MAX;
+    double sm = 0.0;
     double d;
     uint8_t *ptr = pcb->bytes;
     uint8_t *ptr_end = pcb->bytes + pcb->size;
+    uint8_t count;
 
-    /* Move past first count */
-    ptr++;
 
     while( ptr < ptr_end )
     {
+        /* Read count and advance */
+        count = *ptr;
+        ptr += 1;
+        
+        /* Read value and advance */
         d = pc_double_from_ptr(ptr, pcb->interpretation);
-        /* Calc min/max */
+        ptr += element_size;
+        
+        /* Calc min */
         if ( d < mn )
             mn = d;
+        /* Calc max */
         if ( d > mx )
             mx = d;
+        /* Calc sum */
+        sm += count * d;
 
-        ptr += element_size;
     }
 
     *min = mn;
     *max = mx;
+    *avg = sm / pcb->npoints;
 }
 
 
 static int
-pc_bytes_zlib_minmax(const PCBYTES *pcb, double *min, double *max)
+pc_bytes_zlib_minmax(const PCBYTES *pcb, double *min, double *max, double *avg)
 {
     PCBYTES zcb = pc_bytes_zlib_decode(*pcb);
-    int rv = pc_bytes_uncompressed_minmax(&zcb, min, max);
+    int rv = pc_bytes_uncompressed_minmax(&zcb, min, max, avg);
     pc_bytes_free(zcb);
     return rv;
 }
 
 static int
-pc_bytes_sigbits_minmax(const PCBYTES *pcb, double *min, double *max)
+pc_bytes_sigbits_minmax(const PCBYTES *pcb, double *min, double *max, double *avg)
 {
     PCBYTES zcb = pc_bytes_sigbits_decode(*pcb);
-    int rv = pc_bytes_uncompressed_minmax(&zcb, min, max);
+    int rv = pc_bytes_uncompressed_minmax(&zcb, min, max, avg);
     pc_bytes_free(zcb);
     return rv;
 }
 
-int pc_bytes_minmax(const PCBYTES *pcb, double *min, double *max)
+int pc_bytes_minmax(const PCBYTES *pcb, double *min, double *max, double *avg)
 {
     switch(pcb->compression)
     {
         case PC_DIM_NONE:
-            return pc_bytes_uncompressed_minmax(pcb, min, max);
+            return pc_bytes_uncompressed_minmax(pcb, min, max, avg);
         case PC_DIM_SIGBITS:
-            return pc_bytes_sigbits_minmax(pcb, min, max);
+            return pc_bytes_sigbits_minmax(pcb, min, max, avg);
         case PC_DIM_ZLIB:
-            return pc_bytes_zlib_minmax(pcb, min, max);
+            return pc_bytes_zlib_minmax(pcb, min, max, avg);
         case PC_DIM_RLE:
-            return pc_bytes_run_length_minmax(pcb, min, max);
+            return pc_bytes_run_length_minmax(pcb, min, max, avg);
         default:
             pcerror("pc_bytes_minmax: unknown compression");
     }
