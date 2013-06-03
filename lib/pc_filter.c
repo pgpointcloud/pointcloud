@@ -8,15 +8,9 @@
 ***********************************************************************/
 
 #include "pc_api_internal.h"
+#include <assert.h>
 
-typedef struct
-{
-    uint32_t nset;
-    uint32_t npoints;
-    uint8_t *map;
-} PCBITMAP;
-
-static PCBITMAP *
+PCBITMAP *
 pc_bitmap_new(uint32_t npoints)
 {
     PCBITMAP *map = pcalloc(sizeof(PCBITMAP));
@@ -26,14 +20,14 @@ pc_bitmap_new(uint32_t npoints)
     return map;
 }
 
-static void
+void
 pc_bitmap_free(PCBITMAP *map)
 {
     if (map->map) pcfree(map->map);
     pcfree(map);
 }
 
-static inline void
+inline void
 pc_bitmap_set(PCBITMAP *map, int i, int val)
 {
     uint8_t curval = map->map[i];
@@ -45,14 +39,34 @@ pc_bitmap_set(PCBITMAP *map, int i, int val)
     map->map[i] = (val!=0);
 }
 
-static inline uint8_t
+inline uint8_t
 pc_bitmap_get(const PCBITMAP *map, int i)
 {
     return map->map[i];
 }
 
+void
+pc_bitmap_filter(PCBITMAP *map, PC_FILTERTYPE filter, int i, double d, double val1, double val2)
+{
+    switch ( filter )
+    {
+        case PC_GT:
+            pc_bitmap_set(map, i, (d > val1 ? 1 : 0)); 
+            break;
+        case PC_LT:
+            pc_bitmap_set(map, i, (d < val1 ? 1 : 0)); 
+            break;
+        case PC_EQUAL:
+            pc_bitmap_set(map, i, (d == val1 ? 1 : 0)); 
+            break;
+        case PC_BETWEEN:
+            pc_bitmap_set(map, i, (d > val1 && d < val2 ? 1 : 0)); 
+            break;
+    }
+}
+
 static PCBITMAP *
-pc_patch_uncompressed_bitmap(const PCPATCH *pa, const PCDIMENSION *dim, PC_FILTERTYPE filter, double val1, double val2)
+pc_patch_uncompressed_bitmap(const PCPATCH_UNCOMPRESSED *pa, uint32_t dimnum, PC_FILTERTYPE filter, double val1, double val2)
 {
     PCPOINT pt;
     uint32_t i = 0;    
@@ -67,22 +81,10 @@ pc_patch_uncompressed_bitmap(const PCPATCH *pa, const PCDIMENSION *dim, PC_FILTE
     while ( i < pa->npoints )
     {
         pt.data = buf;
-        pc_point_get_double(&pt, dim, &d);
-        switch ( filter )
-        {
-            case PC_GT:
-                pc_bitmap_set(map, i, (d > val1 ? 1 : 0)); 
-                break;
-            case PC_LT:
-                pc_bitmap_set(map, i, (d < val1 ? 1 : 0)); 
-                break;
-            case PC_EQUAL:
-                pc_bitmap_set(map, i, (d == val1 ? 1 : 0)); 
-                break;
-            case PC_BETWEEN:
-                pc_bitmap_set(map, i, (d > val1 && d < val2 ? 1 : 0)); 
-                break;
-        }
+        pc_point_get_double(&pt, pa->schema->dims[dimnum], &d);
+        /* Apply the filter to the bitmap */
+        pc_bitmap_filter(map, filter, i, d, val1, val2);
+        /* Advance data pointer and counter */
         buf += sz;
         i++;
     }
@@ -90,12 +92,13 @@ pc_patch_uncompressed_bitmap(const PCPATCH *pa, const PCDIMENSION *dim, PC_FILTE
     return map;
 }
 
+
 static PCPATCH_UNCOMPRESSED *
-pc_patch_uncompressed_filter(const PCPATCH *pu, const PCBITMAP *map)
+pc_patch_uncompressed_filter(const PCPATCH_UNCOMPRESSED *pu, const PCBITMAP *map)
 {
     int i = 0, j = 0;
     size_t sz = pu->schema->size;
-    PCPATCH_UNCOMPRESSED *fpu = pc_patch_uncompressed_new(pu->schema, map->nset);
+    PCPATCH_UNCOMPRESSED *fpu = pc_patch_uncompressed_make(pu->schema, map->nset);
     uint8_t *buf = pu->data;
     uint8_t *fbuf = fpu->data;
     
@@ -129,25 +132,64 @@ pc_patch_uncompressed_filter(const PCPATCH *pu, const PCBITMAP *map)
     return fpu;
 }
 
+
+
+static PCBITMAP *
+pc_patch_dimensional_bitmap(const PCPATCH_DIMENSIONAL *pdl, uint32_t dimnum, PC_FILTERTYPE filter, double val1, double val2)
+{
+    assert(dimnum < pdl->schema->ndims);
+    return pc_bytes_bitmap(&(pdl->bytes[dimnum]), filter, val1, val2);
+}
+
+static PCPATCH_DIMENSIONAL *
+pc_patch_dimensional_filter(const PCPATCH_DIMENSIONAL *pdl, const PCBITMAP *map)
+{
+    int i = 0;
+    PCPATCH_DIMENSIONAL *fpdl = pcalloc(sizeof(PCPATCH_DIMENSIONAL));
+    memcpy(fpdl, pdl, sizeof(PCPATCH_DIMENSIONAL));
+    
+    for ( i = 0; i < pdl->schema->ndims; i++ )
+    {
+        fpdl->bytes[i] = pc_bytes_filter(&(pdl->bytes[i]), map);
+    }
+
+    fpdl->npoints = map->nset;
+    return fpdl;
+}
+
+
 PCPATCH *
-pc_patch_filter(const PCPATCH *pa, PC_FILTERTYPE filter, double val1, double val2)
+pc_patch_filter(const PCPATCH *pa, uint32_t dimnum, PC_FILTERTYPE filter, double val1, double val2)
 {
     if ( ! pa ) return NULL;
 	switch ( pa->type )
 	{
 		case PC_NONE:
 		{
-            PCBITMAP *map = pc_patch_uncompressed_bitmap((PCPATCH_UNCOMPRESSED*)pa, filter, val1, val2);
+            PCBITMAP *map = pc_patch_uncompressed_bitmap((PCPATCH_UNCOMPRESSED*)pa, dimnum, filter, val1, val2);
             PCPATCH_UNCOMPRESSED *pu = pc_patch_uncompressed_filter((PCPATCH_UNCOMPRESSED*)pa, map);
             pc_bitmap_free(map);
             return (PCPATCH*)pu;
 		}
 		case PC_GHT:
-            // return pc_patch_ght_bitmap((PCPATCH_GHT*)pa, filter, val1, val2);
+		{
+            PCPATCH_UNCOMPRESSED *pu = pc_patch_uncompressed_from_ght((PCPATCH_GHT*)pa);
+            PCBITMAP *map = pc_patch_uncompressed_bitmap(pu, dimnum, filter, val1, val2);
+            PCPATCH_UNCOMPRESSED *pu2 = pc_patch_uncompressed_filter(pu, map);
+            PCPATCH_GHT *pgh = pc_patch_ght_from_uncompressed(pu2);
+            pc_patch_free((PCPATCH*)pu);
+            pc_patch_free((PCPATCH*)pu2);
+            return (PCPATCH*)pgh;
+        }
 		case PC_DIMENSIONAL:
-            // return pc_patch_dimensional_bitmap((PCPATCH_DIMENSIONAL*)pa, filter, val1, val2);
+		{
+		    PCBITMAP *map = pc_patch_dimensional_bitmap((PCPATCH_DIMENSIONAL*)pa, dimnum, filter, val1, val2);
+            PCPATCH_DIMENSIONAL *pdl = pc_patch_dimensional_filter((PCPATCH_DIMENSIONAL*)pa, map);
+            pc_bitmap_free(map);
+            return (PCPATCH*)pdl;
+        }
 		default:
-            pc_error("%s: failure", __func__);
+            pcerror("%s: failure", __func__);
 	}
 	return NULL;
 }

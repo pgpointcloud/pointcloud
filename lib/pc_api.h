@@ -51,6 +51,13 @@ enum ENDIANS
 	PC_NDR = 1    /* Little */
 };
 
+typedef enum {
+    PC_GT,
+    PC_LT,
+    PC_EQUAL,
+    PC_BETWEEN
+} PC_FILTERTYPE;
+
 
 
 /**
@@ -395,6 +402,8 @@ int pc_patch_compute_extent(PCPATCH *patch);
 /** True/false if bounds intersect */
 int pc_bounds_intersects(const PCBOUNDS *b1, const PCBOUNDS *b2);
 
+/** Returns newly allocated patch that only contains the points fitting the filter condition */
+PCPATCH* pc_patch_filter(const PCPATCH *pa, uint32_t dimnum, PC_FILTERTYPE filter, double val1, double val2);
 
 
 #endif /* _PC_API_H */
