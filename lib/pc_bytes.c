@@ -1270,9 +1270,6 @@ pc_bytes_minmax(const PCBYTES *pcb, double *min, double *max)
     return PC_FAILURE;
 }
 
-
-
-
 static PCBYTES
 pc_bytes_uncompressed_filter(const PCBYTES *pcb, const PCBITMAP *map)
 {

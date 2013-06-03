@@ -28,6 +28,17 @@ typedef struct
 */
 
 
+PCPATCH_DIMENSIONAL *
+pc_patch_dimensional_clone(const PCPATCH_DIMENSIONAL *patch)
+{
+    PCPATCH_DIMENSIONAL *pdl = pcalloc(sizeof(PCPATCH_DIMENSIONAL));
+    memcpy(pdl, patch, sizeof(PCPATCH_DIMENSIONAL));
+    pdl->bytes = pcalloc(patch->schema->ndims * sizeof(PCBYTES));
+    pdl->npoints = 0;
+    pdl->stats = NULL;
+    return pdl;
+}
+
 size_t
 pc_patch_dimensional_serialized_size(const PCPATCH_DIMENSIONAL *patch)
 {

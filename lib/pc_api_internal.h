@@ -112,6 +112,9 @@ uint8_t* uncompressed_bytes_flip_endian(const uint8_t *bytebuf, const PCSCHEMA *
 /** Update a value using the scale/offset info from a dimension */
 double pc_value_scale_offset(double val, const PCDIMENSION *dim);
 
+/** Remove the scale/offset values from a number before storage */
+double pc_value_unscale_unoffset(double val, const PCDIMENSION *dim);
+
 /** Read interpretation type from buffer and cast to double */
 double pc_double_from_ptr(const uint8_t *ptr, uint32_t interpretation);
 
@@ -157,6 +160,7 @@ uint8_t* pc_patch_dimensional_to_wkb(const PCPATCH_DIMENSIONAL *patch, size_t *w
 PCPATCH* pc_patch_dimensional_from_wkb(const PCSCHEMA *schema, const uint8_t *wkb, size_t wkbsize);
 PCPATCH_DIMENSIONAL* pc_patch_dimensional_from_pointlist(const PCPOINTLIST *pdl);
 PCPOINTLIST* pc_pointlist_from_dimensional(const PCPATCH_DIMENSIONAL *pdl);
+PCPATCH_DIMENSIONAL* pc_patch_dimensional_clone(const PCPATCH_DIMENSIONAL *patch);
 
 /* UNCOMPRESSED PATCHES */
 char* pc_patch_uncompressed_to_string(const PCPATCH_UNCOMPRESSED *patch);

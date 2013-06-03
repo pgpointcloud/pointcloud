@@ -138,15 +138,17 @@ static PCBITMAP *
 pc_patch_dimensional_bitmap(const PCPATCH_DIMENSIONAL *pdl, uint32_t dimnum, PC_FILTERTYPE filter, double val1, double val2)
 {
     assert(dimnum < pdl->schema->ndims);
-    return pc_bytes_bitmap(&(pdl->bytes[dimnum]), filter, val1, val2);
+    double unscaled1 = pc_value_unscale_unoffset(val1, pdl->schema->dims[dimnum]);
+    double unscaled2 = pc_value_unscale_unoffset(val2, pdl->schema->dims[dimnum]);
+    
+    return pc_bytes_bitmap(&(pdl->bytes[dimnum]), filter, unscaled1, unscaled2);
 }
 
 static PCPATCH_DIMENSIONAL *
 pc_patch_dimensional_filter(const PCPATCH_DIMENSIONAL *pdl, const PCBITMAP *map)
 {
     int i = 0;
-    PCPATCH_DIMENSIONAL *fpdl = pcalloc(sizeof(PCPATCH_DIMENSIONAL));
-    memcpy(fpdl, pdl, sizeof(PCPATCH_DIMENSIONAL));
+    PCPATCH_DIMENSIONAL *fpdl = pc_patch_dimensional_clone(pdl);
     
     for ( i = 0; i < pdl->schema->ndims; i++ )
     {
@@ -162,6 +164,8 @@ PCPATCH *
 pc_patch_filter(const PCPATCH *pa, uint32_t dimnum, PC_FILTERTYPE filter, double val1, double val2)
 {
     if ( ! pa ) return NULL;
+    PCPATCH *paout;
+    
 	switch ( pa->type )
 	{
 		case PC_NONE:
@@ -169,7 +173,8 @@ pc_patch_filter(const PCPATCH *pa, uint32_t dimnum, PC_FILTERTYPE filter, double
             PCBITMAP *map = pc_patch_uncompressed_bitmap((PCPATCH_UNCOMPRESSED*)pa, dimnum, filter, val1, val2);
             PCPATCH_UNCOMPRESSED *pu = pc_patch_uncompressed_filter((PCPATCH_UNCOMPRESSED*)pa, map);
             pc_bitmap_free(map);
-            return (PCPATCH*)pu;
+            paout = (PCPATCH*)pu;
+            break;
 		}
 		case PC_GHT:
 		{
@@ -179,17 +184,26 @@ pc_patch_filter(const PCPATCH *pa, uint32_t dimnum, PC_FILTERTYPE filter, double
             PCPATCH_GHT *pgh = pc_patch_ght_from_uncompressed(pu2);
             pc_patch_free((PCPATCH*)pu);
             pc_patch_free((PCPATCH*)pu2);
-            return (PCPATCH*)pgh;
+            paout = (PCPATCH*)pgh;
+            break;
         }
 		case PC_DIMENSIONAL:
 		{
 		    PCBITMAP *map = pc_patch_dimensional_bitmap((PCPATCH_DIMENSIONAL*)pa, dimnum, filter, val1, val2);
             PCPATCH_DIMENSIONAL *pdl = pc_patch_dimensional_filter((PCPATCH_DIMENSIONAL*)pa, map);
             pc_bitmap_free(map);
-            return (PCPATCH*)pdl;
+            paout = (PCPATCH*)pdl;
+            break;
         }
 		default:
             pcerror("%s: failure", __func__);
 	}
-	return NULL;
+	
+	if ( PC_FAILURE == pc_patch_compute_extent(paout) )
+		pcerror("%s: pc_patch_compute_extent failed", __func__);
+
+	if ( PC_FAILURE == pc_patch_compute_stats(paout) )
+		pcerror("%s: pc_patch_compute_stats failed", __func__);
+
+    return paout;
 }

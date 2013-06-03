@@ -761,6 +761,70 @@ test_patch_wkb()
 }
 
 
+static void
+test_patch_filter()
+{
+    int i;
+    int npts = 20;
+    PCPOINTLIST *pl1, *pl2;
+    PCPATCH_UNCOMPRESSED *pu1, *pu2;
+    PCPATCH *pa1, *pa2, *pa3, *pa4;
+    PCDIMSTATS *pds = NULL;
+    size_t z1, z2;
+    uint8_t *wkb1, *wkb2;
+    char *str1, *str2;
+
+    pl1 = pc_pointlist_make(npts);
+    pl2 = pc_pointlist_make(npts);
+
+    for ( i = 0; i < npts; i++ )
+    {
+        PCPOINT *pt1 = pc_point_make(simpleschema);
+        PCPOINT *pt2 = pc_point_make(simpleschema);
+        pc_point_set_double_by_name(pt1, "x", i);
+        pc_point_set_double_by_name(pt1, "y", i);
+        pc_point_set_double_by_name(pt1, "Z", i*0.1);
+        pc_point_set_double_by_name(pt1, "intensity", 100-i);
+        pc_pointlist_add_point(pl1, pt1);
+        pc_point_set_double_by_name(pt2, "x", i);
+        pc_point_set_double_by_name(pt2, "y", i);
+        pc_point_set_double_by_name(pt2, "Z", i*0.1);
+        pc_point_set_double_by_name(pt2, "intensity", 100-i);
+        pc_pointlist_add_point(pl2, pt2);
+    }
+
+    // PCPATCH* pc_patch_filter(const PCPATCH *pa, uint32_t dimnum, PC_FILTERTYPE filter, double val1, double val2);
+
+    pa1 = (PCPATCH*)pc_patch_dimensional_from_pointlist(pl1);
+    // printf("pa1\n%s\n", pc_patch_to_string(pa1));
+    pa2 = pc_patch_filter(pa1, 0, PC_GT, 17, 20);
+    str1 = pc_patch_to_string(pa2);
+    // printf("pa2\n%s\n", str1);
+    CU_ASSERT_STRING_EQUAL(str1, "{\"pcid\":0,\"pts\":[[18,18,1.8,82],[19,19,1.9,81]]}");
+
+    pa3 = (PCPATCH*)pc_patch_uncompressed_from_pointlist(pl2);
+    // printf("\npa3\n%s\n", pc_patch_to_string(pa3));
+    pa4 = pc_patch_filter(pa3, 0, PC_GT, 17, 20);
+    str2 = pc_patch_to_string(pa4);
+    // printf("\npa4\n%s\n", str2);
+    CU_ASSERT_STRING_EQUAL(str2, "{\"pcid\":0,\"pts\":[[18,18,1.8,82],[19,19,1.9,81]]}");
+
+    pcfree(str1);
+    pcfree(str2);
+
+    pc_pointlist_free(pl1);
+    pc_pointlist_free(pl2);
+    pc_patch_free(pa1);
+    pc_patch_free(pa3);
+    pc_patch_free(pa4);
+    pc_patch_free(pa2);
+    
+    return;
+
+
+
+}
+
 /* REGISTER ***********************************************************/
 
 CU_TestInfo patch_tests[] = {
@@ -775,6 +839,7 @@ CU_TestInfo patch_tests[] = {
 	PC_TEST(test_patch_dimensional_compression),
 	PC_TEST(test_patch_union),
 	PC_TEST(test_patch_wkb),
+	PC_TEST(test_patch_filter),
 	CU_TEST_INFO_NULL
 };
 
