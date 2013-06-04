@@ -51,6 +51,13 @@ enum ENDIANS
 	PC_NDR = 1    /* Little */
 };
 
+typedef enum {
+    PC_GT,
+    PC_LT,
+    PC_EQUAL,
+    PC_BETWEEN
+} PC_FILTERTYPE;
+
 
 
 /**
@@ -365,7 +372,7 @@ uint8_t* pc_patch_to_wkb(const PCPATCH *patch, size_t *wkbsize);
 /** Returns text form of patch */
 char* pc_patch_to_string(const PCPATCH *patch);
 
-/** */
+/** Return byte buffer size of serialization */
 size_t pc_patch_dimensional_serialized_size(const PCPATCH_DIMENSIONAL *patch);
 
 /** How big will the serialization be? */
@@ -383,12 +390,29 @@ PCSTATS* pc_stats_new_from_data(const PCSCHEMA *schema, const uint8_t *mindata, 
 /** Free a stats object */
 void pc_stats_free(PCSTATS *stats);
 
-/** Calculate stats from an existing patch */
+/** How big is the serialzation of a stats? */
+size_t pc_stats_size(const PCSCHEMA *schema);
+
+/** Calculate stats on an existing patch */
 int pc_patch_compute_stats(PCPATCH *patch);
+
+/** Calculate extent on an existing patch */
 int pc_patch_compute_extent(PCPATCH *patch);
 
+/** True/false if bounds intersect */
 int pc_bounds_intersects(const PCBOUNDS *b1, const PCBOUNDS *b2);
 
+/** Subset batch based on less-than condition on dimension */
+PCPATCH* pc_patch_filter_lt_by_name(const PCPATCH *pa, const char *name, double val);
+
+/** Subset batch based on greater-than condition on dimension */
+PCPATCH* pc_patch_filter_gt_by_name(const PCPATCH *pa, const char *name, double val);
+
+/** Subset batch based on equality condition on dimension */
+PCPATCH* pc_patch_filter_equal_by_name(const PCPATCH *pa, const char *name, double val);
+
+/** Subset batch based on range condition on dimension */
+PCPATCH* pc_patch_filter_between_by_name(const PCPATCH *pa, const char *name, double val1, double val2);
 
 
 #endif /* _PC_API_H */

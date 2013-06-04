@@ -24,13 +24,16 @@
 #include "pc_api_internal.h"
 #include "zlib.h"
 
-
-
 void
 pc_bytes_free(PCBYTES pcb)
 {
     if ( ! pcb.readonly )
         pcfree(pcb.bytes);
+}
+
+int pc_bytes_empty(const PCBYTES *pcb)
+{
+    return pcb->npoints == 0 || pcb->bytes == NULL || pcb->size == 0;
 }
 
 PCBYTES
@@ -50,8 +53,12 @@ static PCBYTES
 pc_bytes_clone(PCBYTES pcb)
 {
     PCBYTES pcbnew = pcb;
-    pcbnew.bytes = pcalloc(pcb.size);
-    memcpy(pcbnew.bytes, pcb.bytes, pcb.size);
+    if ( ! pc_bytes_empty(&pcb) )
+    {
+        pcbnew.bytes = pcalloc(pcb.size);
+        memcpy(pcbnew.bytes, pcb.bytes, pcb.size);
+    }
+    pcbnew.readonly = PC_FALSE;
     return pcbnew;
 }
 
@@ -83,7 +90,7 @@ pc_bytes_encode(PCBYTES pcb, int compression)
         }
         default:
         {
-            pcerror("pc_bytes_encode: Uh oh");
+            pcerror("%s: Uh oh", __func__);
         }
     }
     return epcb;
@@ -117,7 +124,7 @@ pc_bytes_decode(PCBYTES epcb)
         }
         default:
         {
-            pcerror("pc_bytes_decode: Uh oh");
+            pcerror("%s: Uh oh", __func__);
         }
     }
     return pcb;
@@ -460,7 +467,7 @@ pc_bytes_sigbits_count(const PCBYTES *pcb)
         }
         default:
         {
-            pcerror("pc_bytes_sigbits_count cannot handle interpretation %d", pcb->interpretation);
+            pcerror("%s: cannot handle interpretation %d", __func__, pcb->interpretation);
             return -1;
         }
     }
@@ -553,6 +560,7 @@ pc_bytes_sigbits_encode_8(const PCBYTES pcb, uint8_t commonvalue, uint8_t common
     pcbout.size = size_out;
     pcbout.bytes = bytes_out;
     pcbout.compression = PC_DIM_SIGBITS;
+    pcbout.readonly = PC_FALSE;
     return pcbout;
 }
 
@@ -644,6 +652,7 @@ pc_bytes_sigbits_encode_16(const PCBYTES pcb, uint16_t commonvalue, uint8_t comm
     pcbout.size = size_out;
     pcbout.bytes = bytes_out;
     pcbout.compression = PC_DIM_SIGBITS;
+    pcbout.readonly = PC_FALSE;
     return pcbout;
 }
 
@@ -734,6 +743,7 @@ pc_bytes_sigbits_encode_32(const PCBYTES pcb, uint32_t commonvalue, uint8_t comm
     pcbout.size = size_out;
     pcbout.bytes = bytes_out;
     pcbout.compression = PC_DIM_SIGBITS;
+    pcbout.readonly = PC_FALSE;
     return pcbout;
 }
 
@@ -769,7 +779,7 @@ pc_bytes_sigbits_encode(const PCBYTES pcb)
         }
         default:
         {
-            pcerror("pc_bytes_sigbits_encode cannot handle interpretation %d", pcb.interpretation);
+            pcerror("%s: bits_encode cannot handle interpretation %d", __func__, pcb.interpretation);
         }
     }
     pcerror("Uh Oh");
@@ -867,6 +877,7 @@ pc_bytes_sigbits_decode_8(const PCBYTES pcb)
     pcbout.size = outbytes_size;
     pcbout.compression = PC_DIM_SIGBITS;
     pcbout.bytes = outbytes;
+    pcbout.readonly = PC_FALSE;
     return pcbout;
 }
 
@@ -923,6 +934,7 @@ pc_bytes_sigbits_decode_16(const PCBYTES pcb)
     pcbout.size = outbytes_size;
     pcbout.compression = PC_DIM_SIGBITS;
     pcbout.bytes = outbytes;
+    pcbout.readonly = PC_FALSE;
     return pcbout;
 }
 
@@ -980,6 +992,7 @@ pc_bytes_sigbits_decode_32(const PCBYTES pcb)
     pcbout.size = outbytes_size;
     pcbout.compression = PC_DIM_SIGBITS;
     pcbout.bytes = outbytes;
+    pcbout.readonly = PC_FALSE;
     return pcbout;
 }
 
@@ -1004,10 +1017,10 @@ pc_bytes_sigbits_decode(const PCBYTES pcb)
         }
         default:
         {
-            pcerror("pc_bytes_sigbits_decode cannot handle interpretation %d", pcb.interpretation);
+            pcerror("%s: cannot handle interpretation %d", __func__, pcb.interpretation);
         }
     }
-    pcerror("pc_bytes_sigbits_decode got an unhandled errror");
+    pcerror("%s: got an unhandled errror", __func__);
     return pcb;
 }
 
@@ -1060,6 +1073,7 @@ pc_bytes_zlib_encode(const PCBYTES pcb)
     pcbout.size = have;
     pcbout.bytes = pcalloc(pcbout.size);
     pcbout.compression = PC_DIM_ZLIB;
+    pcbout.readonly = PC_FALSE;
     memcpy(pcbout.bytes, buf, have);
     pcfree(buf);
     deflateEnd(&strm);
@@ -1083,6 +1097,7 @@ pc_bytes_zlib_decode(const PCBYTES pcb)
 
     /* Set up output memory */
     pcbout.bytes = pcalloc(pcbout.size);
+    pcbout.readonly = PC_FALSE;
 
     /* Use our own allocators */
     strm.zalloc = pc_zlib_alloc;
@@ -1123,7 +1138,7 @@ pc_bytes_flip_endian(PCBYTES pcb)
         case PC_DIM_RLE:
             return pc_bytes_run_length_flip_endian(pcb);
         default:
-            pcerror("pc_bytes_flip_endian: unknown compression");
+            pcerror("%s: unknown compression", __func__);
     }
 
     return pcb;
@@ -1265,7 +1280,8 @@ pc_bytes_sigbits_minmax(const PCBYTES *pcb, double *min, double *max, double *av
     return rv;
 }
 
-int pc_bytes_minmax(const PCBYTES *pcb, double *min, double *max, double *avg)
+int 
+pc_bytes_minmax(const PCBYTES *pcb, double *min, double *max, double *avg)
 {
     switch(pcb->compression)
     {
@@ -1278,7 +1294,171 @@ int pc_bytes_minmax(const PCBYTES *pcb, double *min, double *max, double *avg)
         case PC_DIM_RLE:
             return pc_bytes_run_length_minmax(pcb, min, max, avg);
         default:
-            pcerror("pc_bytes_minmax: unknown compression");
+            pcerror("%s: unknown compression", __func__);
     }
     return PC_FAILURE;
 }
+
+static PCBYTES
+pc_bytes_uncompressed_filter(const PCBYTES *pcb, const PCBITMAP *map)
+{
+    int i = 0, j = 0;
+    double d;
+    PCBYTES fpcb = pc_bytes_clone(*pcb);
+    int sz = pc_interpretation_size(pcb->interpretation);
+    uint8_t *buf = pcb->bytes;
+    uint8_t *fbuf = fpcb.bytes;
+    
+    while ( i < pcb->npoints )
+    {
+        if ( pc_bitmap_get(map, i) )
+        {
+            memcpy(fbuf, buf, sz);
+            fbuf += sz;
+            j++;
+        }
+        buf += sz;
+        i++;
+    }
+    fpcb.size = fbuf - fpcb.bytes;
+    fpcb.npoints = j;
+    return fpcb;
+}
+
+static PCBYTES
+pc_bytes_run_length_filter(const PCBYTES *pcb, const PCBITMAP *map)
+{
+    int i = 0, j = 0;
+    double d;
+
+    PCBYTES fpcb = pc_bytes_clone(*pcb);
+    int sz = pc_interpretation_size(pcb->interpretation)+1;
+    uint8_t *fptr = fpcb.bytes;
+    uint8_t *ptr = pcb->bytes;
+    uint8_t *ptr_end = pcb->bytes + pcb->size;
+    uint8_t count;
+
+    while( ptr < ptr_end )
+    {
+        /* Read count */
+        count = *ptr;
+        
+        if ( pc_bitmap_get(map, i) )
+        {
+            memcpy(fptr, ptr, sz);
+            fptr += sz;
+            j += count;
+        }
+        ptr += sz;
+        i += count;
+    }
+    fpcb.size = fptr - fpcb.bytes;
+    fpcb.npoints = j;
+    return fpcb;
+}
+
+PCBYTES
+pc_bytes_filter(const PCBYTES *pcb, const PCBITMAP *map)
+{
+    switch(pcb->compression)
+    {
+        case PC_DIM_NONE:
+            return pc_bytes_uncompressed_filter(pcb, map);
+
+        case PC_DIM_RLE:
+        case PC_DIM_SIGBITS:
+        case PC_DIM_ZLIB:
+        {
+            PCBYTES dpcb = pc_bytes_decode(*pcb);
+            PCBYTES fpcb = pc_bytes_uncompressed_filter(&dpcb, map);
+            PCBYTES efpcb = pc_bytes_encode(fpcb, pcb->compression);
+            pc_bytes_free(fpcb);
+            pc_bytes_free(dpcb);
+            return efpcb;
+        }
+            
+        default:
+            pcerror("%s: unknown compression", __func__);
+    }
+    return *pcb;    
+}
+
+
+
+static PCBITMAP *
+pc_bytes_run_length_bitmap(const PCBYTES *pcb, PC_FILTERTYPE filter, double val1, double val2)
+{
+    int i = 0, run = 0;
+    double d;
+    PCBITMAP *map = pc_bitmap_new(pcb->npoints);
+    int element_size = pc_interpretation_size(pcb->interpretation);
+    uint8_t *ptr = pcb->bytes;
+    uint8_t *ptr_end = pcb->bytes + pcb->size;
+    uint8_t count;
+
+    while( ptr < ptr_end )
+    {
+        /* Read count */
+        count = *ptr;
+        ptr++;
+        run = i + count;
+        
+        /* Read value */
+        d = pc_double_from_ptr(ptr, pcb->interpretation);
+        ptr += element_size;
+
+        /* Apply run to bitmap */
+        while ( i < run )
+        {
+            pc_bitmap_filter(map, filter, i, d, val1, val2);
+            i++;
+        }            
+    }
+
+    return map;
+}
+
+
+static PCBITMAP *
+pc_bytes_uncompressed_bitmap(const PCBYTES *pcb, PC_FILTERTYPE filter, double val1, double val2)
+{
+    int i = 0;
+    double d;
+    PCBITMAP *map = pc_bitmap_new(pcb->npoints);
+    int element_size = pc_interpretation_size(pcb->interpretation);
+    uint8_t *buf = pcb->bytes;
+
+    while ( i < pcb->npoints )
+    {
+        d = pc_double_from_ptr(buf, pcb->interpretation);
+        pc_bitmap_filter(map, filter, i, d, val1, val2);
+        /* Advance the pointer */
+        buf += element_size;
+        i++;
+    }
+    return map;
+}
+
+PCBITMAP *
+pc_bytes_bitmap(const PCBYTES *pcb, PC_FILTERTYPE filter, double val1, double val2)
+{
+    switch(pcb->compression)
+    {
+        case PC_DIM_NONE:
+            return pc_bytes_uncompressed_bitmap(pcb, filter, val1, val2);
+        case PC_DIM_SIGBITS:
+        case PC_DIM_ZLIB:
+        {
+            PCBYTES dpcb = pc_bytes_decode(*pcb);
+            PCBITMAP *map = pc_bytes_uncompressed_bitmap(&dpcb, filter, val1, val2);
+            pc_bytes_free(dpcb);
+            return map;
+        }
+        case PC_DIM_RLE:
+            return pc_bytes_run_length_bitmap(pcb, filter, val1, val2);
+        default:
+            pcerror("%s: unknown compression", __func__);
+    }
+    return NULL;    
+}
+

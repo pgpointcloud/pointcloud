@@ -86,14 +86,7 @@ pc_point_get_double(const PCPOINT *pt, const PCDIMENSION *dim, double *d)
 	/* Read raw value from byte buffer */
 	ptr = pt->data + dim->byteoffset;
 	val = pc_double_from_ptr(ptr, dim->interpretation);
-
-	/* Scale value */
-	if ( dim->scale != 1 )
-		val *= dim->scale;
-
-	/* Offset value */
-	if ( dim->offset )
-		val += dim->offset;
+    val = pc_value_scale_offset(val, dim);
 
 	*d = val;
 	return PC_SUCCESS;
@@ -118,22 +111,17 @@ pc_point_get_double_by_index(const PCPOINT *pt, uint32_t idx, double *d)
 }
 
 int
-pc_point_set_double(PCPOINT *pt, const PCDIMENSION *d, double val)
+pc_point_set_double(PCPOINT *pt, const PCDIMENSION *dim, double val)
 {
 	uint8_t *ptr;
 
-	/* Offset value */
-	if ( d->offset )
-		val -= d->offset;
-
-	/* Scale value */
-	if ( d->scale != 1 )
-		val /= d->scale;
+    /* Remove scale and offsets */
+    val = pc_value_unscale_unoffset(val, dim);
 
 	/* Get pointer into byte buffer */
-	ptr = pt->data + d->byteoffset;
+	ptr = pt->data + dim->byteoffset;
 
-	return pc_double_to_ptr(ptr, d->interpretation, val);
+	return pc_double_to_ptr(ptr, dim->interpretation, val);
 }
 
 int

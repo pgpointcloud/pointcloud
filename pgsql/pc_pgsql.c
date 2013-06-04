@@ -444,7 +444,7 @@ pc_point_deserialize(const SERIALIZED_POINT *serpt, const PCSCHEMA *schema)
 size_t
 pc_patch_serialized_size(const PCPATCH *patch)
 {
-    size_t stats_size = patch->schema->size * 3;
+    size_t stats_size = pc_stats_size(patch->schema);
     size_t common_size = sizeof(SERIALIZED_PATCH) - 1;
 	switch( patch->type )
 	{
@@ -748,7 +748,7 @@ pc_patch_uncompressed_deserialize(const SERIALIZED_PATCH *serpatch, const PCSCHE
     // SERIALIZED_PATCH;
     
     uint8_t *buf;
-    size_t stats_size = 3*schema->size; // 3 pcpoints worth of stats
+    size_t stats_size = pc_stats_size(schema); // 3 pcpoints worth of stats
 	PCPATCH_UNCOMPRESSED *patch = pcalloc(sizeof(PCPATCH_UNCOMPRESSED));
 
 	/* Set up basic info */
@@ -769,6 +769,8 @@ pc_patch_uncompressed_deserialize(const SERIALIZED_PATCH *serpatch, const PCSCHE
 
     /* Calculate the point data buffer size */
 	patch->datasize = VARSIZE(serpatch) - sizeof(SERIALIZED_PATCH) + 1 - stats_size;
+	if ( patch->datasize != patch->npoints * schema->size )
+        pcerror("%s: calucated patch data sizes don't match (%d != %d)", __func__, patch->datasize, patch->npoints * schema->size);
 
 	return (PCPATCH*)patch;
 }
@@ -794,7 +796,7 @@ pc_patch_dimensional_deserialize(const SERIALIZED_PATCH *serpatch, const PCSCHEM
     const uint8_t *buf;
     int ndims = schema->ndims;
     int npoints = serpatch->npoints;
-    size_t stats_size = 3*schema->size; // 3 pcpoints worth of stats
+    size_t stats_size = pc_stats_size(schema); // 3 pcpoints worth of stats
 
 	/* Reference the external data */
 	patch = pcalloc(sizeof(PCPATCH_DIMENSIONAL));
@@ -850,7 +852,7 @@ pc_patch_ght_deserialize(const SERIALIZED_PATCH *serpatch, const PCSCHEMA *schem
  	PCPATCH_GHT *patch;
     uint32_t ghtsize;
     int npoints = serpatch->npoints;
-    size_t stats_size = 3*schema->size; // 3 pcpoints worth of stats
+    size_t stats_size = pc_stats_size(schema); // 3 pcpoints worth of stats
     uint8_t *buf = (uint8_t*)serpatch->data + stats_size;
 
 	/* Reference the external data */

@@ -13,6 +13,20 @@
 #include "pc_api_internal.h"
 
 
+double pc_value_unscale_unoffset(double val, const PCDIMENSION *dim)
+{
+	/* Offset value */
+	if ( dim->offset )
+		val -= dim->offset;
+
+	/* Scale value */
+	if ( dim->scale != 1 )
+		val /= dim->scale;
+
+    return val;
+}
+
+
 double pc_value_scale_offset(double val, const PCDIMENSION *dim)
 {
 	/* Scale value */

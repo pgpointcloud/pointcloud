@@ -7,6 +7,7 @@ LDFLAGS = $(XML2_LDFLAGS) $(ZLIB_LDFLAGS) $(GHT_LDFLASGS)
 OBJS = \
 	pc_bytes.o \
 	pc_dimstats.o \
+	pc_filter.o \
 	pc_mem.o \
 	pc_patch.o \
 	pc_patch_dimensional.o \

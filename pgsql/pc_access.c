@@ -22,6 +22,7 @@ Datum pcpatch_numpoints(PG_FUNCTION_ARGS);
 Datum pcpatch_compression(PG_FUNCTION_ARGS);
 Datum pcpatch_intersects(PG_FUNCTION_ARGS);
 Datum pcpatch_get_stat(PG_FUNCTION_ARGS);
+Datum pcpatch_filter(PG_FUNCTION_ARGS);
 Datum pcpatch_size(PG_FUNCTION_ARGS);
 Datum pcpoint_size(PG_FUNCTION_ARGS);
 Datum pc_version(PG_FUNCTION_ARGS);
@@ -601,9 +602,9 @@ Datum pcpatch_get_stat(PG_FUNCTION_ARGS)
     float8 double_result;
 	int rv;
     
-    if ( stats_size_guess < 3*schema->size )
+    if ( stats_size_guess < pc_stats_size(schema) )
     {
-        serpa = PG_GETHEADERX_SERPATCH_P(0, 3*schema->size);
+        serpa = PG_GETHEADERX_SERPATCH_P(0, pc_stats_size(schema) );
     }
 
     stats = pc_patch_stats_deserialize(schema, serpa->data);
@@ -633,3 +634,72 @@ Datum pcpatch_get_stat(PG_FUNCTION_ARGS)
 	pfree(dim_str);	
 	PG_RETURN_DATUM(DirectFunctionCall1(float8_numeric, Float8GetDatum(double_result)));
 }
+
+
+/**
+* PC_FilterLessThan(patch pcpatch, dimname text, value) returns PcPatch
+* PC_FilterGreaterThan(patch pcpatch, dimname text, value) returns PcPatch
+* PC_FilterEqual(patch pcpatch, dimname text, value) returns PcPatch
+* PC_FilterBetween(patch pcpatch, dimname text, value1, value2) returns PcPatch
+*/
+PG_FUNCTION_INFO_V1(pcpatch_filter);
+Datum pcpatch_filter(PG_FUNCTION_ARGS)
+{
+    SERIALIZED_PATCH *serpatch = PG_GETARG_SERPATCH_P(0);
+    PCSCHEMA *schema = pc_schema_from_pcid(serpatch->pcid, fcinfo);
+    char *dim_name = text_to_cstring(PG_GETARG_TEXT_P(1));
+    float8 value1 = PG_GETARG_FLOAT8(2);
+    float8 value2 = PG_GETARG_FLOAT8(3);
+    int32 mode = PG_GETARG_INT32(4);
+    PCPATCH *patch;
+    PCPATCH *patch_filtered;
+    SERIALIZED_PATCH *serpatch_filtered;
+
+    patch = pc_patch_deserialize(serpatch, schema);
+    if ( ! patch )
+    {
+		elog(ERROR, "failed to deserialize patch");
+        PG_RETURN_NULL();
+    }
+
+    switch ( mode )
+    {
+        case 0: 
+            patch_filtered = pc_patch_filter_lt_by_name(patch, dim_name, value1);
+            break;
+        case 1:
+            patch_filtered = pc_patch_filter_gt_by_name(patch, dim_name, value1);
+            break;
+        case 2:
+            patch_filtered = pc_patch_filter_equal_by_name(patch, dim_name, value1);
+            break;
+        case 3:
+            patch_filtered = pc_patch_filter_between_by_name(patch, dim_name, value1, value2);
+            break;
+        default:
+            elog(ERROR, "unknown mode \"%d\"", mode);
+    }
+
+	pc_patch_free(patch);
+    PG_FREE_IF_COPY(serpatch, 0);
+
+    if ( ! patch_filtered )
+	{
+		elog(ERROR, "dimension \"%s\" does not exist", dim_name);
+	}
+	pfree(dim_name);
+	
+	if ( patch_filtered->npoints <= 0 )
+	{
+    	pc_patch_free(patch_filtered);
+        PG_RETURN_NULL();
+    }
+	
+    serpatch_filtered = pc_patch_serialize(patch_filtered, NULL);
+	pc_patch_free(patch_filtered);
+	
+    PG_RETURN_POINTER(serpatch_filtered);
+}
+    
+
+

@@ -203,7 +203,7 @@ pc_patch_uncompressed_compute_extent(PCPATCH_UNCOMPRESSED *patch)
 void
 pc_patch_uncompressed_free(PCPATCH_UNCOMPRESSED *patch)
 {
-	if ( ! patch->readonly )
+	if ( patch->data && ! patch->readonly )
 	{
 		pcfree(patch->data);
 	}
@@ -405,3 +405,4 @@ pc_patch_uncompressed_add_point(PCPATCH_UNCOMPRESSED *c, const PCPOINT *p)
 
 	return PC_SUCCESS;
 }
+

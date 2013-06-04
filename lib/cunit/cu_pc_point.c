@@ -82,11 +82,66 @@ test_point_hex_inout()
 
 }
 
+static void
+test_point_access()
+{
+	PCPOINT *pt;
+	int rv;
+	double a1, a2, a3, a4, b1, b2, b3, b4;
+	int idx = 0;
+
+	pt = pc_point_make(schema);
+	CU_ASSERT( pt != NULL );
+
+	/* One at a time */
+	idx = 0;
+	a1 = 1.5;
+	rv = pc_point_set_double_by_index(pt, idx, a1);
+	rv = pc_point_get_double_by_index(pt, idx, &b1);
+	// printf("d1=%g, d2=%g\n", a1, b1);
+	CU_ASSERT_DOUBLE_EQUAL(a1, b1, 0.0000001);
+
+	idx = 2;
+	a2 = 1501500.12;
+	rv = pc_point_set_double_by_index(pt, idx, a2);
+	rv = pc_point_get_double_by_index(pt, idx, &b2);
+	CU_ASSERT_DOUBLE_EQUAL(a2, b2, 0.0000001);
+
+	a3 = 91;
+	rv = pc_point_set_double_by_name(pt, "Intensity", a3);
+	rv = pc_point_get_double_by_name(pt, "Intensity", &b3);
+	CU_ASSERT_DOUBLE_EQUAL(a3, b3, 0.0000001);
+
+	pc_point_free(pt);
+
+	/* All at once */
+	pt = pc_point_make(schema);
+	a1 = 1.5;
+	a2 = 1501500.12;
+	a3 = 91;
+	a4 = 200;
+	rv = pc_point_set_double_by_index(pt, 0, a1);
+	rv = pc_point_set_double_by_index(pt, 1, a2);
+	rv = pc_point_set_double_by_name(pt, "Intensity", a3);
+	rv = pc_point_set_double_by_name(pt, "Z", a4);
+	rv = pc_point_get_double_by_index(pt, 0, &b1);
+	rv = pc_point_get_double_by_index(pt, 1, &b2);
+	rv = pc_point_get_double_by_name(pt, "Intensity", &b3);
+	rv = pc_point_get_double_by_name(pt, "Z", &b4);
+	CU_ASSERT_DOUBLE_EQUAL(a1, b1, 0.0000001);
+	CU_ASSERT_DOUBLE_EQUAL(a2, b2, 0.0000001);
+	CU_ASSERT_DOUBLE_EQUAL(a3, b3, 0.0000001);
+	CU_ASSERT_DOUBLE_EQUAL(a4, b4, 0.0000001);
+
+	pc_point_free(pt);
+
+}
 
 /* REGISTER ***********************************************************/
 
 CU_TestInfo point_tests[] = {
 	PC_TEST(test_point_hex_inout),
+	PC_TEST(test_point_access),
 	CU_TEST_INFO_NULL
 };
 

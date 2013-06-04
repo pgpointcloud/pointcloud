@@ -83,6 +83,14 @@ enum DIMCOMPRESSIONS {
     PC_DIM_ZLIB = 3
 };
 
+typedef struct
+{
+    uint32_t nset;
+    uint32_t npoints;
+    uint8_t *map;
+} PCBITMAP;
+
+
 /** What is the endianness of this system? */
 char machine_endian(void);
 
@@ -103,6 +111,9 @@ uint8_t* uncompressed_bytes_flip_endian(const uint8_t *bytebuf, const PCSCHEMA *
 
 /** Update a value using the scale/offset info from a dimension */
 double pc_value_scale_offset(double val, const PCDIMENSION *dim);
+
+/** Remove the scale/offset values from a number before storage */
+double pc_value_unscale_unoffset(double val, const PCDIMENSION *dim);
 
 /** Read interpretation type from buffer and cast to double */
 double pc_double_from_ptr(const uint8_t *ptr, uint32_t interpretation);
@@ -138,6 +149,9 @@ char* pc_dimstats_to_string(const PCDIMSTATS *pds);
 * PATCHES
 */
 
+/** Returns newly allocated patch that only contains the points fitting the filter condition */
+PCPATCH* pc_patch_filter(const PCPATCH *pa, uint32_t dimnum, PC_FILTERTYPE filter, double val1, double val2);
+
 /* DIMENSIONAL PATCHES */
 char* pc_patch_dimensional_to_string(const PCPATCH_DIMENSIONAL *pa);
 PCPATCH_DIMENSIONAL* pc_patch_dimensional_from_uncompressed(const PCPATCH_UNCOMPRESSED *pa);
@@ -149,6 +163,7 @@ uint8_t* pc_patch_dimensional_to_wkb(const PCPATCH_DIMENSIONAL *patch, size_t *w
 PCPATCH* pc_patch_dimensional_from_wkb(const PCSCHEMA *schema, const uint8_t *wkb, size_t wkbsize);
 PCPATCH_DIMENSIONAL* pc_patch_dimensional_from_pointlist(const PCPOINTLIST *pdl);
 PCPOINTLIST* pc_pointlist_from_dimensional(const PCPATCH_DIMENSIONAL *pdl);
+PCPATCH_DIMENSIONAL* pc_patch_dimensional_clone(const PCPATCH_DIMENSIONAL *patch);
 
 /* UNCOMPRESSED PATCHES */
 char* pc_patch_uncompressed_to_string(const PCPATCH_UNCOMPRESSED *patch);
@@ -215,13 +230,36 @@ uint32_t pc_bytes_sigbits_count_32(const PCBYTES *pcb, uint32_t *nsigbits);
 /** Using an 64-bit word, what is the common word and number of bits in common? */
 uint64_t pc_bytes_sigbits_count_64(const PCBYTES *pcb, uint32_t *nsigbits);
 
+PCBYTES pc_bytes_filter(const PCBYTES *pcb, const PCBITMAP *map);
+PCBITMAP* pc_bytes_bitmap(const PCBYTES *pcb, PC_FILTERTYPE filter, double val1, double val2);
+
+
 /****************************************************************************
 * BOUNDS
 */
 
 /** Initialize with very large mins and very small maxes */
 void pc_bounds_init(PCBOUNDS *b);
+/** Copy a bounds */
 PCSTATS* pc_stats_clone(const PCSTATS *stats);
+/** Expand extents of b1 to encompass b2 */
+void pc_bounds_merge(PCBOUNDS *b1, const PCBOUNDS *b2);
+
+/****************************************************************************
+* BITMAPS
+*/
+
+/** Allocate new unset bitmap */
+PCBITMAP* pc_bitmap_new(uint32_t npoints);
+/** Deallocate bitmap */
+void pc_bitmap_free(PCBITMAP *map);
+/** Set the indicated bit to true if val!=0 otherwise false */
+inline void pc_bitmap_set(PCBITMAP *map, int i, int val);
+/** Read indicated bit of bitmap */
+inline uint8_t pc_bitmap_get(const PCBITMAP *map, int i);
+/** Set indicated bit on bitmap if filter and value are consistent */
+void pc_bitmap_filter(PCBITMAP *map, PC_FILTERTYPE filter, int i, double d, double val1, double val2);
+
 
 
 #endif /* _PC_API_INTERNAL_H */
