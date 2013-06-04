@@ -327,6 +327,32 @@ Now that you have created two tables, you'll see entries for them in the `pointc
 >
 >     45.5
 
+**PC_FilterGreaterThan(p pcpatch, dimname text, float8 value)** returns **pcpatch**
+
+> Returns a patch with only points whose values are greater than the supplied value
+> for the requested dimension.
+>
+>     SELECT PC_AsText(PC_FilterGreaterThan(pa, 'y', 45.57)) 
+>     FROM patches WHERE id = 7;
+>
+>      {"pcid":1,"pts":[[-126.42,45.58,58,5],[-126.41,45.59,59,5]]}
+
+**PC_FilterLessThan(p pcpatch, dimname text, float8 value)** returns **pcpatch**
+
+> Returns a patch with only points whose values are less than the supplied value
+> for the requested dimension.
+
+**PC_FilterBetween(p pcpatch, dimname text, float8 value1, float8 value2)** returns **pcpatch**
+
+> Returns a patch with only points whose values are between the supplied values
+> for the requested dimension.
+
+**PC_FilterEquals(p pcpatch, dimname text, float8 value)** returns **pcpatch**
+
+> Returns a patch with only points whose values are the same as the supplied values
+> for the requested dimension.
+
+
 ## PostGIS Integration ##
 
 The `pointcloud_postgis` extension adds functions that allow you to use PostgreSQL Pointcloud with PostGIS, converting PcPoint and PcPatch to Geometry and doing spatial filtering on point cloud data. The `pointcloud_postgis` extension depends on both the `postgis` and `pointcloud` extensions, so they must be installed first:
