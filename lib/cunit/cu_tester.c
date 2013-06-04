@@ -17,6 +17,7 @@ extern CU_SuiteInfo schema_suite;
 extern CU_SuiteInfo patch_suite;
 extern CU_SuiteInfo point_suite;
 extern CU_SuiteInfo ght_suite;
+extern CU_SuiteInfo bytes_suite;
 
 /*
 ** The main() function for setting up and running the tests.
@@ -32,6 +33,7 @@ int main(int argc, char *argv[])
 		patch_suite,
 		point_suite,
 		ght_suite, 
+		bytes_suite, 
 		CU_SUITE_INFO_NULL
 	};
 

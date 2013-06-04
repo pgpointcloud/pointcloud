@@ -159,7 +159,6 @@ pc_patch_dimensional_filter(const PCPATCH_DIMENSIONAL *pdl, const PCBITMAP *map)
     return fpdl;
 }
 
-
 PCPATCH *
 pc_patch_filter(const PCPATCH *pa, uint32_t dimnum, PC_FILTERTYPE filter, double val1, double val2)
 {
@@ -171,7 +170,13 @@ pc_patch_filter(const PCPATCH *pa, uint32_t dimnum, PC_FILTERTYPE filter, double
 		case PC_NONE:
 		{
             PCBITMAP *map = pc_patch_uncompressed_bitmap((PCPATCH_UNCOMPRESSED*)pa, dimnum, filter, val1, val2);
-            PCPATCH_UNCOMPRESSED *pu = pc_patch_uncompressed_filter((PCPATCH_UNCOMPRESSED*)pa, map);
+            PCPATCH_UNCOMPRESSED *pu;
+            if ( map->nset == 0 )
+            {
+                pc_bitmap_free(map);
+                return (PCPATCH*)pc_patch_uncompressed_make(pa->schema, 0);
+            }
+            pu = pc_patch_uncompressed_filter((PCPATCH_UNCOMPRESSED*)pa, map);
             pc_bitmap_free(map);
             paout = (PCPATCH*)pu;
             break;
@@ -180,8 +185,15 @@ pc_patch_filter(const PCPATCH *pa, uint32_t dimnum, PC_FILTERTYPE filter, double
 		{
             PCPATCH_UNCOMPRESSED *pu = pc_patch_uncompressed_from_ght((PCPATCH_GHT*)pa);
             PCBITMAP *map = pc_patch_uncompressed_bitmap(pu, dimnum, filter, val1, val2);
-            PCPATCH_UNCOMPRESSED *pu2 = pc_patch_uncompressed_filter(pu, map);
-            PCPATCH_GHT *pgh = pc_patch_ght_from_uncompressed(pu2);
+            PCPATCH_UNCOMPRESSED *pu2;
+            PCPATCH_GHT *pgh;
+            if ( map->nset == 0 )
+            {
+                pc_bitmap_free(map);
+                return (PCPATCH*)pc_patch_uncompressed_make(pa->schema, 0);
+            }
+            pu2 = pc_patch_uncompressed_filter(pu, map);
+            pgh = pc_patch_ght_from_uncompressed(pu2);
             pc_patch_free((PCPATCH*)pu);
             pc_patch_free((PCPATCH*)pu2);
             paout = (PCPATCH*)pgh;
@@ -190,7 +202,13 @@ pc_patch_filter(const PCPATCH *pa, uint32_t dimnum, PC_FILTERTYPE filter, double
 		case PC_DIMENSIONAL:
 		{
 		    PCBITMAP *map = pc_patch_dimensional_bitmap((PCPATCH_DIMENSIONAL*)pa, dimnum, filter, val1, val2);
-            PCPATCH_DIMENSIONAL *pdl = pc_patch_dimensional_filter((PCPATCH_DIMENSIONAL*)pa, map);
+            PCPATCH_DIMENSIONAL *pdl;
+            if ( map->nset == 0 )
+            {
+                pc_bitmap_free(map);
+                return (PCPATCH*)pc_patch_uncompressed_make(pa->schema, 0);
+            }
+            pdl = pc_patch_dimensional_filter((PCPATCH_DIMENSIONAL*)pa, map);
             pc_bitmap_free(map);
             paout = (PCPATCH*)pdl;
             break;
@@ -207,3 +225,52 @@ pc_patch_filter(const PCPATCH *pa, uint32_t dimnum, PC_FILTERTYPE filter, double
 
     return paout;
 }
+
+PCPATCH *
+pc_patch_filter_lt_by_name(const PCPATCH *pa, const char *name, double val)
+{
+	/* Error out if we can't find the name */
+	PCDIMENSION *d = pc_schema_get_dimension_by_name(pa->schema, name);
+    if ( ! d ) return NULL;
+    
+    return pc_patch_filter(pa, d->position, PC_LT, val, val);
+}
+
+PCPATCH *
+pc_patch_filter_gt_by_name(const PCPATCH *pa, const char *name, double val)
+{
+	/* Error out if we can't find the name */
+	PCDIMENSION *d = pc_schema_get_dimension_by_name(pa->schema, name);
+    if ( ! d ) return NULL;
+    
+    return pc_patch_filter(pa, d->position, PC_GT, val, val);
+}
+
+PCPATCH *
+pc_patch_filter_equal_by_name(const PCPATCH *pa, const char *name, double val)
+{
+	/* Error out if we can't find the name */
+	PCDIMENSION *d = pc_schema_get_dimension_by_name(pa->schema, name);
+    if ( ! d ) return NULL;
+    
+    return pc_patch_filter(pa, d->position, PC_EQUAL, val, val);
+}
+
+PCPATCH *
+pc_patch_filter_between_by_name(const PCPATCH *pa, const char *name, double val1, double val2)
+{
+    /* Ensure val1 < val2 always */
+    if ( val1 > val2 ) 
+    {
+        double tmp = val1;
+        val1 = val2;
+        val2 = tmp;
+    }
+	/* Error out if we can't find the name */
+	PCDIMENSION *d = pc_schema_get_dimension_by_name(pa->schema, name);
+    if ( ! d ) return NULL;
+    
+    return pc_patch_filter(pa, d->position, PC_BETWEEN, val1, val2);
+}
+
+

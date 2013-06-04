@@ -163,6 +163,22 @@ CREATE OR REPLACE FUNCTION PC_PatchAvg(p pcpatch, attr text, stat text default '
 	RETURNS numeric AS 'MODULE_PATHNAME', 'pcpatch_get_stat'
     LANGUAGE 'c' IMMUTABLE STRICT;
 
+CREATE OR REPLACE FUNCTION PC_FilterLessThan(p pcpatch, attr text, v1 float8 default 0.0, v2 float8 default 0.0, mode int4 default 0)
+	RETURNS pcpatch AS 'MODULE_PATHNAME', 'pcpatch_filter'
+    LANGUAGE 'c' IMMUTABLE STRICT;
+
+CREATE OR REPLACE FUNCTION PC_FilterGreaterThan(p pcpatch, attr text, v1 float8 default 0.0, v2 float8 default 0.0, mode int4 default 1)
+	RETURNS pcpatch AS 'MODULE_PATHNAME', 'pcpatch_filter'
+    LANGUAGE 'c' IMMUTABLE STRICT;
+
+CREATE OR REPLACE FUNCTION PC_FilterEquals(p pcpatch, attr text, v1 float8 default 0.0, v2 float8 default 0.0, mode int4 default 2)
+	RETURNS pcpatch AS 'MODULE_PATHNAME', 'pcpatch_filter'
+    LANGUAGE 'c' IMMUTABLE STRICT;
+
+CREATE OR REPLACE FUNCTION PC_FilterBetween(p pcpatch, attr text, v1 float8 default 0.0, v2 float8 default 0.0, mode int4 default 3)
+	RETURNS pcpatch AS 'MODULE_PATHNAME', 'pcpatch_filter'
+    LANGUAGE 'c' IMMUTABLE STRICT;
+
 -------------------------------------------------------------------
 --  POINTCLOUD_COLUMNS
 -------------------------------------------------------------------
