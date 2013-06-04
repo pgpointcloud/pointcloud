@@ -410,10 +410,10 @@ test_rle_filter()
     bytes = (uint8_t*)((uint32_t[]){ 10, 10, 10, 20, 20, 30, 20, 20 });
     pcb = initbytes(bytes, 32, PC_UINT32);
     epcb = pc_bytes_run_length_encode(pcb);
-    map1 = pc_bytes_bitmap(&epcb, PC_LT, 25, 25);
+    map1 = pc_bytes_bitmap(&epcb, PC_LT, 25, 25); /* strip out the 30 */
     CU_ASSERT_EQUAL(map1->nset, 7);
     fpcb = pc_bytes_filter(&epcb, map1);
-    CU_ASSERT_EQUAL(fpcb.size, 15);
+    CU_ASSERT_EQUAL(fpcb.size, 10); /* two runs, of 5 bytes eachh */
     CU_ASSERT_EQUAL(fpcb.npoints, 7);
 	
 	pc_bytes_free(fpcb);
