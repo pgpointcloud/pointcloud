@@ -600,7 +600,7 @@ Datum pcpatch_get_stat(PG_FUNCTION_ARGS)
     char *stat_str = text_to_cstring(PG_GETARG_TEXT_P(2));
     PCSTATS *stats;
     float8 double_result;
-	int rv;
+	int rv = 0;
     
     if ( stats_size_guess < pc_stats_size(schema) )
     {
@@ -652,7 +652,7 @@ Datum pcpatch_filter(PG_FUNCTION_ARGS)
     float8 value2 = PG_GETARG_FLOAT8(3);
     int32 mode = PG_GETARG_INT32(4);
     PCPATCH *patch;
-    PCPATCH *patch_filtered;
+    PCPATCH *patch_filtered = NULL;
     SERIALIZED_PATCH *serpatch_filtered;
 
     patch = pc_patch_deserialize(serpatch, schema);

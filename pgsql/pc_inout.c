@@ -55,7 +55,7 @@ Datum pcpoint_in(PG_FUNCTION_ARGS)
     int32 typmod = 0;
     uint32 pcid = 0;
 	PCPOINT *pt;
-	SERIALIZED_POINT *serpt;
+	SERIALIZED_POINT *serpt = NULL;
 
 	if ( (PG_NARGS()>2) && (!PG_ARGISNULL(2)) )
 	{
@@ -83,7 +83,8 @@ Datum pcpoint_in(PG_FUNCTION_ARGS)
 		ereport(ERROR,(errmsg("parse error - support for text format not yet implemented")));
 	}
 
-	PG_RETURN_POINTER(serpt);
+    if ( serpt ) PG_RETURN_POINTER(serpt);
+    else PG_RETURN_NULL();
 }
 
 PG_FUNCTION_INFO_V1(pcpoint_out);
@@ -110,7 +111,7 @@ Datum pcpatch_in(PG_FUNCTION_ARGS)
 	/* Datum geog_oid = PG_GETARG_OID(1); Not needed. */
     uint32 typmod = 0, pcid = 0;
 	PCPATCH *patch;
-	SERIALIZED_PATCH *serpatch;
+	SERIALIZED_PATCH *serpatch = NULL;
 
 	if ( (PG_NARGS()>2) && (!PG_ARGISNULL(2)) )
 	{
@@ -138,7 +139,8 @@ Datum pcpatch_in(PG_FUNCTION_ARGS)
 		ereport(ERROR,(errmsg("parse error - support for text format not yet implemented")));
 	}
 
-	PG_RETURN_POINTER(serpatch);
+    if ( serpatch ) PG_RETURN_POINTER(serpatch);
+    else PG_RETURN_NULL();
 }
 
 PG_FUNCTION_INFO_V1(pcpatch_out);

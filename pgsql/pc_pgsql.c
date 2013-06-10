@@ -655,7 +655,7 @@ SERIALIZED_PATCH *
 pc_patch_serialize(const PCPATCH *patch_in, void *userdata)
 {
     PCPATCH *patch = (PCPATCH*)patch_in;
-    SERIALIZED_PATCH *serpatch;
+    SERIALIZED_PATCH *serpatch = NULL;
     /*
     * Ensure the patch has stats calculated before going on
     */
