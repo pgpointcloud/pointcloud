@@ -324,6 +324,7 @@ pc_patch_uncompressed_from_dimensional(const PCPATCH_DIMENSIONAL *pdl)
 	patch->npoints = npoints;
 	patch->maxpoints = npoints;
 	patch->bounds = pdl->bounds;
+    patch->stats = pc_stats_clone(pdl->stats);
 	patch->datasize = schema->size * pdl->npoints;
 	patch->data = pcalloc(patch->datasize);
 	buf = patch->data;
