@@ -3,7 +3,7 @@
 *
 *  Accessor/aggregate functions for points and patches in PgSQL.
 *
-*  PgSQL Pointcloud is free and open source software provided 
+*  PgSQL Pointcloud is free and open source software provided
 *  by the Government of Canada
 *  Copyright (c) 2013 Natural Resources Canada
 *
@@ -55,7 +55,7 @@ Datum pcpoint_get_value(PG_FUNCTION_ARGS)
 	char *dim_str;
 	float8 double_result;
 
-    PCSCHEMA *schema = pc_schema_from_pcid(serpt->pcid, fcinfo);
+	PCSCHEMA *schema = pc_schema_from_pcid(serpt->pcid, fcinfo);
 	PCPOINT *pt = pc_point_deserialize(serpt, schema);
 	if ( ! pt )
 		PG_RETURN_NULL();
@@ -93,10 +93,10 @@ pcpatch_from_point_array(ArrayType *array, FunctionCallInfoData *fcinfo)
 	int bitmask;
 	size_t offset = 0;
 	int i;
-    uint32 pcid = 0;
+	uint32 pcid = 0;
 	PCPATCH *pa;
 	PCPOINTLIST *pl;
-    PCSCHEMA *schema = 0;
+	PCSCHEMA *schema = 0;
 
 	/* How many things in our array? */
 	nelems = ArrayGetNItems(ARR_NDIM(array), ARR_DIMS(array));
@@ -106,7 +106,7 @@ pcpatch_from_point_array(ArrayType *array, FunctionCallInfoData *fcinfo)
 
 	/* Empty array? Null return */
 	if ( nelems == 0 )
-        return NULL;
+		return NULL;
 
 	/* Make our holder */
 	pl = pc_pointlist_make(nelems);
@@ -124,8 +124,8 @@ pcpatch_from_point_array(ArrayType *array, FunctionCallInfoData *fcinfo)
 
 			if ( ! schema )
 			{
-                schema = pc_schema_from_pcid(serpt->pcid, fcinfo);
-		    }
+				schema = pc_schema_from_pcid(serpt->pcid, fcinfo);
+			}
 
 			if ( ! pcid )
 			{
@@ -154,7 +154,7 @@ pcpatch_from_point_array(ArrayType *array, FunctionCallInfoData *fcinfo)
 
 	pa = pc_patch_from_pointlist(pl);
 	pc_pointlist_free(pl);
-    return pa;
+	return pa;
 }
 
 
@@ -166,11 +166,11 @@ pcpatch_from_patch_array(ArrayType *array, FunctionCallInfoData *fcinfo)
 	int bitmask;
 	size_t offset = 0;
 	int i;
-    uint32 pcid = 0;
+	uint32 pcid = 0;
 	PCPATCH *pa;
 	PCPATCH **palist;
-    int numpatches = 0;
-    PCSCHEMA *schema = 0;
+	int numpatches = 0;
+	PCSCHEMA *schema = 0;
 
 	/* How many things in our array? */
 	nelems = ArrayGetNItems(ARR_NDIM(array), ARR_DIMS(array));
@@ -180,12 +180,12 @@ pcpatch_from_patch_array(ArrayType *array, FunctionCallInfoData *fcinfo)
 
 	/* Empty array? Null return */
 	if ( nelems == 0 )
-        return NULL;
+		return NULL;
 
 	/* Make our temporary list of patches */
 	palist = pcalloc(nelems*sizeof(PCPATCH*));
 
-    /* Read the patches out of the array and deserialize */
+	/* Read the patches out of the array and deserialize */
 	offset = 0;
 	bitmap = ARR_NULLBITMAP(array);
 	bitmask = 1;
@@ -198,8 +198,8 @@ pcpatch_from_patch_array(ArrayType *array, FunctionCallInfoData *fcinfo)
 
 			if ( ! schema )
 			{
-                schema = pc_schema_from_pcid(serpatch->pcid, fcinfo);
-		    }
+				schema = pc_schema_from_pcid(serpatch->pcid, fcinfo);
+			}
 
 			if ( ! pcid )
 			{
@@ -216,7 +216,7 @@ pcpatch_from_patch_array(ArrayType *array, FunctionCallInfoData *fcinfo)
 				elog(ERROR, "pcpatch_from_patch_array: patch deserialization failed");
 			}
 
-            palist[numpatches++] = pa;
+			palist[numpatches++] = pa;
 
 			offset += INTALIGN(VARSIZE(serpatch));
 		}
@@ -227,17 +227,17 @@ pcpatch_from_patch_array(ArrayType *array, FunctionCallInfoData *fcinfo)
 	if ( numpatches == 0 )
 		return NULL;
 
-    /* Pass to the lib to build the output patch from the list */
+	/* Pass to the lib to build the output patch from the list */
 	pa = pc_patch_from_patchlist(palist, numpatches);
 
 	/* Free the temporary patch list */
-    for ( i = 0; i < numpatches; i++ )
-    {
-        pc_patch_free(palist[i]);
-    }
-    pcfree(palist);
+	for ( i = 0; i < numpatches; i++ )
+	{
+		pc_patch_free(palist[i]);
+	}
+	pcfree(palist);
 
-    return pa;
+	return pa;
 }
 
 
@@ -248,13 +248,13 @@ Datum pcpatch_from_pcpatch_array(PG_FUNCTION_ARGS)
 	PCPATCH *pa;
 	SERIALIZED_PATCH *serpa;
 
-    if ( PG_ARGISNULL(0) )
-        PG_RETURN_NULL();
+	if ( PG_ARGISNULL(0) )
+		PG_RETURN_NULL();
 
 	array = DatumGetArrayTypeP(PG_GETARG_DATUM(0));
-    pa = pcpatch_from_patch_array(array, fcinfo);
-    if ( ! pa )
-        PG_RETURN_NULL();
+	pa = pcpatch_from_patch_array(array, fcinfo);
+	if ( ! pa )
+		PG_RETURN_NULL();
 
 	serpa = pc_patch_serialize(pa, NULL);
 	pc_patch_free(pa);
@@ -268,13 +268,13 @@ Datum pcpatch_from_pcpoint_array(PG_FUNCTION_ARGS)
 	PCPATCH *pa;
 	SERIALIZED_PATCH *serpa;
 
-    if ( PG_ARGISNULL(0) )
-        PG_RETURN_NULL();
+	if ( PG_ARGISNULL(0) )
+		PG_RETURN_NULL();
 
 	array = DatumGetArrayTypeP(PG_GETARG_DATUM(0));
-    pa = pcpatch_from_point_array(array, fcinfo);
-    if ( ! pa )
-        PG_RETURN_NULL();
+	pa = pcpatch_from_point_array(array, fcinfo);
+	if ( ! pa )
+		PG_RETURN_NULL();
 
 	serpa = pc_patch_serialize(pa, NULL);
 	pc_patch_free(pa);
@@ -403,10 +403,10 @@ Datum pcpatch_agg_final_array(PG_FUNCTION_ARGS)
 PG_FUNCTION_INFO_V1(pcpoint_agg_final_pcpatch);
 Datum pcpoint_agg_final_pcpatch(PG_FUNCTION_ARGS)
 {
-    ArrayType *array;
+	ArrayType *array;
 	abs_trans *a;
-    PCPATCH *pa;
-    SERIALIZED_PATCH *serpa;
+	PCPATCH *pa;
+	SERIALIZED_PATCH *serpa;
 
 	if (PG_ARGISNULL(0))
 		PG_RETURN_NULL();   /* returns null iff no input values */
@@ -414,23 +414,23 @@ Datum pcpoint_agg_final_pcpatch(PG_FUNCTION_ARGS)
 	a = (abs_trans*) PG_GETARG_POINTER(0);
 
 	array = DatumGetArrayTypeP(pointcloud_agg_final(a, CurrentMemoryContext, fcinfo));
-    pa = pcpatch_from_point_array(array, fcinfo);
-    if ( ! pa )
-        PG_RETURN_NULL();
+	pa = pcpatch_from_point_array(array, fcinfo);
+	if ( ! pa )
+		PG_RETURN_NULL();
 
-    serpa = pc_patch_serialize(pa, NULL);
-    pc_patch_free(pa);
-    PG_RETURN_POINTER(serpa);
+	serpa = pc_patch_serialize(pa, NULL);
+	pc_patch_free(pa);
+	PG_RETURN_POINTER(serpa);
 }
 
 
 PG_FUNCTION_INFO_V1(pcpatch_agg_final_pcpatch);
 Datum pcpatch_agg_final_pcpatch(PG_FUNCTION_ARGS)
 {
-    ArrayType *array;
+	ArrayType *array;
 	abs_trans *a;
-    PCPATCH *pa;
-    SERIALIZED_PATCH *serpa;
+	PCPATCH *pa;
+	SERIALIZED_PATCH *serpa;
 
 	if (PG_ARGISNULL(0))
 		PG_RETURN_NULL();   /* returns null iff no input values */
@@ -438,13 +438,13 @@ Datum pcpatch_agg_final_pcpatch(PG_FUNCTION_ARGS)
 	a = (abs_trans*) PG_GETARG_POINTER(0);
 
 	array = DatumGetArrayTypeP(pointcloud_agg_final(a, CurrentMemoryContext, fcinfo));
-    pa = pcpatch_from_patch_array(array, fcinfo);
-    if ( ! pa )
-        PG_RETURN_NULL();
+	pa = pcpatch_from_patch_array(array, fcinfo);
+	if ( ! pa )
+		PG_RETURN_NULL();
 
-    serpa = pc_patch_serialize(pa, NULL);
-    pc_patch_free(pa);
-    PG_RETURN_POINTER(serpa);
+	serpa = pc_patch_serialize(pa, NULL);
+	pc_patch_free(pa);
+	PG_RETURN_POINTER(serpa);
 }
 
 
@@ -523,25 +523,25 @@ PG_FUNCTION_INFO_V1(pcpatch_uncompress);
 Datum pcpatch_uncompress(PG_FUNCTION_ARGS)
 {
 	SERIALIZED_PATCH *serpa = PG_GETARG_SERPATCH_P(0);
-    PCSCHEMA *schema = pc_schema_from_pcid(serpa->pcid, fcinfo);
-    PCPATCH *patch = pc_patch_deserialize(serpa, schema);
-    SERIALIZED_PATCH *serpa_out = pc_patch_serialize_to_uncompressed(patch);
-    pc_patch_free(patch);
-    PG_RETURN_POINTER(serpa_out);
+	PCSCHEMA *schema = pc_schema_from_pcid(serpa->pcid, fcinfo);
+	PCPATCH *patch = pc_patch_deserialize(serpa, schema);
+	SERIALIZED_PATCH *serpa_out = pc_patch_serialize_to_uncompressed(patch);
+	pc_patch_free(patch);
+	PG_RETURN_POINTER(serpa_out);
 }
 
 PG_FUNCTION_INFO_V1(pcpatch_numpoints);
 Datum pcpatch_numpoints(PG_FUNCTION_ARGS)
 {
-    SERIALIZED_PATCH *serpa = PG_GETHEADER_SERPATCH_P(0);
-    PG_RETURN_INT32(serpa->npoints);
+	SERIALIZED_PATCH *serpa = PG_GETHEADER_SERPATCH_P(0);
+	PG_RETURN_INT32(serpa->npoints);
 }
 
 PG_FUNCTION_INFO_V1(pcpatch_compression);
 Datum pcpatch_compression(PG_FUNCTION_ARGS)
 {
 	SERIALIZED_PATCH *serpa = PG_GETHEADER_SERPATCH_P(0);
-    PG_RETURN_INT32(serpa->compression);
+	PG_RETURN_INT32(serpa->compression);
 }
 
 PG_FUNCTION_INFO_V1(pcpatch_intersects);
@@ -551,37 +551,37 @@ Datum pcpatch_intersects(PG_FUNCTION_ARGS)
 	SERIALIZED_PATCH *serpa2 = PG_GETHEADER_SERPATCH_P(1);
 
 	if ( serpa1->pcid != serpa2->pcid )
-	    elog(ERROR, "%s: pcid mismatch (%d != %d)", __func__, serpa1->pcid, serpa2->pcid);
+		elog(ERROR, "%s: pcid mismatch (%d != %d)", __func__, serpa1->pcid, serpa2->pcid);
 
 	if ( pc_bounds_intersects(&(serpa1->bounds), &(serpa2->bounds)) )
 	{
-        PG_RETURN_BOOL(TRUE);
-    }
-    PG_RETURN_BOOL(FALSE);
+		PG_RETURN_BOOL(TRUE);
+	}
+	PG_RETURN_BOOL(FALSE);
 }
 
 PG_FUNCTION_INFO_V1(pcpatch_size);
 Datum pcpatch_size(PG_FUNCTION_ARGS)
 {
 	SERIALIZED_PATCH *serpa = PG_GETARG_SERPATCH_P(0);
-    PG_RETURN_INT32(VARSIZE(serpa));
+	PG_RETURN_INT32(VARSIZE(serpa));
 }
 
 PG_FUNCTION_INFO_V1(pcpoint_size);
 Datum pcpoint_size(PG_FUNCTION_ARGS)
 {
 	SERIALIZED_POINT *serpt = PG_GETARG_SERPOINT_P(0);
-    PG_RETURN_INT32(VARSIZE(serpt));
+	PG_RETURN_INT32(VARSIZE(serpt));
 }
 
 PG_FUNCTION_INFO_V1(pc_version);
 Datum pc_version(PG_FUNCTION_ARGS)
 {
-    text *version_text;
-    char version[64];
-    snprintf(version, 64, "%s", POINTCLOUD_VERSION);
-    version_text = cstring_to_text(version);
-    PG_RETURN_TEXT_P(version_text);
+	text *version_text;
+	char version[64];
+	snprintf(version, 64, "%s", POINTCLOUD_VERSION);
+	version_text = cstring_to_text(version);
+	PG_RETURN_TEXT_P(version_text);
 }
 
 /**
@@ -593,45 +593,45 @@ Datum pc_version(PG_FUNCTION_ARGS)
 PG_FUNCTION_INFO_V1(pcpatch_get_stat);
 Datum pcpatch_get_stat(PG_FUNCTION_ARGS)
 {
-    static int stats_size_guess = 400;
-    SERIALIZED_PATCH *serpa = PG_GETHEADERX_SERPATCH_P(0, stats_size_guess);
-    PCSCHEMA *schema = pc_schema_from_pcid(serpa->pcid, fcinfo);
-    char *dim_str = text_to_cstring(PG_GETARG_TEXT_P(1));
-    char *stat_str = text_to_cstring(PG_GETARG_TEXT_P(2));
-    PCSTATS *stats;
-    float8 double_result;
+	static int stats_size_guess = 400;
+	SERIALIZED_PATCH *serpa = PG_GETHEADERX_SERPATCH_P(0, stats_size_guess);
+	PCSCHEMA *schema = pc_schema_from_pcid(serpa->pcid, fcinfo);
+	char *dim_str = text_to_cstring(PG_GETARG_TEXT_P(1));
+	char *stat_str = text_to_cstring(PG_GETARG_TEXT_P(2));
+	PCSTATS *stats;
+	float8 double_result;
 	int rv = 0;
-    
-    if ( stats_size_guess < pc_stats_size(schema) )
-    {
-        serpa = PG_GETHEADERX_SERPATCH_P(0, pc_stats_size(schema) );
-    }
 
-    stats = pc_patch_stats_deserialize(schema, serpa->data);
-	
+	if ( stats_size_guess < pc_stats_size(schema) )
+	{
+		serpa = PG_GETHEADERX_SERPATCH_P(0, pc_stats_size(schema) );
+	}
+
+	stats = pc_patch_stats_deserialize(schema, serpa->data);
+
 	if ( ! stats )
 		PG_RETURN_NULL();
 
 	/* Max */
 	if ( 0 == strcasecmp("max", stat_str) )
-        rv = pc_point_get_double_by_name(&(stats->max), dim_str, &double_result);
+		rv = pc_point_get_double_by_name(&(stats->max), dim_str, &double_result);
 	/* Min */
 	else if ( 0 == strcasecmp("min", stat_str) )
-        rv = pc_point_get_double_by_name(&(stats->min), dim_str, &double_result);
+		rv = pc_point_get_double_by_name(&(stats->min), dim_str, &double_result);
 	/* Avg */
 	else if ( 0 == strcasecmp("avg", stat_str) )
-        rv = pc_point_get_double_by_name(&(stats->avg), dim_str, &double_result);
-    /* Unsupported */
-    else
-		elog(ERROR, "stat type \"%s\" is not supported", stat_str);	
-    
-    pfree(stat_str);	
-    pc_stats_free(stats);
-    
-    if ( ! rv )
-		elog(ERROR, "dimension \"%s\" does not exist in schema", dim_str);	
+		rv = pc_point_get_double_by_name(&(stats->avg), dim_str, &double_result);
+	/* Unsupported */
+	else
+		elog(ERROR, "stat type \"%s\" is not supported", stat_str);
 
-	pfree(dim_str);	
+	pfree(stat_str);
+	pc_stats_free(stats);
+
+	if ( ! rv )
+		elog(ERROR, "dimension \"%s\" does not exist in schema", dim_str);
+
+	pfree(dim_str);
 	PG_RETURN_DATUM(DirectFunctionCall1(float8_numeric, Float8GetDatum(double_result)));
 }
 
@@ -645,61 +645,61 @@ Datum pcpatch_get_stat(PG_FUNCTION_ARGS)
 PG_FUNCTION_INFO_V1(pcpatch_filter);
 Datum pcpatch_filter(PG_FUNCTION_ARGS)
 {
-    SERIALIZED_PATCH *serpatch = PG_GETARG_SERPATCH_P(0);
-    PCSCHEMA *schema = pc_schema_from_pcid(serpatch->pcid, fcinfo);
-    char *dim_name = text_to_cstring(PG_GETARG_TEXT_P(1));
-    float8 value1 = PG_GETARG_FLOAT8(2);
-    float8 value2 = PG_GETARG_FLOAT8(3);
-    int32 mode = PG_GETARG_INT32(4);
-    PCPATCH *patch;
-    PCPATCH *patch_filtered = NULL;
-    SERIALIZED_PATCH *serpatch_filtered;
+	SERIALIZED_PATCH *serpatch = PG_GETARG_SERPATCH_P(0);
+	PCSCHEMA *schema = pc_schema_from_pcid(serpatch->pcid, fcinfo);
+	char *dim_name = text_to_cstring(PG_GETARG_TEXT_P(1));
+	float8 value1 = PG_GETARG_FLOAT8(2);
+	float8 value2 = PG_GETARG_FLOAT8(3);
+	int32 mode = PG_GETARG_INT32(4);
+	PCPATCH *patch;
+	PCPATCH *patch_filtered = NULL;
+	SERIALIZED_PATCH *serpatch_filtered;
 
-    patch = pc_patch_deserialize(serpatch, schema);
-    if ( ! patch )
-    {
+	patch = pc_patch_deserialize(serpatch, schema);
+	if ( ! patch )
+	{
 		elog(ERROR, "failed to deserialize patch");
-        PG_RETURN_NULL();
-    }
+		PG_RETURN_NULL();
+	}
 
-    switch ( mode )
-    {
-        case 0: 
-            patch_filtered = pc_patch_filter_lt_by_name(patch, dim_name, value1);
-            break;
-        case 1:
-            patch_filtered = pc_patch_filter_gt_by_name(patch, dim_name, value1);
-            break;
-        case 2:
-            patch_filtered = pc_patch_filter_equal_by_name(patch, dim_name, value1);
-            break;
-        case 3:
-            patch_filtered = pc_patch_filter_between_by_name(patch, dim_name, value1, value2);
-            break;
-        default:
-            elog(ERROR, "unknown mode \"%d\"", mode);
-    }
+	switch ( mode )
+	{
+	case 0:
+		patch_filtered = pc_patch_filter_lt_by_name(patch, dim_name, value1);
+		break;
+	case 1:
+		patch_filtered = pc_patch_filter_gt_by_name(patch, dim_name, value1);
+		break;
+	case 2:
+		patch_filtered = pc_patch_filter_equal_by_name(patch, dim_name, value1);
+		break;
+	case 3:
+		patch_filtered = pc_patch_filter_between_by_name(patch, dim_name, value1, value2);
+		break;
+	default:
+		elog(ERROR, "unknown mode \"%d\"", mode);
+	}
 
 	pc_patch_free(patch);
-    PG_FREE_IF_COPY(serpatch, 0);
+	PG_FREE_IF_COPY(serpatch, 0);
 
-    if ( ! patch_filtered )
+	if ( ! patch_filtered )
 	{
 		elog(ERROR, "dimension \"%s\" does not exist", dim_name);
 	}
 	pfree(dim_name);
-	
+
 	if ( patch_filtered->npoints <= 0 )
 	{
-    	pc_patch_free(patch_filtered);
-        PG_RETURN_NULL();
-    }
-	
-    serpatch_filtered = pc_patch_serialize(patch_filtered, NULL);
+		pc_patch_free(patch_filtered);
+		PG_RETURN_NULL();
+	}
+
+	serpatch_filtered = pc_patch_serialize(patch_filtered, NULL);
 	pc_patch_free(patch_filtered);
-	
-    PG_RETURN_POINTER(serpatch_filtered);
+
+	PG_RETURN_POINTER(serpatch_filtered);
 }
-    
+
 
 

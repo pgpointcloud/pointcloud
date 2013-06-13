@@ -12,7 +12,7 @@
 *  - significant-bit removal
 *  - deflate
 *
-*  PgSQL Pointcloud is free and open source software provided 
+*  PgSQL Pointcloud is free and open source software provided
 *  by the Government of Canada
 *  Copyright (c) 2013 Natural Resources Canada
 *
@@ -27,107 +27,107 @@
 void
 pc_bytes_free(PCBYTES pcb)
 {
-    if ( ! pcb.readonly )
-        pcfree(pcb.bytes);
+	if ( ! pcb.readonly )
+		pcfree(pcb.bytes);
 }
 
 int pc_bytes_empty(const PCBYTES *pcb)
 {
-    return pcb->npoints == 0 || pcb->bytes == NULL || pcb->size == 0;
+	return pcb->npoints == 0 || pcb->bytes == NULL || pcb->size == 0;
 }
 
 PCBYTES
 pc_bytes_make(const PCDIMENSION *dim, uint32_t npoints)
 {
-    PCBYTES pcb;
-    pcb.size = dim->size * npoints;
-    pcb.bytes = pcalloc(pcb.size);
-    pcb.npoints = npoints;
-    pcb.interpretation = dim->interpretation;
-    pcb.compression = PC_DIM_NONE;
-    pcb.readonly = PC_FALSE;
-    return pcb;
+	PCBYTES pcb;
+	pcb.size = dim->size * npoints;
+	pcb.bytes = pcalloc(pcb.size);
+	pcb.npoints = npoints;
+	pcb.interpretation = dim->interpretation;
+	pcb.compression = PC_DIM_NONE;
+	pcb.readonly = PC_FALSE;
+	return pcb;
 }
 
 static PCBYTES
 pc_bytes_clone(PCBYTES pcb)
 {
-    PCBYTES pcbnew = pcb;
-    if ( ! pc_bytes_empty(&pcb) )
-    {
-        pcbnew.bytes = pcalloc(pcb.size);
-        memcpy(pcbnew.bytes, pcb.bytes, pcb.size);
-    }
-    pcbnew.readonly = PC_FALSE;
-    return pcbnew;
+	PCBYTES pcbnew = pcb;
+	if ( ! pc_bytes_empty(&pcb) )
+	{
+		pcbnew.bytes = pcalloc(pcb.size);
+		memcpy(pcbnew.bytes, pcb.bytes, pcb.size);
+	}
+	pcbnew.readonly = PC_FALSE;
+	return pcbnew;
 }
 
 PCBYTES
 pc_bytes_encode(PCBYTES pcb, int compression)
 {
-    PCBYTES epcb;
-    switch ( compression )
-    {
-        case PC_DIM_RLE:
-        {
-            epcb = pc_bytes_run_length_encode(pcb);
-            break;
-        }
-        case PC_DIM_SIGBITS:
-        {
-            epcb = pc_bytes_sigbits_encode(pcb);
-            break;
-        }
-        case PC_DIM_ZLIB:
-        {
-            epcb = pc_bytes_zlib_encode(pcb);
-            break;
-        }
-        case PC_DIM_NONE:
-        {
-            epcb = pc_bytes_clone(pcb);
-            break;
-        }
-        default:
-        {
-            pcerror("%s: Uh oh", __func__);
-        }
-    }
-    return epcb;
+	PCBYTES epcb;
+	switch ( compression )
+	{
+	case PC_DIM_RLE:
+	{
+		epcb = pc_bytes_run_length_encode(pcb);
+		break;
+	}
+	case PC_DIM_SIGBITS:
+	{
+		epcb = pc_bytes_sigbits_encode(pcb);
+		break;
+	}
+	case PC_DIM_ZLIB:
+	{
+		epcb = pc_bytes_zlib_encode(pcb);
+		break;
+	}
+	case PC_DIM_NONE:
+	{
+		epcb = pc_bytes_clone(pcb);
+		break;
+	}
+	default:
+	{
+		pcerror("%s: Uh oh", __func__);
+	}
+	}
+	return epcb;
 }
 
 PCBYTES
 pc_bytes_decode(PCBYTES epcb)
 {
-    PCBYTES pcb;
-    switch ( epcb.compression )
-    {
-        case PC_DIM_RLE:
-        {
-            pcb = pc_bytes_run_length_decode(epcb);
-            break;
-        }
-        case PC_DIM_SIGBITS:
-        {
-            pcb = pc_bytes_sigbits_decode(epcb);
-            break;
-        }
-        case PC_DIM_ZLIB:
-        {
-            pcb = pc_bytes_zlib_decode(epcb);
-            break;
-        }
-        case PC_DIM_NONE:
-        {
-            pcb = pc_bytes_clone(epcb);
-            break;
-        }
-        default:
-        {
-            pcerror("%s: Uh oh", __func__);
-        }
-    }
-    return pcb;
+	PCBYTES pcb;
+	switch ( epcb.compression )
+	{
+	case PC_DIM_RLE:
+	{
+		pcb = pc_bytes_run_length_decode(epcb);
+		break;
+	}
+	case PC_DIM_SIGBITS:
+	{
+		pcb = pc_bytes_sigbits_decode(epcb);
+		break;
+	}
+	case PC_DIM_ZLIB:
+	{
+		pcb = pc_bytes_zlib_decode(epcb);
+		break;
+	}
+	case PC_DIM_NONE:
+	{
+		pcb = pc_bytes_clone(epcb);
+		break;
+	}
+	default:
+	{
+		pcerror("%s: Uh oh", __func__);
+	}
+	}
+	return pcb;
 }
 
 
@@ -174,7 +174,7 @@ pc_bytes_run_length_encode(const PCBYTES pcb)
 	uint8_t *bytes_rle;
 	size_t size = pc_interpretation_size(pcb.interpretation);
 	uint8_t runlength = 1;
-    PCBYTES pcbout = pcb;
+	PCBYTES pcbout = pcb;
 
 	/* Allocate more size than we need (worst case: n elements, n runs) */
 	buf = pcalloc(pcb.npoints*size + sizeof(uint8_t)*pcb.npoints);
@@ -205,15 +205,15 @@ pc_bytes_run_length_encode(const PCBYTES pcb)
 		}
 	}
 	/* Length of buffer */
-    pcbout.size = (bufptr - buf);
+	pcbout.size = (bufptr - buf);
 	/* Write out shortest buffer possible */
 	bytes_rle = pcalloc(pcbout.size);
 	memcpy(bytes_rle, buf, pcbout.size);
 	pcfree(buf);
 	/* We're going to replace the current buffer */
-    pcbout.bytes = bytes_rle;
-    pcbout.compression = PC_DIM_RLE;
-    pcbout.readonly = PC_FALSE;
+	pcbout.bytes = bytes_rle;
+	pcbout.compression = PC_DIM_RLE;
+	pcbout.readonly = PC_FALSE;
 	return pcbout;
 }
 
@@ -234,12 +234,12 @@ pc_bytes_run_length_decode(const PCBYTES pcb)
 	const uint8_t *bytes_rle_end = pcb.bytes + pcb.size;
 
 	size_t size = pc_interpretation_size(pcb.interpretation);
-    size_t size_out;
+	size_t size_out;
 	uint8_t runlength;
 	uint32_t npoints = 0;
-    PCBYTES pcbout = pcb;
+	PCBYTES pcbout = pcb;
 
-    assert(pcb.compression == PC_DIM_RLE);
+	assert(pcb.compression == PC_DIM_RLE);
 
 	/* Count up how big our output is. */
 	while( bytes_rle_ptr < bytes_rle_end )
@@ -248,10 +248,10 @@ pc_bytes_run_length_decode(const PCBYTES pcb)
 		bytes_rle_ptr += 1 + size;
 	}
 
-    assert(npoints == pcb.npoints);
+	assert(npoints == pcb.npoints);
 
 	/* Alocate output and fill it up */
-    size_out = size * npoints;
+	size_out = size * npoints;
 	bytes = pcalloc(size_out);
 	bytes_ptr = bytes;
 	bytes_rle_ptr = pcb.bytes;
@@ -266,10 +266,10 @@ pc_bytes_run_length_decode(const PCBYTES pcb)
 		}
 		bytes_rle_ptr += size;
 	}
-    pcbout.compression = PC_DIM_NONE;
-    pcbout.size = size_out;
-    pcbout.bytes = bytes;
-    pcbout.readonly = PC_FALSE;
+	pcbout.compression = PC_DIM_NONE;
+	pcbout.size = size_out;
+	pcbout.bytes = bytes;
+	pcbout.readonly = PC_FALSE;
 	return pcbout;
 }
 
@@ -281,49 +281,49 @@ pc_bytes_run_length_decode(const PCBYTES pcb)
 static PCBYTES
 pc_bytes_run_length_flip_endian(PCBYTES pcb)
 {
-    int i, n;
+	int i, n;
 	uint8_t *bytes_ptr = pcb.bytes;
-    uint8_t *end_ptr = pcb.bytes + pcb.size;
-    uint8_t tmp;
+	uint8_t *end_ptr = pcb.bytes + pcb.size;
+	uint8_t tmp;
 	size_t size = pc_interpretation_size(pcb.interpretation);
 
-    assert(pcb.compression == PC_DIM_RLE);
-    assert(pcb.npoints > 0);
+	assert(pcb.compression == PC_DIM_RLE);
+	assert(pcb.npoints > 0);
 
-    /* If the type isn't multibyte, it doesn't need flipping */
-    if ( size < 2 )
-        return pcb;
+	/* If the type isn't multibyte, it doesn't need flipping */
+	if ( size < 2 )
+		return pcb;
 
-    /* Don't try to modify read-only memory, make some fresh memory */
-    if ( pcb.readonly == PC_TRUE )
-    {
-        uint8_t *oldbytes = pcb.bytes;
-        pcb.bytes = pcalloc(pcb.size);
-        memcpy(pcb.bytes, oldbytes, pcb.size);
-        pcb.readonly = PC_FALSE;
-    }
+	/* Don't try to modify read-only memory, make some fresh memory */
+	if ( pcb.readonly == PC_TRUE )
+	{
+		uint8_t *oldbytes = pcb.bytes;
+		pcb.bytes = pcalloc(pcb.size);
+		memcpy(pcb.bytes, oldbytes, pcb.size);
+		pcb.readonly = PC_FALSE;
+	}
 
-    bytes_ptr++; /* Advance past count */
+	bytes_ptr++; /* Advance past count */
 
-    /* Visit each entry and flip the word, skip the count */
-    while( bytes_ptr < end_ptr )
-    {
+	/* Visit each entry and flip the word, skip the count */
+	while( bytes_ptr < end_ptr )
+	{
 
-        /* Swap the bytes in a way that makes sense for this word size */
-        for ( n = 0; n < size/2; n++ )
-        {
-            tmp = bytes_ptr[n];
-            bytes_ptr[n] = bytes_ptr[size-n-1];
-            bytes_ptr[size-n-1] = tmp;
-        }
+		/* Swap the bytes in a way that makes sense for this word size */
+		for ( n = 0; n < size/2; n++ )
+		{
+			tmp = bytes_ptr[n];
+			bytes_ptr[n] = bytes_ptr[size-n-1];
+			bytes_ptr[size-n-1] = tmp;
+		}
 
-        /* Move past this word */
-        bytes_ptr += size;
-        /* Advance past next count */
-        bytes_ptr++;
-    }
+		/* Move past this word */
+		bytes_ptr += size;
+		/* Advance past next count */
+		bytes_ptr++;
+	}
 
-    return pcb;
+	return pcb;
 }
 
 
@@ -331,7 +331,7 @@ uint8_t
 pc_bytes_sigbits_count_8(const PCBYTES *pcb, uint32_t *nsigbits)
 {
 	static uint8_t nbits = 8;
-    uint8_t *bytes = (uint8_t*)(pcb->bytes);
+	uint8_t *bytes = (uint8_t*)(pcb->bytes);
 	uint8_t elem_and = bytes[0];
 	uint8_t elem_or = bytes[0];
 	uint32_t commonbits = nbits;
@@ -441,37 +441,37 @@ pc_bytes_sigbits_count_64(const PCBYTES *pcb, uint32_t *nsigbits)
 uint32_t
 pc_bytes_sigbits_count(const PCBYTES *pcb)
 {
-    size_t size = pc_interpretation_size(pcb->interpretation);
-    uint32_t nbits = -1;
-    switch ( size )
-    {
-        case 1: /* INT8, UINT8 */
-        {
-            uint8_t commonvalue = pc_bytes_sigbits_count_8(pcb, &nbits);
-            break;
-        }
-        case 2: /* INT16, UINT16 */
-        {
-            uint16_t commonvalue = pc_bytes_sigbits_count_16(pcb, &nbits);
-            break;
-        }
-        case 4: /* INT32, UINT32 */
-        {
-            uint32_t commonvalue = pc_bytes_sigbits_count_32(pcb, &nbits);
-            break;
-        }
-        case 8: /* DOUBLE, INT64, UINT64 */
-        {
-            uint64_t commonvalue = pc_bytes_sigbits_count_64(pcb, &nbits);
-            break;
-        }
-        default:
-        {
-            pcerror("%s: cannot handle interpretation %d", __func__, pcb->interpretation);
-            return -1;
-        }
-    }
-    return nbits;
+	size_t size = pc_interpretation_size(pcb->interpretation);
+	uint32_t nbits = -1;
+	switch ( size )
+	{
+	case 1: /* INT8, UINT8 */
+	{
+		uint8_t commonvalue = pc_bytes_sigbits_count_8(pcb, &nbits);
+		break;
+	}
+	case 2: /* INT16, UINT16 */
+	{
+		uint16_t commonvalue = pc_bytes_sigbits_count_16(pcb, &nbits);
+		break;
+	}
+	case 4: /* INT32, UINT32 */
+	{
+		uint32_t commonvalue = pc_bytes_sigbits_count_32(pcb, &nbits);
+		break;
+	}
+	case 8: /* DOUBLE, INT64, UINT64 */
+	{
+		uint64_t commonvalue = pc_bytes_sigbits_count_64(pcb, &nbits);
+		break;
+	}
+	default:
+	{
+		pcerror("%s: cannot handle interpretation %d", __func__, pcb->interpretation);
+		return -1;
+	}
+	}
+	return nbits;
 }
 
 
@@ -485,83 +485,85 @@ pc_bytes_sigbits_count(const PCBYTES *pcb)
 PCBYTES
 pc_bytes_sigbits_encode_8(const PCBYTES pcb, uint8_t commonvalue, uint8_t commonbits)
 {
-    int i;
-    int shift;
-    uint8_t *bytes = (uint8_t*)(pcb.bytes);
-    /* How wide are our words? */
-    static int bitwidth = 8;
-    /* How wide are our unique values? */
-    int nbits = bitwidth - commonbits;
-    /* Size of output buffer (#bits/8+1remainder+2metadata) */
-    size_t size_out = (nbits * pcb.npoints / 8) + 3;
-    uint8_t *bytes_out = pcalloc(size_out);
-    /* Use this to zero out the parts that are common */
-    uint8_t mask = (0xFF >> commonbits);
-    /* Write head */
-    uint8_t *byte_ptr = bytes_out;
-    /* What bit are we writing to now? */
-    int bit = bitwidth;
-    /* Write to... */
-    PCBYTES pcbout = pcb;
+	int i;
+	int shift;
+	uint8_t *bytes = (uint8_t*)(pcb.bytes);
+	/* How wide are our words? */
+	static int bitwidth = 8;
+	/* How wide are our unique values? */
+	int nbits = bitwidth - commonbits;
+	/* Size of output buffer (#bits/8+1remainder+2metadata) */
+	size_t size_out = (nbits * pcb.npoints / 8) + 3;
+	uint8_t *bytes_out = pcalloc(size_out);
+	/* Use this to zero out the parts that are common */
+	uint8_t mask = (0xFF >> commonbits);
+	/* Write head */
+	uint8_t *byte_ptr = bytes_out;
+	/* What bit are we writing to now? */
+	int bit = bitwidth;
+	/* Write to... */
+	PCBYTES pcbout = pcb;
 
-    /* Number of unique bits goes up front */
-    *byte_ptr = nbits; byte_ptr++;
-    /* The common value we'll add the unique values to */
-    *byte_ptr = commonvalue; byte_ptr++;
+	/* Number of unique bits goes up front */
+	*byte_ptr = nbits;
+	byte_ptr++;
+	/* The common value we'll add the unique values to */
+	*byte_ptr = commonvalue;
+	byte_ptr++;
 
-    /* All the values are the same... */
-    if ( bitwidth == commonbits )
-    {
-        pcbout.size = size_out;
-        pcbout.bytes = bytes_out;
-        pcbout.compression = PC_DIM_SIGBITS;
-        return pcbout;
-    }
+	/* All the values are the same... */
+	if ( bitwidth == commonbits )
+	{
+		pcbout.size = size_out;
+		pcbout.bytes = bytes_out;
+		pcbout.compression = PC_DIM_SIGBITS;
+		return pcbout;
+	}
 
-    for ( i = 0; i < pcb.npoints; i++ )
-    {
-        uint8_t val = bytes[i];
-        /* Clear off common parts */
-        val &= mask;
-        /* How far to move unique parts to get to write head? */
-        shift = bit - nbits;
-        /* If positive, we can fit this part into the current word */
-        if ( shift >= 0 )
-        {
-            val <<= shift;
-            *byte_ptr |= val;
-            bit -= nbits;
-            if ( bit <= 0 )
-            {
-                bit = bitwidth;
-                byte_ptr++;
-            }
-        }
-        /* If negative, then we need to split this part across words */
-        else
-        {
-            /* First the bit into the current word */
-            uint8_t v = val;
-            int s = abs(shift);
-            v >>= s;
-            *byte_ptr |= v;
-            /* The reset to write the next word */
-            bit = bitwidth;
-            byte_ptr++;
-            v = val;
-            shift = bit - s;
-            /* But only those parts we didn't already write */
-            v <<= shift;
-            *byte_ptr |= v;
-            bit -= s;
-        }
-    }
+	for ( i = 0; i < pcb.npoints; i++ )
+	{
+		uint8_t val = bytes[i];
+		/* Clear off common parts */
+		val &= mask;
+		/* How far to move unique parts to get to write head? */
+		shift = bit - nbits;
+		/* If positive, we can fit this part into the current word */
+		if ( shift >= 0 )
+		{
+			val <<= shift;
+			*byte_ptr |= val;
+			bit -= nbits;
+			if ( bit <= 0 )
+			{
+				bit = bitwidth;
+				byte_ptr++;
+			}
+		}
+		/* If negative, then we need to split this part across words */
+		else
+		{
+			/* First the bit into the current word */
+			uint8_t v = val;
+			int s = abs(shift);
+			v >>= s;
+			*byte_ptr |= v;
+			/* The reset to write the next word */
+			bit = bitwidth;
+			byte_ptr++;
+			v = val;
+			shift = bit - s;
+			/* But only those parts we didn't already write */
+			v <<= shift;
+			*byte_ptr |= v;
+			bit -= s;
+		}
+	}
 
-    pcbout.size = size_out;
-    pcbout.bytes = bytes_out;
-    pcbout.compression = PC_DIM_SIGBITS;
-    pcbout.readonly = PC_FALSE;
-    return pcbout;
+	pcbout.size = size_out;
+	pcbout.bytes = bytes_out;
+	pcbout.compression = PC_DIM_SIGBITS;
+	pcbout.readonly = PC_FALSE;
+	return pcbout;
 }
 
 /**
@@ -574,86 +576,88 @@ pc_bytes_sigbits_encode_8(const PCBYTES pcb, uint8_t commonvalue, uint8_t common
 PCBYTES
 pc_bytes_sigbits_encode_16(const PCBYTES pcb, uint16_t commonvalue, uint8_t commonbits)
 {
-    int i;
-    int shift;
-    uint16_t *bytes = (uint16_t*)(pcb.bytes);
+	int i;
+	int shift;
+	uint16_t *bytes = (uint16_t*)(pcb.bytes);
 
-    /* How wide are our words? */
-    static int bitwidth = 16;
-    /* How wide are our unique values? */
-    int nbits = bitwidth - commonbits;
-    /* Size of output buffer (#bits/8+1remainder+4metadata)  */
-    size_t size_out_raw = (nbits * pcb.npoints / 8) + 5;
-    /* Make sure buffer is size to hold all our words */
-    size_t size_out = size_out_raw + (size_out_raw % 2);
-    uint8_t *bytes_out = pcalloc(size_out);
-    /* Use this to zero out the parts that are common */
-    uint16_t mask = (0xFFFF >> commonbits);
-    /* Write head */
-    uint16_t *byte_ptr = (uint16_t*)(bytes_out);
-    /* What bit are we writing to now? */
-    int bit = bitwidth;
-    /* Write to... */
-    PCBYTES pcbout = pcb;
+	/* How wide are our words? */
+	static int bitwidth = 16;
+	/* How wide are our unique values? */
+	int nbits = bitwidth - commonbits;
+	/* Size of output buffer (#bits/8+1remainder+4metadata)  */
+	size_t size_out_raw = (nbits * pcb.npoints / 8) + 5;
+	/* Make sure buffer is size to hold all our words */
+	size_t size_out = size_out_raw + (size_out_raw % 2);
+	uint8_t *bytes_out = pcalloc(size_out);
+	/* Use this to zero out the parts that are common */
+	uint16_t mask = (0xFFFF >> commonbits);
+	/* Write head */
+	uint16_t *byte_ptr = (uint16_t*)(bytes_out);
+	/* What bit are we writing to now? */
+	int bit = bitwidth;
+	/* Write to... */
+	PCBYTES pcbout = pcb;
 
-    /* Number of unique bits goes up front */
-    *byte_ptr = nbits; byte_ptr++;
-    /* The common value we'll add the unique values to */
-    *byte_ptr = commonvalue; byte_ptr++;
+	/* Number of unique bits goes up front */
+	*byte_ptr = nbits;
+	byte_ptr++;
+	/* The common value we'll add the unique values to */
+	*byte_ptr = commonvalue;
+	byte_ptr++;
 
-    /* All the values are the same... */
-    if ( bitwidth == commonbits )
-    {
-        pcbout.size = size_out;
-        pcbout.bytes = bytes_out;
-        pcbout.compression = PC_DIM_SIGBITS;
-        return pcbout;
-    }
+	/* All the values are the same... */
+	if ( bitwidth == commonbits )
+	{
+		pcbout.size = size_out;
+		pcbout.bytes = bytes_out;
+		pcbout.compression = PC_DIM_SIGBITS;
+		return pcbout;
+	}
 
-    for ( i = 0; i < pcb.npoints; i++ )
-    {
-        uint16_t val = bytes[i];
-        /* Clear off common parts */
-        val &= mask;
-        /* How far to move unique parts to get to write head? */
-        shift = bit - nbits;
-        /* If positive, we can fit this part into the current word */
-        if ( shift >= 0 )
-        {
-            val <<= shift;
-            *byte_ptr |= val;
-            bit -= nbits;
-            if ( bit <= 0 )
-            {
-                bit = bitwidth;
-                byte_ptr++;
-            }
-        }
-        /* If negative, then we need to split this part across words */
-        else
-        {
-            /* First the bit into the current word */
-            uint16_t v = val;
-            int s = abs(shift);
-            v >>= s;
-            *byte_ptr |= v;
-            /* The reset to write the next word */
-            bit = bitwidth;
-            byte_ptr++;
-            v = val;
-            shift = bit - s;
-            /* But only those parts we didn't already write */
-            v <<= shift;
-            *byte_ptr |= v;
-            bit -= s;
-        }
-    }
+	for ( i = 0; i < pcb.npoints; i++ )
+	{
+		uint16_t val = bytes[i];
+		/* Clear off common parts */
+		val &= mask;
+		/* How far to move unique parts to get to write head? */
+		shift = bit - nbits;
+		/* If positive, we can fit this part into the current word */
+		if ( shift >= 0 )
+		{
+			val <<= shift;
+			*byte_ptr |= val;
+			bit -= nbits;
+			if ( bit <= 0 )
+			{
+				bit = bitwidth;
+				byte_ptr++;
+			}
+		}
+		/* If negative, then we need to split this part across words */
+		else
+		{
+			/* First the bit into the current word */
+			uint16_t v = val;
+			int s = abs(shift);
+			v >>= s;
+			*byte_ptr |= v;
+			/* The reset to write the next word */
+			bit = bitwidth;
+			byte_ptr++;
+			v = val;
+			shift = bit - s;
+			/* But only those parts we didn't already write */
+			v <<= shift;
+			*byte_ptr |= v;
+			bit -= s;
+		}
+	}
 
-    pcbout.size = size_out;
-    pcbout.bytes = bytes_out;
-    pcbout.compression = PC_DIM_SIGBITS;
-    pcbout.readonly = PC_FALSE;
-    return pcbout;
+	pcbout.size = size_out;
+	pcbout.bytes = bytes_out;
+	pcbout.compression = PC_DIM_SIGBITS;
+	pcbout.readonly = PC_FALSE;
+	return pcbout;
 }
 
 /**
@@ -666,85 +670,87 @@ pc_bytes_sigbits_encode_16(const PCBYTES pcb, uint16_t commonvalue, uint8_t comm
 PCBYTES
 pc_bytes_sigbits_encode_32(const PCBYTES pcb, uint32_t commonvalue, uint8_t commonbits)
 {
-    int i;
-    int shift;
-    uint32_t *bytes = (uint32_t*)(pcb.bytes);
+	int i;
+	int shift;
+	uint32_t *bytes = (uint32_t*)(pcb.bytes);
 
-    /* How wide are our words? */
-    static int bitwidth = 32;
-    /* How wide are our unique values? */
-    int nbits = bitwidth - commonbits;
-    /* Size of output buffer (#bits/8+1remainder+8metadata) */
-    size_t size_out_raw = (nbits * pcb.npoints / 8) + 9;
-    size_t size_out = size_out_raw + (4 - (size_out_raw % 4));
-    uint8_t *bytes_out = pcalloc(size_out);
-    /* Use this to zero out the parts that are common */
-    uint32_t mask = (0xFFFFFFFF >> commonbits);
-    /* Write head */
-    uint32_t *byte_ptr = (uint32_t*)bytes_out;
-    /* What bit are we writing to now? */
-    int bit = bitwidth;
-    /* Write to... */
-    PCBYTES pcbout = pcb;
+	/* How wide are our words? */
+	static int bitwidth = 32;
+	/* How wide are our unique values? */
+	int nbits = bitwidth - commonbits;
+	/* Size of output buffer (#bits/8+1remainder+8metadata) */
+	size_t size_out_raw = (nbits * pcb.npoints / 8) + 9;
+	size_t size_out = size_out_raw + (4 - (size_out_raw % 4));
+	uint8_t *bytes_out = pcalloc(size_out);
+	/* Use this to zero out the parts that are common */
+	uint32_t mask = (0xFFFFFFFF >> commonbits);
+	/* Write head */
+	uint32_t *byte_ptr = (uint32_t*)bytes_out;
+	/* What bit are we writing to now? */
+	int bit = bitwidth;
+	/* Write to... */
+	PCBYTES pcbout = pcb;
 
-    /* Number of unique bits goes up front */
-    *byte_ptr = nbits; byte_ptr++;
-    /* The common value we'll add the unique values to */
-    *byte_ptr = commonvalue; byte_ptr++;
+	/* Number of unique bits goes up front */
+	*byte_ptr = nbits;
+	byte_ptr++;
+	/* The common value we'll add the unique values to */
+	*byte_ptr = commonvalue;
+	byte_ptr++;
 
-    /* All the values are the same... */
-    if ( bitwidth == commonbits )
-    {
-        pcbout.size = size_out;
-        pcbout.bytes = bytes_out;
-        pcbout.compression = PC_DIM_SIGBITS;
-        return pcbout;
-    }
+	/* All the values are the same... */
+	if ( bitwidth == commonbits )
+	{
+		pcbout.size = size_out;
+		pcbout.bytes = bytes_out;
+		pcbout.compression = PC_DIM_SIGBITS;
+		return pcbout;
+	}
 
-    for ( i = 0; i < pcb.npoints; i++ )
-    {
-        uint32_t val = bytes[i];
-        /* Clear off common parts */
-        val &= mask;
-        /* How far to move unique parts to get to write head? */
-        shift = bit - nbits;
-        /* If positive, we can fit this part into the current word */
-        if ( shift >= 0 )
-        {
-            val <<= shift;
-            *byte_ptr |= val;
-            bit -= nbits;
-            if ( bit <= 0 )
-            {
-                bit = bitwidth;
-                byte_ptr++;
-            }
-        }
-        /* If negative, then we need to split this part across words */
-        else
-        {
-            /* First the bit into the current word */
-            uint32_t v = val;
-            int s = abs(shift);
-            v >>= s;
-            *byte_ptr |= v;
-            /* The reset to write the next word */
-            bit = bitwidth;
-            byte_ptr++;
-            v = val;
-            shift = bit - s;
-            /* But only those parts we didn't already write */
-            v <<= shift;
-            *byte_ptr |= v;
-            bit -= s;
-        }
-    }
+	for ( i = 0; i < pcb.npoints; i++ )
+	{
+		uint32_t val = bytes[i];
+		/* Clear off common parts */
+		val &= mask;
+		/* How far to move unique parts to get to write head? */
+		shift = bit - nbits;
+		/* If positive, we can fit this part into the current word */
+		if ( shift >= 0 )
+		{
+			val <<= shift;
+			*byte_ptr |= val;
+			bit -= nbits;
+			if ( bit <= 0 )
+			{
+				bit = bitwidth;
+				byte_ptr++;
+			}
+		}
+		/* If negative, then we need to split this part across words */
+		else
+		{
+			/* First the bit into the current word */
+			uint32_t v = val;
+			int s = abs(shift);
+			v >>= s;
+			*byte_ptr |= v;
+			/* The reset to write the next word */
+			bit = bitwidth;
+			byte_ptr++;
+			v = val;
+			shift = bit - s;
+			/* But only those parts we didn't already write */
+			v <<= shift;
+			*byte_ptr |= v;
+			bit -= s;
+		}
+	}
 
-    pcbout.size = size_out;
-    pcbout.bytes = bytes_out;
-    pcbout.compression = PC_DIM_SIGBITS;
-    pcbout.readonly = PC_FALSE;
-    return pcbout;
+	pcbout.size = size_out;
+	pcbout.bytes = bytes_out;
+	pcbout.compression = PC_DIM_SIGBITS;
+	pcbout.readonly = PC_FALSE;
+	return pcbout;
 }
 
 /**
@@ -758,282 +764,288 @@ pc_bytes_sigbits_encode_32(const PCBYTES pcb, uint32_t commonvalue, uint8_t comm
 PCBYTES
 pc_bytes_sigbits_encode(const PCBYTES pcb)
 {
-    size_t size = pc_interpretation_size(pcb.interpretation);
-    uint32_t nbits;
-    switch ( size )
-    {
-        case 1:
-        {
-            uint8_t commonvalue = pc_bytes_sigbits_count_8(&pcb, &nbits);
-            return pc_bytes_sigbits_encode_8(pcb, commonvalue, nbits);
-        }
-        case 2:
-        {
-            uint16_t commonvalue = pc_bytes_sigbits_count_16(&pcb, &nbits);
-            return pc_bytes_sigbits_encode_16(pcb, commonvalue, nbits);
-        }
-        case 4:
-        {
-            uint32_t commonvalue = pc_bytes_sigbits_count_32(&pcb, &nbits);
-            return pc_bytes_sigbits_encode_32(pcb, commonvalue, nbits);
-        }
-        default:
-        {
-            pcerror("%s: bits_encode cannot handle interpretation %d", __func__, pcb.interpretation);
-        }
-    }
-    pcerror("Uh Oh");
-    return pcb;
+	size_t size = pc_interpretation_size(pcb.interpretation);
+	uint32_t nbits;
+	switch ( size )
+	{
+	case 1:
+	{
+		uint8_t commonvalue = pc_bytes_sigbits_count_8(&pcb, &nbits);
+		return pc_bytes_sigbits_encode_8(pcb, commonvalue, nbits);
+	}
+	case 2:
+	{
+		uint16_t commonvalue = pc_bytes_sigbits_count_16(&pcb, &nbits);
+		return pc_bytes_sigbits_encode_16(pcb, commonvalue, nbits);
+	}
+	case 4:
+	{
+		uint32_t commonvalue = pc_bytes_sigbits_count_32(&pcb, &nbits);
+		return pc_bytes_sigbits_encode_32(pcb, commonvalue, nbits);
+	}
+	default:
+	{
+		pcerror("%s: bits_encode cannot handle interpretation %d", __func__, pcb.interpretation);
+	}
+	}
+	pcerror("Uh Oh");
+	return pcb;
 }
 
 static PCBYTES
 pc_bytes_sigbits_flip_endian(const PCBYTES pcb)
 {
-    int n;
-    uint8_t tmp1, tmp2;
-    size_t size = pc_interpretation_size(pcb.interpretation);
-    uint8_t *b1 = pcb.bytes;
-    uint8_t *b2 = pcb.bytes + size;
+	int n;
+	uint8_t tmp1, tmp2;
+	size_t size = pc_interpretation_size(pcb.interpretation);
+	uint8_t *b1 = pcb.bytes;
+	uint8_t *b2 = pcb.bytes + size;
 
-    /* If it's not multi-byte words, it doesn't need flipping */
-    if ( size < 2 )
-        return pcb;
+	/* If it's not multi-byte words, it doesn't need flipping */
+	if ( size < 2 )
+		return pcb;
 
-    /* We only need to flip the first two words, */
-    /* which are the common bit count and common bits word */
-    for ( n = 0; n < size / 2; n++ )
-    {
-        /* Flip bit count */
-        tmp1 = b1[n];
-        b1[n] = b1[size-n-1];
-        b1[size-n-1] = tmp1;
-        /* Flip common bits */
-        tmp2 = b2[n];
-        b2[n] = b2[size-n-1];
-        b2[size-n-1] = tmp2;
-    }
+	/* We only need to flip the first two words, */
+	/* which are the common bit count and common bits word */
+	for ( n = 0; n < size / 2; n++ )
+	{
+		/* Flip bit count */
+		tmp1 = b1[n];
+		b1[n] = b1[size-n-1];
+		b1[size-n-1] = tmp1;
+		/* Flip common bits */
+		tmp2 = b2[n];
+		b2[n] = b2[size-n-1];
+		b2[size-n-1] = tmp2;
+	}
 
-    return pcb;
+	return pcb;
 }
 
 
 PCBYTES
 pc_bytes_sigbits_decode_8(const PCBYTES pcb)
 {
-    int i;
-    const uint8_t *bytes_ptr = (const uint8_t*)(pcb.bytes);
-    uint8_t nbits;
-    uint8_t commonvalue;
-    uint8_t mask;
-    int bit = 8;
-    size_t outbytes_size = sizeof(uint8_t) * pcb.npoints;
-    uint8_t *outbytes = pcalloc(outbytes_size);
-    uint8_t *obytes = (uint8_t*)outbytes;
-    PCBYTES pcbout = pcb;
+	int i;
+	const uint8_t *bytes_ptr = (const uint8_t*)(pcb.bytes);
+	uint8_t nbits;
+	uint8_t commonvalue;
+	uint8_t mask;
+	int bit = 8;
+	size_t outbytes_size = sizeof(uint8_t) * pcb.npoints;
+	uint8_t *outbytes = pcalloc(outbytes_size);
+	uint8_t *obytes = (uint8_t*)outbytes;
+	PCBYTES pcbout = pcb;
 
-    /* How many unique bits? */
-    nbits = *bytes_ptr; bytes_ptr++;
-    /* What is the shared bit value? */
-    commonvalue = *bytes_ptr; bytes_ptr++;
-    /* Mask for just the unique parts */
-    mask = (0xFF >> (bit-nbits));
+	/* How many unique bits? */
+	nbits = *bytes_ptr;
+	bytes_ptr++;
+	/* What is the shared bit value? */
+	commonvalue = *bytes_ptr;
+	bytes_ptr++;
+	/* Mask for just the unique parts */
+	mask = (0xFF >> (bit-nbits));
 
-    for ( i = 0; i < pcb.npoints; i++ )
-    {
-        int shift = bit - nbits;
-        uint8_t val = *bytes_ptr;
-        /* The unique part is all in this word */
-        if ( shift >= 0 )
-        {
-            /* Push unique part to bottom of word */
-            val >>= shift;
-            /* Mask out any excess */
-            val &= mask;
-            /* Add in the common part */
-            val |= commonvalue;
-            /* Save */
-            obytes[i] = val;
-            /* Move read head */
-            bit -= nbits;
-        }
-        /* The unique part is split over this word and the next */
-        else
-        {
-            int s = abs(shift);
-            val <<= s;
-            val &= mask;
-            val |= commonvalue;
-            obytes[i] = val;
-            bytes_ptr++;
-            bit = 8;
-            val = *bytes_ptr;
-            shift = bit - s;
-            val >>= shift;
-            val &= mask;
-            obytes[i] |= val;
-            bit -= s;
-        }
-    }
-    pcbout.size = outbytes_size;
-    pcbout.compression = PC_DIM_SIGBITS;
-    pcbout.bytes = outbytes;
-    pcbout.readonly = PC_FALSE;
-    return pcbout;
+	for ( i = 0; i < pcb.npoints; i++ )
+	{
+		int shift = bit - nbits;
+		uint8_t val = *bytes_ptr;
+		/* The unique part is all in this word */
+		if ( shift >= 0 )
+		{
+			/* Push unique part to bottom of word */
+			val >>= shift;
+			/* Mask out any excess */
+			val &= mask;
+			/* Add in the common part */
+			val |= commonvalue;
+			/* Save */
+			obytes[i] = val;
+			/* Move read head */
+			bit -= nbits;
+		}
+		/* The unique part is split over this word and the next */
+		else
+		{
+			int s = abs(shift);
+			val <<= s;
+			val &= mask;
+			val |= commonvalue;
+			obytes[i] = val;
+			bytes_ptr++;
+			bit = 8;
+			val = *bytes_ptr;
+			shift = bit - s;
+			val >>= shift;
+			val &= mask;
+			obytes[i] |= val;
+			bit -= s;
+		}
+	}
+	pcbout.size = outbytes_size;
+	pcbout.compression = PC_DIM_SIGBITS;
+	pcbout.bytes = outbytes;
+	pcbout.readonly = PC_FALSE;
+	return pcbout;
 }
 
 PCBYTES
 pc_bytes_sigbits_decode_16(const PCBYTES pcb)
 {
-    int i;
-    const uint16_t *bytes_ptr = (const uint16_t *)(pcb.bytes);
-    uint16_t nbits;
-    uint16_t commonvalue;
-    uint16_t mask;
-    int bit = 16;
-    size_t outbytes_size = sizeof(uint16_t) * pcb.npoints;
-    uint8_t *outbytes = pcalloc(outbytes_size);
-    uint16_t *obytes = (uint16_t*)outbytes;
-    PCBYTES pcbout = pcb;
+	int i;
+	const uint16_t *bytes_ptr = (const uint16_t *)(pcb.bytes);
+	uint16_t nbits;
+	uint16_t commonvalue;
+	uint16_t mask;
+	int bit = 16;
+	size_t outbytes_size = sizeof(uint16_t) * pcb.npoints;
+	uint8_t *outbytes = pcalloc(outbytes_size);
+	uint16_t *obytes = (uint16_t*)outbytes;
+	PCBYTES pcbout = pcb;
 
-    /* How many unique bits? */
-    nbits = *bytes_ptr; bytes_ptr++;
-    /* What is the shared bit value? */
-    commonvalue = *bytes_ptr; bytes_ptr++;
-    /* Calculate mask */
-    mask = (0xFFFF >> (bit-nbits));
+	/* How many unique bits? */
+	nbits = *bytes_ptr;
+	bytes_ptr++;
+	/* What is the shared bit value? */
+	commonvalue = *bytes_ptr;
+	bytes_ptr++;
+	/* Calculate mask */
+	mask = (0xFFFF >> (bit-nbits));
 
-    for ( i = 0; i < pcb.npoints; i++ )
-    {
-        int shift = bit - nbits;
-        uint16_t val = *bytes_ptr;
-        if ( shift >= 0 )
-        {
-            val >>= shift;
-            val &= mask;
-            val |= commonvalue;
-            obytes[i] = val;
-            bit -= nbits;
-        }
-        else
-        {
-            int s = abs(shift);
-            val <<= s;
-            val &= mask;
-            val |= commonvalue;
-            obytes[i] = val;
-            bytes_ptr++;
-            bit = 16;
-            val = *bytes_ptr;
-            shift = bit - s;
-            val >>= shift;
-            val &= mask;
-            obytes[i] |= val;
-            bit -= s;
-        }
-    }
-    pcbout.size = outbytes_size;
-    pcbout.compression = PC_DIM_SIGBITS;
-    pcbout.bytes = outbytes;
-    pcbout.readonly = PC_FALSE;
-    return pcbout;
+	for ( i = 0; i < pcb.npoints; i++ )
+	{
+		int shift = bit - nbits;
+		uint16_t val = *bytes_ptr;
+		if ( shift >= 0 )
+		{
+			val >>= shift;
+			val &= mask;
+			val |= commonvalue;
+			obytes[i] = val;
+			bit -= nbits;
+		}
+		else
+		{
+			int s = abs(shift);
+			val <<= s;
+			val &= mask;
+			val |= commonvalue;
+			obytes[i] = val;
+			bytes_ptr++;
+			bit = 16;
+			val = *bytes_ptr;
+			shift = bit - s;
+			val >>= shift;
+			val &= mask;
+			obytes[i] |= val;
+			bit -= s;
+		}
+	}
+	pcbout.size = outbytes_size;
+	pcbout.compression = PC_DIM_SIGBITS;
+	pcbout.bytes = outbytes;
+	pcbout.readonly = PC_FALSE;
+	return pcbout;
 }
 
 PCBYTES
 pc_bytes_sigbits_decode_32(const PCBYTES pcb)
 {
-    int i;
-    const uint32_t *bytes_ptr = (const uint32_t *)(pcb.bytes);
-    uint32_t nbits;
-    uint32_t commonvalue;
-    uint32_t mask;
-    int bit = 32;
-    size_t outbytes_size = sizeof(uint32_t) * pcb.npoints;
-    uint8_t *outbytes = pcalloc(outbytes_size);
-    uint32_t *obytes = (uint32_t*)outbytes;
-    PCBYTES pcbout = pcb;
+	int i;
+	const uint32_t *bytes_ptr = (const uint32_t *)(pcb.bytes);
+	uint32_t nbits;
+	uint32_t commonvalue;
+	uint32_t mask;
+	int bit = 32;
+	size_t outbytes_size = sizeof(uint32_t) * pcb.npoints;
+	uint8_t *outbytes = pcalloc(outbytes_size);
+	uint32_t *obytes = (uint32_t*)outbytes;
+	PCBYTES pcbout = pcb;
 
-    /* How many unique bits? */
-    nbits = *bytes_ptr; bytes_ptr++;
-    /* What is the shared bit value? */
-    commonvalue = *bytes_ptr; bytes_ptr++;
-    /* Calculate mask */
-    mask = (0xFFFFFFFF >> (bit-nbits));
+	/* How many unique bits? */
+	nbits = *bytes_ptr;
+	bytes_ptr++;
+	/* What is the shared bit value? */
+	commonvalue = *bytes_ptr;
+	bytes_ptr++;
+	/* Calculate mask */
+	mask = (0xFFFFFFFF >> (bit-nbits));
 
-    for ( i = 0; i < pcb.npoints; i++ )
-    {
-        int shift = bit - nbits;
-        uint32_t val = *bytes_ptr;
-        if ( shift >= 0 )
-        {
-            val >>= shift;
-            val &= mask;
-            val |= commonvalue;
-            obytes[i] = val;
-            bit -= nbits;
-        }
-        else
-        {
-            int s = abs(shift);
-            val <<= s;
-            val &= mask;
-            val |= commonvalue;
-            obytes[i] = val;
-            bytes_ptr++;
-            bit = 32;
-            val = *bytes_ptr;
-            shift = bit - s;
-            val >>= shift;
-            val &= mask;
-            bit -= s;
-            obytes[i] |= val;
-        }
-    }
+	for ( i = 0; i < pcb.npoints; i++ )
+	{
+		int shift = bit - nbits;
+		uint32_t val = *bytes_ptr;
+		if ( shift >= 0 )
+		{
+			val >>= shift;
+			val &= mask;
+			val |= commonvalue;
+			obytes[i] = val;
+			bit -= nbits;
+		}
+		else
+		{
+			int s = abs(shift);
+			val <<= s;
+			val &= mask;
+			val |= commonvalue;
+			obytes[i] = val;
+			bytes_ptr++;
+			bit = 32;
+			val = *bytes_ptr;
+			shift = bit - s;
+			val >>= shift;
+			val &= mask;
+			bit -= s;
+			obytes[i] |= val;
+		}
+	}
 
-    pcbout.size = outbytes_size;
-    pcbout.compression = PC_DIM_SIGBITS;
-    pcbout.bytes = outbytes;
-    pcbout.readonly = PC_FALSE;
-    return pcbout;
+	pcbout.size = outbytes_size;
+	pcbout.compression = PC_DIM_SIGBITS;
+	pcbout.bytes = outbytes;
+	pcbout.readonly = PC_FALSE;
+	return pcbout;
 }
 
 
 PCBYTES
 pc_bytes_sigbits_decode(const PCBYTES pcb)
 {
-    size_t size = pc_interpretation_size(pcb.interpretation);
-    switch ( size )
-    {
-        case 1:
-        {
-            return pc_bytes_sigbits_decode_8(pcb);
-        }
-        case 2:
-        {
-            return pc_bytes_sigbits_decode_16(pcb);
-        }
-        case 4:
-        {
-            return pc_bytes_sigbits_decode_32(pcb);
-        }
-        default:
-        {
-            pcerror("%s: cannot handle interpretation %d", __func__, pcb.interpretation);
-        }
-    }
-    pcerror("%s: got an unhandled errror", __func__);
-    return pcb;
+	size_t size = pc_interpretation_size(pcb.interpretation);
+	switch ( size )
+	{
+	case 1:
+	{
+		return pc_bytes_sigbits_decode_8(pcb);
+	}
+	case 2:
+	{
+		return pc_bytes_sigbits_decode_16(pcb);
+	}
+	case 4:
+	{
+		return pc_bytes_sigbits_decode_32(pcb);
+	}
+	default:
+	{
+		pcerror("%s: cannot handle interpretation %d", __func__, pcb.interpretation);
+	}
+	}
+	pcerror("%s: got an unhandled errror", __func__);
+	return pcb;
 }
 
 static voidpf
 pc_zlib_alloc(voidpf opaque, uInt nitems, uInt sz)
 {
-    return pcalloc(sz*nitems);
+	return pcalloc(sz*nitems);
 }
 
 static void
 pc_zlib_free(voidpf opaque, voidpf ptr)
 {
-    pcfree(ptr);
+	pcfree(ptr);
 }
 
 
@@ -1048,36 +1060,36 @@ pc_zlib_free(voidpf opaque, voidpf ptr)
 PCBYTES
 pc_bytes_zlib_encode(const PCBYTES pcb)
 {
-    z_stream strm;
-    int ret;
-    size_t have;
-    size_t bufsize = 4*pcb.size;
-    uint8_t *buf = pcalloc(bufsize);
-    PCBYTES pcbout = pcb;
+	z_stream strm;
+	int ret;
+	size_t have;
+	size_t bufsize = 4*pcb.size;
+	uint8_t *buf = pcalloc(bufsize);
+	PCBYTES pcbout = pcb;
 
-    /* Use our own allocators */
-    strm.zalloc = pc_zlib_alloc;
-    strm.zfree = pc_zlib_free;
-    strm.opaque = Z_NULL;
-    ret = deflateInit(&strm, 9);
-    /* Set up input buffer */
-    strm.avail_in = pcb.size;
-    strm.next_in = pcb.bytes;
-    /* Set up output buffer */
-    strm.avail_out = bufsize;
-    strm.next_out = buf;
-    /* Compress */
-    ret = deflate(&strm, Z_FINISH);
-    assert(ret != Z_STREAM_ERROR);
-    have = strm.total_out;
-    pcbout.size = have;
-    pcbout.bytes = pcalloc(pcbout.size);
-    pcbout.compression = PC_DIM_ZLIB;
-    pcbout.readonly = PC_FALSE;
-    memcpy(pcbout.bytes, buf, have);
-    pcfree(buf);
-    deflateEnd(&strm);
-    return pcbout;
+	/* Use our own allocators */
+	strm.zalloc = pc_zlib_alloc;
+	strm.zfree = pc_zlib_free;
+	strm.opaque = Z_NULL;
+	ret = deflateInit(&strm, 9);
+	/* Set up input buffer */
+	strm.avail_in = pcb.size;
+	strm.next_in = pcb.bytes;
+	/* Set up output buffer */
+	strm.avail_out = bufsize;
+	strm.next_out = buf;
+	/* Compress */
+	ret = deflate(&strm, Z_FINISH);
+	assert(ret != Z_STREAM_ERROR);
+	have = strm.total_out;
+	pcbout.size = have;
+	pcbout.bytes = pcalloc(pcbout.size);
+	pcbout.compression = PC_DIM_ZLIB;
+	pcbout.readonly = PC_FALSE;
+	memcpy(pcbout.bytes, buf, have);
+	pcfree(buf);
+	deflateEnd(&strm);
+	return pcbout;
 }
 
 /**
@@ -1089,33 +1101,33 @@ pc_bytes_zlib_encode(const PCBYTES pcb)
 PCBYTES
 pc_bytes_zlib_decode(const PCBYTES pcb)
 {
-    z_stream strm;
-    int ret;
-    PCBYTES pcbout = pcb;
+	z_stream strm;
+	int ret;
+	PCBYTES pcbout = pcb;
 
-    pcbout.size = pc_interpretation_size(pcb.interpretation) * pcb.npoints;
+	pcbout.size = pc_interpretation_size(pcb.interpretation) * pcb.npoints;
 
-    /* Set up output memory */
-    pcbout.bytes = pcalloc(pcbout.size);
-    pcbout.readonly = PC_FALSE;
+	/* Set up output memory */
+	pcbout.bytes = pcalloc(pcbout.size);
+	pcbout.readonly = PC_FALSE;
 
-    /* Use our own allocators */
-    strm.zalloc = pc_zlib_alloc;
-    strm.zfree = pc_zlib_free;
-    strm.opaque = Z_NULL;
-    ret = inflateInit(&strm);
-    /* Set up input buffer */
-    strm.avail_in = pcb.size;
-    strm.next_in = pcb.bytes;
+	/* Use our own allocators */
+	strm.zalloc = pc_zlib_alloc;
+	strm.zfree = pc_zlib_free;
+	strm.opaque = Z_NULL;
+	ret = inflateInit(&strm);
+	/* Set up input buffer */
+	strm.avail_in = pcb.size;
+	strm.next_in = pcb.bytes;
 
-    strm.avail_out = pcbout.size;
-    strm.next_out = pcbout.bytes;
-    ret = inflate(&strm, Z_FINISH);
-    assert(ret != Z_STREAM_ERROR);
-    inflateEnd(&strm);
+	strm.avail_out = pcbout.size;
+	strm.next_out = pcbout.bytes;
+	ret = inflate(&strm, Z_FINISH);
+	assert(ret != Z_STREAM_ERROR);
+	inflateEnd(&strm);
 
-    pcbout.compression = PC_DIM_NONE;
-    return pcbout;
+	pcbout.compression = PC_DIM_NONE;
+	return pcbout;
 }
 
 /**
@@ -1124,263 +1136,263 @@ pc_bytes_zlib_decode(const PCBYTES pcb)
 PCBYTES
 pc_bytes_flip_endian(PCBYTES pcb)
 {
-    if ( pcb.readonly )
-        pcerror("pc_bytes_flip_endian: cannot flip readonly bytes");
+	if ( pcb.readonly )
+		pcerror("pc_bytes_flip_endian: cannot flip readonly bytes");
 
-    switch(pcb.compression)
-    {
-        case PC_DIM_NONE:
-            return pcb;
-        case PC_DIM_SIGBITS:
-            return pc_bytes_sigbits_flip_endian(pcb);
-        case PC_DIM_ZLIB:
-            return pcb;
-        case PC_DIM_RLE:
-            return pc_bytes_run_length_flip_endian(pcb);
-        default:
-            pcerror("%s: unknown compression", __func__);
-    }
+	switch(pcb.compression)
+	{
+	case PC_DIM_NONE:
+		return pcb;
+	case PC_DIM_SIGBITS:
+		return pc_bytes_sigbits_flip_endian(pcb);
+	case PC_DIM_ZLIB:
+		return pcb;
+	case PC_DIM_RLE:
+		return pc_bytes_run_length_flip_endian(pcb);
+	default:
+		pcerror("%s: unknown compression", __func__);
+	}
 
-    return pcb;
+	return pcb;
 }
 
 size_t
 pc_bytes_serialized_size(const PCBYTES *pcb)
 {
-    /* compression type (1) + size of data (4) + data */
-    return 1 + 4 + pcb->size;
+	/* compression type (1) + size of data (4) + data */
+	return 1 + 4 + pcb->size;
 }
 
 int
 pc_bytes_serialize(const PCBYTES *pcb, uint8_t *buf, size_t *size)
 {
-    static int compression_num_size = 1;
-    static int size_num_size = 4;
-    int32_t pcbsize = pcb->size;
+	static int compression_num_size = 1;
+	static int size_num_size = 4;
+	int32_t pcbsize = pcb->size;
 
-    /* Compression type number */
-    *buf = pcb->compression;
-    buf += compression_num_size;
-    /* Buffer size */
-    memcpy(buf, &pcbsize, size_num_size);
-    buf += size_num_size;
-    /* Buffer contents */
-    memcpy(buf, pcb->bytes, pcb->size);
-    /* Return total size */
-    *size = compression_num_size + size_num_size + pcbsize;
-    return PC_SUCCESS;
+	/* Compression type number */
+	*buf = pcb->compression;
+	buf += compression_num_size;
+	/* Buffer size */
+	memcpy(buf, &pcbsize, size_num_size);
+	buf += size_num_size;
+	/* Buffer contents */
+	memcpy(buf, pcb->bytes, pcb->size);
+	/* Return total size */
+	*size = compression_num_size + size_num_size + pcbsize;
+	return PC_SUCCESS;
 }
 
 int
 pc_bytes_deserialize(const uint8_t *buf, const PCDIMENSION *dim, PCBYTES *pcb, int readonly, int flip_endian)
 {
-    pcb->compression = buf[0];
-    pcb->size = wkb_get_int32(buf+1, flip_endian);
-    pcb->readonly = readonly;
-    if ( readonly && flip_endian )
-        pcerror("pc_bytes_deserialize: cannot create a read-only buffer on byteswapped input");
-    if ( readonly )
-    {
-        pcb->bytes = (uint8_t*)(buf+5);
-    }
-    else
-    {
-        pcb->bytes = pcalloc(pcb->size);
-        memcpy(pcb->bytes, buf+5, pcb->size);
-        if ( flip_endian )
-        {
-            *pcb = pc_bytes_flip_endian(*pcb);
-        }
-    }
-    pcb->interpretation = dim->interpretation;
-    /* WARNING, still need to set externally */
-    /*   pcb.npoints */
-    return PC_SUCCESS;
+	pcb->compression = buf[0];
+	pcb->size = wkb_get_int32(buf+1, flip_endian);
+	pcb->readonly = readonly;
+	if ( readonly && flip_endian )
+		pcerror("pc_bytes_deserialize: cannot create a read-only buffer on byteswapped input");
+	if ( readonly )
+	{
+		pcb->bytes = (uint8_t*)(buf+5);
+	}
+	else
+	{
+		pcb->bytes = pcalloc(pcb->size);
+		memcpy(pcb->bytes, buf+5, pcb->size);
+		if ( flip_endian )
+		{
+			*pcb = pc_bytes_flip_endian(*pcb);
+		}
+	}
+	pcb->interpretation = dim->interpretation;
+	/* WARNING, still need to set externally */
+	/*   pcb.npoints */
+	return PC_SUCCESS;
 }
 
 
 static int
 pc_bytes_uncompressed_minmax(const PCBYTES *pcb, double *min, double *max, double *avg)
 {
-    int i;
-    int element_size = pc_interpretation_size(pcb->interpretation);
-    double d;
-    double mn = FLT_MAX;
-    double mx = -1*FLT_MAX;
-    double sm = 0.0;
-    for ( i = 0; i < pcb->npoints; i++ )
-    {
-        d = pc_double_from_ptr(pcb->bytes + i*element_size, pcb->interpretation);
-        if ( d < mn )
-            mn = d;
-        if ( d > mx )
-            mx = d;
-        sm += d;
-    }
-    *min = mn;
-    *max = mx;
-    *avg = sm / pcb->npoints;
+	int i;
+	int element_size = pc_interpretation_size(pcb->interpretation);
+	double d;
+	double mn = FLT_MAX;
+	double mx = -1*FLT_MAX;
+	double sm = 0.0;
+	for ( i = 0; i < pcb->npoints; i++ )
+	{
+		d = pc_double_from_ptr(pcb->bytes + i*element_size, pcb->interpretation);
+		if ( d < mn )
+			mn = d;
+		if ( d > mx )
+			mx = d;
+		sm += d;
+	}
+	*min = mn;
+	*max = mx;
+	*avg = sm / pcb->npoints;
 }
 
 static int
 pc_bytes_run_length_minmax(const PCBYTES *pcb, double *min, double *max, double *avg)
 {
-    int element_size = pc_interpretation_size(pcb->interpretation);
-    double mn = FLT_MAX;
-    double mx = -1*FLT_MAX;
-    double sm = 0.0;
-    double d;
-    uint8_t *ptr = pcb->bytes;
-    uint8_t *ptr_end = pcb->bytes + pcb->size;
-    uint8_t count;
+	int element_size = pc_interpretation_size(pcb->interpretation);
+	double mn = FLT_MAX;
+	double mx = -1*FLT_MAX;
+	double sm = 0.0;
+	double d;
+	uint8_t *ptr = pcb->bytes;
+	uint8_t *ptr_end = pcb->bytes + pcb->size;
+	uint8_t count;
 
 
-    while( ptr < ptr_end )
-    {
-        /* Read count and advance */
-        count = *ptr;
-        ptr += 1;
-        
-        /* Read value and advance */
-        d = pc_double_from_ptr(ptr, pcb->interpretation);
-        ptr += element_size;
-        
-        /* Calc min */
-        if ( d < mn )
-            mn = d;
-        /* Calc max */
-        if ( d > mx )
-            mx = d;
-        /* Calc sum */
-        sm += count * d;
+	while( ptr < ptr_end )
+	{
+		/* Read count and advance */
+		count = *ptr;
+		ptr += 1;
 
-    }
+		/* Read value and advance */
+		d = pc_double_from_ptr(ptr, pcb->interpretation);
+		ptr += element_size;
 
-    *min = mn;
-    *max = mx;
-    *avg = sm / pcb->npoints;
+		/* Calc min */
+		if ( d < mn )
+			mn = d;
+		/* Calc max */
+		if ( d > mx )
+			mx = d;
+		/* Calc sum */
+		sm += count * d;
+
+	}
+
+	*min = mn;
+	*max = mx;
+	*avg = sm / pcb->npoints;
 }
 
 
 static int
 pc_bytes_zlib_minmax(const PCBYTES *pcb, double *min, double *max, double *avg)
 {
-    PCBYTES zcb = pc_bytes_zlib_decode(*pcb);
-    int rv = pc_bytes_uncompressed_minmax(&zcb, min, max, avg);
-    pc_bytes_free(zcb);
-    return rv;
+	PCBYTES zcb = pc_bytes_zlib_decode(*pcb);
+	int rv = pc_bytes_uncompressed_minmax(&zcb, min, max, avg);
+	pc_bytes_free(zcb);
+	return rv;
 }
 
 static int
 pc_bytes_sigbits_minmax(const PCBYTES *pcb, double *min, double *max, double *avg)
 {
-    PCBYTES zcb = pc_bytes_sigbits_decode(*pcb);
-    int rv = pc_bytes_uncompressed_minmax(&zcb, min, max, avg);
-    pc_bytes_free(zcb);
-    return rv;
+	PCBYTES zcb = pc_bytes_sigbits_decode(*pcb);
+	int rv = pc_bytes_uncompressed_minmax(&zcb, min, max, avg);
+	pc_bytes_free(zcb);
+	return rv;
 }
 
-int 
+int
 pc_bytes_minmax(const PCBYTES *pcb, double *min, double *max, double *avg)
 {
-    switch(pcb->compression)
-    {
-        case PC_DIM_NONE:
-            return pc_bytes_uncompressed_minmax(pcb, min, max, avg);
-        case PC_DIM_SIGBITS:
-            return pc_bytes_sigbits_minmax(pcb, min, max, avg);
-        case PC_DIM_ZLIB:
-            return pc_bytes_zlib_minmax(pcb, min, max, avg);
-        case PC_DIM_RLE:
-            return pc_bytes_run_length_minmax(pcb, min, max, avg);
-        default:
-            pcerror("%s: unknown compression", __func__);
-    }
-    return PC_FAILURE;
+	switch(pcb->compression)
+	{
+	case PC_DIM_NONE:
+		return pc_bytes_uncompressed_minmax(pcb, min, max, avg);
+	case PC_DIM_SIGBITS:
+		return pc_bytes_sigbits_minmax(pcb, min, max, avg);
+	case PC_DIM_ZLIB:
+		return pc_bytes_zlib_minmax(pcb, min, max, avg);
+	case PC_DIM_RLE:
+		return pc_bytes_run_length_minmax(pcb, min, max, avg);
+	default:
+		pcerror("%s: unknown compression", __func__);
+	}
+	return PC_FAILURE;
 }
 
 static PCBYTES
 pc_bytes_uncompressed_filter(const PCBYTES *pcb, const PCBITMAP *map)
 {
-    int i = 0, j = 0;
-    double d;
-    PCBYTES fpcb = pc_bytes_clone(*pcb);
-    int sz = pc_interpretation_size(pcb->interpretation);
-    uint8_t *buf = pcb->bytes;
-    uint8_t *fbuf = fpcb.bytes;
-    
-    while ( i < pcb->npoints )
-    {
-        if ( pc_bitmap_get(map, i) )
-        {
-            memcpy(fbuf, buf, sz);
-            fbuf += sz;
-            j++;
-        }
-        buf += sz;
-        i++;
-    }
-    fpcb.size = fbuf - fpcb.bytes;
-    fpcb.npoints = j;
-    return fpcb;
+	int i = 0, j = 0;
+	double d;
+	PCBYTES fpcb = pc_bytes_clone(*pcb);
+	int sz = pc_interpretation_size(pcb->interpretation);
+	uint8_t *buf = pcb->bytes;
+	uint8_t *fbuf = fpcb.bytes;
+
+	while ( i < pcb->npoints )
+	{
+		if ( pc_bitmap_get(map, i) )
+		{
+			memcpy(fbuf, buf, sz);
+			fbuf += sz;
+			j++;
+		}
+		buf += sz;
+		i++;
+	}
+	fpcb.size = fbuf - fpcb.bytes;
+	fpcb.npoints = j;
+	return fpcb;
 }
 
 static PCBYTES
 pc_bytes_run_length_filter(const PCBYTES *pcb, const PCBITMAP *map)
 {
-    int i = 0, j = 0;
-    double d;
+	int i = 0, j = 0;
+	double d;
 
-    PCBYTES fpcb = pc_bytes_clone(*pcb);
-    int sz = pc_interpretation_size(pcb->interpretation)+1;
-    uint8_t *fptr = fpcb.bytes;
-    uint8_t *ptr = pcb->bytes;
-    uint8_t *ptr_end = pcb->bytes + pcb->size;
-    uint8_t count;
+	PCBYTES fpcb = pc_bytes_clone(*pcb);
+	int sz = pc_interpretation_size(pcb->interpretation)+1;
+	uint8_t *fptr = fpcb.bytes;
+	uint8_t *ptr = pcb->bytes;
+	uint8_t *ptr_end = pcb->bytes + pcb->size;
+	uint8_t count;
 
-    while( ptr < ptr_end )
-    {
-        /* Read count */
-        count = *ptr;
-        
-        if ( pc_bitmap_get(map, i) )
-        {
-            memcpy(fptr, ptr, sz);
-            fptr += sz;
-            j += count;
-        }
-        ptr += sz;
-        i += count;
-    }
-    fpcb.size = fptr - fpcb.bytes;
-    fpcb.npoints = j;
-    return fpcb;
+	while( ptr < ptr_end )
+	{
+		/* Read count */
+		count = *ptr;
+
+		if ( pc_bitmap_get(map, i) )
+		{
+			memcpy(fptr, ptr, sz);
+			fptr += sz;
+			j += count;
+		}
+		ptr += sz;
+		i += count;
+	}
+	fpcb.size = fptr - fpcb.bytes;
+	fpcb.npoints = j;
+	return fpcb;
 }
 
 PCBYTES
 pc_bytes_filter(const PCBYTES *pcb, const PCBITMAP *map)
 {
-    switch(pcb->compression)
-    {
-        case PC_DIM_NONE:
-            return pc_bytes_uncompressed_filter(pcb, map);
+	switch(pcb->compression)
+	{
+	case PC_DIM_NONE:
+		return pc_bytes_uncompressed_filter(pcb, map);
 
-        case PC_DIM_RLE:
-        case PC_DIM_SIGBITS:
-        case PC_DIM_ZLIB:
-        {
-            PCBYTES dpcb = pc_bytes_decode(*pcb);
-            PCBYTES fpcb = pc_bytes_uncompressed_filter(&dpcb, map);
-            PCBYTES efpcb = pc_bytes_encode(fpcb, pcb->compression);
-            pc_bytes_free(fpcb);
-            pc_bytes_free(dpcb);
-            return efpcb;
-        }
-            
-        default:
-            pcerror("%s: unknown compression", __func__);
-    }
-    return *pcb;    
+	case PC_DIM_RLE:
+	case PC_DIM_SIGBITS:
+	case PC_DIM_ZLIB:
+	{
+		PCBYTES dpcb = pc_bytes_decode(*pcb);
+		PCBYTES fpcb = pc_bytes_uncompressed_filter(&dpcb, map);
+		PCBYTES efpcb = pc_bytes_encode(fpcb, pcb->compression);
+		pc_bytes_free(fpcb);
+		pc_bytes_free(dpcb);
+		return efpcb;
+	}
+
+	default:
+		pcerror("%s: unknown compression", __func__);
+	}
+	return *pcb;
 }
 
 
@@ -1388,77 +1400,77 @@ pc_bytes_filter(const PCBYTES *pcb, const PCBITMAP *map)
 static PCBITMAP *
 pc_bytes_run_length_bitmap(const PCBYTES *pcb, PC_FILTERTYPE filter, double val1, double val2)
 {
-    int i = 0, run = 0;
-    double d;
-    PCBITMAP *map = pc_bitmap_new(pcb->npoints);
-    int element_size = pc_interpretation_size(pcb->interpretation);
-    uint8_t *ptr = pcb->bytes;
-    uint8_t *ptr_end = pcb->bytes + pcb->size;
-    uint8_t count;
+	int i = 0, run = 0;
+	double d;
+	PCBITMAP *map = pc_bitmap_new(pcb->npoints);
+	int element_size = pc_interpretation_size(pcb->interpretation);
+	uint8_t *ptr = pcb->bytes;
+	uint8_t *ptr_end = pcb->bytes + pcb->size;
+	uint8_t count;
 
-    while( ptr < ptr_end )
-    {
-        /* Read count */
-        count = *ptr;
-        ptr++;
-        run = i + count;
-        
-        /* Read value */
-        d = pc_double_from_ptr(ptr, pcb->interpretation);
-        ptr += element_size;
+	while( ptr < ptr_end )
+	{
+		/* Read count */
+		count = *ptr;
+		ptr++;
+		run = i + count;
 
-        /* Apply run to bitmap */
-        while ( i < run )
-        {
-            pc_bitmap_filter(map, filter, i, d, val1, val2);
-            i++;
-        }            
-    }
+		/* Read value */
+		d = pc_double_from_ptr(ptr, pcb->interpretation);
+		ptr += element_size;
 
-    return map;
+		/* Apply run to bitmap */
+		while ( i < run )
+		{
+			pc_bitmap_filter(map, filter, i, d, val1, val2);
+			i++;
+		}
+	}
+
+	return map;
 }
 
 
 static PCBITMAP *
 pc_bytes_uncompressed_bitmap(const PCBYTES *pcb, PC_FILTERTYPE filter, double val1, double val2)
 {
-    int i = 0;
-    double d;
-    PCBITMAP *map = pc_bitmap_new(pcb->npoints);
-    int element_size = pc_interpretation_size(pcb->interpretation);
-    uint8_t *buf = pcb->bytes;
+	int i = 0;
+	double d;
+	PCBITMAP *map = pc_bitmap_new(pcb->npoints);
+	int element_size = pc_interpretation_size(pcb->interpretation);
+	uint8_t *buf = pcb->bytes;
 
-    while ( i < pcb->npoints )
-    {
-        d = pc_double_from_ptr(buf, pcb->interpretation);
-        pc_bitmap_filter(map, filter, i, d, val1, val2);
-        /* Advance the pointer */
-        buf += element_size;
-        i++;
-    }
-    return map;
+	while ( i < pcb->npoints )
+	{
+		d = pc_double_from_ptr(buf, pcb->interpretation);
+		pc_bitmap_filter(map, filter, i, d, val1, val2);
+		/* Advance the pointer */
+		buf += element_size;
+		i++;
+	}
+	return map;
 }
 
 PCBITMAP *
 pc_bytes_bitmap(const PCBYTES *pcb, PC_FILTERTYPE filter, double val1, double val2)
 {
-    switch(pcb->compression)
-    {
-        case PC_DIM_NONE:
-            return pc_bytes_uncompressed_bitmap(pcb, filter, val1, val2);
-        case PC_DIM_SIGBITS:
-        case PC_DIM_ZLIB:
-        {
-            PCBYTES dpcb = pc_bytes_decode(*pcb);
-            PCBITMAP *map = pc_bytes_uncompressed_bitmap(&dpcb, filter, val1, val2);
-            pc_bytes_free(dpcb);
-            return map;
-        }
-        case PC_DIM_RLE:
-            return pc_bytes_run_length_bitmap(pcb, filter, val1, val2);
-        default:
-            pcerror("%s: unknown compression", __func__);
-    }
-    return NULL;    
+	switch(pcb->compression)
+	{
+	case PC_DIM_NONE:
+		return pc_bytes_uncompressed_bitmap(pcb, filter, val1, val2);
+	case PC_DIM_SIGBITS:
+	case PC_DIM_ZLIB:
+	{
+		PCBYTES dpcb = pc_bytes_decode(*pcb);
+		PCBITMAP *map = pc_bytes_uncompressed_bitmap(&dpcb, filter, val1, val2);
+		pc_bytes_free(dpcb);
+		return map;
+	}
+	case PC_DIM_RLE:
+		return pc_bytes_run_length_bitmap(pcb, filter, val1, val2);
+	default:
+		pcerror("%s: unknown compression", __func__);
+	}
+	return NULL;
 }
 

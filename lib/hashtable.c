@@ -20,14 +20,15 @@ Credit for primes table: Aaron Krowne
  http://br.endernet.org/~akrowne/
  http://planetmath.org/encyclopedia/GoodHashTablePrimes.html
 */
-static const unsigned int primes[] = {
-53, 97, 193, 389,
-769, 1543, 3079, 6151,
-12289, 24593, 49157, 98317,
-196613, 393241, 786433, 1572869,
-3145739, 6291469, 12582917, 25165843,
-50331653, 100663319, 201326611, 402653189,
-805306457, 1610612741
+static const unsigned int primes[] =
+{
+	53, 97, 193, 389,
+	769, 1543, 3079, 6151,
+	12289, 24593, 49157, 98317,
+	196613, 393241, 786433, 1572869,
+	3145739, 6291469, 12582917, 25165843,
+	50331653, 100663319, 201326611, 402653189,
+	805306457, 1610612741
 };
 const unsigned int prime_table_length = sizeof(primes)/sizeof(primes[0]);
 const float max_load_factor = 0.65;
@@ -76,13 +77,22 @@ create_hashtable(unsigned int minsize,
 	/* Check requested hashtable isn't too large */
 	if (minsize > (1u << 30)) return NULL;
 	/* Enforce size as prime */
-	for (pindex=0; pindex < prime_table_length; pindex++) {
-		if (primes[pindex] > minsize) { size = primes[pindex]; break; }
+	for (pindex=0; pindex < prime_table_length; pindex++)
+	{
+		if (primes[pindex] > minsize)
+		{
+			size = primes[pindex];
+			break;
+		}
 	}
 	h = (hashtable *)malloc(sizeof(hashtable));
 	if (NULL == h) return NULL; /*oom*/
 	h->table = (struct entry **)malloc(sizeof(struct entry*) * size);
-	if (NULL == h->table) { free(h); return NULL; } /*oom*/
+	if (NULL == h->table)
+	{
+		free(h);    /*oom*/
+		return NULL;
+	}
 	memset(h->table, 0, size * sizeof(struct entry *));
 	h->tablelength  = size;
 	h->primeindex   = pindex;
@@ -126,8 +136,10 @@ hashtable_expand(hashtable *h)
 		memset(newtable, 0, newsize * sizeof(struct entry *));
 		/* This algorithm is not 'stable'. ie. it reverses the list
 		* when it transfers entries between the tables */
-		for (i = 0; i < h->tablelength; i++) {
-			while (NULL != (e = h->table[i])) {
+		for (i = 0; i < h->tablelength; i++)
+		{
+			while (NULL != (e = h->table[i]))
+			{
 				h->table[i] = e->next;
 				index = indexFor(newsize,e->h);
 				e->next = newtable[index];
@@ -142,11 +154,17 @@ hashtable_expand(hashtable *h)
 	{
 		newtable = (struct entry **)
 		           realloc(h->table, newsize * sizeof(struct entry *));
-		if (NULL == newtable) { (h->primeindex)--; return 0; }
+		if (NULL == newtable)
+		{
+			(h->primeindex)--;
+			return 0;
+		}
 		h->table = newtable;
 		memset(newtable[h->tablelength], 0, newsize - h->tablelength);
-		for (i = 0; i < h->tablelength; i++) {
-			for (pE = &(newtable[i]), e = *pE; e != NULL; e = *pE) {
+		for (i = 0; i < h->tablelength; i++)
+		{
+			for (pE = &(newtable[i]), e = *pE; e != NULL; e = *pE)
+			{
 				index = indexFor(newsize,e->h);
 				if (index == i)
 				{
@@ -189,7 +207,11 @@ hashtable_insert(hashtable *h, void *k, void *v)
 		hashtable_expand(h);
 	}
 	e = (struct entry *)malloc(sizeof(struct entry));
-	if (NULL == e) { --(h->entrycount); return 0; } /*oom*/
+	if (NULL == e)
+	{
+		--(h->entrycount);    /*oom*/
+		return 0;
+	}
 	e->h = hash(h,k);
 	index = indexFor(h->tablelength,e->h);
 	e->k = k;
@@ -265,7 +287,13 @@ hashtable_destroy(hashtable *h, int free_values)
 		{
 			e = table[i];
 			while (NULL != e)
-			{ f = e; e = e->next; free(f->k); free(f->v); free(f); }
+			{
+				f = e;
+				e = e->next;
+				free(f->k);
+				free(f->v);
+				free(f);
+			}
 		}
 	}
 	else
@@ -274,7 +302,11 @@ hashtable_destroy(hashtable *h, int free_values)
 		{
 			e = table[i];
 			while (NULL != e)
-			{ f = e; e = e->next; free(f); }
+			{
+				f = e;
+				e = e->next;
+				free(f);
+			}
 		}
 	}
 	free(h->table);

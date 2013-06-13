@@ -5,7 +5,7 @@
 *  Allow this library to be used both inside and outside a
 *  PgSQL backend.
 *
-*  PgSQL Pointcloud is free and open source software provided 
+*  PgSQL Pointcloud is free and open source software provided
 *  by the Government of Canada
 *  Copyright (c) 2013 Natural Resources Canada
 *
@@ -90,13 +90,13 @@ void pc_install_default_handlers(void)
 	pc_context.err = default_error_handler;
 	pc_context.info = default_info_handler;
 	pc_context.warn = default_warn_handler;
-	
+
 #ifdef HAVE_LIBGHT
-    ght_set_handlers((void *)default_allocator,    (void *)default_reallocator,
-                     (void *)default_freeor,       (void *)default_error_handler,
-                     (void *)default_info_handler, (void *)default_warn_handler);
+	ght_set_handlers((void *)default_allocator,    (void *)default_reallocator,
+	                 (void *)default_freeor,       (void *)default_error_handler,
+	                 (void *)default_info_handler, (void *)default_warn_handler);
 #endif
-	
+
 }
 
 void pc_set_handlers(pc_allocator allocator, pc_reallocator reallocator,
@@ -109,23 +109,23 @@ void pc_set_handlers(pc_allocator allocator, pc_reallocator reallocator,
 	pc_context.err = error_handler;
 	pc_context.warn = warn_handler;
 	pc_context.info = info_handler;
-	
+
 #ifdef HAVE_LIBGHT
-    ght_set_handlers((void *)allocator,    (void *)reallocator,
-                     (void *)deallocator,  (void *)error_handler,
-                     (void *)info_handler, (void *)warn_handler);
+	ght_set_handlers((void *)allocator,    (void *)reallocator,
+	                 (void *)deallocator,  (void *)error_handler,
+	                 (void *)info_handler, (void *)warn_handler);
 #endif
 
-    return;
-	
+	return;
+
 }
 
 
 void *
 pcalloc(size_t size)
 {
-    void *mem;
-    if ( ! size ) return NULL;
+	void *mem;
+	if ( ! size ) return NULL;
 	mem = pc_context.alloc(size);
 	memset(mem, 0, size); /* Always clean memory */
 	return mem;

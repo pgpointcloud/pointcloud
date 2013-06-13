@@ -4,7 +4,7 @@
 *  Pointclound schema handling. Parse and emit the XML format for
 *  representing packed multidimensional point data.
 *
-*  PgSQL Pointcloud is free and open source software provided 
+*  PgSQL Pointcloud is free and open source software provided
 *  by the Government of Canada
 *  Copyright (c) 2013 Natural Resources Canada
 *
@@ -69,28 +69,28 @@ pc_interpretation_number(const char *str)
 static int
 pc_compression_number(const char *str)
 {
-    if ( ! str )
-        return PC_NONE;
+	if ( ! str )
+		return PC_NONE;
 
-    if ( (str[0] == 'd' || str[0] == 'D') &&
-         (strcasecmp(str, "dimensional") == 0) )
-    {
-        return PC_DIMENSIONAL;
-    }
+	if ( (str[0] == 'd' || str[0] == 'D') &&
+	        (strcasecmp(str, "dimensional") == 0) )
+	{
+		return PC_DIMENSIONAL;
+	}
 
-    if ( (str[0] == 'g' || str[0] == 'G') &&
-         (strcasecmp(str, "ght") == 0) )
-    {
-        return PC_GHT;
-    }
+	if ( (str[0] == 'g' || str[0] == 'G') &&
+	        (strcasecmp(str, "ght") == 0) )
+	{
+		return PC_GHT;
+	}
 
-    if ( (str[0] == 'n' || str[0] == 'N') &&
-         (strcasecmp(str, "none") == 0) )
-    {
-        return PC_NONE;
-    }
+	if ( (str[0] == 'n' || str[0] == 'N') &&
+	        (strcasecmp(str, "none") == 0) )
+	{
+		return PC_NONE;
+	}
 
-    return PC_NONE;
+	return PC_NONE;
 }
 
 /** Convert type interpretation number size in bytes */
@@ -103,7 +103,7 @@ pc_interpretation_size(uint32_t interp)
 	}
 	else
 	{
-        pcerror("pc_interpretation_size: invalid interpretation");
+		pcerror("pc_interpretation_size: invalid interpretation");
 		return 0;
 	}
 }
@@ -121,12 +121,12 @@ pc_dimension_new()
 static PCDIMENSION*
 pc_dimension_clone(const PCDIMENSION *dim)
 {
-    PCDIMENSION *pcd = pc_dimension_new();
+	PCDIMENSION *pcd = pc_dimension_new();
 	/* Copy all the inline data */
-    memcpy(pcd, dim, sizeof(PCDIMENSION));
-    /* Copy the referenced data */
-    pcd->name = pcstrdup(dim->name);
-    pcd->description = pcstrdup(dim->description);
+	memcpy(pcd, dim, sizeof(PCDIMENSION));
+	/* Copy the referenced data */
+	pcd->name = pcstrdup(dim->name);
+	pcd->description = pcstrdup(dim->description);
 	return pcd;
 }
 
@@ -165,11 +165,11 @@ pc_schema_calculate_byteoffsets(PCSCHEMA *pcs)
 		if ( pcs->dims[i] )
 		{
 			pcs->dims[i]->byteoffset = byteoffset;
-            pcs->dims[i]->size = pc_interpretation_size(pcs->dims[i]->interpretation);
+			pcs->dims[i]->size = pc_interpretation_size(pcs->dims[i]->interpretation);
 			byteoffset += pcs->dims[i]->size;
 		}
 	}
-    pcs->size = byteoffset;
+	pcs->size = byteoffset;
 }
 
 void
@@ -177,29 +177,29 @@ pc_schema_set_dimension(PCSCHEMA *s, PCDIMENSION *d)
 {
 	s->dims[d->position] = d;
 	hashtable_insert(s->namehash, d->name, d);
-    pc_schema_calculate_byteoffsets(s);
+	pc_schema_calculate_byteoffsets(s);
 }
 
 
 PCSCHEMA*
 pc_schema_clone(const PCSCHEMA *s)
 {
-    int i;
-    PCSCHEMA *pcs = pc_schema_new(s->ndims);
-    pcs->pcid = s->pcid;
-    pcs->srid = s->srid;
-    pcs->x_position = s->x_position;
-    pcs->y_position = s->y_position;
-    pcs->compression = s->compression;
-    for ( i = 0; i < pcs->ndims; i++ )
-    {
-        if ( s->dims[i] )
-        {
-            pc_schema_set_dimension(pcs, pc_dimension_clone(s->dims[i]));
-        }
-    }
+	int i;
+	PCSCHEMA *pcs = pc_schema_new(s->ndims);
+	pcs->pcid = s->pcid;
+	pcs->srid = s->srid;
+	pcs->x_position = s->x_position;
+	pcs->y_position = s->y_position;
+	pcs->compression = s->compression;
+	for ( i = 0; i < pcs->ndims; i++ )
+	{
+		if ( s->dims[i] )
+		{
+			pc_schema_set_dimension(pcs, pc_dimension_clone(s->dims[i]));
+		}
+	}
 	pc_schema_calculate_byteoffsets(pcs);
-    return pcs;
+	return pcs;
 }
 
 
@@ -219,8 +219,8 @@ pc_schema_free(PCSCHEMA *pcs)
 	}
 	pcfree(pcs->dims);
 
-    if ( pcs->namehash )
-        hashtable_destroy(pcs->namehash, 0);
+	if ( pcs->namehash )
+		hashtable_destroy(pcs->namehash, 0);
 
 	pcfree(pcs);
 }
@@ -281,26 +281,26 @@ pc_schema_to_json(const PCSCHEMA *pcs)
 
 void pc_schema_check_xy(PCSCHEMA *s)
 {
-    int i;
-    for ( i = 0; i < s->ndims; i++ )
-    {
-        char *dimname = s->dims[i]->name;
-        if ( strcasecmp(dimname, "X") == 0 ||
-             strcasecmp(dimname, "Longitude") == 0 ||
-             strcasecmp(dimname, "Lon") == 0 )
-        {
-            s->x_position = i;
-            continue;
-        }
-        if ( strcasecmp(dimname, "Y") == 0 ||
-             strcasecmp(dimname, "Latitude") == 0 ||
-             strcasecmp(dimname, "Lat") == 0 )
-        {
-            s->y_position = i;
-            continue;
-        }
-    } 
-    
+	int i;
+	for ( i = 0; i < s->ndims; i++ )
+	{
+		char *dimname = s->dims[i]->name;
+		if ( strcasecmp(dimname, "X") == 0 ||
+		        strcasecmp(dimname, "Longitude") == 0 ||
+		        strcasecmp(dimname, "Lon") == 0 )
+		{
+			s->x_position = i;
+			continue;
+		}
+		if ( strcasecmp(dimname, "Y") == 0 ||
+		        strcasecmp(dimname, "Latitude") == 0 ||
+		        strcasecmp(dimname, "Lat") == 0 )
+		{
+			s->y_position = i;
+			continue;
+		}
+	}
+
 	if ( s->x_position < 0 )
 		pcerror("pc_schema_check_xy: invalid x_position '%d'", s->x_position);
 
@@ -311,19 +311,20 @@ void pc_schema_check_xy(PCSCHEMA *s)
 static char *
 xml_node_get_content(xmlNodePtr node)
 {
-    int i;
-    xmlNodePtr cur = node->children;
-    if ( cur )
-    {
-        do {
-            if ( cur->type == XML_TEXT_NODE )
-            {
-                return cur->content;
-            }
-        }
-        while ( cur = cur->next );
-    }
-    return "";
+	int i;
+	xmlNodePtr cur = node->children;
+	if ( cur )
+	{
+		do
+		{
+			if ( cur->type == XML_TEXT_NODE )
+			{
+				return cur->content;
+			}
+		}
+		while ( cur = cur->next );
+	}
+	return "";
 }
 
 /** Population a PCSCHEMA struct from the XML representation */
@@ -384,7 +385,7 @@ pc_schema_from_xml(const char *xml_str, PCSCHEMA **schema)
 	xpath_obj = xmlXPathEvalExpression(xpath_str, xpath_ctx);
 	if( ! xpath_obj )
 	{
-	    xmlXPathFreeContext(xpath_ctx);
+		xmlXPathFreeContext(xpath_ctx);
 		xmlFreeDoc(xml_doc);
 		xmlCleanupParser();
 		pcwarn("unable to evaluate xpath expression \"%s\" against schema XML", xpath_str);
@@ -417,14 +418,14 @@ pc_schema_from_xml(const char *xml_str, PCSCHEMA **schema)
 						if ( strcmp(child->name, "name") == 0 )
 						{
 							if ( strcasecmp(child->children->content, "X") == 0 ||
-							     strcasecmp(child->children->content, "Longitude") == 0 ||
-							     strcasecmp(child->children->content, "Lon") == 0 )
+							        strcasecmp(child->children->content, "Longitude") == 0 ||
+							        strcasecmp(child->children->content, "Lon") == 0 )
 							{
 								xydim = 'x';
 							}
 							if ( strcasecmp(child->children->content, "Y") == 0 ||
-							     strcasecmp(child->children->content, "Latitude") == 0 ||
-							     strcasecmp(child->children->content, "Lat") == 0 )
+							        strcasecmp(child->children->content, "Latitude") == 0 ||
+							        strcasecmp(child->children->content, "Lat") == 0 )
 							{
 								xydim = 'y';
 							}
@@ -462,21 +463,27 @@ pc_schema_from_xml(const char *xml_str, PCSCHEMA **schema)
 					if ( s->dims[d->position] )
 					{
 						xmlXPathFreeObject(xpath_obj);
-					    xmlXPathFreeContext(xpath_ctx);
+						xmlXPathFreeContext(xpath_ctx);
 						xmlFreeDoc(xml_doc);
 						xmlCleanupParser();
 						pc_schema_free(s);
 						pcwarn("schema dimension at position \"%d\" is declared twice", d->position + 1, ndims);
 						return PC_FAILURE;
 					}
-					if ( xydim == 'x' ) { s->x_position = d->position; }
-					if ( xydim == 'y' ) { s->y_position = d->position; }
-                    pc_schema_set_dimension(s, d);
+					if ( xydim == 'x' )
+					{
+						s->x_position = d->position;
+					}
+					if ( xydim == 'y' )
+					{
+						s->y_position = d->position;
+					}
+					pc_schema_set_dimension(s, d);
 				}
 				else
 				{
 					xmlXPathFreeObject(xpath_obj);
-				    xmlXPathFreeContext(xpath_ctx);
+					xmlXPathFreeContext(xpath_ctx);
 					xmlFreeDoc(xml_doc);
 					xmlCleanupParser();
 					pc_schema_free(s);
@@ -498,7 +505,7 @@ pc_schema_from_xml(const char *xml_str, PCSCHEMA **schema)
 	xpath_obj = xmlXPathEvalExpression(xpath_metadata_str, xpath_ctx);
 	if( ! xpath_obj )
 	{
-	    xmlXPathFreeContext(xpath_ctx);
+		xmlXPathFreeContext(xpath_ctx);
 		xmlFreeDoc(xml_doc);
 		xmlCleanupParser();
 		pcwarn("unable to evaluate xpath expression \"%s\" against schema XML", xpath_metadata_str);
@@ -512,33 +519,33 @@ pc_schema_from_xml(const char *xml_str, PCSCHEMA **schema)
 
 		for ( i = 0; i < nodes->nodeNr; i++ )
 		{
-            char *metadata_name = "";
-            char *metadata_value = "";
-		    /* Read the metadata name and value from the node */
-		    /* <Metadata name="somename">somevalue</Metadata> */
-		    xmlNodePtr cur = nodes->nodeTab[i];
-            if( cur->type == XML_ELEMENT_NODE && strcmp(cur->name, "Metadata") == 0 )
-            {
-                metadata_name = xmlGetProp(cur, "name");
-                metadata_value = xml_node_get_content(cur);
-            }
+			char *metadata_name = "";
+			char *metadata_value = "";
+			/* Read the metadata name and value from the node */
+			/* <Metadata name="somename">somevalue</Metadata> */
+			xmlNodePtr cur = nodes->nodeTab[i];
+			if( cur->type == XML_ELEMENT_NODE && strcmp(cur->name, "Metadata") == 0 )
+			{
+				metadata_name = xmlGetProp(cur, "name");
+				metadata_value = xml_node_get_content(cur);
+			}
 
-            /* Store the compression type on the schema */
-            if ( strcmp(metadata_name, "compression") == 0 )
-            {
-                int compression = pc_compression_number(metadata_value);
-                if ( compression >= 0 )
-                {
-                    s->compression = compression;
-                }
-            }
-            xmlFree(metadata_name);
-        }
+			/* Store the compression type on the schema */
+			if ( strcmp(metadata_name, "compression") == 0 )
+			{
+				int compression = pc_compression_number(metadata_value);
+				if ( compression >= 0 )
+				{
+					s->compression = compression;
+				}
+			}
+			xmlFree(metadata_name);
+		}
 	}
 
 	xmlXPathFreeObject(xpath_obj);
 
-    xmlXPathFreeContext(xpath_ctx);
+	xmlXPathFreeContext(xpath_ctx);
 	xmlFreeDoc(xml_doc);
 	xmlCleanupParser();
 
@@ -602,6 +609,6 @@ pc_schema_get_dimension_by_name(const PCSCHEMA *s, const char *name)
 size_t
 pc_schema_get_size(const PCSCHEMA *s)
 {
-    return s->size;
+	return s->size;
 }
 

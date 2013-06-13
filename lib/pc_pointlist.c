@@ -4,7 +4,7 @@
 *  Point list handling. Create, get and set values from the
 *  basic PCPOINTLIST structure.
 *
-*  PgSQL Pointcloud is free and open source software provided 
+*  PgSQL Pointcloud is free and open source software provided
 *  by the Government of Canada
 *  Copyright (c) 2013 Natural Resources Canada
 *
@@ -55,40 +55,40 @@ pc_pointlist_add_point(PCPOINTLIST *pl, PCPOINT *pt)
 PCPOINT *
 pc_pointlist_get_point(const PCPOINTLIST *pl, int i)
 {
-    return pl->points[i];
+	return pl->points[i];
 }
 
 PCPOINTLIST *
 pc_pointlist_from_dimensional(const PCPATCH_DIMENSIONAL *pdl)
 {
-    PCPOINTLIST *pl;
-    PCPATCH_DIMENSIONAL *pdl_uncompressed;
-    const PCSCHEMA *schema = pdl->schema;
-    int i, j, ndims, npoints;
-    assert(pdl);
+	PCPOINTLIST *pl;
+	PCPATCH_DIMENSIONAL *pdl_uncompressed;
+	const PCSCHEMA *schema = pdl->schema;
+	int i, j, ndims, npoints;
+	assert(pdl);
 
-    pdl_uncompressed = pc_patch_dimensional_decompress(pdl);
+	pdl_uncompressed = pc_patch_dimensional_decompress(pdl);
 
-    ndims = schema->ndims;
-    npoints = pdl->npoints;
-    pl = pc_pointlist_make(npoints);
+	ndims = schema->ndims;
+	npoints = pdl->npoints;
+	pl = pc_pointlist_make(npoints);
 
-    for ( i = 0; i < npoints; i++ )
-    {
-        PCPOINT *pt = pc_point_make(schema);
-        for ( j = 0; j < ndims; j++ )
-        {
-            PCDIMENSION *dim = pc_schema_get_dimension(schema, j);
+	for ( i = 0; i < npoints; i++ )
+	{
+		PCPOINT *pt = pc_point_make(schema);
+		for ( j = 0; j < ndims; j++ )
+		{
+			PCDIMENSION *dim = pc_schema_get_dimension(schema, j);
 
-            uint8_t *in = pdl_uncompressed->bytes[j].bytes + dim->size * i;
-            uint8_t *out = pt->data + dim->byteoffset;
-            memcpy(out, in, dim->size);
-        }
-        pc_pointlist_add_point(pl, pt);
-    }
-    pc_patch_dimensional_free(pdl_uncompressed);
+			uint8_t *in = pdl_uncompressed->bytes[j].bytes + dim->size * i;
+			uint8_t *out = pt->data + dim->byteoffset;
+			memcpy(out, in, dim->size);
+		}
+		pc_pointlist_add_point(pl, pt);
+	}
+	pc_patch_dimensional_free(pdl_uncompressed);
 
-    return pl;
+	return pl;
 }
 
 PCPOINTLIST *
@@ -112,18 +112,18 @@ pc_pointlist_from_patch(const PCPATCH *patch)
 {
 	switch ( patch->type )
 	{
-		case PC_NONE:
-		{
-			return pc_pointlist_from_uncompressed((PCPATCH_UNCOMPRESSED*)patch);
-		}
-		case PC_GHT:
-		{
-            return pc_pointlist_from_ght((PCPATCH_GHT*)patch);
-		}
-		case PC_DIMENSIONAL:
-		{
-            return pc_pointlist_from_dimensional((PCPATCH_DIMENSIONAL*)patch);
-		}
+	case PC_NONE:
+	{
+		return pc_pointlist_from_uncompressed((PCPATCH_UNCOMPRESSED*)patch);
+	}
+	case PC_GHT:
+	{
+		return pc_pointlist_from_ght((PCPATCH_GHT*)patch);
+	}
+	case PC_DIMENSIONAL:
+	{
+		return pc_pointlist_from_dimensional((PCPATCH_DIMENSIONAL*)patch);
+	}
 	}
 
 	/* Don't get here */

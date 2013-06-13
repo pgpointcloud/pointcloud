@@ -4,7 +4,7 @@
 *  Pointclound patch handling. Create, get and set values from the
 *  uncompressed PCPATCH structure.
 *
-*  PgSQL Pointcloud is free and open source software provided 
+*  PgSQL Pointcloud is free and open source software provided
 *  by the Government of Canada
 *  Copyright (c) 2013 Natural Resources Canada
 *
@@ -62,11 +62,11 @@ uint8_t *
 pc_patch_uncompressed_to_wkb(const PCPATCH_UNCOMPRESSED *patch, size_t *wkbsize)
 {
 	/*
-    byte:     endianness (1 = NDR, 0 = XDR)
-    uint32:   pcid (key to POINTCLOUD_SCHEMAS)
-    uint32:   compression (0 = no compression, 1 = dimensional, 2 = GHT)
-    uint32:   npoints
-    uchar[]:  data (interpret relative to pcid)
+	byte:     endianness (1 = NDR, 0 = XDR)
+	uint32:   pcid (key to POINTCLOUD_SCHEMAS)
+	uint32:   compression (0 = no compression, 1 = dimensional, 2 = GHT)
+	uint32:   npoints
+	uchar[]:  data (interpret relative to pcid)
 	*/
 	char endian = machine_endian();
 	/* endian + pcid + compression + npoints + datasize */
@@ -89,11 +89,11 @@ PCPATCH *
 pc_patch_uncompressed_from_wkb(const PCSCHEMA *s, const uint8_t *wkb, size_t wkbsize)
 {
 	/*
-    byte:     endianness (1 = NDR, 0 = XDR)
-    uint32:   pcid (key to POINTCLOUD_SCHEMAS)
-    uint32:   compression (0 = no compression, 1 = dimensional, 2 = GHT)
-    uint32:   npoints
-    pcpoint[]:  data (interpret relative to pcid)
+	byte:     endianness (1 = NDR, 0 = XDR)
+	uint32:   pcid (key to POINTCLOUD_SCHEMAS)
+	uint32:   compression (0 = no compression, 1 = dimensional, 2 = GHT)
+	uint32:   npoints
+	pcpoint[]:  data (interpret relative to pcid)
 	*/
 	static size_t hdrsz = 1+4+4+4; /* endian + pcid + compression + npoints */
 	PCPATCH_UNCOMPRESSED *patch;
@@ -125,8 +125,8 @@ pc_patch_uncompressed_from_wkb(const PCSCHEMA *s, const uint8_t *wkb, size_t wkb
 	}
 
 	patch = pcalloc(sizeof(PCPATCH_UNCOMPRESSED));
-    patch->type = PC_NONE;
-    patch->readonly = PC_FALSE;
+	patch->type = PC_NONE;
+	patch->readonly = PC_FALSE;
 	patch->schema = s;
 	patch->npoints = npoints;
 	patch->maxpoints = npoints;
@@ -157,19 +157,19 @@ pc_patch_uncompressed_make(const PCSCHEMA *s, uint32_t maxpoints)
 
 	/* Set up basic info */
 	pch = pcalloc(sizeof(PCPATCH_UNCOMPRESSED));
-    pch->type = PC_NONE;
+	pch->type = PC_NONE;
 	pch->readonly = PC_FALSE;
 	pch->schema = s;
 	pch->npoints = 0;
-    pch->stats = NULL;
+	pch->stats = NULL;
 	pch->maxpoints = maxpoints;
 
 	/* Make our own data area */
 	datasize = s->size * maxpoints;
 	pch->data = pcalloc(datasize);
 	pch->datasize = datasize;
-    
-    pc_bounds_init(&(pch->bounds));
+
+	pc_bounds_init(&(pch->bounds));
 
 	return pch;
 }
@@ -179,11 +179,11 @@ pc_patch_uncompressed_compute_extent(PCPATCH_UNCOMPRESSED *patch)
 {
 	int i;
 	PCPOINT *pt = pc_point_from_data(patch->schema, patch->data);
-    PCBOUNDS b;
+	PCBOUNDS b;
 	double x, y;
 
 	/* Calculate bounds */
-    pc_bounds_init(&b);
+	pc_bounds_init(&b);
 	for ( i = 0; i < patch->npoints; i++ )
 	{
 		/* Just push the data buffer forward by one point at a time */
@@ -195,8 +195,8 @@ pc_patch_uncompressed_compute_extent(PCPATCH_UNCOMPRESSED *patch)
 		if ( b.xmax < x ) b.xmax = x;
 		if ( b.ymax < y ) b.ymax = y;
 	}
-	
-    patch->bounds = b;
+
+	patch->bounds = b;
 	return PC_SUCCESS;
 }
 
@@ -217,7 +217,7 @@ pc_patch_uncompressed_from_pointlist(const PCPOINTLIST *pl)
 {
 	PCPATCH_UNCOMPRESSED *pch;
 	const PCSCHEMA *s;
-    PCPOINT *pt;
+	PCPOINT *pt;
 	uint8_t *ptr;
 	int i;
 	uint32_t numpts;
@@ -237,7 +237,7 @@ pc_patch_uncompressed_from_pointlist(const PCPOINTLIST *pl)
 
 	/* Assume the first PCSCHEMA is the same as the rest for now */
 	/* We will check this as we go along */
-    pt = pc_pointlist_get_point(pl, 0);
+	pt = pc_pointlist_get_point(pl, 0);
 	s = pt->schema;
 
 	/* Confirm we have a schema pointer */
@@ -261,18 +261,18 @@ pc_patch_uncompressed_from_pointlist(const PCPOINTLIST *pl)
 	ptr = pch->data;
 
 	/* Initialize bounds */
-    pc_bounds_init(&(pch->bounds));
+	pc_bounds_init(&(pch->bounds));
 
 	/* Set up basic info */
 	pch->readonly = PC_FALSE;
 	pch->maxpoints = numpts;
-    pch->type = PC_NONE;
+	pch->type = PC_NONE;
 	pch->schema = s;
 	pch->npoints = 0;
 
 	for ( i = 0; i < numpts; i++ )
 	{
-        pt = pc_pointlist_get_point(pl, i);
+		pt = pc_pointlist_get_point(pl, i);
 		if ( pt )
 		{
 			if ( pt->schema->pcid != s->pcid )
@@ -289,7 +289,7 @@ pc_patch_uncompressed_from_pointlist(const PCPOINTLIST *pl)
 			pcwarn("%s: encountered null point", __func__);
 		}
 	}
- 
+
 	if ( PC_FAILURE == pc_patch_uncompressed_compute_extent(pch) )
 	{
 		pcerror("%s: failed to compute patch extent", __func__);
@@ -309,43 +309,43 @@ pc_patch_uncompressed_from_pointlist(const PCPOINTLIST *pl)
 PCPATCH_UNCOMPRESSED *
 pc_patch_uncompressed_from_dimensional(const PCPATCH_DIMENSIONAL *pdl)
 {
-    int i, j, npoints;
-    PCPATCH_UNCOMPRESSED *patch;
-    PCPATCH_DIMENSIONAL *pdl_uncompressed;
-    const PCSCHEMA *schema;
-    uint8_t *buf;
+	int i, j, npoints;
+	PCPATCH_UNCOMPRESSED *patch;
+	PCPATCH_DIMENSIONAL *pdl_uncompressed;
+	const PCSCHEMA *schema;
+	uint8_t *buf;
 
-    npoints = pdl->npoints;
-    schema = pdl->schema;
-    patch = pcalloc(sizeof(PCPATCH_UNCOMPRESSED));
-    patch->type = PC_NONE;
-    patch->readonly = PC_FALSE;
-    patch->schema = schema;
-    patch->npoints = npoints;
-    patch->maxpoints = npoints;
-    patch->bounds = pdl->bounds;
-    patch->datasize = schema->size * pdl->npoints;
-    patch->data = pcalloc(patch->datasize);
-    buf = patch->data;
+	npoints = pdl->npoints;
+	schema = pdl->schema;
+	patch = pcalloc(sizeof(PCPATCH_UNCOMPRESSED));
+	patch->type = PC_NONE;
+	patch->readonly = PC_FALSE;
+	patch->schema = schema;
+	patch->npoints = npoints;
+	patch->maxpoints = npoints;
+	patch->bounds = pdl->bounds;
+	patch->datasize = schema->size * pdl->npoints;
+	patch->data = pcalloc(patch->datasize);
+	buf = patch->data;
 
-    /* Can only read from uncompressed dimensions */
-    pdl_uncompressed = pc_patch_dimensional_decompress(pdl);
+	/* Can only read from uncompressed dimensions */
+	pdl_uncompressed = pc_patch_dimensional_decompress(pdl);
 
-    for ( i = 0; i < npoints; i++ )
-    {
-        for ( j = 0; j < schema->ndims; j++ )
-        {
-            PCDIMENSION *dim = pc_schema_get_dimension(schema, j);
-            uint8_t *in = pdl_uncompressed->bytes[j].bytes + dim->size * i;
-            uint8_t *out = buf + dim->byteoffset;
-            memcpy(out, in, dim->size);
-        }
-        buf += schema->size;
-    }
+	for ( i = 0; i < npoints; i++ )
+	{
+		for ( j = 0; j < schema->ndims; j++ )
+		{
+			PCDIMENSION *dim = pc_schema_get_dimension(schema, j);
+			uint8_t *in = pdl_uncompressed->bytes[j].bytes + dim->size * i;
+			uint8_t *out = buf + dim->byteoffset;
+			memcpy(out, in, dim->size);
+		}
+		buf += schema->size;
+	}
 
-    pc_patch_dimensional_free(pdl_uncompressed);
+	pc_patch_dimensional_free(pdl_uncompressed);
 
-    return patch;
+	return patch;
 }
 
 

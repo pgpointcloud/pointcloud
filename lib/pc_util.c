@@ -3,7 +3,7 @@
 *
 *  Handy functions used by the library.
 *
-*  PgSQL Pointcloud is free and open source software provided 
+*  PgSQL Pointcloud is free and open source software provided
 *  by the Government of Canada
 *  Copyright (c) 2013 Natural Resources Canada
 *
@@ -17,7 +17,8 @@
 */
 
 /* Our static character->number map. Anything > 15 is invalid */
-static uint8_t hex2char[256] = {
+static uint8_t hex2char[256] =
+{
 	/* not Hex characters */
 	20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,
 	20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,
@@ -137,23 +138,23 @@ int16_flip_endian(int16_t val)
 int32_t
 wkb_get_int32(const uint8_t *wkb, int flip_endian)
 {
-    int32_t i;
-    memcpy(&i, wkb, 4);
-    if ( flip_endian )
-        return int32_flip_endian(i);
-    else
-        return i;
+	int32_t i;
+	memcpy(&i, wkb, 4);
+	if ( flip_endian )
+		return int32_flip_endian(i);
+	else
+		return i;
 }
 
 int16_t
 wkb_get_int16(const uint8_t *wkb, int flip_endian)
 {
-    int16_t i;
-    memcpy(&i, wkb, 2);
-    if ( flip_endian )
-        return int16_flip_endian(i);
-    else
-        return i;
+	int16_t i;
+	memcpy(&i, wkb, 2);
+	if ( flip_endian )
+		return int16_flip_endian(i);
+	else
+		return i;
 }
 
 uint32_t
@@ -237,79 +238,79 @@ uncompressed_bytes_flip_endian(const uint8_t *bytebuf, const PCSCHEMA *schema, u
 
 typedef struct
 {
-    uint8_t *buf;
-    uint8_t *ptr;
-    size_t sz;
+	uint8_t *buf;
+	uint8_t *ptr;
+	size_t sz;
 } bytebuffer_t;
 
 static bytebuffer_t *
 bytebuffer_new(void)
 {
-    bytebuffer_t *bb = pcalloc(sizeof(bytebuffer_t));
-    bb->sz = 1024;
-    bb->buf = pcalloc(bb->sz*sizeof(uint8_t));
-    bb->ptr = bb->buf;
+	bytebuffer_t *bb = pcalloc(sizeof(bytebuffer_t));
+	bb->sz = 1024;
+	bb->buf = pcalloc(bb->sz*sizeof(uint8_t));
+	bb->ptr = bb->buf;
 }
 
 static void
 bytebuffer_destroy(bytebuffer_t *bb)
 {
-    pcfree(bb->buf);
-    pcfree(bb);
+	pcfree(bb->buf);
+	pcfree(bb);
 }
 
 static void
 bytebuffer_memcpy(bytebuffer_t *bb, void *ptr, size_t sz)
 {
-    size_t cursz = bb->ptr - bb->buf;
-    if ( (bb->sz - cursz) < sz )
-    {
-        bb->sz *= 2;
-        bb->buf = pcrealloc(bb->buf, bb->sz);
-        bb->ptr = bb->buf + cursz;
-    }
-    memcpy(bb->ptr, ptr, sz);
-    bb->ptr += sz;
+	size_t cursz = bb->ptr - bb->buf;
+	if ( (bb->sz - cursz) < sz )
+	{
+		bb->sz *= 2;
+		bb->buf = pcrealloc(bb->buf, bb->sz);
+		bb->ptr = bb->buf + cursz;
+	}
+	memcpy(bb->ptr, ptr, sz);
+	bb->ptr += sz;
 }
 
 static size_t
 bytebuffer_size(bytebuffer_t *bb)
 {
-    return (size_t)(bb->ptr - bb->buf);
+	return (size_t)(bb->ptr - bb->buf);
 }
 
 static void *
 bytebuffer_copy(bytebuffer_t *bb)
 {
-    char *buf = pcalloc(bytebuffer_size(bb));
-    memcpy(buf, bb->buf, bytebuffer_size(bb));
-    return (void *)buf;
+	char *buf = pcalloc(bytebuffer_size(bb));
+	memcpy(buf, bb->buf, bytebuffer_size(bb));
+	return (void *)buf;
 }
 
 int
 pc_bounds_intersects(const PCBOUNDS *b1, const PCBOUNDS *b2)
 {
-    if ( b1->xmin > b2->xmax ||
-         b1->xmax < b2->xmin ||
-         b1->ymin > b2->ymax ||
-         b1->ymax < b2->ymin )
-    {
-        return PC_FALSE;
-    }
-    return PC_TRUE;   
+	if ( b1->xmin > b2->xmax ||
+	        b1->xmax < b2->xmin ||
+	        b1->ymin > b2->ymax ||
+	        b1->ymax < b2->ymin )
+	{
+		return PC_FALSE;
+	}
+	return PC_TRUE;
 }
 
 void
 pc_bounds_init(PCBOUNDS *b)
 {
-    b->xmin = b->ymin = DBL_MAX;
-    b->xmax = b->ymax = -1*DBL_MAX;
+	b->xmin = b->ymin = DBL_MAX;
+	b->xmax = b->ymax = -1*DBL_MAX;
 }
 
 void pc_bounds_merge(PCBOUNDS *b1, const PCBOUNDS *b2)
 {
-    if ( b2->xmin < b1->xmin ) b1->xmin = b2->xmin;
-    if ( b2->ymin < b1->ymin ) b1->ymin = b2->ymin;
-    if ( b2->xmax > b1->xmax ) b1->xmax = b2->xmax;
-    if ( b2->ymax > b1->ymax ) b1->ymax = b2->ymax;
+	if ( b2->xmin < b1->xmin ) b1->xmin = b2->xmin;
+	if ( b2->ymin < b1->ymin ) b1->ymin = b2->ymin;
+	if ( b2->xmax > b1->xmax ) b1->xmax = b2->xmax;
+	if ( b2->ymax > b1->ymax ) b1->ymax = b2->ymax;
 }

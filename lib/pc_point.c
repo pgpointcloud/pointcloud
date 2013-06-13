@@ -4,7 +4,7 @@
 *  Pointclound point handling. Create, get and set values from the
 *  basic PCPOINT structure.
 *
-*  PgSQL Pointcloud is free and open source software provided 
+*  PgSQL Pointcloud is free and open source software provided
 *  by the Government of Canada
 *  Copyright (c) 2013 Natural Resources Canada
 *
@@ -86,7 +86,7 @@ pc_point_get_double(const PCPOINT *pt, const PCDIMENSION *dim, double *d)
 	/* Read raw value from byte buffer */
 	ptr = pt->data + dim->byteoffset;
 	val = pc_double_from_ptr(ptr, dim->interpretation);
-    val = pc_value_scale_offset(val, dim);
+	val = pc_value_scale_offset(val, dim);
 
 	*d = val;
 	return PC_SUCCESS;
@@ -115,8 +115,8 @@ pc_point_set_double(PCPOINT *pt, const PCDIMENSION *dim, double val)
 {
 	uint8_t *ptr;
 
-    /* Remove scale and offsets */
-    val = pc_value_unscale_unoffset(val, dim);
+	/* Remove scale and offsets */
+	val = pc_value_unscale_unoffset(val, dim);
 
 	/* Get pointer into byte buffer */
 	ptr = pt->data + dim->byteoffset;
