@@ -3,7 +3,7 @@
 *
 *  Common header file for all PgSQL pointcloud functions.
 *
-*  PgSQL Pointcloud is free and open source software provided 
+*  PgSQL Pointcloud is free and open source software provided
 *  by the Government of Canada
 *  Copyright (c) 2013 Natural Resources Canada
 *
@@ -64,12 +64,12 @@ SERIALIZED_POINT;
 */
 typedef struct
 {
-    uint32_t size;
-    uint32_t pcid;
-    uint32_t compression;
-    uint32_t npoints;
-    PCBOUNDS bounds;
-    uint8_t data[1];
+	uint32_t size;
+	uint32_t pcid;
+	uint32_t compression;
+	uint32_t npoints;
+	PCBOUNDS bounds;
+	uint8_t data[1];
 }
 SERIALIZED_PATCH;
 

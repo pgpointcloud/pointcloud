@@ -4,9 +4,9 @@
 *  Signatures we need to share within the library, but not for
 *  use outside it.
 *
-*  PgSQL Pointcloud is free and open source software provided 
+*  PgSQL Pointcloud is free and open source software provided
 *  by the Government of Canada
-* 
+*
 *  Copyright (c) 2013 Natural Resources Canada
 *  Copyright (c) 2013 OpenGeo
 *
@@ -48,12 +48,12 @@
 
 enum INTERPRETATIONS
 {
-	PC_UNKNOWN = 0,
-	PC_INT8   = 1,  PC_UINT8  = 2,
-	PC_INT16  = 3,  PC_UINT16 = 4,
-	PC_INT32  = 5,  PC_UINT32 = 6,
-	PC_INT64  = 7,  PC_UINT64 = 8,
-	PC_DOUBLE = 9,  PC_FLOAT  = 10
+    PC_UNKNOWN = 0,
+    PC_INT8   = 1,  PC_UINT8  = 2,
+    PC_INT16  = 3,  PC_UINT16 = 4,
+    PC_INT32  = 5,  PC_UINT32 = 6,
+    PC_INT64  = 7,  PC_UINT64 = 8,
+    PC_DOUBLE = 9,  PC_FLOAT  = 10
 };
 
 static char *INTERPRETATION_STRINGS[NUM_INTERPRETATIONS] =
@@ -76,7 +76,8 @@ static size_t INTERPRETATION_SIZES[NUM_INTERPRETATIONS] =
 	8, 4   /* PC_DOUBLE, PC_FLOAT */
 };
 
-enum DIMCOMPRESSIONS {
+enum DIMCOMPRESSIONS
+{
     PC_DIM_NONE = 0,
     PC_DIM_RLE = 1,
     PC_DIM_SIGBITS = 2,
@@ -85,9 +86,9 @@ enum DIMCOMPRESSIONS {
 
 typedef struct
 {
-    uint32_t nset;
-    uint32_t npoints;
-    uint8_t *map;
+	uint32_t nset;
+	uint32_t npoints;
+	uint8_t *map;
 } PCBITMAP;
 
 

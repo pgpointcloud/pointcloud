@@ -3,7 +3,7 @@
 *
 *  Structures and function signatures for point clouds
 *
-*  PgSQL Pointcloud is free and open source software provided 
+*  PgSQL Pointcloud is free and open source software provided
 *  by the Government of Canada
 *  Copyright (c) 2013 Natural Resources Canada
 *
@@ -23,7 +23,7 @@
 
 #ifdef HAVE_LIBGHT
 #include "ght.h"
-#endif 
+#endif
 
 /**********************************************************************
 * DATA STRUCTURES
@@ -36,9 +36,9 @@
 */
 enum COMPRESSIONS
 {
-	PC_NONE = 0,
-	PC_GHT = 1,
-	PC_DIMENSIONAL = 2
+    PC_NONE = 0,
+    PC_GHT = 1,
+    PC_DIMENSIONAL = 2
 };
 
 /**
@@ -47,11 +47,12 @@ enum COMPRESSIONS
 */
 enum ENDIANS
 {
-	PC_XDR = 0,   /* Big */
-	PC_NDR = 1    /* Little */
+    PC_XDR = 0,   /* Big */
+    PC_NDR = 1    /* Little */
 };
 
-typedef enum {
+typedef enum
+{
     PC_GT,
     PC_LT,
     PC_EQUAL,
@@ -93,17 +94,17 @@ typedef struct
 /* Used for dimensional patch statistics */
 typedef struct
 {
-    uint32_t total_runs;
-    uint32_t total_commonbits;
-    uint32_t recommended_compression;
+	uint32_t total_runs;
+	uint32_t total_commonbits;
+	uint32_t recommended_compression;
 } PCDIMSTAT;
 
 typedef struct
 {
-    int32_t ndims;
-    uint32_t total_points;
-    uint32_t total_patches;
-    PCDIMSTAT *stats;
+	int32_t ndims;
+	uint32_t total_points;
+	uint32_t total_patches;
+	PCDIMSTAT *stats;
 } PCDIMSTATS;
 
 /**
@@ -130,28 +131,28 @@ typedef struct
 
 typedef struct
 {
-    size_t size;
-    uint32_t npoints;
-    uint32_t interpretation;
-    uint32_t compression;
-    uint32_t readonly;
-    uint8_t *bytes;
+	size_t size;
+	uint32_t npoints;
+	uint32_t interpretation;
+	uint32_t compression;
+	uint32_t readonly;
+	uint8_t *bytes;
 } PCBYTES;
 
 typedef struct
 {
-    double xmin;
-    double xmax;
-    double ymin;
-    double ymax;
+	double xmin;
+	double xmax;
+	double ymin;
+	double ymax;
 } PCBOUNDS;
 
 /* Used for generic patch statistics */
 typedef struct
 {
-    PCPOINT min;
-    PCPOINT max;
-    PCPOINT avg;
+	PCPOINT min;
+	PCPOINT max;
+	PCPOINT avg;
 }
 PCSTATS;
 
@@ -173,12 +174,12 @@ PCSTATS;
 
 typedef struct
 {
-    PCPATCH_COMMON
+	PCPATCH_COMMON
 } PCPATCH;
 
 typedef struct
 {
-    PCPATCH_COMMON
+	PCPATCH_COMMON
 	uint32_t maxpoints; /* How many points we can hold (or 0 for read-only) */
 	size_t datasize;
 	uint8_t *data; /* A serialized version of the data */
@@ -186,15 +187,15 @@ typedef struct
 
 typedef struct
 {
-    PCPATCH_COMMON
-    PCBYTES *bytes;
+	PCPATCH_COMMON
+	PCBYTES *bytes;
 } PCPATCH_DIMENSIONAL;
 
 typedef struct
 {
-    PCPATCH_COMMON
-    size_t ghtsize;
-    uint8_t *ght;
+	PCPATCH_COMMON
+	size_t ghtsize;
+	uint8_t *ght;
 } PCPATCH_GHT;
 
 
