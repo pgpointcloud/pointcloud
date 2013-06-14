@@ -628,6 +628,24 @@ Similarly, reading data from a PostgreSQL Pointcloud uses a Pointcloud reader an
 
 Note that we do not need to chip the data stream when reading from the database, as the writer does not care if the points are blocked into patches or not.
 
+You can use the "where" option to restrict a read to just an envelope, allowing partial extracts from a table:
+
+    <?xml version="1.0" encoding="utf-8"?>
+    <Pipeline version="1.0">
+        <Writer type="drivers.las.writer">
+            <Option name="filename">st-helens-small-out.las</Option>
+            <Option name="spatialreference">EPSG:26910</Option>
+            <Reader type="drivers.pgpointcloud.reader">
+                <Option name="connection">dbname='pc' user='pramsey'</Option>
+                <Option name="table">sthsm</Option>
+                <Option name="column">pa</Option>
+                <Option name="srid">26910</Option>
+                <Option name="where">PC_Intersects(pa, ST_MakeEnvelope(560037.36, 5114846.45, 562667.31, 5118943.24, 26910))</Option>
+            </Reader>
+        </Writer>
+    </Pipeline>
+
+
 #### PDAL pgpointcloud Reader/Writer Options ####
 
 The PDAL **drivers.pgpointcloud.writer** for PostgreSQL Pointcloud takes the following options:
