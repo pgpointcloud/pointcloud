@@ -19,6 +19,8 @@ To Do
 - Remove extents in favour of PCSTATS
 - Make PCSTATS a static member of the PCPATCH, not a pointer
 
+- PC\_Filter[GreaterThan|LessThan|Between](patch, dimension, value) should note the relevant stats and short-circuit return either all or none of the patch, as necessary
+
 Use Cases to Support
 --------------------
 
@@ -33,10 +35,6 @@ Use Cases to Support
 More Functions
 --------------
 
-- PC\_FilterEquals(patch, dimension, value) returns patch
-- PC\_FilterLessThan(patch, dimension, value) returns patch
-- PC\_FilterGreaterThan(patch, dimension, value) returns patch
-- PC\_FilterBetween(patch, dimension, valuemin, valuemax) returns patch
 - PC\_FilterPolygon(patch, wkb) returns patch
 - PC\_Filter(patch, dimension, expression) returns patch
 - PC\_Get(pcpatch, dimname) returns Array(numeric)
