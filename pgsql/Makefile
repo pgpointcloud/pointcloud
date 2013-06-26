@@ -15,7 +15,7 @@ REGRESS = pointcloud
 
 # Add in build/link flags for lib
 PG_CPPFLAGS += -I../lib
-SHLIB_LINK += $(filter -lm, $(LIBS)) $(XML2_LDFLAGS) $(ZLIB_LDFLAGS) $(GHT_LDFLAGS) ../lib/$(LIB_A)
+SHLIB_LINK += ../lib/$(LIB_A) $(filter -lm, $(LIBS)) $(XML2_LDFLAGS) $(ZLIB_LDFLAGS) $(GHT_LDFLAGS)
 
 # We are going to use PGXS for sure
 include $(PGXS)
