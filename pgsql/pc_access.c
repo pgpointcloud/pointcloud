@@ -90,7 +90,6 @@ pcpatch_from_point_array(ArrayType *array, FunctionCallInfoData *fcinfo)
 {
 	int nelems;
 	bits8 *bitmap;
-	int bitmask;
 	size_t offset = 0;
 	int i;
 	uint32 pcid = 0;
@@ -113,7 +112,6 @@ pcpatch_from_point_array(ArrayType *array, FunctionCallInfoData *fcinfo)
 
 	offset = 0;
 	bitmap = ARR_NULLBITMAP(array);
-	bitmask = 1;
 	for ( i = 0; i < nelems; i++ )
 	{
 		/* Only work on non-NULL entries in the array */
@@ -163,7 +161,6 @@ pcpatch_from_patch_array(ArrayType *array, FunctionCallInfoData *fcinfo)
 {
 	int nelems;
 	bits8 *bitmap;
-	int bitmask;
 	size_t offset = 0;
 	int i;
 	uint32 pcid = 0;
@@ -188,7 +185,6 @@ pcpatch_from_patch_array(ArrayType *array, FunctionCallInfoData *fcinfo)
 	/* Read the patches out of the array and deserialize */
 	offset = 0;
 	bitmap = ARR_NULLBITMAP(array);
-	bitmask = 1;
 	for ( i = 0; i < nelems; i++ )
 	{
 		/* Only work on non-NULL entries in the array */
