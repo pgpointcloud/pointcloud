@@ -43,7 +43,7 @@ test_patch_ght()
 {
     PCPOINT *pt;
     int i;
-    int npts = 100;
+    static int npts = 100;
     PCPOINTLIST *pl1, *pl2;
     PCPATCH_GHT *pag;
     PCPATCH_UNCOMPRESSED *pu;
@@ -61,6 +61,8 @@ test_patch_ght()
     }
 
     pag = pc_patch_ght_from_pointlist(pl1);
+    pc_pointlist_free(pl1);
+
     pu = pc_patch_uncompressed_from_ght(pag);
     CU_ASSERT_EQUAL(npts, pag->npoints);
     CU_ASSERT_EQUAL(npts, pu->npoints);
@@ -83,7 +85,50 @@ test_patch_ght()
     
     pc_patch_uncompressed_free(pu);    
     pc_patch_ght_free(pag);
+}
+
+static void
+test_patch_ght_filtering()
+{
+    int dimnum = 2; /* Z */
+    PCPOINT *pt;
+    int i;
+    static int npts = 100;
+    PCPOINTLIST *pl1, *pl2;
+    PCPATCH_GHT *pag, *pag_filtered;
+    
+    pl1 = pc_pointlist_make(npts);
+
+    for ( i = 0; i < npts; i++ )
+    {
+        pt = pc_point_make(simpleschema);
+        pc_point_set_double_by_name(pt, "x", 45 + i*0.000004);
+        pc_point_set_double_by_name(pt, "y", 45 + i*0.000001666);
+        pc_point_set_double_by_name(pt, "Z", 10 + i*0.34);
+        pc_point_set_double_by_name(pt, "intensity", 10);
+        pc_pointlist_add_point(pl1, pt);
+    }
+
+    pag = pc_patch_ght_from_pointlist(pl1);
     pc_pointlist_free(pl1);
+
+    pag_filtered = pc_patch_ght_filter(pag, dimnum, PC_LT, 10, 10);
+    CU_ASSERT_EQUAL(pag_filtered->npoints, 0);
+    pc_patch_ght_free(pag_filtered);
+
+    pag_filtered = pc_patch_ght_filter(pag, dimnum, PC_LT, 11, 11);
+    CU_ASSERT_EQUAL(pag_filtered->npoints, 3);
+    pc_patch_ght_free(pag_filtered);
+
+    pag_filtered = pc_patch_ght_filter(pag, dimnum, PC_GT, 11, 11);
+    CU_ASSERT_EQUAL(pag_filtered->npoints, 97);
+    pc_patch_ght_free(pag_filtered);
+
+    pag_filtered = pc_patch_ght_filter(pag, dimnum, PC_BETWEEN, 11, 16);
+    CU_ASSERT_EQUAL(pag_filtered->npoints, 15);
+    pc_patch_ght_free(pag_filtered);
+
+    pc_patch_ght_free(pag);
 }
 
 
@@ -94,6 +139,7 @@ test_patch_ght()
 CU_TestInfo ght_tests[] = {
 #ifdef HAVE_LIBGHT
 	PC_TEST(test_patch_ght),
+	PC_TEST(test_patch_ght_filtering),
 #endif
 	CU_TEST_INFO_NULL
 };

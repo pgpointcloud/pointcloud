@@ -424,9 +424,9 @@ pc_patch_ght_compute_extent(PCPATCH_GHT *patch)
 		return PC_FAILURE;
 
 	patch->bounds.xmin = area.x.min;
-	patch->bounds.xmax = area.x.min;
+	patch->bounds.xmax = area.x.max;
 	patch->bounds.ymin = area.y.min;
-	patch->bounds.ymax = area.y.min;
+	patch->bounds.ymax = area.y.max;
 
 	ght_tree_free(tree);
 
@@ -484,6 +484,114 @@ pc_patch_ght_to_wkb(const PCPATCH_GHT *patch, size_t *wkbsize)
 	memcpy(buf, patch->ght, patch->ghtsize);
 	if ( wkbsize ) *wkbsize = size;
 	return wkb;
+#endif
+}
+
+PCPATCH_GHT *
+pc_patch_ght_filter(const PCPATCH_GHT *patch, uint32_t dimnum, PC_FILTERTYPE filter, double val1, double val2)
+{
+#ifndef HAVE_LIBGHT
+	pcerror("%s: libght support is not enabled", __func__);
+	return NULL;
+#else
+	/*
+	byte:     endianness (1 = NDR, 0 = XDR)
+	uint32:   pcid (key to POINTCLOUD_SCHEMAS)
+	uint32:   compression (0 = no compression, 1 = dimensional, 2 = GHT)
+	uint32:   npoints
+	uint32:   ghtsize
+	uint8[]:  ghtbuffer
+	*/
+
+	GhtTreePtr tree;
+	GhtTreePtr tree_filtered;
+    GhtErr err;
+	GhtWriterPtr writer;
+	GhtArea area;
+    const char *dimname;
+    const PCDIMENSION *dim;
+    PCPATCH_GHT *paght;
+    int npoints;
+
+    /* Echo null back */
+    if ( ! patch ) return NULL;
+    
+	/* Get a tree */
+	tree = ght_tree_from_pc_patch(patch);
+	if ( ! tree ) pcerror("%s: call to ght_tree_from_pc_patch failed", __func__);
+
+    /* Get dimname */
+    dim = pc_schema_get_dimension(patch->schema, dimnum);
+    if ( ! dim ) pcerror("%s: invalid dimension number (%d)", __func__, dimnum);
+    dimname = dim->name;
+
+    switch ( filter )
+    {
+    	case PC_GT:
+            err = ght_tree_filter_greater_than(tree, dimname, val1 > val2 ? val1 : val2, &tree_filtered);
+    		break;
+    	case PC_LT:
+            err = ght_tree_filter_less_than(tree, dimname, val1 < val2 ? val1 : val2, &tree_filtered);
+    		break;
+    	case PC_EQUAL:
+            err = ght_tree_filter_equal(tree, dimname, val1, &tree_filtered);
+    		break;
+    	case PC_BETWEEN:
+            err = ght_tree_filter_between(tree, dimname, val1, val2, &tree_filtered);
+    		break;
+        default:
+            pcerror("%s: invalid filter type (%d)", __func__, filter);
+    }
+
+    /* ght_tree_filter_* returns a tree with NULL tree element and npoints == 0 */
+    /* for empty filter results (everything got filtered away) */
+    if ( err != GHT_OK || ! tree_filtered )
+        pcerror("%s: ght_tree_filter failed", __func__);
+
+    /* Read numpoints left in patch */
+    ght_tree_get_numpoints(tree_filtered, &(npoints));
+
+    /* Allocate a fresh GHT patch for output */
+	paght = pcalloc(sizeof(PCPATCH_GHT));
+	paght->type = PC_GHT;
+	paght->readonly = PC_FALSE;
+	paght->schema = patch->schema;
+	paght->npoints = npoints;
+
+	/* No points, not much to do... */	
+	if ( ! npoints )
+	{
+        paght->ghtsize = 0;
+        paght->ght = NULL;
+    }
+    else
+    {
+    	/* Calculate bounds and save */
+    	if ( GHT_OK != ght_tree_get_extent(tree_filtered, &area) )
+    		pcerror("%s: ght_tree_get_extent failed", __func__);
+
+    	paght->bounds.xmin = area.x.min;
+    	paght->bounds.xmax = area.x.max;
+    	paght->bounds.ymin = area.y.min;
+    	paght->bounds.ymax = area.y.max;
+
+        /* TODO: Replace this; need to update stats too */
+    	paght->stats = pc_stats_clone(patch->stats);    	
+    	
+    	/* Convert the tree to a memory buffer */
+    	ght_writer_new_mem(&writer);
+    	ght_tree_write(tree_filtered, writer);
+    	ght_writer_get_size(writer, &(paght->ghtsize));
+    	paght->ght = pcalloc(paght->ghtsize);
+    	ght_writer_get_bytes(writer, paght->ght);
+    	ght_writer_free(writer);
+	}
+
+	ght_tree_free(tree_filtered);
+	ght_tree_free(tree);
+
+    return paght;
+
 #endif
 }
 

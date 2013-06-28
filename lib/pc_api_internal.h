@@ -189,7 +189,7 @@ int pc_patch_ght_compute_extent(PCPATCH_GHT *patch);
 uint8_t* pc_patch_ght_to_wkb(const PCPATCH_GHT *patch, size_t *wkbsize);
 PCPATCH* pc_patch_ght_from_wkb(const PCSCHEMA *schema, const uint8_t *wkb, size_t wkbsize);
 PCPOINTLIST* pc_pointlist_from_ght(const PCPATCH_GHT *pag);
-
+PCPATCH_GHT* pc_patch_ght_filter(const PCPATCH_GHT *patch, uint32_t dimnum, PC_FILTERTYPE filter, double val1, double val2);
 
 
 /****************************************************************************

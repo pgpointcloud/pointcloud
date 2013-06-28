@@ -685,6 +685,7 @@ Datum pcpatch_filter(PG_FUNCTION_ARGS)
 	}
 	pfree(dim_name);
 
+    /* Always treat zero-point patches as SQL NULL */
 	if ( patch_filtered->npoints <= 0 )
 	{
 		pc_patch_free(patch_filtered);

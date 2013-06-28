@@ -178,25 +178,18 @@ pc_patch_filter(const PCPATCH *pa, uint32_t dimnum, PC_FILTERTYPE filter, double
 		}
 		pu = pc_patch_uncompressed_filter((PCPATCH_UNCOMPRESSED*)pa, map);
 		pc_bitmap_free(map);
+		/* pc_patch_uncompressed_filter computes stats and bounds, so we're ready to return here */
+		/* TODO, it could/should compute bounds and stats while filtering the points */
 		paout = (PCPATCH*)pu;
 		break;
 	}
 	case PC_GHT:
 	{
-		PCPATCH_UNCOMPRESSED *pu = pc_patch_uncompressed_from_ght((PCPATCH_GHT*)pa);
-		PCBITMAP *map = pc_patch_uncompressed_bitmap(pu, dimnum, filter, val1, val2);
-		PCPATCH_UNCOMPRESSED *pu2;
-		PCPATCH_GHT *pgh;
-		if ( map->nset == 0 )
-		{
-			pc_bitmap_free(map);
-			return (PCPATCH*)pc_patch_uncompressed_make(pa->schema, 0);
-		}
-		pu2 = pc_patch_uncompressed_filter(pu, map);
-		pgh = pc_patch_ght_from_uncompressed(pu2);
-		pc_patch_free((PCPATCH*)pu);
-		pc_patch_free((PCPATCH*)pu2);
-		paout = (PCPATCH*)pgh;
+        PCPATCH_GHT *pgh = pc_patch_ght_filter((PCPATCH_GHT*)pa, dimnum, filter, val1, val2);
+		/* pc_patch_ght_filter computes the bounds itself */
+		/* TODO: add stats computation to pc_patch_ght_filter */
+		/* pc_patch_ght_filter is just re-using the input stats, which is wrong */
+        paout = (PCPATCH*)pgh;
 		break;
 	}
 	case PC_DIMENSIONAL:
@@ -211,17 +204,20 @@ pc_patch_filter(const PCPATCH *pa, uint32_t dimnum, PC_FILTERTYPE filter, double
 		pdl = pc_patch_dimensional_filter((PCPATCH_DIMENSIONAL*)pa, map);
 		pc_bitmap_free(map);
 		paout = (PCPATCH*)pdl;
+
+		/* pc_patch_dimensional_filter does not compute computes stats or bounds, so we need to do it here */
+		/* TODO: this is expensive, we should do this while we are traversing the bytes in the filter process */
+    	if ( PC_FAILURE == pc_patch_compute_extent(paout) )
+    		pcerror("%s: pc_patch_compute_extent failed", __func__);
+
+    	if ( PC_FAILURE == pc_patch_compute_stats(paout) )
+    		pcerror("%s: pc_patch_compute_stats failed", __func__);
+
 		break;
 	}
 	default:
 		pcerror("%s: failure", __func__);
 	}
-
-	if ( PC_FAILURE == pc_patch_compute_extent(paout) )
-		pcerror("%s: pc_patch_compute_extent failed", __func__);
-
-	if ( PC_FAILURE == pc_patch_compute_stats(paout) )
-		pcerror("%s: pc_patch_compute_stats failed", __func__);
 
 	return paout;
 }
