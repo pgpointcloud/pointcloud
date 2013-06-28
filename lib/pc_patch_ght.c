@@ -210,13 +210,13 @@ pc_patch_ght_from_uncompressed(const PCPATCH_UNCOMPRESSED *pa)
 			}
 			else
 			{
-				ght_tree_free(tree);
+				// ght_tree_free(tree);
 				return NULL;
 			}
 		}
 		else
 		{
-			ght_tree_free(tree);
+			// ght_tree_free(tree);
 			return NULL;
 		}
 	}
@@ -242,7 +242,8 @@ pc_patch_ght_from_uncompressed(const PCPATCH_UNCOMPRESSED *pa)
 		ght_writer_free(writer);
 	}
 
-	ght_tree_free(tree);
+    // Let the heirarchical memory manager clean up the tree
+	// ght_tree_free(tree);
 	return paght;
 #endif
 }
@@ -262,7 +263,8 @@ pc_patch_ght_free(PCPATCH_GHT *paght)
 	/* so only free a readwrite tree */
 	if ( ! paght->readonly )
 	{
-		pcfree(paght->ght);
+	    if ( paght->ght )
+		    pcfree(paght->ght);
 	}
 
 	pcfree(paght);
@@ -345,7 +347,7 @@ pc_patch_uncompressed_from_ght(const PCPATCH_GHT *paght)
 
 	/* Done w/ nodelist and tree */
 	ght_nodelist_free_deep(nodelist);
-	ght_tree_free(tree);
+	// ght_tree_free(tree);
 
 	/* Done */
 	return patch;
@@ -428,7 +430,7 @@ pc_patch_ght_compute_extent(PCPATCH_GHT *patch)
 	patch->bounds.ymin = area.y.min;
 	patch->bounds.ymax = area.y.max;
 
-	ght_tree_free(tree);
+	// ght_tree_free(tree);
 
 	return PC_SUCCESS;
 #endif
@@ -587,8 +589,8 @@ pc_patch_ght_filter(const PCPATCH_GHT *patch, uint32_t dimnum, PC_FILTERTYPE fil
     	ght_writer_free(writer);
 	}
 
-	ght_tree_free(tree_filtered);
-	ght_tree_free(tree);
+	// ght_tree_free(tree_filtered);
+	// ght_tree_free(tree);
 
     return paght;
 

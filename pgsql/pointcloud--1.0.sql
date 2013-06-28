@@ -116,7 +116,7 @@ CREATE TYPE pcpatch (
 	-- delimiter = ':',
 	-- alignment = double,
 	-- analyze = geometry_analyze,
-	storage = main
+	storage = external
 );
 
 CREATE OR REPLACE FUNCTION PC_AsText(p pcpatch)
