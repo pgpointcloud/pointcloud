@@ -9,6 +9,8 @@
 
 #include "pc_api_internal.h"
 #include <assert.h>
+#include <float.h>
+
 
 PCBITMAP *
 pc_bitmap_new(uint32_t npoints)
@@ -150,12 +152,34 @@ pc_patch_dimensional_filter(const PCPATCH_DIMENSIONAL *pdl, const PCBITMAP *map)
 	int i = 0;
 	PCPATCH_DIMENSIONAL *fpdl = pc_patch_dimensional_clone(pdl);
 
+    fpdl->stats = pc_stats_clone(pdl->stats);
+	fpdl->npoints = map->nset;
+
 	for ( i = 0; i < pdl->schema->ndims; i++ )
 	{
-		fpdl->bytes[i] = pc_bytes_filter(&(pdl->bytes[i]), map);
+        PCDOUBLESTAT stats;
+        stats.min = FLT_MAX;
+        stats.max = FLT_MIN;
+        stats.sum = 0;
+		fpdl->bytes[i] = pc_bytes_filter(&(pdl->bytes[i]), map, &stats);
+
+		/* Save the X/Y stats for use in bounds later */
+		if ( i == pdl->schema->x_position )
+		{
+            fpdl->bounds.xmin = stats.min;
+            fpdl->bounds.xmax = stats.max;
+        }
+		else if ( i == pdl->schema->y_position )
+		{
+            fpdl->bounds.ymin = stats.min;
+            fpdl->bounds.ymax = stats.max;
+        }
+
+        pc_point_set_double_by_index(&(fpdl->stats->min), i, stats.min);
+        pc_point_set_double_by_index(&(fpdl->stats->max), i, stats.max);
+        pc_point_set_double_by_index(&(fpdl->stats->avg), i, stats.sum/fpdl->npoints);
 	}
 
-	fpdl->npoints = map->nset;
 	return fpdl;
 }
 
@@ -203,16 +227,8 @@ pc_patch_filter(const PCPATCH *pa, uint32_t dimnum, PC_FILTERTYPE filter, double
 		}
 		pdl = pc_patch_dimensional_filter((PCPATCH_DIMENSIONAL*)pa, map);
 		pc_bitmap_free(map);
+		/* pc_patch_dimensional_filter computes both stats and bounds, so we're done*/
 		paout = (PCPATCH*)pdl;
-
-		/* pc_patch_dimensional_filter does not compute computes stats or bounds, so we need to do it here */
-		/* TODO: this is expensive, we should do this while we are traversing the bytes in the filter process */
-    	if ( PC_FAILURE == pc_patch_compute_extent(paout) )
-    		pcerror("%s: pc_patch_compute_extent failed", __func__);
-
-    	if ( PC_FAILURE == pc_patch_compute_stats(paout) )
-    		pcerror("%s: pc_patch_compute_stats failed", __func__);
-
 		break;
 	}
 	default:

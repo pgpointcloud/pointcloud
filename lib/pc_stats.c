@@ -10,21 +10,6 @@
 #include "pc_api_internal.h"
 #include <float.h>
 
-/* PCDOUBLESTAT are members of PCDOUBLESTATS */
-typedef struct
-{
-	double min;
-	double max;
-	double sum;
-} PCDOUBLESTAT;
-
-/* PCDOUBLESTATS are internal to calculating stats in this module */
-typedef struct
-{
-	uint32_t npoints;
-	PCDOUBLESTAT *dims;
-} PCDOUBLESTATS;
-
 /*
 * Instantiate a new PCDOUBLESTATS for calculation, and set up
 * initial values for min/max/sum

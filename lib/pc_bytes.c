@@ -1312,19 +1312,30 @@ pc_bytes_minmax(const PCBYTES *pcb, double *min, double *max, double *avg)
 }
 
 static PCBYTES
-pc_bytes_uncompressed_filter(const PCBYTES *pcb, const PCBITMAP *map)
+pc_bytes_uncompressed_filter(const PCBYTES *pcb, const PCBITMAP *map, PCDOUBLESTAT *stats)
 {
 	int i = 0, j = 0;
 	double d;
 	PCBYTES fpcb = pc_bytes_clone(*pcb);
-	int sz = pc_interpretation_size(pcb->interpretation);
+    int interp = pcb->interpretation;
+	int sz = pc_interpretation_size(interp);
 	uint8_t *buf = pcb->bytes;
 	uint8_t *fbuf = fpcb.bytes;
 
 	while ( i < pcb->npoints )
 	{
+	    /* This entry is flagged to copy, so... */
 		if ( pc_bitmap_get(map, i) )
 		{
+		    /* Update stats on filtered bytes */
+            if ( stats )
+            {
+                d = pc_double_from_ptr(buf, interp);
+                if ( d < stats->min ) stats->min = d;
+                if ( d > stats->max ) stats->max = d;
+                stats->sum += d;
+            }
+            /* Copy into filtered byte array */
 			memcpy(fbuf, buf, sz);
 			fbuf += sz;
 			j++;
@@ -1338,51 +1349,84 @@ pc_bytes_uncompressed_filter(const PCBYTES *pcb, const PCBITMAP *map)
 }
 
 static PCBYTES
-pc_bytes_run_length_filter(const PCBYTES *pcb, const PCBITMAP *map)
+pc_bytes_run_length_filter(const PCBYTES *pcb, const PCBITMAP *map, PCDOUBLESTAT *stats)
 {
-	int i = 0, j = 0;
+    int i = 0, j = 0, npoints = 0;
 	double d;
 
 	PCBYTES fpcb = pc_bytes_clone(*pcb);
-	int sz = pc_interpretation_size(pcb->interpretation)+1;
+	int sz = pc_interpretation_size(pcb->interpretation);
 	uint8_t *fptr = fpcb.bytes;
 	uint8_t *ptr = pcb->bytes;
 	uint8_t *ptr_end = pcb->bytes + pcb->size;
 	uint8_t count;
+    uint8_t fcount;
 
 	while( ptr < ptr_end )
 	{
-		/* Read count */
+		/* Read unfiltered count */
 		count = *ptr;
+		/* Initialize filtered count */
+        fcount = 0;
+        
+        /* How many filtered points are in this value entry? */
+        for ( j = i; j < i+count; j++ )
+        {
+            if ( pc_bitmap_get(map, j) )
+            {
+                fcount++;
+            }
+        }
+        
+        /* If there are some, we need to copy */
+        if ( fcount )
+        {
+            /* Copy in the filtered count */
+            memcpy(fptr, &fcount, 1);
+            /* Advance to the value */
+            fptr++;
+            /* Copy in the value */
+            memcpy(fptr, ptr+1, sz);
+            /* Advance to next entry */
+            fptr += sz;
+            /* Increment point counter */
+            npoints += fcount;
+            /* Update the stats */
+            if ( stats )
+            {
+                d = pc_double_from_ptr(ptr+1, pcb->interpretation);
+                if ( d < stats->min ) stats->min = d;
+                if ( d > stats->max ) stats->max = d;
+                stats->sum += d;
+            }
+        }
 
-		if ( pc_bitmap_get(map, i) )
-		{
-			memcpy(fptr, ptr, sz);
-			fptr += sz;
-			j += count;
-		}
-		ptr += sz;
-		i += count;
+        /* Move to next value in unfiltered bytes */
+        ptr += sz+1;
+        i += count;
+        
 	}
 	fpcb.size = fptr - fpcb.bytes;
-	fpcb.npoints = j;
+	fpcb.npoints = npoints;
 	return fpcb;
 }
 
 PCBYTES
-pc_bytes_filter(const PCBYTES *pcb, const PCBITMAP *map)
+pc_bytes_filter(const PCBYTES *pcb, const PCBITMAP *map, PCDOUBLESTAT *stats)
 {
 	switch(pcb->compression)
 	{
 	case PC_DIM_NONE:
-		return pc_bytes_uncompressed_filter(pcb, map);
+		return pc_bytes_uncompressed_filter(pcb, map, stats);
 
 	case PC_DIM_RLE:
+        return pc_bytes_run_length_filter(pcb, map, stats);
+
 	case PC_DIM_SIGBITS:
 	case PC_DIM_ZLIB:
 	{
 		PCBYTES dpcb = pc_bytes_decode(*pcb);
-		PCBYTES fpcb = pc_bytes_uncompressed_filter(&dpcb, map);
+		PCBYTES fpcb = pc_bytes_uncompressed_filter(&dpcb, map, stats);
 		PCBYTES efpcb = pc_bytes_encode(fpcb, pcb->compression);
 		pc_bytes_free(fpcb);
 		pc_bytes_free(dpcb);

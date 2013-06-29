@@ -84,6 +84,22 @@ enum DIMCOMPRESSIONS
     PC_DIM_ZLIB = 3
 };
 
+/* PCDOUBLESTAT are members of PCDOUBLESTATS */
+typedef struct
+{
+	double min;
+	double max;
+	double sum;
+} PCDOUBLESTAT;
+
+/* PCDOUBLESTATS are internal to calculating stats in this module */
+typedef struct
+{
+	uint32_t npoints;
+	PCDOUBLESTAT *dims;
+} PCDOUBLESTATS;
+
+
 typedef struct
 {
 	uint32_t nset;
@@ -231,7 +247,8 @@ uint32_t pc_bytes_sigbits_count_32(const PCBYTES *pcb, uint32_t *nsigbits);
 /** Using an 64-bit word, what is the common word and number of bits in common? */
 uint64_t pc_bytes_sigbits_count_64(const PCBYTES *pcb, uint32_t *nsigbits);
 
-PCBYTES pc_bytes_filter(const PCBYTES *pcb, const PCBITMAP *map);
+PCBYTES pc_bytes_filter(const PCBYTES *pcb, const PCBITMAP *map, PCDOUBLESTAT *stats);
+
 PCBITMAP* pc_bytes_bitmap(const PCBYTES *pcb, PC_FILTERTYPE filter, double val1, double val2);
 
 

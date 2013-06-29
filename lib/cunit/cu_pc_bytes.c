@@ -361,9 +361,10 @@ test_zlib_encoding()
 static void
 test_rle_filter()
 {
-	char *bytes;
+	char *bytes, *bytes2;
     PCBYTES pcb, epcb, fpcb;
     PCBITMAP *map1, *map2;
+    int i;
 
     /*
     typedef struct
@@ -386,7 +387,7 @@ test_rle_filter()
     map2 = pc_bytes_bitmap(&epcb, PC_GT, 'a', 'a');
     CU_ASSERT_EQUAL(map2->nset, 8);
     
-    fpcb = pc_bytes_filter(&epcb, map1);
+    fpcb = pc_bytes_filter(&epcb, map1, NULL);
     CU_ASSERT_EQUAL(fpcb.bytes[0], 2);
     CU_ASSERT_EQUAL(fpcb.bytes[1], 'c');
     CU_ASSERT_EQUAL(fpcb.bytes[2], 2);
@@ -396,7 +397,7 @@ test_rle_filter()
 	pc_bytes_free(fpcb);
     pc_bitmap_free(map1);
 
-    fpcb = pc_bytes_filter(&epcb, map2);
+    fpcb = pc_bytes_filter(&epcb, map2, NULL);
     CU_ASSERT_EQUAL(fpcb.bytes[0], 4);
     CU_ASSERT_EQUAL(fpcb.bytes[1], 'b');
     CU_ASSERT_EQUAL(fpcb.bytes[2], 2);
@@ -412,12 +413,30 @@ test_rle_filter()
     epcb = pc_bytes_run_length_encode(pcb);
     map1 = pc_bytes_bitmap(&epcb, PC_LT, 25, 25); /* strip out the 30 */
     CU_ASSERT_EQUAL(map1->nset, 7);
-    fpcb = pc_bytes_filter(&epcb, map1);
-    CU_ASSERT_EQUAL(fpcb.size, 10); /* two runs, of 5 bytes eachh */
+    fpcb = pc_bytes_filter(&epcb, map1, NULL);
+    CU_ASSERT_EQUAL(fpcb.size, 15); /* three runs (2x10, 2x20, 2x20), of 5 bytes eachh */
     CU_ASSERT_EQUAL(fpcb.npoints, 7);
-	
 	pc_bytes_free(fpcb);
+	pc_bytes_free(pcb);
+    pc_bitmap_free(map1);
 
+    bytes = (uint8_t*)((uint16_t[]){ 1, 2, 3, 4, 5, 6, 7, 8 });
+    pcb = initbytes(bytes, 32, PC_UINT16);
+    map1 = pc_bytes_bitmap(&pcb, PC_BETWEEN, 2.5, 4.5); /* everything except entries 3 and 4 */
+	CU_ASSERT_EQUAL(map1->nset, 2);
+    fpcb = pc_bytes_filter(&epcb, map1, NULL); /* Should have only two entry, 10, 20 */
+    CU_ASSERT_EQUAL(fpcb.size, 10); /* two runs (1x10, 1x20), of 5 bytes eachh */
+    CU_ASSERT_EQUAL(fpcb.npoints, 2);
+    CU_ASSERT_EQUAL(fpcb.bytes[0], 1);
+    CU_ASSERT_EQUAL(fpcb.bytes[5], 1);
+    memcpy(&i, fpcb.bytes+1, 4);
+    CU_ASSERT_EQUAL(i, 10);
+    memcpy(&i, fpcb.bytes+6, 4);
+    CU_ASSERT_EQUAL(i, 20);
+    
+	pc_bytes_free(fpcb);
+	pc_bytes_free(pcb);
+    pc_bitmap_free(map1);
 	pc_bytes_free(epcb);
 }
 
@@ -449,7 +468,7 @@ test_uncompressed_filter()
     map1 = pc_bytes_bitmap(&pcb, PC_GT, 'b', 'b');
     CU_ASSERT_EQUAL(map1->nset, 4);
     
-    fpcb = pc_bytes_filter(&pcb, map1);
+    fpcb = pc_bytes_filter(&pcb, map1, NULL);
     CU_ASSERT_EQUAL(fpcb.bytes[0], 'c');
     CU_ASSERT_EQUAL(fpcb.size, 4);
     CU_ASSERT_EQUAL(fpcb.npoints, 4);
