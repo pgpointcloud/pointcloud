@@ -409,7 +409,7 @@ test_rle_filter()
 	pc_bytes_free(epcb);
 
     bytes = (uint8_t*)((uint32_t[]){ 10, 10, 10, 20, 20, 30, 20, 20 });
-    pcb = initbytes(bytes, 32, PC_UINT32);
+    pcb = initbytes(bytes, 8*4, PC_UINT32);
     epcb = pc_bytes_run_length_encode(pcb);
     map1 = pc_bytes_bitmap(&epcb, PC_LT, 25, 25); /* strip out the 30 */
     CU_ASSERT_EQUAL(map1->nset, 7);
@@ -421,7 +421,7 @@ test_rle_filter()
     pc_bitmap_free(map1);
 
     bytes = (uint8_t*)((uint16_t[]){ 1, 2, 3, 4, 5, 6, 7, 8 });
-    pcb = initbytes(bytes, 32, PC_UINT16);
+    pcb = initbytes(bytes, 8*2, PC_UINT16);
     map1 = pc_bytes_bitmap(&pcb, PC_BETWEEN, 2.5, 4.5); /* everything except entries 3 and 4 */
 	CU_ASSERT_EQUAL(map1->nset, 2);
     fpcb = pc_bytes_filter(&epcb, map1, NULL); /* Should have only two entry, 10, 20 */
