@@ -2,6 +2,8 @@
 
 A PostgreSQL extension for storing point cloud (LIDAR) data.
 
+- Mailing list: http://lists.osgeo.org/mailman/listinfo/pgpointcloud/
+
 
 ## Build/Install ##
 
