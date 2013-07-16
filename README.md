@@ -598,8 +598,8 @@ Here is a simple example pipeline that reads a LAS file and writes into a Postgr
             <Option name="srid">26910</Option>
             <Filter type="filters.chipper">
                 <Option name="capacity">400</Option>
-                <Filter type="filters.cache"><Option name="max_cache_blocks">3</Option>
-                    <Option name="cache_block_size">32184</Option>
+                <Filter type="filters.cache">
+                    <Option name="max_cache_blocks">1</Option>
                     <Reader type="drivers.las.reader">
                         <Option name="filename">/home/lidar/st-helens-small.las</Option>
                         <Option name="spatialreference">EPSG:26910</Option>
