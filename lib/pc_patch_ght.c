@@ -605,3 +605,4 @@ pc_pointlist_from_ght(const PCPATCH_GHT *pag)
 	pu = pc_patch_uncompressed_from_ght(pag);
 	return pc_pointlist_from_uncompressed(pu);
 }
+
