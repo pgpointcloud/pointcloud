@@ -123,6 +123,9 @@ int32_t wkb_get_int32(const uint8_t *wkb, int flip_endian);
 /** Read an int16 from a byte array, flipping if requested */
 int16_t wkb_get_int16(const uint8_t *wkb, int flip_endian);
 
+/** Read the number of points from a wkb */
+uint32_t wkb_get_npoints(const uint8_t *wkb);
+
 /** Force a byte array into the machine endianness */
 uint8_t* uncompressed_bytes_flip_endian(const uint8_t *bytebuf, const PCSCHEMA *schema, uint32_t npoints);
 
@@ -149,6 +152,9 @@ int pc_point_set_double_by_index(PCPOINT *pt, uint32_t idx, double val);
 
 /** Scales/offsets double, casts to appropriate dimension type, and writes into point */
 int pc_point_set_double_by_name(PCPOINT *pt, const char *name, double val);
+
+/** Scales/offsets double, casts to appropriate dimension type, and writes into point */
+int pc_point_set_double(PCPOINT *pt, const PCDIMENSION *dim, double val);
 
 
 /****************************************************************************
@@ -250,6 +256,7 @@ uint64_t pc_bytes_sigbits_count_64(const PCBYTES *pcb, uint32_t *nsigbits);
 PCBYTES pc_bytes_filter(const PCBYTES *pcb, const PCBITMAP *map, PCDOUBLESTAT *stats);
 
 PCBITMAP* pc_bytes_bitmap(const PCBYTES *pcb, PC_FILTERTYPE filter, double val1, double val2);
+int pc_bytes_minmax(const PCBYTES *pcb, double *min, double *max, double *avg);
 
 
 /****************************************************************************
