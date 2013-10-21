@@ -15,12 +15,26 @@ OBJS =	\
 	cu_pc_patch.o \
 	cu_pc_patch_ght.o
 
+ifeq ($(CUNIT_LDFLAGS),)
+# No cunit? Emit message and continue
+
+all:
+	@echo "CUnit not found, skipping build"
+
+check:
+	@echo "CUnit not found, skipping tests"
+
+else
+# Yes cunit? Build tests and run
+
 # Build the unit tester
 all: $(EXE)
 
 # Build and run the unit tester
 check: $(EXE)
 	@./$(EXE)
+
+endif
 
 # Build the main unit test executable
 $(EXE): $(OBJS) ../$(LIB_A)
@@ -33,3 +47,4 @@ $(EXE): $(OBJS) ../$(LIB_A)
 clean:
 	@rm -f $(OBJS)
 	@rm -f $(EXE)
+

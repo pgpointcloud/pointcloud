@@ -64,11 +64,11 @@ AC_CHECK_HEADER([CUnit/CUnit.h], [
 	AC_CHECK_LIB([cunit], 
 	  [CU_initialize_registry], 
 	  [CUNIT_LDFLAGS="$LDFLAGS -lcunit"], 
-	  [AC_MSG_ERROR([could not locate CUnit required for unit tests])]
+	  [AC_MSG_RESULT([notice   C unit tests will not be run])]
 	  )
 	],
 	[
-	AC_MSG_ERROR([could not locate CUnit required for unit tests])
+	AC_MSG_RESULT([notice   C unit tests will not be run])
 	])
 	
 AC_SUBST([CUNIT_CPPFLAGS])
