@@ -12,6 +12,7 @@
 
 #include <libxml/parser.h>
 #include <libxml/xpath.h>
+#include <libxml/xpathInternals.h>
 
 #include "pc_api_internal.h"
 #include "stringbuffer.h"
@@ -21,7 +22,7 @@
 static const char *
 pc_interpretation_string(uint32_t interp)
 {
-	if ( interp >= 0 && interp < NUM_INTERPRETATIONS )
+	if ( interp < NUM_INTERPRETATIONS )
 		return INTERPRETATION_STRINGS[interp];
 	else
 		return "unknown";
@@ -64,6 +65,8 @@ pc_interpretation_number(const char *str)
 	}
 	else
 		return PC_UNKNOWN;
+	
+	return PC_UNKNOWN;
 }
 
 static int
@@ -97,7 +100,7 @@ pc_compression_number(const char *str)
 size_t
 pc_interpretation_size(uint32_t interp)
 {
-	if ( interp >= 0 && interp < NUM_INTERPRETATIONS )
+	if ( interp < NUM_INTERPRETATIONS )
 	{
 		return INTERPRETATION_SIZES[interp];
 	}
@@ -319,10 +322,10 @@ xml_node_get_content(xmlNodePtr node)
 		{
 			if ( cur->type == XML_TEXT_NODE )
 			{
-				return cur->content;
+				return (char*)(cur->content);
 			}
 		}
-		while ( cur = cur->next );
+		while ( (cur = cur->next) );
 	}
 	return "";
 }
@@ -347,8 +350,8 @@ pc_schema_from_xml(const char *xml_str, PCSCHEMA **schema)
 	}
 
 	size_t xml_size = strlen(xml_ptr);
-	static xmlChar *xpath_str = "/pc:PointCloudSchema/pc:dimension";
-	static xmlChar *xpath_metadata_str = "/pc:PointCloudSchema/pc:metadata/Metadata";
+	static xmlChar *xpath_str = (xmlChar*)("/pc:PointCloudSchema/pc:dimension");
+	static xmlChar *xpath_metadata_str = (xmlChar*)("/pc:PointCloudSchema/pc:metadata/Metadata");
 
 
 	/* Parse XML doc */
@@ -379,7 +382,7 @@ pc_schema_from_xml(const char *xml_str, PCSCHEMA **schema)
 
 	/* Register the root namespace if there is one */
 	if ( xml_ns )
-		xmlXPathRegisterNs(xpath_ctx, "pc", xml_ns->href);
+		xmlXPathRegisterNs(xpath_ctx, (xmlChar*)"pc", xml_ns->href);
 
 	/* Evaluate xpath expression */
 	xpath_obj = xmlXPathEvalExpression(xpath_str, xpath_ctx);
@@ -393,7 +396,7 @@ pc_schema_from_xml(const char *xml_str, PCSCHEMA **schema)
 	}
 
 	/* Iterate on the dimensions we found */
-	if ( nodes = xpath_obj->nodesetval )
+	if ( (nodes = xpath_obj->nodesetval) )
 	{
 		int ndims = nodes->nodeNr;
 		int i;
@@ -415,42 +418,44 @@ pc_schema_from_xml(const char *xml_str, PCSCHEMA **schema)
 				{
 					if( child->type == XML_ELEMENT_NODE )
 					{
-						if ( strcmp(child->name, "name") == 0 )
+						char *content = (char*)(child->children->content);
+						char *name = (char*)(child->name);
+						if ( strcmp(name, "name") == 0 )
 						{
-							if ( strcasecmp(child->children->content, "X") == 0 ||
-							        strcasecmp(child->children->content, "Longitude") == 0 ||
-							        strcasecmp(child->children->content, "Lon") == 0 )
+							if ( strcasecmp(content, "X") == 0 ||
+							        strcasecmp(content, "Longitude") == 0 ||
+							        strcasecmp(content, "Lon") == 0 )
 							{
 								xydim = 'x';
 							}
-							if ( strcasecmp(child->children->content, "Y") == 0 ||
-							        strcasecmp(child->children->content, "Latitude") == 0 ||
-							        strcasecmp(child->children->content, "Lat") == 0 )
+							if ( strcasecmp(content, "Y") == 0 ||
+							        strcasecmp(content, "Latitude") == 0 ||
+							        strcasecmp(content, "Lat") == 0 )
 							{
 								xydim = 'y';
 							}
-							d->name = pcstrdup(child->children->content);
+							d->name = pcstrdup(content);
 						}
-						else if ( strcmp(child->name, "description") == 0 )
-							d->description = pcstrdup(child->children->content);
-						else if ( strcmp(child->name, "size") == 0 )
-							d->size = atoi(child->children->content);
-						else if ( strcmp(child->name, "active") == 0 )
-							d->active = atoi(child->children->content);
-						else if ( strcmp(child->name, "position") == 0 )
-							d->position = atoi(child->children->content) - 1;
-						else if ( strcmp(child->name, "interpretation") == 0 )
-							d->interpretation = pc_interpretation_number(child->children->content);
-						else if ( strcmp(child->name, "scale") == 0 )
-							d->scale = atof(child->children->content);
-						else if ( strcmp(child->name, "offset") == 0 )
-							d->offset = atof(child->children->content);
-						else if ( strcmp(child->name, "uuid") == 0 )
-							/* Ignore this tag for now */ 1;
-						else if ( strcmp(child->name, "parent_uuid") == 0 )
-							/* Ignore this tag for now */ 1;
+						else if ( strcmp(name, "description") == 0 )
+							d->description = pcstrdup(content);
+						else if ( strcmp(name, "size") == 0 )
+							d->size = atoi(content);
+						else if ( strcmp(name, "active") == 0 )
+							d->active = atoi(content);
+						else if ( strcmp(name, "position") == 0 )
+							d->position = atoi(content) - 1;
+						else if ( strcmp(name, "interpretation") == 0 )
+							d->interpretation = pc_interpretation_number(content);
+						else if ( strcmp(name, "scale") == 0 )
+							d->scale = atof(content);
+						else if ( strcmp(name, "offset") == 0 )
+							d->offset = atof(content);
+						else if ( strcmp(name, "uuid") == 0 )
+							/* Ignore this tag for now */ {}
+						else if ( strcmp(name, "parent_uuid") == 0 )
+							/* Ignore this tag for now */ {}
 						else
-							pcinfo("unhandled schema type element \"%s\" encountered", child->name);
+							pcinfo("unhandled schema type element \"%s\" encountered", name);
 					}
 				}
 
@@ -458,7 +463,7 @@ pc_schema_from_xml(const char *xml_str, PCSCHEMA **schema)
 				d->size = pc_interpretation_size(d->interpretation);
 
 				/* Store the dimension in the schema */
-				if ( d->position >= 0 && d->position < ndims )
+				if ( d->position < ndims )
 				{
 					if ( s->dims[d->position] )
 					{
@@ -513,7 +518,7 @@ pc_schema_from_xml(const char *xml_str, PCSCHEMA **schema)
 	}
 
 	/* Iterate on the <Metadata> we find */
-	if ( nodes = xpath_obj->nodesetval )
+	if ( (nodes = xpath_obj->nodesetval) )
 	{
 		int i;
 
@@ -524,9 +529,9 @@ pc_schema_from_xml(const char *xml_str, PCSCHEMA **schema)
 			/* Read the metadata name and value from the node */
 			/* <Metadata name="somename">somevalue</Metadata> */
 			xmlNodePtr cur = nodes->nodeTab[i];
-			if( cur->type == XML_ELEMENT_NODE && strcmp(cur->name, "Metadata") == 0 )
+			if( cur->type == XML_ELEMENT_NODE && strcmp((char*)(cur->name), "Metadata") == 0 )
 			{
-				metadata_name = xmlGetProp(cur, "name");
+				metadata_name = (char*)xmlGetProp(cur, (xmlChar*)"name");
 				metadata_value = xml_node_get_content(cur);
 			}
 
@@ -590,7 +595,7 @@ pc_schema_is_valid(const PCSCHEMA *s)
 PCDIMENSION *
 pc_schema_get_dimension(const PCSCHEMA *s, uint32_t dim)
 {
-	if ( s && s->ndims > dim && dim >= 0 )
+	if ( s && s->ndims > dim )
 	{
 		return s->dims[dim];
 	}

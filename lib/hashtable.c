@@ -5,7 +5,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
-
+#include <ctype.h>
 
 /* Use appropriate allocators for this deployment */
 /* Remove this for use in other contexts */
@@ -42,7 +42,7 @@ unsigned int hash_str(const void *vstr)
 	int c;
 	const char *str = (const char*)vstr;
 
-	while (c = tolower(*str++))
+	while ((c = tolower(*str++)))
 	{
 		hash = c + (hash << 6) + (hash << 16) - hash;
 	}

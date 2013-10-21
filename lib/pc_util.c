@@ -250,6 +250,7 @@ bytebuffer_new(void)
 	bb->sz = 1024;
 	bb->buf = pcalloc(bb->sz*sizeof(uint8_t));
 	bb->ptr = bb->buf;
+	return bb;
 }
 
 static void

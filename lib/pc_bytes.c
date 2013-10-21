@@ -1232,6 +1232,7 @@ pc_bytes_uncompressed_minmax(const PCBYTES *pcb, double *min, double *max, doubl
 	*min = mn;
 	*max = mx;
 	*avg = sm / pcb->npoints;
+	return PC_SUCCESS;
 }
 
 static int
@@ -1271,6 +1272,7 @@ pc_bytes_run_length_minmax(const PCBYTES *pcb, double *min, double *max, double 
 	*min = mn;
 	*max = mx;
 	*avg = sm / pcb->npoints;
+	return PC_SUCCESS;
 }
 
 

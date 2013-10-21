@@ -340,6 +340,7 @@ pc_patch_to_string(const PCPATCH *patch)
 		return pc_patch_ght_to_string((PCPATCH_GHT*)patch);
 	}
 	pcerror("%s: unsupported compression %d requested", __func__, patch->type);
+	return NULL;
 }
 
 
