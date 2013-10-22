@@ -22,6 +22,12 @@ set (CMAKE_COLOR_MAKEFILE ON)
 # Path to additional CMake modules
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake/modules ${CMAKE_MODULE_PATH})
 
+if(NOT CMAKE_BUILD_TYPE)
+    set(CMAKE_BUILD_TYPE RelWithDebInfo CACHE STRING 
+        "Choose the type of build, options are: None Debug Release RelWithDebInfo MinSizeRel" FORCE)
+endif()
+message(STATUS "Setting ${CMAKE_PROJECT_NAME} build type - ${CMAKE_BUILD_TYPE}")
+
 
 #------------------------------------------------------------------------------
 # check for headers
