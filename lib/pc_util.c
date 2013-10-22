@@ -314,3 +314,4 @@ void pc_bounds_merge(PCBOUNDS *b1, const PCBOUNDS *b2)
 	if ( b2->xmax > b1->xmax ) b1->xmax = b2->xmax;
 	if ( b2->ymax > b1->ymax ) b1->ymax = b2->ymax;
 }
+

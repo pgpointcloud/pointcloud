@@ -281,3 +281,4 @@ void pc_bitmap_filter(PCBITMAP *map, PC_FILTERTYPE filter, int i, double d, doub
 
 
 #endif /* _PC_API_INTERNAL_H */
+

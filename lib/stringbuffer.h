@@ -76,3 +76,4 @@ extern int stringbuffer_trim_trailing_white(stringbuffer_t *s);
 extern int stringbuffer_trim_trailing_zeroes(stringbuffer_t *s);
 
 #endif /* _STRINGBUFFER_H */
+
