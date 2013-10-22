@@ -120,6 +120,7 @@ include_directories ("${PROJECT_BINARY_DIR}/lib")
 
 add_subdirectory (lib)
 add_subdirectory (pgsql)
+add_subdirectory (pgsql_postgis)
 
 
 

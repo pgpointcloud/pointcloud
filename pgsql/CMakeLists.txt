@@ -1,14 +1,20 @@
 
 
 set ( PC_SOURCES
-        pc_access.c 
-        pc_inout.c      
-        pc_pgsql.c       
-        )
+  pc_access.c 
+  pc_inout.c      
+  pc_pgsql.c       
+  )
 
 set ( PC_HEADERS
-        pc_pgsql.h
-        )
+  pc_pgsql.h
+  )
+
+set ( PC_INSTALL_EXENSIONS
+  pointcloud--1.0.sql
+  pointcloud.control
+  )
+        
 
 include_directories ("${PGSQL_INCLUDEDIR_SERVER}")
 include_directories ("${PROJECT_SOURCE_DIR}/lib")
@@ -34,4 +40,15 @@ target_link_libraries (pointcloud z)
 if (LIBGHT_FOUND)
   target_link_libraries (pointcloud ght)
 endif (LIBGHT_FOUND)
+
+
+install (
+  TARGETS pointcloud 
+  DESTINATION ${PGSQL_PKGLIBDIR}
+  )
+  
+install (
+  FILES ${PC_INSTALL_EXENSIONS} 
+  DESTINATION "${PGSQL_SHAREDIR}/extension"
+  )
 
