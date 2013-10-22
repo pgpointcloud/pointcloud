@@ -551,23 +551,21 @@ The only issues to watch when creating WKB patches are: ensuring the data you wr
 
 #### Build and Install PDAL ####
 
-Support for PostgreSQL Pointcloud in PDAL is currently brand-new and will have to be [built from source](http://www.pointcloud.org/compilation/index.html). The PostgresSQL Pointcloud driver uses the "soci" module for database read/write, which can be difficult to compile. Future versions will convert to using the `libpq` PostgreSQL client libraries directly, for a simpler install.
+Support for PostgreSQL Pointcloud has been added to PDAL. It is in most recent builds, but if you want the latest version, you can [build from source](http://www.pointcloud.org/compilation/index.html). 
 
 First, you will need to install the many, many dependencies of PDAL.
 
  - Read the compilation instructions: http://www.pointcloud.org/compilation/index.html
  - Read the dependency information: http://www.pointcloud.org/compilation/dependencies.html
- - Install the "boost" package if your system has one
- - Install the "soci" add-on for boost, and ensure the PgSQL plug-in is built: http://soci.sourceforge.net/
  - Install the "proj4" library: https://trac.osgeo.org/proj/
  - Install the "geos" library: https://trac.osgeo.org/geos/
  - Install the "geotiff" library: http://trac.osgeo.org/geotiff/
  - Install the "gdal" library: http://gdal.org/
  - Install the "liblas" library: http://liblas.org/
 
-Then, clone the Pointcloud PDAL repository, that contains the latest version of the Pointcloud driver for PDAL (as well as the latest version of PDAL itself):
+Then, clone the PDAL repository:
 
- - Clone into a source directory: `git clone https://github.com/pramsey/PDAL PDAL`
+ - Clone into a source directory: `git clone https://github.com/PDAL/PDAL PDAL`
  - Make a build directory: `mkdir PDAL-build`
  - Enter the build directory: `cd PDAL-build`
  - Run CMake to find dependencies: `cmake ../PDAL`
@@ -576,17 +574,17 @@ Then, clone the Pointcloud PDAL repository, that contains the latest version of 
  - Once CMake has found all dependencies, run the build: `make all`
  - And install the artifacts: `make install`
  
-If all the dependencies were found, including the `soci` driver for PostgreSQL, you're ready to run a PDAL import into PostgreSQL Pointcloud!
+If all the dependencies were found, you're ready to run a PDAL import into PostgreSQL Pointcloud!
 
 #### Running `pcpipeline` ####
 
-PDAL includes a limited command-line program, `pc2pc` that does simple transformations, but in order to load data into Pointcloud we use a "PDAL pipeline". A pipeline combines a format reader, and format writer, with filters that can alter or group the points together.
+PDAL includes a `command linen program <http://www.pointcloud.org/apps.html>`_ that allows both simple format translations and more complex "pipelines" of transformation.  The `pdal translate` does simple format transformations. In order to load data into Pointcloud we use a "PDAL pipeline", by calling `pdal pipeline`. A pipeline combines a format reader, and format writer, with filters that can alter or group the points together.
 
 PDAL pipelines are XML files, which nest together readers, filters, and writers into a processing chain that will be applied to the LIDAR data. 
 
 To execute a pipeline file, run it through the `pcpipeline` command:
 
-    pcpipeline pipelinefile.xml
+    pdal pipeline --input pipelinefile.xml
 
 Here is a simple example pipeline that reads a LAS file and writes into a PostgreSQL Pointcloud database.
 
@@ -597,9 +595,8 @@ Here is a simple example pipeline that reads a LAS file and writes into a Postgr
             <Option name="table">sthsm</Option>
             <Option name="srid">26910</Option>
             <Filter type="filters.chipper">
-                <Option name="capacity">400</Option>
+                <Option name="capacity">600</Option>
                 <Filter type="filters.cache">
-                    <Option name="max_cache_blocks">1</Option>
                     <Reader type="drivers.las.reader">
                         <Option name="filename">/home/lidar/st-helens-small.las</Option>
                         <Option name="spatialreference">EPSG:26910</Option>
