@@ -18,6 +18,9 @@ set ( PC_INSTALL_EXENSIONS
 
 include_directories ("${PGSQL_INCLUDEDIR_SERVER}")
 include_directories ("${PROJECT_SOURCE_DIR}/lib")
+if (WIN32)
+  include_directories ("${PGSQL_INCLUDEDIR_SERVER}/port/win32")
+endif (WIN32)
 
 add_library (pointcloud MODULE ${PC_SOURCES} ${PC_HEADERS})
 
