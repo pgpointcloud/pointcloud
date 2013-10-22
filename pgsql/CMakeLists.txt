@@ -24,7 +24,7 @@ add_library (pointcloud MODULE ${PC_SOURCES} ${PC_HEADERS})
 if (APPLE)
   set (PC_LINK_FLAGS "-bundle_loader ${PGSQL_BINDIR}/postgres")
 else(APPLE)
-  set (PC_LINK_FLAGS "")
+  set (PC_LINK_FLAGS " ")
 endif (APPLE)
 
 set_target_properties (pointcloud
