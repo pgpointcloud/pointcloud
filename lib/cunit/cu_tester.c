@@ -189,6 +189,7 @@ char*
 file_to_str(const char *fname)
 {
 	FILE *fr;
+	char fullpath[512];
 	size_t lnsz;
 	size_t sz = 8192;
 	char *str = pcalloc(sz);
@@ -197,9 +198,11 @@ file_to_str(const char *fname)
 	size_t MAXLINELEN = 8192;
 	char buf[MAXLINELEN];
 
-	fr = fopen (fname, "rt");
+	snprintf(fullpath, 512, "%s/lib/cunit/%s", PROJECT_SOURCE_DIR, fname);
+	fr = fopen (fullpath, "rt");
 
-	while (fgets(buf, MAXLINELEN, fr) != NULL) {
+	while (fr && fgets(buf, MAXLINELEN, fr) != NULL) 
+	{
 		if (buf[0] == '\0')
 			continue;
 		lnsz = strlen(buf);
@@ -215,6 +218,7 @@ file_to_str(const char *fname)
 	}
 	
     *ptr = '\0';
+	fclose(fr);
 
 	return str;
 }

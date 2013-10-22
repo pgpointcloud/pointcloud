@@ -274,6 +274,14 @@ fi
 AC_SUBST([GHT_LDFLAGS])
 AC_SUBST([GHT_CPPFLAGS])
 
+
+dnl ===========================================================================
+dnl Figure out where this script is running
+
+PROJECT_SOURCE_DIR="$( cd "$( dirname $0 )" && pwd )"
+AC_DEFINE_UNQUOTED([PROJECT_SOURCE_DIR],"$PROJECT_SOURCE_DIR")
+
+
 dnl ===========================================================================
 dnl Output the relevant files
 dnl ===========================================================================

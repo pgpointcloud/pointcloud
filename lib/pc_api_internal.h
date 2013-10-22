@@ -279,9 +279,9 @@ PCBITMAP* pc_bitmap_new(uint32_t npoints);
 /** Deallocate bitmap */
 void pc_bitmap_free(PCBITMAP *map);
 /** Set the indicated bit to true if val!=0 otherwise false */
-inline void pc_bitmap_set(PCBITMAP *map, int i, int val);
+extern inline void pc_bitmap_set(PCBITMAP *map, int i, int val);
 /** Read indicated bit of bitmap */
-inline uint8_t pc_bitmap_get(const PCBITMAP *map, int i);
+extern inline uint8_t pc_bitmap_get(const PCBITMAP *map, int i);
 /** Set indicated bit on bitmap if filter and value are consistent */
 void pc_bitmap_filter(PCBITMAP *map, PC_FILTERTYPE filter, int i, double d, double val1, double val2);
 

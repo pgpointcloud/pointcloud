@@ -1,0 +1,3 @@
+
+#cmakedefine HAVE_LIBGHT ${HAVE_LIBGHT}
+#cmakedefine PROJECT_SOURCE_DIR "${PROJECT_SOURCE_DIR}"

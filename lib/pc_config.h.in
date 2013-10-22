@@ -1,3 +1,4 @@
 
 #undef HAVE_LIBGHT
+#undef PROJECT_SOURCE_DIR 
 

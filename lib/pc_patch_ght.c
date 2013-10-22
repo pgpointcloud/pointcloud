@@ -76,6 +76,8 @@ ght_type_from_pc_type(const int pctype)
 	case PC_FLOAT:
 		return GHT_FLOAT;
 	}
+	
+	return GHT_UNKNOWN;
 }
 
 static GhtDimensionPtr
