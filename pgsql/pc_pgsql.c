@@ -940,6 +940,16 @@ pc_patch_to_geometry_wkb_envelope(const SERIALIZED_PATCH *pa, const PCSCHEMA *sc
 	int has_srid = false;
 	size_t size = 1 + 4 + 4 + 4 + 2*npoints*8; /* endian + type + nrings + npoints + 5 dbl pts */
 
+    /* Bounds! */
+    double xmin = pa->bounds.xmin;
+    double ymin = pa->bounds.ymin;
+    double xmax = pa->bounds.xmax;
+    double ymax = pa->bounds.ymax;
+    
+    /* Make sure they're slightly bigger than a point */
+    if ( xmin == xmax ) xmax += xmax * 0.0000001;
+    if ( ymin == ymax ) ymax += ymax * 0.0000001;
+
 	if ( schema->srid > 0 )
 	{
 		has_srid = true;
