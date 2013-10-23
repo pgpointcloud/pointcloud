@@ -3,6 +3,7 @@ include ../config.mk
 
 CPPFLAGS = $(XML2_CPPFLAGS) $(ZLIB_CPPFLAGS) $(GHT_CPPFLAGS)
 LDFLAGS = $(XML2_LDFLAGS) $(ZLIB_LDFLAGS) $(GHT_LDFLASGS)
+CFLAGS += -fpic
 
 OBJS = \
 	pc_bytes.o \
