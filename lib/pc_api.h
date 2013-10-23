@@ -27,9 +27,9 @@
 
 
 #define POINTCLOUD_MAJOR_VERSION 1
-#define POINTCLOUD_MINOR_VERSION 1
+#define POINTCLOUD_MINOR_VERSION 0
 #define POINTCLOUD_PATCH_VERSION 0
-#define POINTCLOUD_VERSION "1.1.0"
+#define POINTCLOUD_VERSION "1.0.0"
 
 
 /**********************************************************************
