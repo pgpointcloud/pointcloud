@@ -183,11 +183,53 @@ pc_patch_dimensional_filter(const PCPATCH_DIMENSIONAL *pdl, const PCBITMAP *map)
 	return fpdl;
 }
 
+/* See if it's possible for the filter to have any results, given the stats */
+static int
+pc_patch_filter_has_results(const PCSTATS *stats, uint32_t dimnum, PC_FILTERTYPE filter, double val1, double val2)
+{
+    double min, max;
+    pc_point_get_double_by_index(&(stats->min), dimnum, &min);
+    pc_point_get_double_by_index(&(stats->max), dimnum, &max);
+	switch ( filter )
+	{
+    	case PC_GT:
+    	{
+            if ( max < val1 ) return PC_FALSE;
+    		break;
+		}
+    	case PC_LT:
+    	{
+            if ( min > val1 ) return PC_FALSE;
+    		break;
+		}
+    	case PC_EQUAL:
+    	{
+            if ( min > val1 || max < val1 ) return PC_FALSE;
+    		break;
+		}
+    	case PC_BETWEEN:
+	    {
+            if ( min > val2 || max < val1 ) return PC_FALSE;
+    		break;
+		}
+	}
+    return PC_TRUE;
+}
+
+
 PCPATCH *
 pc_patch_filter(const PCPATCH *pa, uint32_t dimnum, PC_FILTERTYPE filter, double val1, double val2)
 {
 	if ( ! pa ) return NULL;
 	PCPATCH *paout;
+
+    /* If the stats say this filter returns an empty result, do that */
+    if ( pa->stats && ! pc_patch_filter_has_results(pa->stats, dimnum, filter, val1, val2) )
+    {
+        /* Empty uncompressed patch to return */
+        paout = (PCPATCH*)pc_patch_uncompressed_make(pa->schema, 0);
+        return paout;
+    }
 
 	switch ( pa->type )
 	{
