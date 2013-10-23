@@ -29,8 +29,6 @@
 * DATA STRUCTURES
 */
 
-#define POINTCLOUD_VERSION "0.1"
-
 /**
 * Compression types for PCPOINTS in a PCPATCH
 */
