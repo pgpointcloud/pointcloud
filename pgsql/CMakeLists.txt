@@ -44,6 +44,9 @@ if (LIBGHT_FOUND)
   target_link_libraries (pointcloud ght)
 endif (LIBGHT_FOUND)
 
+if (MINGW)
+  target_link_libraries (pointcloud postgres)
+endif (MINGW)
 
 install (
   TARGETS pointcloud 
