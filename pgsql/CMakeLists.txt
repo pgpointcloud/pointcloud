@@ -18,35 +18,39 @@ set ( PC_INSTALL_EXENSIONS
 
 include_directories ("${PGSQL_INCLUDEDIR_SERVER}")
 include_directories ("${PROJECT_SOURCE_DIR}/lib")
-if (WIN32)
-  include_directories ("${PGSQL_INCLUDEDIR_SERVER}/port/win32")
-endif (WIN32)
 
 add_library (pointcloud MODULE ${PC_SOURCES} ${PC_HEADERS})
-
-if (APPLE)
-  set (PC_LINK_FLAGS "-bundle_loader ${PGSQL_BINDIR}/postgres")
-else (APPLE)
-  set (PC_LINK_FLAGS " ")
-endif (APPLE)
-
-set_target_properties (pointcloud
-  PROPERTIES
-  OUTPUT_NAME "pointcloud"
-  LINK_FLAGS ${PC_LINK_FLAGS}
-  PREFIX ""
-  )
 
 target_link_libraries (pointcloud libpc-static)
 target_link_libraries (pointcloud xml2)
 target_link_libraries (pointcloud z)
+
 if (LIBGHT_FOUND)
   target_link_libraries (pointcloud ght)
 endif (LIBGHT_FOUND)
 
-if (MINGW)
-  target_link_libraries (pointcloud postgres)
-endif (MINGW)
+set_target_properties (pointcloud PROPERTIES
+  OUTPUT_NAME "pointcloud"
+  PREFIX ""
+  )
+
+if (APPLE)
+  set_target_properties ( 
+    pointcloud PROPERTIES
+    LINK_FLAGS "-bundle_loader ${PGSQL_BINDIR}/postgres"
+    )
+endif (APPLE)
+
+if (WIN32)
+  include_directories ("${PGSQL_INCLUDEDIR_SERVER}/port/win32")
+  if (MSVC)
+    set_target_properties(pointcloud PROPERTIES COMPILE_FLAGS "-DHAVE_GETHOSTNAME")
+  endif(MSVC)
+  if (MINGW)
+    target_link_libraries (pointcloud postgres)
+  endif (MINGW)
+endif (WIN32)
+
 
 install (
   TARGETS pointcloud 
