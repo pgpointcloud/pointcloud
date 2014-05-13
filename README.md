@@ -14,6 +14,9 @@ A PostgreSQL extension for storing point cloud (LIDAR) data.
 - CUnit packages must be installed, or [source built and installed](http://sourceforge.net/projects/cunit/ "CUnit").
 - [Optional] GHT library may be installed for GHT compression support, [built from source](http://github.com/pramsey/libght/ "LibGHT")
 
+Tests can be disabled by passing `WITH_TESTS=FALSE` to cmake, e.g. `cmake .. -DWITH_TESTS=FALSE`.
+This removes the CUnit dependency.
+
 ### Build ###
 
 Run `./configure --help` to get a complete listing of configuration options.

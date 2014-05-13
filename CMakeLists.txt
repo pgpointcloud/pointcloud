@@ -30,6 +30,11 @@ message(STATUS "Setting ${CMAKE_PROJECT_NAME} build type - ${CMAKE_BUILD_TYPE}")
 
 
 #------------------------------------------------------------------------------
+# options
+option(WITH_TESTS "Choose if CUnit tests should be built" TRUE)
+
+
+#------------------------------------------------------------------------------
 # check for headers
 
 include (CheckIncludeFiles)
@@ -95,7 +100,10 @@ include_directories (${ZLIB_INCLUDE_DIR})
 #------------------------------------------------------------------------------
 # cunit and ght
 
-find_package (CUnit)
+if (WITH_TESTS)
+    find_package (CUnit)
+endif (WITH_TESTS)
+
 find_package (LibGHT)
 
 if (LIBGHT_FOUND)
