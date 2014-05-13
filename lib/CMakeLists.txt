@@ -41,5 +41,6 @@ if (LIBGHT_FOUND)
   target_link_libraries (libpc-static ght)
 endif (LIBGHT_FOUND)
 
-
-add_subdirectory (cunit)
+if (WITH_TESTS)
+    add_subdirectory (cunit)
+endif (WITH_TESTS)
