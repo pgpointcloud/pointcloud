@@ -14,7 +14,9 @@ set ( PC_INSTALL_EXENSIONS
   pointcloud--1.0.sql
   pointcloud.control
   )
-        
+
+set(CMAKE_C_FLAGS "${PGSQL_CPPFLAGS}")
+set(CMAKE_SHARED_LINKER_FLAGS "${PGSQL_LDFLAGS}")
 
 include_directories ("${PGSQL_INCLUDEDIR_SERVER}")
 include_directories ("${PROJECT_SOURCE_DIR}/lib")

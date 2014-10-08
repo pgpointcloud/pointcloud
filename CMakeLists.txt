@@ -79,7 +79,9 @@ exec_program(${PG_CONFIG} ARGS --includedir-server
 exec_program(${PG_CONFIG} ARGS --pkglibdir OUTPUT_VARIABLE PGSQL_PKGLIBDIR)
 exec_program(${PG_CONFIG} ARGS --sharedir OUTPUT_VARIABLE PGSQL_SHAREDIR)
 exec_program(${PG_CONFIG} ARGS --bindir OUTPUT_VARIABLE PGSQL_BINDIR)
-
+exec_program(${PG_CONFIG} ARGS --cppflags OUTPUT_VARIABLE PGSQL_CPPFLAGS)
+exec_program(${PG_CONFIG} ARGS --ldflags OUTPUT_VARIABLE PGSQL_LDFLAGS)
+exec_program(${PG_CONFIG} ARGS --libs OUTPUT_VARIABLE PGSQL_LIBS)
 
 #------------------------------------------------------------------------------
 # libxml2
@@ -116,7 +118,6 @@ endif (LIBGHT_FOUND)
 if (NOT DEFINED LIB_INSTALL_DIR)
   set (LIB_INSTALL_DIR lib)
 endif()
-
 
 #------------------------------------------------------------------------------
 # generate config include

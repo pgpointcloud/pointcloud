@@ -41,12 +41,6 @@ pc_bitmap_set(PCBITMAP *map, int i, int val)
 	map->map[i] = (val!=0);
 }
 
-inline uint8_t
-pc_bitmap_get(const PCBITMAP *map, int i)
-{
-	return map->map[i];
-}
-
 void
 pc_bitmap_filter(PCBITMAP *map, PC_FILTERTYPE filter, int i, double d, double val1, double val2)
 {

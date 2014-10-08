@@ -58,21 +58,65 @@ dnl ===========================================================================
 dnl Detect CUnit if it is installed 
 dnl ===========================================================================
 
-CUNIT_LDFLAGS=""
+AC_ARG_WITH([cunit], 
+	[AS_HELP_STRING([--with-cunit=DIR], [specify the base cunit install directory])], 
+	[CUNITDIR="$withval"], [CUNITDIR=""])
+
+if test "x$CUNITDIR" = "xyes"; then
+	AC_MSG_ERROR([you must specify a prefix directory to --with-cunit, e.g. --with-cunit=/opt/local])
+fi
+
+if test "x$CUNITDIR" != "x"; then
+
+  dnl CUNITDIR was specified, so let's look there!
+
+  dnl Build the linker and include flags 
+  CUNIT_LDFLAGS="-L${CUNITDIR}/lib"
+  CUNIT_CPPFLAGS="-I${CUNITDIR}/include"
+
+  dnl Swap to use provided cflags
+  CPPFLAGS_SAVE="$CPPFLAGS"
+  CPPFLAGS="$CUNIT_CPPFLAGS"
+
+  dnl Swap to use provided ldflags
+  LDFLAGS_SAVE="$LDFLAGS"
+  LDFLAGS="$CUNIT_LDFLAGS"
+
+fi
+
+dnl Run the header/link tests
 AC_CHECK_HEADER([CUnit/CUnit.h], [
 	CUNIT_CPPFLAGS="$CPPFLAGS"
 	AC_CHECK_LIB([cunit], 
 	  [CU_initialize_registry], 
-	  [CUNIT_LDFLAGS="$LDFLAGS -lcunit"], 
-	  [AC_MSG_RESULT([notice   C unit tests will not be run])]
+	  [CUNIT_LDFLAGS="$LDFLAGS -lcunit" FOUND_CUNIT="YES"], 
+	  [FOUND_CUNIT="NO"]
 	  )
 	],
 	[
-	AC_MSG_RESULT([notice   C unit tests will not be run])
+    FOUND_CUNIT="NO"
 	])
-	
-AC_SUBST([CUNIT_CPPFLAGS])
+
+if test "x$CUNITDIR" != "x"; then
+  dnl Swap back to the original flags
+  LDFLAGS="${LDFLAGS_SAVE}"
+  CPPFLAGS="${CPPFLAGS_SAVE}"
+fi
+
+if test "$FOUND_CUNIT" = "YES"; then
+  AC_DEFINE([HAVE_CUNIT])
+  CUNIT_STATUS="enabled"
+  if test $CUNITDIR; then
+    CUNIT_STATUS="$CUNITDIR"
+  fi
+else
+  CUNIT_LDFLAGS=""
+  CUNIT_CPPFLAGS=""
+  CUNIT_STATUS="disabled"
+fi
+
 AC_SUBST([CUNIT_LDFLAGS])
+AC_SUBST([CUNIT_CPPFLAGS])
 
 
 dnl ===========================================================================
@@ -306,4 +350,5 @@ AC_MSG_RESULT([  PostgreSQL version:   ${PGSQL_FULL_VERSION}])
 AC_MSG_RESULT([  Libxml2 config:       ${XML2CONFIG}])
 AC_MSG_RESULT([  Libxml2 version:      ${LIBXML2_VERSION}])
 AC_MSG_RESULT([  LibGHT status:        ${GHT_STATUS}])
+AC_MSG_RESULT([  CUnit status:         ${CUNIT_STATUS}])
 AC_MSG_RESULT()

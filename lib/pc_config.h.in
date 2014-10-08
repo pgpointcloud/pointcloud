@@ -4,5 +4,7 @@
 
 #undef HAVE_LIBGHT
 
+#undef HAVE_CUNIT
+
 #undef PROJECT_SOURCE_DIR 
 
