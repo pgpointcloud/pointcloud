@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link href='https://fonts.googleapis.com/css?family=Architects+Daughter' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/pygment_trac.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print">
+
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <title>Pointcloud by pgpointcloud</title>
+  </head>
+
+  <body>
+    <header>
+      <div class="inner">
+        <h1>Pointcloud</h1>
+        <h2>A PostgreSQL extension for storing point cloud (LIDAR) data.</h2>
+        <a href="https://github.com/pgpointcloud/pointcloud" class="button"><small>View project on</small> GitHub</a>
+      </div>
+    </header>
+
+    <div id="content-wrapper">
+      <div class="inner clearfix">
+        <section id="main-content">
+          <h3>
+<a name="welcome-to-pgpointcloud-simple-home-site" class="anchor" href="#welcome-to-pgpointcloud-simple-home-site"><span class="octicon octicon-link"></span></a>Welcome to pgPointCloud simple home site</h3>
+
+<h4>
+<a name="introduction" class="anchor" href="#introduction"><span class="octicon octicon-link"></span></a>Introduction</h4>
+
+<p><code>@TODO : put a nice image in background</code></p>
+
+<ul>
+<li>Lidar point cloud are becoming more and more available. Devices are easy to get, not too expensive, and provide very accurate 3D points.</li>
+<li>Yet storing and using those Billions of points is a challenge.</li>
+<li> <strong>pgPointCLoud</strong> is an open source PostgreSQL extension for storing point cloud (LIDAR) data and use it with PostGIS.</li>
+<li>It is very easy to use, robust and efficient.</li>
+<li>By storing Lidar point in a PostgreSQL database, pgPointCloud eases many problems and allows a good integration with other geo-spatial data (vector,raster) into one common framework : PostGIS.</li>
+</ul><h4>
+<a name="what-can-be-done-with-pgpointcloud" class="anchor" href="#what-can-be-done-with-pgpointcloud"><span class="octicon octicon-link"></span></a>What can be done with pgPointCloud?</h4>
+
+<ul>
+<li>pgPointCloud offers a way to efficiently store points in a postgres database.</li>
+<li>In fact, pgpPointCloud stores <em>groups</em> of points (pcPoints) called pcPatch</li>
+<li>storing groups of point allows efficient compression of data.</li>
+<li>This patch have a bounding box which can be used by PostGIS spatial features to greatly accelerate queries.</li>
+<li>pgPointCloud allow then to efficiently <em>query</em> very big point cloud.</li>
+<li><p>Querying can be done using spatial criteria (which points are in this area), as well as point attributes criteria (which points have a value of this attribute between .. and ... ?)</p></li>
+<li><p>The point cloud being in a server, they can be used for processing or visualization, or streamed.</p></li>
+</ul><h4>
+<a name="why-use-pgpointcloud-to-store-lidar-points-into-postgresql-and-not-in-point-cloud-files" class="anchor" href="#why-use-pgpointcloud-to-store-lidar-points-into-postgresql-and-not-in-point-cloud-files"><span class="octicon octicon-link"></span></a>Why use pgPointCloud to store Lidar points into postgreSQL and not in point cloud files?</h4>
+
+<ul>
+<li>The traditional way of storing point cloud is using several files containing each a part of the point cloud</li>
+<li>This as some severe limitations (that could be solved, that would amount to recreate a small postgres/postGis)
+
+<ul>
+<li>Not efficient data query (to get a few points, you need to read the whole file)</li>
+<li>no concurrency (only one user can modify points at a time/read points at a time)</li>
+<li>files tends to get duplicated a lot (each worker has it's own private version)</li>
+<li>no security of data ( file could be corrupted by a processing, hard to manage who access what)</li>
+<li>Hard to use several different point cloud at the same time</li>
+<li>Hard to use point cloud with other spatial data (vector, raster, images)</li>
+</ul>
+</li>
+<li>pgPointCloud solves all of this problem, at a very low cost: you have to use a DBMS.</li>
+</ul><h4>
+<a name="does-pgpointcloud-scale" class="anchor" href="#does-pgpointcloud-scale"><span class="octicon octicon-link"></span></a>Does pgPointCloud scale?</h4>
+
+<ul>
+<li>pgPointCloud is a young project, yet it has been proven to work fast (1ms query time) with a 5 billions points cloud.</li>
+<li>Currently pgPointCloud is fast for
+
+<ul>
+<li>[x] Load data into DB</li>
+<li>[x] automatically compress data</li>
+<li>[x] Query patches based on spatial or other attributes</li>
+</ul>
+</li>
+<li>It is slow for
+
+<ul>
+<li>[ ] Data output (100k pts/sec)</li>
+<li>[ ] In base conversion (no functions)</li>
+</ul>
+</li>
+</ul><h4>
+<a name="resources" class="anchor" href="#resources"><span class="octicon octicon-link"></span></a>Resources</h4>
+
+<ul>
+<li>
+<a href="https://github.com/pramsey/pointcloud#pointcloud">pgPointCloud repository</a> with very thorough step by step demo</li>
+<li><a href="http://lists.osgeo.org/cgi-bin/mailman/listinfo/pgpointcloud">pgPointCloud mailing list</a></li>
+<li>pgPointCloud documentation
+
+<ul>
+<li>
+<a href="http://boundlessgeo.com/wp-content/uploads/2013/10/pgpointcloud-foss4-2013.pdf">General presentationof pgPointCloud by its creator @pramsey</a> </li>
+<li><a href="http://www.coordinatesolutions.com/download/Jan2013OGI%20Presentation.pdf">A testimony of successful uses of pgPointCloud in a vector/raster/Lidar framework </a></li>
+<li><a href="https://github.com/Remi-C/Postgres_Day_2014_10_RemiC/raw/master/presentation/A%20PostgreSQL%20Server%20for%20Point%20Cloud%20Storage%20and%20Processing.pdf">An Advanced presentation of various usages of a Point Cloud server, starting from basic to very complex examples</a></li>
+<li><a href="http://foss4g-e.org/sites/default/files/11-Martinez-Rubi_0.pdf">A scientific paper comparing a pgPointCloud solution and a MonetDB solution</a></li>
+</ul>
+</li>
+</ul>
+        </section>
+
+        <aside id="sidebar">
+          <a href="https://github.com/pgpointcloud/pointcloud/zipball/master" class="button">
+            <small>Download</small>
+            .zip file
+          </a>
+          <a href="https://github.com/pgpointcloud/pointcloud/tarball/master" class="button">
+            <small>Download</small>
+            .tar.gz file
+          </a>
+
+          <p class="repo-owner"><a href="https://github.com/pgpointcloud/pointcloud"></a> is maintained by <a href="https://github.com/pgpointcloud">pgpointcloud</a>.</p>
+
+          <p>This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the Architect theme by <a href="https://twitter.com/jasonlong">Jason Long</a>.</p>
+        </aside>
+      </div>
+    </div>
+
+  
+  </body>
+</html>
