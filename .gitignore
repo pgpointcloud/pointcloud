@@ -9,3 +9,7 @@ aclocal.m4
 config.status
 config.mk
 lib/pc_config.h
+
+Makefile
+*/Makefile
+*/*/Makefile
