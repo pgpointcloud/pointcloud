@@ -37,6 +37,7 @@ set_target_properties (libpc-static
 
 target_link_libraries (libpc-static xml2)
 target_link_libraries (libpc-static z)
+target_link_libraries (libpc-static m)
 if (LIBGHT_FOUND)
   target_link_libraries (libpc-static ght)
 endif (LIBGHT_FOUND)
