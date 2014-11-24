@@ -571,8 +571,8 @@ Support for PostgreSQL Pointcloud has been added to PDAL. It is in most recent b
 
 First, you will need to install the many, many dependencies of PDAL.
 
- - Read the compilation instructions: http://www.pointcloud.org/compilation/index.html
- - Read the dependency information: http://www.pointcloud.org/compilation/dependencies.html
+ - Read the compilation instructions: http://www.pdal.io/compilation/index.html
+ - Read the dependency information: http://www.pdal.io/compilation/dependencies.html
  - Install the "proj4" library: https://trac.osgeo.org/proj/
  - Install the "geos" library: https://trac.osgeo.org/geos/
  - Install the "geotiff" library: http://trac.osgeo.org/geotiff/
@@ -585,7 +585,7 @@ Then, clone the PDAL repository:
  - Make a build directory: `mkdir PDAL-build`
  - Enter the build directory: `cd PDAL-build`
  - Run CMake to find dependencies: `cmake ../PDAL`
-   - Or, see https://github.com/pramsey/PDAL/blob/master/pramsey-config.sh
+   - Or, see https://github.com/PDAL/PDAL/blob/master/cmake/examples/pramsey-config.sh
  - If dependencies are not found, manually set them: `ccmake ../PDAL`
  - Once CMake has found all dependencies, run the build: `make all`
  - And install the artifacts: `make install`
@@ -606,14 +606,14 @@ Here is a simple example pipeline that reads a LAS file and writes into a Postgr
 
     <?xml version="1.0" encoding="utf-8"?>
     <Pipeline version="1.0">
-        <Writer type="drivers.pgpointcloud.writer">
+        <Writer type="writers.pgpointcloud">
             <Option name="connection">host='localhost' dbname='pc' user='lidar'</Option>
             <Option name="table">sthsm</Option>
             <Option name="srid">26910</Option>
             <Filter type="filters.chipper">
                 <Option name="capacity">600</Option>
                 <Filter type="filters.cache">
-                    <Reader type="drivers.las.reader">
+                    <Reader type="readers.las">
                         <Option name="filename">/home/lidar/st-helens-small.las</Option>
                         <Option name="spatialreference">EPSG:26910</Option>
                     </Reader>
@@ -628,11 +628,11 @@ Similarly, reading data from a PostgreSQL Pointcloud uses a Pointcloud reader an
 
     <?xml version="1.0" encoding="utf-8"?>
     <Pipeline version="1.0">
-        <Writer type="drivers.text.writer">
+        <Writer type="writers.text">
             <Option name="filename">/home/lidar/st-helens-small-out.txt</Option>
             <Option name="cache_block_size">32184</Option>
             <Option name="spatialreference">EPSG:26910</Option>
-            <Reader type="drivers.pgpointcloud.reader">
+            <Reader type="readers.pgpointcloud">
                 <Option name="connection">host='localhost' dbname='pc' user='lidar'</Option>
                 <Option name="table">sthsm</Option>
                 <Option name="column">pa</Option>
@@ -647,10 +647,10 @@ You can use the "where" option to restrict a read to just an envelope, allowing 
 
     <?xml version="1.0" encoding="utf-8"?>
     <Pipeline version="1.0">
-        <Writer type="drivers.las.writer">
+        <Writer type="writers.las">
             <Option name="filename">st-helens-small-out.las</Option>
             <Option name="spatialreference">EPSG:26910</Option>
-            <Reader type="drivers.pgpointcloud.reader">
+            <Reader type="readers.pgpointcloud">
                 <Option name="connection">dbname='pc' user='pramsey'</Option>
                 <Option name="table">sthsm</Option>
                 <Option name="column">pa</Option>
@@ -663,7 +663,7 @@ You can use the "where" option to restrict a read to just an envelope, allowing 
 
 #### PDAL pgpointcloud Reader/Writer Options ####
 
-The PDAL **drivers.pgpointcloud.writer** for PostgreSQL Pointcloud takes the following options:
+The PDAL [writers.pgpointcloud](http://www.pdal.io/stages/writers.pgpointcloud.html) for PostgreSQL Pointcloud takes the following options:
 
 - **connection**: The PostgreSQL database connection string. E.g. `host=localhost user=username password=pw db=dbname port=5432`
 - **table**: The database table create to write the patches to.
@@ -677,7 +677,7 @@ The PDAL **drivers.pgpointcloud.writer** for PostgreSQL Pointcloud takes the fol
 - **pre_sql**: Before the pipeline runs, read and execute this SQL file or command [Optional]
 - **post_sql**: After the pipeline runs, read and execute this SQL file or command [Optional]
  
-The PDAL **drivers.pgpointcloud.reader** for PostgreSQL Pointcloud takes the following options:
+The PDAL [readers.pgpointcloud](http://www.pdal.io/stages/readers.pgpointcloud.html) for PostgreSQL Pointcloud takes the following options:
 
 - **connection**: The PostgreSQL database connection string. E.g. `host=localhost user=username password=pw db=dbname port=5432`
 - **table**: The database table to read the patches from.
