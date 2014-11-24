@@ -41,9 +41,9 @@ After generating the configure script with ``autogen``,  ``./configure --help`` 
 
 ### Activate ###
 
-- Create a new database: `CREATE DATABASE mynewdb`
+- Create a new database: ``CREATE DATABASE mynewdb``
 - Connect to that database.
-- Activate the pointcloud extension: `CREATE EXTENSION pointcloud`
+- Activate the pointcloud extension: ``CREATE EXTENSION pointcloud``
 
 ## Schemas ##
 
@@ -105,7 +105,7 @@ Here is a simple 4-dimensional schema document you can insert into `pointcloud_f
       </pc:metadata>
     </pc:PointCloudSchema>');
 
-Schema documents are stored in the `pointcloud_formats` table, along with a `pcid` or "pointcloud identifier". Rather than store the whole schema information with each database object, each object just has a `pcid`, which serves as a key to find the schema in `pointcloud_formats`.  This is similar to the way the `srid` is resolved for spatial reference system support in [PostGIS](http://postgis.net).
+Schema documents are stored in the ``pointcloud_formats`` table, along with a ``pcid`` or "pointcloud identifier". Rather than store the whole schema information with each database object, each object just has a `pcid`, which serves as a key to find the schema in ``pointcloud_formats``.  This is similar to the way the ``srid`` is resolved for spatial reference system support in [PostGIS](http://postgis.net).
 
 The central role of the schema document in interpreting the contents of a point cloud object means that care must be taken to ensure that the right `pcid` reference is being used in objects, and that it references a valid schema document in the `pointcloud_formats` table.
 
