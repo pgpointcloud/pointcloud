@@ -79,37 +79,37 @@ typedef struct
 */
 
     bytes = "aaaabbbbccdde";
-    pcb = initbytes(bytes, strlen(bytes), PC_UINT8);
+    pcb = initbytes((uint8_t *)bytes, strlen(bytes), PC_UINT8);
 	nr = pc_bytes_run_count(&pcb);
 	CU_ASSERT_EQUAL(nr, 5);
 
     bytes = "a";
-    pcb = initbytes(bytes, strlen(bytes), PC_UINT8);
+    pcb = initbytes((uint8_t *)bytes, strlen(bytes), PC_UINT8);
 	nr = pc_bytes_run_count(&pcb);
 	CU_ASSERT_EQUAL(nr, 1);
 
     bytes = "aa";
-    pcb = initbytes(bytes, strlen(bytes), PC_UINT8);
+    pcb = initbytes((uint8_t *)bytes, strlen(bytes), PC_UINT8);
 	nr = pc_bytes_run_count(&pcb);
 	CU_ASSERT_EQUAL(nr, 1);
 
     bytes = "ab";
-    pcb = initbytes(bytes, strlen(bytes), PC_UINT8);
+    pcb = initbytes((uint8_t *)bytes, strlen(bytes), PC_UINT8);
 	nr = pc_bytes_run_count(&pcb);
 	CU_ASSERT_EQUAL(nr, 2);
 
 	bytes = "abcdefg";
-    pcb = initbytes(bytes, strlen(bytes), PC_UINT8);
+    pcb = initbytes((uint8_t *)bytes, strlen(bytes), PC_UINT8);
 	nr = pc_bytes_run_count(&pcb);
 	CU_ASSERT_EQUAL(nr, 7);
 
 	bytes = "aabcdefg";
-    pcb = initbytes(bytes, strlen(bytes), PC_UINT8);
+    pcb = initbytes((uint8_t *)bytes, strlen(bytes), PC_UINT8);
 	nr = pc_bytes_run_count(&pcb);
 	CU_ASSERT_EQUAL(nr, 7);
 
 	bytes = "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc";
-    pcb = initbytes(bytes, strlen(bytes), PC_UINT8);
+    pcb = initbytes((uint8_t *)bytes, strlen(bytes), PC_UINT8);
 	nr = pc_bytes_run_count(&pcb);
 	CU_ASSERT_EQUAL(nr, 1);
 
@@ -123,7 +123,7 @@ typedef struct
 	pc_bytes_free(pcb2);
 
 	bytes = "aabcdefg";
-    pcb = initbytes(bytes, strlen(bytes), PC_UINT8);
+    pcb = initbytes((uint8_t *)bytes, strlen(bytes), PC_UINT8);
     epcb = pc_bytes_run_length_encode(pcb);
     pcb2 = pc_bytes_run_length_decode(epcb);
 	CU_ASSERT_EQUAL(memcmp(pcb.bytes, pcb2.bytes, pcb.size), 0);
@@ -132,8 +132,8 @@ typedef struct
 	pc_bytes_free(epcb);
 	pc_bytes_free(pcb2);
 
-    bytes = (uint8_t*)((uint32_t[]){ 10, 10, 10, 20, 20, 30, 20, 20 });
-    pcb = initbytes(bytes, 8, PC_UINT32);
+    bytes = (char *)((uint32_t[]){ 10, 10, 10, 20, 20, 30, 20, 20 });
+    pcb = initbytes((uint8_t *)bytes, 8, PC_UINT32);
     epcb = pc_bytes_run_length_encode(pcb);
     pcb2 = pc_bytes_run_length_decode(epcb);
 	CU_ASSERT_EQUAL(memcmp(pcb.bytes, pcb2.bytes, pcb.size), 0);
@@ -142,8 +142,8 @@ typedef struct
 	pc_bytes_free(epcb);
 	pc_bytes_free(pcb2);
 
-    bytes = (uint8_t*)((uint16_t[]){ 10, 10, 10, 20, 20, 30, 20, 20 });
-    pcb = initbytes(bytes, 8, PC_UINT16);
+    bytes = (char*)((uint16_t[]){ 10, 10, 10, 20, 20, 30, 20, 20 });
+    pcb = initbytes((uint8_t *)bytes, 8, PC_UINT16);
     epcb = pc_bytes_run_length_encode(pcb);
     pcb2 = pc_bytes_run_length_decode(epcb);
 	CU_ASSERT_EQUAL(memcmp(pcb.bytes, pcb2.bytes, pcb.size), 0);
@@ -180,14 +180,14 @@ test_sigbits_encoding()
 	01100011 c
 	01100000 `
 	*/
-	bytes = "abc";
-    pcb = initbytes(bytes, strlen(bytes), PC_UINT8);
+	bytes = (uint8_t *)"abc";
+    pcb = initbytes(bytes, strlen((char *)bytes), PC_UINT8);
     common8 = pc_bytes_sigbits_count_8(&pcb, &count);
 	CU_ASSERT_EQUAL(count, 6);
 	CU_ASSERT_EQUAL(common8, '`');
 
-	bytes = "abcdef";
-    pcb = initbytes(bytes, strlen(bytes), PC_UINT8);
+	bytes = (uint8_t *)"abcdef";
+    pcb = initbytes(bytes, strlen((char *)bytes), PC_UINT8);
     common8 = pc_bytes_sigbits_count_8(&pcb, &count);
 	CU_ASSERT_EQUAL(count, 5);
 	CU_ASSERT_EQUAL(common8, '`');
@@ -198,8 +198,8 @@ test_sigbits_encoding()
 	0110001101100011 cc
 	0110000000000000 24576
 	*/
-	bytes = "aabbcc";
-    pcb = initbytes(bytes, strlen(bytes), PC_UINT16);
+	bytes = (uint8_t *)"aabbcc";
+    pcb = initbytes(bytes, strlen((char *)bytes), PC_UINT16);
 	count = pc_bytes_sigbits_count(&pcb);
 	CU_ASSERT_EQUAL(count, 6);
 
@@ -208,8 +208,8 @@ test_sigbits_encoding()
 	base      a  b  c  a
 	01100000 01 10 11 01
 	*/
-	bytes = "abcaabcaabcbabcc";
-    pcb = initbytes(bytes, strlen(bytes), PC_INT8);
+	bytes = (uint8_t *)"abcaabcaabcbabcc";
+    pcb = initbytes((uint8_t *)bytes, strlen((char *)bytes), PC_INT8);
     epcb = pc_bytes_sigbits_encode(pcb);
     CU_ASSERT_EQUAL(epcb.bytes[0], 2);   /* unique bit count */
     CU_ASSERT_EQUAL(epcb.bytes[1], 96);  /* common bits */
@@ -224,8 +224,8 @@ test_sigbits_encoding()
 	base       a   b   c   d   a   b
 	01100000 001 010 011 100 001 010
 	*/
-    bytes = "abcdab";
-    pcb = initbytes(bytes, strlen(bytes), PC_INT8);
+    bytes = (uint8_t *)"abcdab";
+    pcb = initbytes(bytes, strlen((char *)bytes), PC_INT8);
     epcb = pc_bytes_sigbits_encode(pcb);
     CU_ASSERT_EQUAL(epcb.bytes[0], 3);   /* unique bit count */
     CU_ASSERT_EQUAL(epcb.bytes[1], 96);  /* common bits */
@@ -348,8 +348,8 @@ test_zlib_encoding()
     uint8_t *
     pc_bytes_zlib_decode(const uint8_t *bytes, uint32_t interpretation)
     */
-    bytes = "abcaabcaabcbabcc";
-    pcb = initbytes(bytes, strlen(bytes), PC_INT8);
+    bytes = (uint8_t *)"abcaabcaabcbabcc";
+    pcb = initbytes(bytes, strlen((char *)bytes), PC_INT8);
     epcb = pc_bytes_zlib_encode(pcb);
     pcb2 = pc_bytes_zlib_decode(epcb);
 	CU_ASSERT_EQUAL(memcmp(pcb.bytes, pcb2.bytes, pcb.size), 0);
@@ -378,7 +378,7 @@ test_rle_filter()
     */
 
     bytes = "aaaabbbbccdd";
-    pcb = initbytes(bytes, strlen(bytes), PC_UINT8);
+    pcb = initbytes((uint8_t *)bytes, strlen(bytes), PC_UINT8);
     epcb = pc_bytes_run_length_encode(pcb);
     CU_ASSERT_EQUAL(epcb.bytes[0], 4);
     
@@ -408,8 +408,8 @@ test_rle_filter()
     pc_bitmap_free(map2);
 	pc_bytes_free(epcb);
 
-    bytes = (uint8_t*)((uint32_t[]){ 10, 10, 10, 20, 20, 30, 20, 20 });
-    pcb = initbytes(bytes, 8*4, PC_UINT32);
+    bytes = (char *)((uint32_t[]){ 10, 10, 10, 20, 20, 30, 20, 20 });
+    pcb = initbytes((uint8_t *)bytes, 8*4, PC_UINT32);
     epcb = pc_bytes_run_length_encode(pcb);
     map1 = pc_bytes_bitmap(&epcb, PC_LT, 25, 25); /* strip out the 30 */
     CU_ASSERT_EQUAL(map1->nset, 7);
@@ -420,8 +420,8 @@ test_rle_filter()
 	pc_bytes_free(pcb);
     pc_bitmap_free(map1);
 
-    bytes = (uint8_t*)((uint16_t[]){ 1, 2, 3, 4, 5, 6, 7, 8 });
-    pcb = initbytes(bytes, 8*2, PC_UINT16);
+    bytes = (char *)((uint16_t[]){ 1, 2, 3, 4, 5, 6, 7, 8 });
+    pcb = initbytes((uint8_t *)bytes, 8*2, PC_UINT16);
     map1 = pc_bytes_bitmap(&pcb, PC_BETWEEN, 2.5, 4.5); /* everything except entries 3 and 4 */
 	CU_ASSERT_EQUAL(map1->nset, 2);
     fpcb = pc_bytes_filter(&epcb, map1, NULL); /* Should have only two entry, 10, 20 */
@@ -461,7 +461,7 @@ test_uncompressed_filter()
     */
 
     bytes = "aaaabbbbccdd";
-    pcb = initbytes(bytes, strlen(bytes), PC_UINT8);
+    pcb = initbytes((uint8_t *)bytes, strlen(bytes), PC_UINT8);
     CU_ASSERT_EQUAL(pcb.bytes[0], 'a');
     CU_ASSERT_EQUAL(pcb.npoints, 12);
     
