@@ -176,6 +176,7 @@ pc_patch_compress(const PCPATCH *patch, void *userdata)
 		if ( patch_compression == PC_NONE )
 		{
 			PCPATCH_GHT *pgc = pc_patch_ght_from_uncompressed((PCPATCH_UNCOMPRESSED*)patch);
+			if ( ! pgc ) pcerror("%s: ght compression failed", __func__);
 			return (PCPATCH*)pgc;
 		}
 		else if ( patch_compression == PC_DIMENSIONAL )

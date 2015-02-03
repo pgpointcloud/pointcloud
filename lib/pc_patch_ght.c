@@ -169,7 +169,10 @@ pc_patch_ght_from_uncompressed(const PCPATCH_UNCOMPRESSED *pa)
 	ydim = pa->schema->dims[pa->schema->y_position];
 
 	schema = ght_schema_from_pc_schema(pa->schema);
-	if ( ght_tree_new(schema, &tree) != GHT_OK ) return NULL;
+	if ( ght_tree_new(schema, &tree) != GHT_OK ) {
+		pcerror("ght_tree_new failed");
+		return NULL;
+	}
 
 	/* Build up the tree from the points. */
 	for ( i = 0; i < pa->npoints; i++ )
@@ -213,12 +216,14 @@ pc_patch_ght_from_uncompressed(const PCPATCH_UNCOMPRESSED *pa)
 			else
 			{
 				// ght_tree_free(tree);
+				pcerror("ght_tree_insert_node failed");
 				return NULL;
 			}
 		}
 		else
 		{
-			// ght_tree_free(tree);
+			ght_tree_free(tree);
+			pcerror("ght_node_new_from_coordinate failed");
 			return NULL;
 		}
 	}
