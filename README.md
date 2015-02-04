@@ -1,3 +1,6 @@
+[![Build Status](https://secure.travis-ci.org/pgpointcloud/pointcloud.png)]
+(http://travis-ci.org/pgpointcloud/pointcloud)
+
 # Pointcloud #
 
 A PostgreSQL extension for storing point cloud (LIDAR) data.
