@@ -92,7 +92,7 @@ pc_patch_uncompressed_bitmap(const PCPATCH_UNCOMPRESSED *pa, uint32_t dimnum, PC
 static PCPATCH_UNCOMPRESSED *
 pc_patch_uncompressed_filter(const PCPATCH_UNCOMPRESSED *pu, const PCBITMAP *map)
 {
-	int i = 0, j = 0;
+	int i = 0;
 	size_t sz = pu->schema->size;
 	PCPATCH_UNCOMPRESSED *fpu = pc_patch_uncompressed_make(pu->schema, map->nset);
 	uint8_t *buf = pu->data;
@@ -269,6 +269,7 @@ pc_patch_filter(const PCPATCH *pa, uint32_t dimnum, PC_FILTERTYPE filter, double
 	}
 	default:
 		pcerror("%s: failure", __func__);
+		return NULL;
 	}
 
 	return paout;

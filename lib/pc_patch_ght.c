@@ -83,7 +83,6 @@ ght_type_from_pc_type(const int pctype)
 static GhtDimensionPtr
 ght_dimension_from_pc_dimension(const PCDIMENSION *d)
 {
-	int i;
 	GhtDimensionPtr dim;
 	GhtType type = ght_type_from_pc_type(d->interpretation);
 	ght_dimension_new_from_parameters(d->name, d->description, type, d->scale, d->offset, &dim);
@@ -152,12 +151,10 @@ pc_patch_ght_from_uncompressed(const PCPATCH_UNCOMPRESSED *pa)
 	GhtTreePtr tree;
 	GhtCoordinate coord;
 	GhtNodePtr node;
-	GhtErr err;
 	PCPOINT pt;
 	PCDIMENSION *xdim, *ydim;
 	PCPATCH_GHT *paght = NULL;
 	size_t pt_size = pa->schema->size;
-	double x, y;
 
 	/* Cannot handle empty patches */
 	if ( ! pa || ! pa->npoints ) return NULL;
@@ -262,7 +259,6 @@ pc_patch_ght_free(PCPATCH_GHT *paght)
 	pcerror("%s: libght support is not enabled", __func__);
 	return;
 #else
-	int i;
 	assert(paght);
 	assert(paght->schema);
 
@@ -287,7 +283,7 @@ pc_patch_uncompressed_from_ght(const PCPATCH_GHT *paght)
 	pcerror("%s: libght support is not enabled", __func__);
 	return NULL;
 #else
-	int i, j, npoints;
+	int i, npoints;
 	PCPATCH_UNCOMPRESSED *patch;
 	PCPOINT point;
 	const PCSCHEMA *schema;
@@ -295,7 +291,6 @@ pc_patch_uncompressed_from_ght(const PCPATCH_GHT *paght)
 	GhtCoordinate coord;
 	GhtNodePtr node;
 	GhtTreePtr tree;
-	GhtHash *hash;
 	GhtAttributePtr attr;
 
 	/* Build a structured tree from the tree serialization */
@@ -550,6 +545,7 @@ pc_patch_ght_filter(const PCPATCH_GHT *patch, uint32_t dimnum, PC_FILTERTYPE fil
     		break;
         default:
             pcerror("%s: invalid filter type (%d)", __func__, filter);
+            return NULL;
     }
 
     /* ght_tree_filter_* returns a tree with NULL tree element and npoints == 0 */

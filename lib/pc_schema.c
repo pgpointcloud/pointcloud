@@ -314,7 +314,6 @@ void pc_schema_check_xy(PCSCHEMA *s)
 static char *
 xml_node_get_content(xmlNodePtr node)
 {
-	int i;
 	xmlNodePtr cur = node->children;
 	if ( cur )
 	{
@@ -340,7 +339,7 @@ pc_schema_from_xml(const char *xml_str, PCSCHEMA **schema)
 	xmlXPathContextPtr xpath_ctx;
 	xmlXPathObjectPtr xpath_obj;
 	xmlNodeSetPtr nodes;
-	PCSCHEMA *s;
+	PCSCHEMA *s = NULL;
 	const char *xml_ptr = xml_str;
 
 	/* Roll forward to start of XML string */
