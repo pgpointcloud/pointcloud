@@ -1,3 +1,6 @@
 language: c
 
+before_install:
+  - sudo apt-get install -q postgresql-server-dev-9.3 
+
 before_script: ./autogen.sh
