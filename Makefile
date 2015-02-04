@@ -7,6 +7,9 @@ all install uninstall noop clean distclean:
 check:
 	$(MAKE) -C lib $@
 
+installcheck:
+	$(MAKE) -C pgsql $@
+
 astyle:
 	find . \
 	  -name "*.c" \
