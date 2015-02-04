@@ -9,7 +9,7 @@ addons:
 before_script: ./autogen.sh
 
 script:
-  - ./configure
+  - ./configure CFLAGS="-Wall -O2 -g"
   - make
   - make check
   - sudo make install
