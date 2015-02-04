@@ -279,7 +279,7 @@ if test "x$GHTDIR" = "x"; then
   dnl GHTDIR was not specified, so search in usual system places
   AC_CHECK_HEADER([ght.h], [GHT_CPPFLAGS="$CPPFLAGS" FOUND_GHT_H="YES"], [FOUND_GHT_H="NO"])
   AC_CHECK_LIB([ght], [ght_init], [GHT_LDFLAGS="-lght" FOUND_GHT_LIB="YES"], [FOUND_GHT_LIB="NO"])
-else
+elif test "x$GHTDIR" != "xno"; then
   dnl GHTDIR was specified, so let's look there!
 
 
@@ -303,7 +303,7 @@ else
   CPPFLAGS="${CPPFLAGS_SAVE}"
 fi
 
-if test $FOUND_GHT_H = "YES" -a $FOUND_GHT_LIB = "YES"; then
+if test "x$FOUND_GHT_H" = "xYES" -a "x$FOUND_GHT_LIB" = "xYES"; then
   AC_DEFINE([HAVE_LIBGHT])
   GHT_STATUS="enabled"
   if test $GHTDIR; then

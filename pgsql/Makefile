@@ -13,6 +13,10 @@ DATA = pointcloud--1.0.sql
 
 REGRESS = pointcloud
 
+ifneq ($(GHT_LDFLAGS),)
+REGRESS += pointcloud-ght
+endif
+
 # Add in build/link flags for lib
 PG_CPPFLAGS += -I../lib
 SHLIB_LINK += ../lib/$(LIB_A) $(filter -lm, $(LIBS)) $(XML2_LDFLAGS) $(ZLIB_LDFLAGS) $(GHT_LDFLAGS)
