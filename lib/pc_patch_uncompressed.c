@@ -39,6 +39,7 @@ pc_patch_uncompressed_to_string(const PCPATCH_UNCOMPRESSED *patch)
 			if ( ! pc_point_get_double_by_index(pt, j, &d))
 			{
 				pcerror("%s: unable to read double at index %d", __func__, j);
+				return NULL;
 			}
 			if ( j )
 			{
