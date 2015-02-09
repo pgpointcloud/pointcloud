@@ -194,8 +194,8 @@ pc_patch_dimensional_compute_extent(PCPATCH_DIMENSIONAL *pdl)
 	/* Get y extremes */
 	pcb = &(pdl->bytes[pdl->schema->y_position]);
 	rv = pc_bytes_minmax(pcb, &ymin, &ymax, &yavg);
-	ymin = pc_value_scale_offset(xmin, pdl->schema->dims[pdl->schema->y_position]);
-	ymax = pc_value_scale_offset(xmax, pdl->schema->dims[pdl->schema->y_position]);
+	ymin = pc_value_scale_offset(ymin, pdl->schema->dims[pdl->schema->y_position]);
+	ymax = pc_value_scale_offset(ymax, pdl->schema->dims[pdl->schema->y_position]);
 	pdl->bounds.ymin = ymin;
 	pdl->bounds.ymax = ymax;
 

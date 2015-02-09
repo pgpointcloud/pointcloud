@@ -358,6 +358,46 @@ test_patch_dimensional_compression()
 }
 
 static void
+test_patch_dimensional_extent()
+{
+    PCPOINT *pt;
+    int i, rv;
+    int npts = 2;
+    PCPOINTLIST *pl1;
+    PCPATCH_DIMENSIONAL *pch1;
+
+    pl1 = pc_pointlist_make(npts);
+
+    for ( i = 1; i <= npts; i++ )
+    {
+        pt = pc_point_make(simpleschema);
+        pc_point_set_double_by_name(pt, "x", 5+i*1);
+        pc_point_set_double_by_name(pt, "y", -i*10);
+        pc_point_set_double_by_name(pt, "Z", i*0.2);
+        pc_point_set_double_by_name(pt, "intensity", -5);
+        pc_pointlist_add_point(pl1, pt);
+        // free point ?
+        pc_point_free(pt);
+    }
+
+    pch1 = pc_patch_dimensional_from_pointlist(pl1);
+		CU_ASSERT_EQUAL(pch1->bounds.xmin, 6);
+		CU_ASSERT_EQUAL(pch1->bounds.xmax, 7);
+		CU_ASSERT_EQUAL(pch1->bounds.ymin, -20);
+		CU_ASSERT_EQUAL(pch1->bounds.ymax, -10);
+
+    rv = pc_patch_dimensional_compute_extent(pch1);
+    CU_ASSERT_EQUAL(rv, PC_SUCCESS);
+		CU_ASSERT_EQUAL(pch1->bounds.xmin, 6);
+		CU_ASSERT_EQUAL(pch1->bounds.xmax, 7);
+		CU_ASSERT_EQUAL(pch1->bounds.ymin, -20);
+		CU_ASSERT_EQUAL(pch1->bounds.ymax, -10);
+
+    pc_patch_dimensional_free(pch1);
+    pc_pointlist_free(pl1);
+}
+
+static void
 test_patch_union()
 {
     int i;
@@ -518,9 +558,10 @@ CU_TestInfo patch_tests[] = {
 	PC_TEST(test_endian_flip),
 	PC_TEST(test_patch_hex_in),
 	PC_TEST(test_patch_hex_out),
-    PC_TEST(test_schema_xy),
+	PC_TEST(test_schema_xy),
 	PC_TEST(test_patch_dimensional),
 	PC_TEST(test_patch_dimensional_compression),
+	PC_TEST(test_patch_dimensional_extent),
 	PC_TEST(test_patch_union),
 	PC_TEST(test_patch_wkb),
 	PC_TEST(test_patch_filter),
