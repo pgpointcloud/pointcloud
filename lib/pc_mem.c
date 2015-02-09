@@ -103,6 +103,13 @@ void pc_set_handlers(pc_allocator allocator, pc_reallocator reallocator,
                      pc_deallocator deallocator, pc_message_handler error_handler,
                      pc_message_handler info_handler, pc_message_handler warn_handler)
 {
+	if ( ! allocator ) allocator = pc_context.alloc;
+	if ( ! reallocator ) reallocator = pc_context.realloc;
+	if ( ! deallocator ) deallocator = pc_context.free;
+	if ( ! error_handler ) error_handler = pc_context.err;
+	if ( ! warn_handler ) warn_handler = pc_context.warn;
+	if ( ! info_handler ) info_handler = pc_context.info;
+
 	pc_context.alloc = allocator;
 	pc_context.realloc = reallocator;
 	pc_context.free = deallocator;
