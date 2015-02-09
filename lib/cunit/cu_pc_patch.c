@@ -68,13 +68,21 @@ test_endian_flip()
 	a3 = 19112;
 	a4 = 200;
 	rv = pc_point_set_double_by_name(pt, "X", a1);
+	CU_ASSERT_EQUAL(rv, PC_SUCCESS);
 	rv = pc_point_set_double_by_name(pt, "Z", a2);
+	CU_ASSERT_EQUAL(rv, PC_SUCCESS);
 	rv = pc_point_set_double_by_name(pt, "Intensity", a3);
+	CU_ASSERT_EQUAL(rv, PC_SUCCESS);
 	rv = pc_point_set_double_by_name(pt, "UserData", a4);
+	CU_ASSERT_EQUAL(rv, PC_SUCCESS);
 	rv = pc_point_get_double_by_name(pt, "X", &b1);
+	CU_ASSERT_EQUAL(rv, PC_SUCCESS);
 	rv = pc_point_get_double_by_name(pt, "Z", &b2);
+	CU_ASSERT_EQUAL(rv, PC_SUCCESS);
 	rv = pc_point_get_double_by_name(pt, "Intensity", &b3);
+	CU_ASSERT_EQUAL(rv, PC_SUCCESS);
 	rv = pc_point_get_double_by_name(pt, "UserData", &b4);
+	CU_ASSERT_EQUAL(rv, PC_SUCCESS);
 	CU_ASSERT_DOUBLE_EQUAL(a1, b1, 0.0000001);
 	CU_ASSERT_DOUBLE_EQUAL(a2, b2, 0.0000001);
 	CU_ASSERT_DOUBLE_EQUAL(a3, b3, 0.0000001);
@@ -85,9 +93,13 @@ test_endian_flip()
 	pt->data = uncompressed_bytes_flip_endian(ptr, schema, 1);
 
 	rv = pc_point_get_double_by_name(pt, "X", &b1);
+	CU_ASSERT_EQUAL(rv, PC_SUCCESS);
 	rv = pc_point_get_double_by_name(pt, "Z", &b2);
+	CU_ASSERT_EQUAL(rv, PC_SUCCESS);
 	rv = pc_point_get_double_by_name(pt, "Intensity", &b3);
+	CU_ASSERT_EQUAL(rv, PC_SUCCESS);
 	rv = pc_point_get_double_by_name(pt, "UserData", &b4);
+	CU_ASSERT_EQUAL(rv, PC_SUCCESS);
 	CU_ASSERT_DOUBLE_EQUAL(a1, b1, 0.0000001);
 	CU_ASSERT_DOUBLE_EQUAL(a2, b2, 0.0000001);
 	CU_ASSERT_DOUBLE_EQUAL(a3, b3, 0.0000001);
@@ -289,7 +301,7 @@ test_patch_dimensional_compression()
     PCPOINTLIST *pl1, *pl2;
     PCPATCH_DIMENSIONAL *pch1, *pch2;
     PCDIMSTATS *pds = NULL;
-    size_t z1, z2;
+    //size_t z1, z2;
     char *str;
 
     pl1 = pc_pointlist_make(npts);
@@ -305,14 +317,14 @@ test_patch_dimensional_compression()
     }
 
     pch1 = pc_patch_dimensional_from_pointlist(pl1);
-    z1 = pc_patch_dimensional_serialized_size(pch1);
+    // z1 = pc_patch_dimensional_serialized_size(pch1);
     // printf("z1 %ld\n", z1);
 
     pds = pc_dimstats_make(simpleschema);
     pc_dimstats_update(pds, pch1);
     pc_dimstats_update(pds, pch1);
     pch2 = pc_patch_dimensional_compress(pch1, pds);
-    z2 = pc_patch_dimensional_serialized_size(pch2);
+    // z2 = pc_patch_dimensional_serialized_size(pch2);
     // printf("z2 %ld\n", z2);
 
     str = pc_dimstats_to_string(pds);
@@ -353,9 +365,6 @@ test_patch_union()
     PCPOINTLIST *pl1;
     PCPATCH *pu;
     PCPATCH **palist;
-    PCDIMSTATS *pds = NULL;
-    size_t z1, z2;
-    char *str;
 
     pl1 = pc_pointlist_make(npts);
 
@@ -393,10 +402,8 @@ test_patch_wkb()
     PCPOINTLIST *pl1;
     PCPATCH_UNCOMPRESSED *pu1, *pu2;
     PCPATCH *pa1, *pa2, *pa3, *pa4;
-    PCDIMSTATS *pds = NULL;
     size_t z1, z2;
     uint8_t *wkb1, *wkb2;
-    char *str;
 
     pl1 = pc_pointlist_make(npts);
 
@@ -412,7 +419,7 @@ test_patch_wkb()
 
     pa1 = (PCPATCH*)pc_patch_dimensional_from_pointlist(pl1);
     wkb1 = pc_patch_to_wkb(pa1, &z1);
-    str = hexbytes_from_bytes(wkb1, z1);
+    // str = hexbytes_from_bytes(wkb1, z1);
     // printf("str\n%s\n",str);
     pa2 = pc_patch_from_wkb(simpleschema, wkb1, z1);
 
@@ -451,11 +458,7 @@ test_patch_filter()
     int i;
     int npts = 20;
     PCPOINTLIST *pl1, *pl2;
-    PCPATCH_UNCOMPRESSED *pu1, *pu2;
     PCPATCH *pa1, *pa2, *pa3, *pa4;
-    PCDIMSTATS *pds = NULL;
-    size_t z1, z2;
-    uint8_t *wkb1, *wkb2;
     char *str1, *str2;
 
     pl1 = pc_pointlist_make(npts);
