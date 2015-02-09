@@ -179,7 +179,7 @@ void
 pc_schema_set_dimension(PCSCHEMA *s, PCDIMENSION *d)
 {
 	s->dims[d->position] = d;
-	hashtable_insert(s->namehash, d->name, d);
+	if ( d->name ) hashtable_insert(s->namehash, d->name, d);
 	pc_schema_calculate_byteoffsets(s);
 }
 
@@ -288,6 +288,7 @@ void pc_schema_check_xy(PCSCHEMA *s)
 	for ( i = 0; i < s->ndims; i++ )
 	{
 		char *dimname = s->dims[i]->name;
+		if ( ! dimname ) continue;
 		if ( strcasecmp(dimname, "X") == 0 ||
 		        strcasecmp(dimname, "Longitude") == 0 ||
 		        strcasecmp(dimname, "Lon") == 0 )
@@ -305,10 +306,16 @@ void pc_schema_check_xy(PCSCHEMA *s)
 	}
 
 	if ( s->x_position < 0 )
+	{
 		pcerror("pc_schema_check_xy: invalid x_position '%d'", s->x_position);
+		return;
+	}
 
 	if ( s->y_position < 0 )
+	{
 		pcerror("pc_schema_check_xy: invalid y_position '%d'", s->y_position);
+		return;
+	}
 }
 
 static char *
