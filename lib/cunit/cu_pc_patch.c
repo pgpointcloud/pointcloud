@@ -376,8 +376,6 @@ test_patch_dimensional_extent()
         pc_point_set_double_by_name(pt, "Z", i*0.2);
         pc_point_set_double_by_name(pt, "intensity", -5);
         pc_pointlist_add_point(pl1, pt);
-        // free point ?
-        pc_point_free(pt);
     }
 
     pch1 = pc_patch_dimensional_from_pointlist(pl1);
