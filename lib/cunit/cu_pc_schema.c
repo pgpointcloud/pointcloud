@@ -19,10 +19,10 @@ static const char *xmlfile = "data/pdal-schema.xml";
 static int
 init_suite(void)
 {
-    char *xmlstr = file_to_str(xmlfile);
+	char *xmlstr = file_to_str(xmlfile);
 	int rv = pc_schema_from_xml(xmlstr, &schema);
 	pcfree(xmlstr);
-	return rv == PC_FAILURE;
+	return rv == PC_FAILURE ? -1 : 0;
 }
 
 static int
@@ -38,9 +38,10 @@ clean_suite(void)
 static void
 test_schema_from_xml()
 {
-    static PCSCHEMA *myschema = NULL;
+	static PCSCHEMA *myschema = NULL;
 	char *xmlstr = file_to_str(xmlfile);
 	int rv = pc_schema_from_xml(xmlstr, &myschema);
+	CU_ASSERT_EQUAL(rv, PC_SUCCESS);
 	pcfree(xmlstr);
 
 	// char *schemastr = pc_schema_to_json(schema);
@@ -49,7 +50,7 @@ test_schema_from_xml()
 	// printf("%s\n", schemastr);
 
 	CU_ASSERT(myschema != NULL);
-    pc_schema_free(myschema);
+	pc_schema_free(myschema);
 }
 
 static void
@@ -115,6 +116,22 @@ test_dimension_byteoffsets()
 
 }
 
+static void
+test_schema_is_valid()
+{
+	static PCSCHEMA *myschema = NULL;
+	char *xmlstr;
+	int rv;
+
+	// See https://github.com/pgpointcloud/pointcloud/issues/28
+	xmlstr = "<pc:PointCloudSchema xmlns:pc='x'><pc:dimension>1</pc:dimension></pc:PointCloudSchema>";
+	rv = pc_schema_from_xml(xmlstr, &myschema);
+	CU_ASSERT_EQUAL(rv, PC_SUCCESS);
+
+  cu_error_msg_reset();
+  rv = pc_schema_is_valid(myschema);
+	CU_ASSERT_EQUAL(rv, PC_FAILURE);
+}
 
 
 static void
@@ -132,6 +149,7 @@ CU_TestInfo schema_tests[] = {
 	PC_TEST(test_dimension_get),
 	PC_TEST(test_dimension_byteoffsets),
 	PC_TEST(test_schema_compression),
+	PC_TEST(test_schema_is_valid),
 	CU_TEST_INFO_NULL
 };
 

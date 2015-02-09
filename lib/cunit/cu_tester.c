@@ -19,6 +19,24 @@ extern CU_SuiteInfo point_suite;
 extern CU_SuiteInfo ght_suite;
 extern CU_SuiteInfo bytes_suite;
 
+/**
+ * CUnit error handler
+ * Log message in a global var instead of printing in stderr
+ *
+ * CAUTION: Not stop execution on pcerror case !!!
+*/
+static void cu_error_reporter(const char *fmt, va_list ap)
+{
+  vsnprintf(cu_error_msg, MAX_CUNIT_MSG_LENGTH-1, fmt, ap);
+  cu_error_msg[MAX_CUNIT_MSG_LENGTH-1] = '\0';
+  va_end (ap);
+}
+
+void cu_error_msg_reset() {
+	memset(cu_error_msg, '\0', MAX_CUNIT_MSG_LENGTH);
+}
+
+
 /*
 ** The main() function for setting up and running the tests.
 ** Returns a CUE_SUCCESS on successful running, another
@@ -49,6 +67,8 @@ int main(int argc, char *argv[])
 
 	/* Set up to use the system memory management / logging */
 	pc_install_default_handlers();
+
+  pc_set_handlers(0, 0, 0, cu_error_reporter, 0, 0);
 
 	/* initialize the CUnit test registry */
 	if (CUE_SUCCESS != CU_initialize_registry())
@@ -161,28 +181,6 @@ int main(int argc, char *argv[])
 	return num_failed;
 }
 
-/**
- * CUnit error handler
- * Log message in a global var instead of printing in stderr
- *
- * CAUTION: Not stop execution on rterror case !!!
-static void cu_error_reporter(const char *fmt, va_list ap)
-{
-	char *msg;
-	if (!vasprintf (&msg, fmt, ap))
-	{
-		va_end (ap);
-		return;
-	}
-	strncpy(cu_error_msg, msg, MAX_CUNIT_MSG_LENGTH);
-	rtdealloc(msg);
-}
-*/
-
-void cu_error_msg_reset() {
-	memset(cu_error_msg, '\0', MAX_CUNIT_MSG_LENGTH);
-}
-
 /* UTILITY ************************************************************/
 
 char*
@@ -194,7 +192,6 @@ file_to_str(const char *fname)
 	size_t sz = 8192;
 	char *str = pcalloc(sz);
 	char *ptr = str;
-	char *ln;
 	size_t MAXLINELEN = 8192;
 	char buf[MAXLINELEN];
 

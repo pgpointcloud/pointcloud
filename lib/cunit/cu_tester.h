@@ -19,4 +19,4 @@ char cu_error_msg[MAX_CUNIT_MSG_LENGTH+1];
 char* file_to_str(const char *fname);
 
 /* Resets cu_error_msg back to blank. */
-//void cu_error_msg_reset(void);
+void cu_error_msg_reset(void);
