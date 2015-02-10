@@ -11,7 +11,7 @@ OBJS = \
 EXTENSION = pointcloud
 DATA = pointcloud--1.0.sql
 
-REGRESS = pointcloud
+REGRESS = pointcloud pointcloud_columns
 
 ifneq ($(GHT_LDFLAGS),)
 REGRESS += pointcloud-ght

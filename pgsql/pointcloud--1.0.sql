@@ -193,16 +193,16 @@ CREATE OR REPLACE VIEW pointcloud_columns AS
         t.typname AS type
     FROM 
         pg_class c, 
-        pg_attribute a, 
         pg_type t, 
         pg_namespace n,
-        pointcloud_formats p
+        pg_attribute a
+    LEFT OUTER JOIN pointcloud_formats p
+      ON ( pc_typmod_pcid(a.atttypmod) = p.pcid )
     WHERE t.typname IN ('pcpatch','pcpoint')
     AND a.attisdropped = false
     AND a.atttypid = t.oid
     AND a.attrelid = c.oid
     AND c.relnamespace = n.oid
-    AND (pc_typmod_pcid(a.atttypmod) = p.pcid OR pc_typmod_pcid(a.atttypmod) IS NULL)
     AND NOT pg_is_other_temp_schema(c.relnamespace)
     AND has_table_privilege( c.oid, 'SELECT'::text );
 
