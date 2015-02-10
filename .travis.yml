@@ -1,6 +1,7 @@
 language: c
 
 before_install:
+  - sudo apt-get update
   - sudo apt-get install -q postgresql-server-dev-9.3 libcunit1-dev
 
 addons:
