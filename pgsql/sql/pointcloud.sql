@@ -172,5 +172,6 @@ SELECT Min(PC_PatchMin(pa,'z')) FROM pa_test_dim;
 
 
 --DROP TABLE pts_collection;
---DROP TABLE pt_test;
---DROP TABLE pa_test;
+DROP TABLE pt_test;
+DROP TABLE pa_test;
+DROP TABLE pa_test_dim;
