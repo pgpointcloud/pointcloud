@@ -10,7 +10,7 @@ OBJS = \
 
 SED = sed
 EXTENSION = pointcloud
-EXTVERSION=2.0
+EXTVERSION=$(shell cat ../Version.config)
 UPGRADABLE = 1.0
 
 UPGRADES = \
