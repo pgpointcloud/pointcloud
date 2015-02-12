@@ -89,6 +89,7 @@ test_point_access()
 	int rv;
 	double a1, a2, a3, a4, b1, b2, b3, b4;
 	int idx = 0;
+	double *allvals;
 
 	pt = pc_point_make(schema);
 	CU_ASSERT( pt != NULL );
@@ -132,6 +133,20 @@ test_point_access()
 	CU_ASSERT_DOUBLE_EQUAL(a2, b2, 0.0000001);
 	CU_ASSERT_DOUBLE_EQUAL(a3, b3, 0.0000001);
 	CU_ASSERT_DOUBLE_EQUAL(a4, b4, 0.0000001);
+
+	/* as a double array */
+	rv = pc_point_set_double_by_index(pt, 0, a1);
+	rv = pc_point_set_double_by_index(pt, 1, a2);
+	rv = pc_point_set_double_by_index(pt, 2, a3);
+	rv = pc_point_set_double_by_index(pt, 3, a4);
+	allvals = pc_point_to_double_array(pt);
+	CU_ASSERT_DOUBLE_EQUAL(allvals[0], a1, 0.0000001);
+	CU_ASSERT_DOUBLE_EQUAL(allvals[1], a2, 0.0000001);
+	//printf("allvals[2]:%g\n", allvals[2]);
+	CU_ASSERT_DOUBLE_EQUAL(allvals[2], a3, 0.0000001);
+	//printf("allvals[3]:%g\n", allvals[3]);
+	CU_ASSERT_DOUBLE_EQUAL(allvals[3], a4, 0.0000001);
+	pcfree(allvals);
 
 	pc_point_free(pt);
 

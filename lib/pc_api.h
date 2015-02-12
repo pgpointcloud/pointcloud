@@ -310,6 +310,13 @@ PCPOINT* pc_point_from_data(const PCSCHEMA *s, const uint8_t *data);
 /** Create a new read/write PCPOINT from a double array */
 PCPOINT* pc_point_from_double_array(const PCSCHEMA *s, double *array, uint32_t nelems);
 
+/**
+ * Return an allocated double array of doubles representing point values
+ *
+ * The number of elements in the array is equal to pt->schema->n_dims
+ */
+double* pc_point_to_double_array(const PCPOINT *pt);
+
 /** Frees the PTPOINT and data (if not readonly). Does not free referenced schema */
 void pc_point_free(PCPOINT *pt);
 
@@ -345,7 +352,6 @@ char* pc_point_to_string(const PCPOINT *pt);
 
 /** Return the OGC WKB version of the point */
 uint8_t* pc_point_to_geometry_wkb(const PCPOINT *pt, size_t *wkbsize);
-
 
 /**********************************************************************
 * PCPATCH
