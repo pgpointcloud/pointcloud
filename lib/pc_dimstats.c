@@ -90,8 +90,7 @@ pc_dimstats_to_string(const PCDIMSTATS *pds)
 int
 pc_dimstats_update(PCDIMSTATS *pds, const PCPATCH_DIMENSIONAL *pdl)
 {
-	int i, j;
-	uint32_t nelems = pdl->npoints;
+	int i;
 	const PCSCHEMA *schema = pdl->schema;
 
 	/* Update global stats */
