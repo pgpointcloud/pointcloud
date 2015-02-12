@@ -13,3 +13,5 @@ lib/pc_config.h
 Makefile
 */Makefile
 */*/Makefile
+pgsql/pointcloud.control
+pgsql/pointcloud--*
