@@ -46,9 +46,7 @@ pc_point_make(const PCSCHEMA *s)
 PCPOINT *
 pc_point_from_data(const PCSCHEMA *s, const uint8_t *data)
 {
-	size_t sz;
 	PCPOINT *pt;
-	uint32_t pcid;
 
 	if ( ! s )
 	{
@@ -242,7 +240,6 @@ pc_point_from_wkb(const PCSCHEMA *schema, uint8_t *wkb, size_t wkblen)
 	*/
 	const size_t hdrsz = 1+4; /* endian + pcid */
 	uint8_t wkb_endian;
-	uint32_t pcid;
 	uint8_t *data;
 	PCPOINT *pt;
 
@@ -252,7 +249,6 @@ pc_point_from_wkb(const PCSCHEMA *schema, uint8_t *wkb, size_t wkblen)
 	}
 
 	wkb_endian = wkb[0];
-	pcid = wkb_get_pcid(wkb);
 
 	if ( (wkblen-hdrsz) != schema->size )
 	{
