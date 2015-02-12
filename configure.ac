@@ -32,6 +32,13 @@ dnl AC_PROG_YACC
 dnl AC_SUBST([LEX])
 dnl AC_SUBST([YACC])
 
+dnl ===========================================================================
+dnl Version Information imported from Version.config
+dnl ===========================================================================
+
+POINTCLOUD_VERSION=`cat Version.config`
+AC_SUBST([POINTCLOUD_VERSION])
+AC_DEFINE_UNQUOTED([POINTCLOUD_VERSION], ["$POINTCLOUD_VERSION"], [Pointcloud version])
 
 dnl ===========================================================================
 dnl Detect ZLib if it is installed 

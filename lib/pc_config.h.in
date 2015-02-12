@@ -8,3 +8,4 @@
 
 #undef PROJECT_SOURCE_DIR 
 
+#undef POINTCLOUD_VERSION
