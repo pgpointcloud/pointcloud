@@ -188,6 +188,7 @@ CREATE OR REPLACE FUNCTION PC_FilterBetween(p pcpatch, attr text, v1 float8 defa
 --  POINTCLOUD_COLUMNS
 -------------------------------------------------------------------
 
+-- Last Changed: 1.0.1
 CREATE OR REPLACE VIEW pointcloud_columns AS
     SELECT
         n.nspname AS schema, 
