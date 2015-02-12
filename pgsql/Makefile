@@ -40,6 +40,9 @@ include $(PGXS)
 $(EXTENSION).control: $(EXTENSION).control.in Makefile
 	$(SED) -e 's/@@VERSION@@/$(EXTVERSION)/' $< > $@
 
-$(EXTENSION)--%.sql: $(EXTENSION).sql.in Makefile
+$(EXTENSION)--$(EXTVERSION).sql: $(EXTENSION).sql.in Makefile
 	cp $< $@
 
+# NOTE: relies on PERL being defined by PGXS
+$(EXTENSION)--%--$(EXTVERSION).sql: $(EXTENSION)--$(EXTVERSION).sql ../util/proc_upgrade.pl
+	cat $< | ../util/proc_upgrade.pl > $@
