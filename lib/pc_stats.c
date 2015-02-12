@@ -66,7 +66,7 @@ pc_stats_free(PCSTATS *stats)
 PCSTATS *
 pc_stats_new_from_data(const PCSCHEMA *schema, const uint8_t *mindata, const uint8_t *maxdata, const uint8_t *avgdata)
 {
-	size_t sz = schema->size;
+	/*size_t sz = schema->size;*/
 	PCSTATS *stats = pcalloc(sizeof(PCSTATS));
 	/* All share the schema with the patch */
 	stats->min.schema = schema;
@@ -92,7 +92,7 @@ pc_stats_new_from_data(const PCSCHEMA *schema, const uint8_t *mindata, const uin
 static PCSTATS *
 pc_stats_new(const PCSCHEMA *schema)
 {
-	size_t sz = schema->size;
+	/*size_t sz = schema->size;*/
 	PCSTATS *stats = pcalloc(sizeof(PCSTATS));
 	stats->min.schema = schema;
 	stats->max.schema = schema;
