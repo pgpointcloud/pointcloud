@@ -124,7 +124,6 @@ int32_flip_endian(int32_t val)
 int16_t
 int16_flip_endian(int16_t val)
 {
-	int i;
 	uint8_t tmp;
 	uint8_t b[2];
 	memcpy(b, &val, 2);
@@ -234,58 +233,6 @@ uncompressed_bytes_flip_endian(const uint8_t *bytebuf, const PCSCHEMA *schema, u
 	}
 
 	return buf;
-}
-
-typedef struct
-{
-	uint8_t *buf;
-	uint8_t *ptr;
-	size_t sz;
-} bytebuffer_t;
-
-static bytebuffer_t *
-bytebuffer_new(void)
-{
-	bytebuffer_t *bb = pcalloc(sizeof(bytebuffer_t));
-	bb->sz = 1024;
-	bb->buf = pcalloc(bb->sz*sizeof(uint8_t));
-	bb->ptr = bb->buf;
-	return bb;
-}
-
-static void
-bytebuffer_destroy(bytebuffer_t *bb)
-{
-	pcfree(bb->buf);
-	pcfree(bb);
-}
-
-static void
-bytebuffer_memcpy(bytebuffer_t *bb, void *ptr, size_t sz)
-{
-	size_t cursz = bb->ptr - bb->buf;
-	if ( (bb->sz - cursz) < sz )
-	{
-		bb->sz *= 2;
-		bb->buf = pcrealloc(bb->buf, bb->sz);
-		bb->ptr = bb->buf + cursz;
-	}
-	memcpy(bb->ptr, ptr, sz);
-	bb->ptr += sz;
-}
-
-static size_t
-bytebuffer_size(bytebuffer_t *bb)
-{
-	return (size_t)(bb->ptr - bb->buf);
-}
-
-static void *
-bytebuffer_copy(bytebuffer_t *bb)
-{
-	char *buf = pcalloc(bytebuffer_size(bb));
-	memcpy(buf, bb->buf, bytebuffer_size(bb));
-	return (void *)buf;
 }
 
 int
