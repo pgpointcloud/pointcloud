@@ -13,7 +13,7 @@ CREATE OR REPLACE FUNCTION PC_SchemaIsValid(schemaxml text)
     LANGUAGE 'c' IMMUTABLE STRICT;
 
 -- Metadata table describing contents of pcpoints
-CREATE TABLE pointcloud_formats (
+CREATE TABLE IF NOT EXISTS pointcloud_formats (
     pcid INTEGER PRIMARY KEY 
         -- PCID == 0 is unknown
         -- PCID > 2^16 is reserved to leave space in typmod
