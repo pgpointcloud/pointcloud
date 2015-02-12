@@ -225,6 +225,14 @@ Now that you have created two tables, you'll see entries for them in the `pointc
 >
 >     4
 
+**PC_Get(pt pcpoint)** returns **float8[]**  (from 2.0)
+
+> Return values of all dimensions in an array.
+>
+>     SELECT PC_Get('010100000064CEFFFF94110000703000000400'::pcpoint);
+>
+>     {-127,45,124,4}
+
 **PC_Patch(pts pcpoint[])** returns **pcpatch**
 
 > Aggregate function that collects a result set of `pcpoint` values into a `pcpatch`.

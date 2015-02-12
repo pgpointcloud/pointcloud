@@ -81,6 +81,11 @@ CREATE OR REPLACE FUNCTION PC_Get(pt pcpoint, dimname text)
 	RETURNS numeric AS 'MODULE_PATHNAME', 'pcpoint_get_value'
     LANGUAGE 'c' IMMUTABLE STRICT;
 
+-- Availability: 2.0
+CREATE OR REPLACE FUNCTION PC_Get(pt pcpoint)
+	RETURNS float8[] AS 'MODULE_PATHNAME', 'pcpoint_get_values'
+	LANGUAGE 'c' IMMUTABLE STRICT;
+
 CREATE OR REPLACE FUNCTION PC_MakePoint(pcid integer, vals float8[])
 	RETURNS pcpoint AS 'MODULE_PATHNAME', 'pcpoint_from_double_array'
 	LANGUAGE 'c' IMMUTABLE STRICT;

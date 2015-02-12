@@ -15,6 +15,7 @@
 
 /* General SQL functions */
 Datum pcpoint_get_value(PG_FUNCTION_ARGS);
+Datum pcpoint_get_values(PG_FUNCTION_ARGS);
 Datum pcpatch_from_pcpoint_array(PG_FUNCTION_ARGS);
 Datum pcpatch_from_pcpatch_array(PG_FUNCTION_ARGS);
 Datum pcpatch_uncompress(PG_FUNCTION_ARGS);
@@ -70,6 +71,39 @@ Datum pcpoint_get_value(PG_FUNCTION_ARGS)
 	pc_point_free(pt);
 	PG_RETURN_DATUM(DirectFunctionCall1(float8_numeric, Float8GetDatum(double_result)));
 }
+
+/**
+* Returns all the values of a point as a double precision array
+* PC_Get(point pcpoint) returns Float8[]
+*/
+PG_FUNCTION_INFO_V1(pcpoint_get_values);
+Datum pcpoint_get_values(PG_FUNCTION_ARGS)
+{
+	SERIALIZED_POINT *serpt;
+	ArrayType  *result;
+	PCSCHEMA *schema;
+	PCPOINT *pt;
+	Datum *elems;
+	int i;
+	double *vals;
+
+	serpt = PG_GETARG_SERPOINT_P(0);
+	schema = pc_schema_from_pcid(serpt->pcid, fcinfo);
+	pt = pc_point_deserialize(serpt, schema);
+	if ( ! pt ) PG_RETURN_NULL();
+
+  elems = (Datum * )palloc(schema->ndims * sizeof(Datum) );
+  vals = pc_point_to_double_array(pt);
+  i = schema->ndims;
+  while (i--) elems[i] = Float8GetDatum(vals[i]);
+  pcfree(vals);
+  result = construct_array(elems, schema->ndims, FLOAT8OID,
+	                         sizeof(float8), FLOAT8PASSBYVAL, 'd');
+
+	pc_point_free(pt);
+	PG_RETURN_ARRAYTYPE_P(result);
+}
+
 
 static inline bool
 array_get_isnull(const bits8 *nullbitmap, int offset)
