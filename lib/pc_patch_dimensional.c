@@ -175,7 +175,6 @@ pc_patch_dimensional_free(PCPATCH_DIMENSIONAL *pdl)
 int
 pc_patch_dimensional_compute_extent(PCPATCH_DIMENSIONAL *pdl)
 {
-	int i;
 	double xmin, xmax, ymin, ymax, xavg, yavg;
 	int rv;
 	PCBYTES *pcb;
@@ -186,6 +185,7 @@ pc_patch_dimensional_compute_extent(PCPATCH_DIMENSIONAL *pdl)
 	/* Get x extremes */
 	pcb = &(pdl->bytes[pdl->schema->x_position]);
 	rv = pc_bytes_minmax(pcb, &xmin, &xmax, &xavg);
+	if ( PC_FAILURE == rv ) return PC_FAILURE;
 	xmin = pc_value_scale_offset(xmin, pdl->schema->dims[pdl->schema->x_position]);
 	xmax = pc_value_scale_offset(xmax, pdl->schema->dims[pdl->schema->x_position]);
 	pdl->bounds.xmin = xmin;
@@ -194,6 +194,7 @@ pc_patch_dimensional_compute_extent(PCPATCH_DIMENSIONAL *pdl)
 	/* Get y extremes */
 	pcb = &(pdl->bytes[pdl->schema->y_position]);
 	rv = pc_bytes_minmax(pcb, &ymin, &ymax, &yavg);
+	if ( PC_FAILURE == rv ) return PC_FAILURE;
 	ymin = pc_value_scale_offset(ymin, pdl->schema->dims[pdl->schema->y_position]);
 	ymax = pc_value_scale_offset(ymax, pdl->schema->dims[pdl->schema->y_position]);
 	pdl->bounds.ymin = ymin;
