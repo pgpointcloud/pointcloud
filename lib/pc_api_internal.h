@@ -56,26 +56,6 @@ enum INTERPRETATIONS
     PC_DOUBLE = 9,  PC_FLOAT  = 10
 };
 
-static char *INTERPRETATION_STRINGS[NUM_INTERPRETATIONS] =
-{
-	"unknown",
-	"int8_t",  "uint8_t",
-	"int16_t", "uint16_t",
-	"int32_t", "uint32_t",
-	"int64_t", "uint64_t",
-	"double",  "float"
-};
-
-static size_t INTERPRETATION_SIZES[NUM_INTERPRETATIONS] =
-{
-	-1,    /* PC_UNKNOWN */
-	1, 1,  /* PC_INT8, PC_UINT8, */
-	2, 2,  /* PC_INT16, PC_UINT16 */
-	4, 4,  /* PC_INT32, PC_UINT32 */
-	8, 8,  /* PC_INT64, PC_UINT64 */
-	8, 4   /* PC_DOUBLE, PC_FLOAT */
-};
-
 enum DIMCOMPRESSIONS
 {
     PC_DIM_NONE = 0,
