@@ -235,7 +235,6 @@ pc_bytes_run_length_decode(const PCBYTES pcb)
 
 	size_t size = pc_interpretation_size(pcb.interpretation);
 	size_t size_out;
-	uint8_t runlength;
 	uint32_t npoints = 0;
 	PCBYTES pcbout = pcb;
 
@@ -281,7 +280,7 @@ pc_bytes_run_length_decode(const PCBYTES pcb)
 static PCBYTES
 pc_bytes_run_length_flip_endian(PCBYTES pcb)
 {
-	int i, n;
+	int n;
 	uint8_t *bytes_ptr = pcb.bytes;
 	uint8_t *end_ptr = pcb.bytes + pcb.size;
 	uint8_t tmp;
@@ -446,30 +445,20 @@ pc_bytes_sigbits_count(const PCBYTES *pcb)
 	switch ( size )
 	{
 	case 1: /* INT8, UINT8 */
-	{
-		uint8_t commonvalue = pc_bytes_sigbits_count_8(pcb, &nbits);
+		pc_bytes_sigbits_count_8(pcb, &nbits);
 		break;
-	}
 	case 2: /* INT16, UINT16 */
-	{
-		uint16_t commonvalue = pc_bytes_sigbits_count_16(pcb, &nbits);
+		pc_bytes_sigbits_count_16(pcb, &nbits);
 		break;
-	}
 	case 4: /* INT32, UINT32 */
-	{
-		uint32_t commonvalue = pc_bytes_sigbits_count_32(pcb, &nbits);
+		pc_bytes_sigbits_count_32(pcb, &nbits);
 		break;
-	}
 	case 8: /* DOUBLE, INT64, UINT64 */
-	{
-		uint64_t commonvalue = pc_bytes_sigbits_count_64(pcb, &nbits);
+		pc_bytes_sigbits_count_64(pcb, &nbits);
 		break;
-	}
 	default:
-	{
 		pcerror("%s: cannot handle interpretation %d", __func__, pcb->interpretation);
 		return -1;
-	}
 	}
 	return nbits;
 }
