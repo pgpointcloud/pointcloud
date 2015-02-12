@@ -8,8 +8,21 @@ OBJS = \
 	pc_access.o \
 	pc_pgsql.o
 
+SED = sed
 EXTENSION = pointcloud
-DATA = pointcloud--1.0.sql
+EXTVERSION=2.0
+UPGRADABLE = 1.0
+
+UPGRADES = \
+  $(shell echo $(UPGRADABLE) | \
+     $(SED) 's/^/$(EXTENSION)--/' | \
+     $(SED) 's/$$/--$(EXTVERSION).sql/' | \
+     $(SED) 's/ /--$(EXTVERSION).sql $(EXTENSION)--/g')
+
+DATA_built = \
+  $(EXTENSION).control \
+  $(EXTENSION)--$(EXTVERSION).sql \
+  $(UPGRADES)
 
 REGRESS = pointcloud pointcloud_columns
 
@@ -23,3 +36,10 @@ SHLIB_LINK += ../lib/$(LIB_A) $(filter -lm, $(LIBS)) $(XML2_LDFLAGS) $(ZLIB_LDFL
 
 # We are going to use PGXS for sure
 include $(PGXS)
+
+$(EXTENSION).control: $(EXTENSION).control.in Makefile
+	$(SED) -e 's/@@VERSION@@/$(EXTVERSION)/' $< > $@
+
+$(EXTENSION)--%.sql: $(EXTENSION).sql.in Makefile
+	cp $< $@
+
