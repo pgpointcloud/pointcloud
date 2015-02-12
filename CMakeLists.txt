@@ -7,9 +7,9 @@
 # versions
 
 project(POINTCLOUD)
-set (POINTCLOUD_VERSION_MAJOR 0)
-set (POINTCLOUD_VERSION_MINOR 2)
-set (POINTCLOUD_VERSION_PATCH 0)
+file(READ "Version.config" POINTCLOUD_VERSION)
+string(STRIP ${POINTCLOUD_VERSION} POINTCLOUD_VERSION)
+set (POINTCLOUD_VERSION "${POINTCLOUD_VERSION}")
 
 
 #------------------------------------------------------------------------------
