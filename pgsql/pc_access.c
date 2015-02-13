@@ -669,7 +669,7 @@ Datum pcpatch_get_stat(PG_FUNCTION_ARGS)
 /**
 * PC_FilterLessThan(patch pcpatch, dimname text, value) returns PcPatch
 * PC_FilterGreaterThan(patch pcpatch, dimname text, value) returns PcPatch
-* PC_FilterEqual(patch pcpatch, dimname text, value) returns PcPatch
+* PC_FilterEquals(patch pcpatch, dimname text, value) returns PcPatch
 * PC_FilterBetween(patch pcpatch, dimname text, value1, value2) returns PcPatch
 */
 PG_FUNCTION_INFO_V1(pcpatch_filter);
