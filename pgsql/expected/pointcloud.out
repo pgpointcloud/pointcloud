@@ -291,3 +291,10 @@ SELECT Min(PC_PatchMin(pa,'z')) FROM pa_test_dim;
 DROP TABLE pt_test;
 DROP TABLE pa_test;
 DROP TABLE pa_test_dim;
+-- See https://github.com/pgpointcloud/pointcloud/issues/44
+SELECT PC_AsText(PC_Patch(ARRAY[PC_MakePoint(3, ARRAY[-127, 45, 124.0, 4.0])]::pcpoint[]));
+             pc_astext              
+------------------------------------
+ {"pcid":3,"pts":[[-127,45,124,4]]}
+(1 row)
+
