@@ -171,6 +171,7 @@ SELECT Max(PC_PatchMax(pa,'x')) FROM pa_test_dim;
 SELECT Min(PC_PatchMin(pa,'x')) FROM pa_test_dim;
 SELECT Min(PC_PatchMin(pa,'z')) FROM pa_test_dim;
 
+SELECT PC_Summary(pa) summary FROM pa_test_dim order by 1 limit 1;
 
 
 --DROP TABLE pts_collection;

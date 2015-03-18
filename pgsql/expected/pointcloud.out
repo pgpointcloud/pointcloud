@@ -295,6 +295,12 @@ SELECT Min(PC_PatchMin(pa,'z')) FROM pa_test_dim;
    1
 (1 row)
 
+SELECT PC_Summary(pa) summary FROM pa_test_dim order by 1 limit 1;
+                                                                                                                                                                                                            summary                                                                                                                                                                                                            
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ {"pcid":3, "npts":1, "srid":0, "compr":"dimensional","dims":[{"pos":0,"name":"X","size":4,"compr":"zlib","stats":{"min":-111,"max":-111,"avg":-111}},{"pos":1,"name":"Y","size":4,"compr":"zlib","stats":{"min":61,"max":61,"avg":61}},{"pos":2,"name":"Z","size":4,"compr":"zlib","stats":{"min":1600,"max":1600,"avg":1600}},{"pos":3,"name":"Intensity","size":2,"compr":"zlib","stats":{"min":160,"max":160,"avg":160}}]}
+(1 row)
+
 --DROP TABLE pts_collection;
 DROP TABLE pt_test;
 DROP TABLE pa_test;
