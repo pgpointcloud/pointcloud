@@ -225,7 +225,7 @@ Now that you have created two tables, you'll see entries for them in the `pointc
 >
 >     4
 
-**PC_Get(pt pcpoint)** returns **float8[]**  (from 2.0)
+**PC_Get(pt pcpoint)** returns **float8[]**  (from 1.1.0)
 
 > Return values of all dimensions in an array.
 >
