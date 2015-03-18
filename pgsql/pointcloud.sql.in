@@ -145,6 +145,11 @@ CREATE OR REPLACE FUNCTION PC_PCId(p pcpatch)
     RETURNS int4 AS 'MODULE_PATHNAME', 'pcpatch_pcid'
     LANGUAGE 'c' IMMUTABLE STRICT;
 
+-- Availability: 1.1.0
+CREATE OR REPLACE FUNCTION PC_Summary(p pcpatch)
+    RETURNS text AS 'MODULE_PATHNAME', 'pcpatch_summary'
+    LANGUAGE 'c' IMMUTABLE STRICT;
+
 CREATE OR REPLACE FUNCTION PC_Compression(p pcpatch)
     RETURNS int4 AS 'MODULE_PATHNAME', 'pcpatch_compression'
     LANGUAGE 'c' IMMUTABLE STRICT;

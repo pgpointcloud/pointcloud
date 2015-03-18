@@ -244,6 +244,8 @@ char* hexbytes_from_bytes(const uint8_t *bytebuf, size_t bytesize);
 uint32_t wkb_get_pcid(const uint8_t *wkb);
 /** Build an empty #PCDIMSTATS based on the schema */
 PCDIMSTATS* pc_dimstats_make(const PCSCHEMA *schema);
+/** Get compression name from enum */
+const char* pc_compression_name(int num);
 
 
 

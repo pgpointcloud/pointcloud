@@ -89,6 +89,22 @@ pc_interpretation_number(const char *str)
 	return PC_UNKNOWN;
 }
 
+const char*
+pc_compression_name(int num)
+{
+  switch (num)
+  {
+    case PC_NONE:
+      return "none";
+    case PC_GHT:
+      return "ght";
+    case PC_DIMENSIONAL:
+      return "dimensional";
+    default:
+      return "UNKNOWN";
+  }
+}
+
 static int
 pc_compression_number(const char *str)
 {

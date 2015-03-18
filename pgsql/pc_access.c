@@ -21,6 +21,7 @@ Datum pcpatch_from_pcpatch_array(PG_FUNCTION_ARGS);
 Datum pcpatch_uncompress(PG_FUNCTION_ARGS);
 Datum pcpatch_numpoints(PG_FUNCTION_ARGS);
 Datum pcpatch_pcid(PG_FUNCTION_ARGS);
+Datum pcpatch_summary(PG_FUNCTION_ARGS);
 Datum pcpatch_compression(PG_FUNCTION_ARGS);
 Datum pcpatch_intersects(PG_FUNCTION_ARGS);
 Datum pcpatch_get_stat(PG_FUNCTION_ARGS);
@@ -574,6 +575,62 @@ Datum pcpatch_pcid(PG_FUNCTION_ARGS)
 {
 	SERIALIZED_PATCH *serpa = PG_GETHEADER_SERPATCH_P(0);
 	PG_RETURN_INT32(serpa->pcid);
+}
+
+PG_FUNCTION_INFO_V1(pcpatch_summary);
+Datum pcpatch_summary(PG_FUNCTION_ARGS)
+{
+	SERIALIZED_PATCH *serpa;
+	PCSCHEMA *schema;
+#define MAXSUMMARY 256
+	text *ret;
+  char *ptr;
+  size_t space_left = MAXSUMMARY;
+  int written;
+	int i;
+
+	serpa = PG_GETHEADER_SERPATCH_P(0);
+	schema = pc_schema_from_pcid(serpa->pcid, fcinfo);
+
+  ret = palloc(MAXSUMMARY + VARHDRSZ);
+  ptr = VARDATA(ret);
+
+  do
+  {
+    written = snprintf(ptr, space_left,
+                       "pcpatch(%d) - pts:%d, srid:%d, compr:%s\ndimensions:",
+                       serpa->pcid, serpa->npoints, schema->srid,
+                       pc_compression_name(serpa->compression));
+    if ( written >= space_left ) {
+      space_left = 0;
+      break;
+    }
+    ptr += written;
+    space_left -= written;
+
+    for (i=0; i<schema->ndims; ++i)
+    {
+      PCDIMENSION *dim = schema->dims[i];
+      /* TODO: range (if available), compression (if dimensional) */
+      written = snprintf(ptr, space_left,
+                         "\n %s(%d)",
+                         dim->name, dim->size);
+      if ( written >= space_left ) {
+        space_left = 0;
+        break;
+      }
+      ptr += written;
+      space_left -= written;
+    }
+
+  } while (0);
+
+  if ( space_left == 0 ) {
+    ptr = VARDATA(ret) + MAXSUMMARY - 3;
+    *ptr++ = '.'; *ptr++ = '.'; *ptr++ = '.';
+  }
+  SET_VARSIZE(ret, MAXSUMMARY+VARHDRSZ - space_left);
+	PG_RETURN_TEXT_P(ret);
 }
 
 PG_FUNCTION_INFO_V1(pcpatch_compression);
