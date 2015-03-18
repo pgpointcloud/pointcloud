@@ -306,3 +306,15 @@ SELECT PC_AsText(PC_Patch(ARRAY[PC_MakePoint(3, ARRAY[-127, 45, 124.0, 4.0])]::p
  {"pcid":3,"pts":[[-127,45,124,4]]}
 (1 row)
 
+SELECT 'pc_id1', PC_PCId(PC_Patch(PC_MakePoint(3, ARRAY[-1,-2,-3,-4])));
+ ?column? | pc_pcid 
+----------+---------
+ pc_id1   |       3
+(1 row)
+
+SELECT 'pc_id2', PC_PCId(PC_MakePoint(3, ARRAY[-1,-2,-3,-4]));
+ ?column? | pc_pcid 
+----------+---------
+ pc_id2   |       3
+(1 row)
+

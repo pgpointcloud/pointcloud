@@ -20,12 +20,14 @@ Datum pcpatch_from_pcpoint_array(PG_FUNCTION_ARGS);
 Datum pcpatch_from_pcpatch_array(PG_FUNCTION_ARGS);
 Datum pcpatch_uncompress(PG_FUNCTION_ARGS);
 Datum pcpatch_numpoints(PG_FUNCTION_ARGS);
+Datum pcpatch_pcid(PG_FUNCTION_ARGS);
 Datum pcpatch_compression(PG_FUNCTION_ARGS);
 Datum pcpatch_intersects(PG_FUNCTION_ARGS);
 Datum pcpatch_get_stat(PG_FUNCTION_ARGS);
 Datum pcpatch_filter(PG_FUNCTION_ARGS);
 Datum pcpatch_size(PG_FUNCTION_ARGS);
 Datum pcpoint_size(PG_FUNCTION_ARGS);
+Datum pcpoint_pcid(PG_FUNCTION_ARGS);
 Datum pc_version(PG_FUNCTION_ARGS);
 
 /* Generic aggregation functions */
@@ -567,6 +569,13 @@ Datum pcpatch_numpoints(PG_FUNCTION_ARGS)
 	PG_RETURN_INT32(serpa->npoints);
 }
 
+PG_FUNCTION_INFO_V1(pcpatch_pcid);
+Datum pcpatch_pcid(PG_FUNCTION_ARGS)
+{
+	SERIALIZED_PATCH *serpa = PG_GETHEADER_SERPATCH_P(0);
+	PG_RETURN_INT32(serpa->pcid);
+}
+
 PG_FUNCTION_INFO_V1(pcpatch_compression);
 Datum pcpatch_compression(PG_FUNCTION_ARGS)
 {
@@ -602,6 +611,13 @@ Datum pcpoint_size(PG_FUNCTION_ARGS)
 {
 	SERIALIZED_POINT *serpt = PG_GETARG_SERPOINT_P(0);
 	PG_RETURN_INT32(VARSIZE(serpt));
+}
+
+PG_FUNCTION_INFO_V1(pcpoint_pcid);
+Datum pcpoint_pcid(PG_FUNCTION_ARGS)
+{
+	SERIALIZED_POINT *serpt = PG_GETARG_SERPOINT_P(0);
+	PG_RETURN_INT32(serpt->pcid);
 }
 
 PG_FUNCTION_INFO_V1(pc_version);
