@@ -208,6 +208,14 @@ Now that you have created two tables, you'll see entries for them in the `pointc
 >
 >     {"pcid":1,"pt":[-127,45,124,4]}
 
+**PC_PCId(p pcpoint)** returns **integer** (from 1.1.0)
+
+> Return the `pcid` schema number of this point.
+>
+>     SELECT PC_PCId('010100000064CEFFFF94110000703000000400'::pcpoint));
+> 
+>     1     
+
 **PC_AsBinary(p pcpoint)** returns **bytea**
 
 > Return the OGC "well-known binary" format for the point.
@@ -247,6 +255,14 @@ Now that you have created two tables, you'll see entries for them in the `pointc
 >     SELECT PC_NumPoints(pa) FROM patches LIMIT 1;
 > 
 >     9     
+
+**PC_PCId(p pcpatch)** returns **integer** (from 1.1.0)
+
+> Return the `pcid` schema number of points in this patch.
+>
+>     SELECT PC_PCId(pa) FROM patches LIMIT 1;
+> 
+>     1     
  
 **PC_Envelope(p pcpatch)** returns **bytea**
 
