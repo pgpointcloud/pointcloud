@@ -581,15 +581,22 @@ Datum pcpatch_pcid(PG_FUNCTION_ARGS)
 PG_FUNCTION_INFO_V1(pcpatch_summary);
 Datum pcpatch_summary(PG_FUNCTION_ARGS)
 {
-	SERIALIZED_PATCH *serpa;
-	PCSCHEMA *schema;
+  static int stats_size_guess = 400;
+  SERIALIZED_PATCH *serpa;
+  PCSCHEMA *schema;
+  PCSTATS *stats;
   StringInfoData strdata;
   text *ret;
   const char *comma = "";
-	int i;
+  int i;
 
-	serpa = PG_GETHEADER_SERPATCH_P(0);
-	schema = pc_schema_from_pcid(serpa->pcid, fcinfo);
+  serpa = PG_GETHEADERX_SERPATCH_P(0, stats_size_guess);
+  schema = pc_schema_from_pcid(serpa->pcid, fcinfo);
+  if ( stats_size_guess < pc_stats_size(schema) )
+  {
+    serpa = PG_GETHEADERX_SERPATCH_P(0, pc_stats_size(schema) );
+  }
+  stats = pc_patch_stats_deserialize(schema, serpa->data);
 
   initStringInfo(&strdata);
   /* Make space for VARSIZ, see SET_VARSIZE below */
@@ -604,10 +611,21 @@ Datum pcpatch_summary(PG_FUNCTION_ARGS)
   for (i=0; i<schema->ndims; ++i)
   {
     PCDIMENSION *dim = schema->dims[i];
-    /* TODO: range (if available), compression (if dimensional) */
+    double val;
     appendStringInfo(&strdata,
-                       "%s{\"pos\":%d,\"name\":\"%s\",\"size\":%d}",
+                       "%s{\"pos\":%d,\"name\":\"%s\",\"size\":%d",
                        comma, dim->position, dim->name, dim->size);
+    /* TODO: compression (if dimensional) */
+    if ( stats )
+    {
+      pc_point_get_double_by_name(&(stats->min), dim->name, &val);
+      appendStringInfo(&strdata,",\"stats\":{\"min\":%g", val);
+      pc_point_get_double_by_name(&(stats->max), dim->name, &val);
+      appendStringInfo(&strdata,",\"max\":%g", val);
+      pc_point_get_double_by_name(&(stats->avg), dim->name, &val);
+      appendStringInfo(&strdata,",\"avg\":%g}", val);
+    }
+    appendStringInfoString(&strdata, "}");
     comma = ",";
   }
 
@@ -615,7 +633,7 @@ Datum pcpatch_summary(PG_FUNCTION_ARGS)
 
   ret = (text*)strdata.data;
   SET_VARSIZE(ret, strdata.len);
-	PG_RETURN_TEXT_P(ret);
+  PG_RETURN_TEXT_P(ret);
 }
 
 PG_FUNCTION_INFO_V1(pcpatch_compression);
