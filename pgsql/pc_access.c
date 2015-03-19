@@ -12,6 +12,7 @@
 #include "pc_pgsql.h"      /* Common PgSQL support for our type */
 #include "utils/numeric.h"
 #include "funcapi.h"
+#include "lib/stringinfo.h"
 
 /* General SQL functions */
 Datum pcpoint_get_value(PG_FUNCTION_ARGS);
@@ -582,54 +583,38 @@ Datum pcpatch_summary(PG_FUNCTION_ARGS)
 {
 	SERIALIZED_PATCH *serpa;
 	PCSCHEMA *schema;
-#define MAXSUMMARY 256
-	text *ret;
-  char *ptr;
-  size_t space_left = MAXSUMMARY;
-  int written;
+  StringInfoData strdata;
+  text *ret;
+  const char *comma = "";
 	int i;
 
 	serpa = PG_GETHEADER_SERPATCH_P(0);
 	schema = pc_schema_from_pcid(serpa->pcid, fcinfo);
 
-  ret = palloc(MAXSUMMARY + VARHDRSZ);
-  ptr = VARDATA(ret);
+  initStringInfo(&strdata);
+  /* Make space for VARSIZ, see SET_VARSIZE below */
+  appendStringInfoSpaces(&strdata, VARHDRSZ);
 
-  do
+  appendStringInfo(&strdata, "{"
+                     "\"pcid\":%d, \"npts\":%d, \"srid\":%d, "
+                     "\"compr\":\"%s\",\"dims\":[",
+                     serpa->pcid, serpa->npoints, schema->srid,
+                     pc_compression_name(serpa->compression));
+
+  for (i=0; i<schema->ndims; ++i)
   {
-    written = snprintf(ptr, space_left,
-                       "pcpatch(%d) - pts:%d, srid:%d, compr:%s\ndimensions:",
-                       serpa->pcid, serpa->npoints, schema->srid,
-                       pc_compression_name(serpa->compression));
-    if ( written >= space_left ) {
-      space_left = 0;
-      break;
-    }
-    ptr += written;
-    space_left -= written;
-
-    for (i=0; i<schema->ndims; ++i)
-    {
-      PCDIMENSION *dim = schema->dims[i];
-      /* TODO: range (if available), compression (if dimensional) */
-      written = snprintf(ptr, space_left,
-                         "\n %s(%d)",
-                         dim->name, dim->size);
-      if ( written >= space_left ) {
-        space_left = 0;
-        break;
-      }
-      ptr += written;
-      space_left -= written;
-    }
-
-  } while (0);
-
-  if ( space_left == 0 ) {
-    ptr = VARDATA(ret) + MAXSUMMARY - 3;
-    *ptr++ = '.'; *ptr++ = '.'; *ptr++ = '.';
+    PCDIMENSION *dim = schema->dims[i];
+    /* TODO: range (if available), compression (if dimensional) */
+    appendStringInfo(&strdata,
+                       "%s{\"pos\":%d,\"name\":\"%s\",\"size\":%d}",
+                       comma, dim->position, dim->name, dim->size);
+    comma = ",";
   }
-  SET_VARSIZE(ret, MAXSUMMARY+VARHDRSZ - space_left);
+
+  appendStringInfoString(&strdata, "]}");
+
+  ret = (text*)strdata.data;
+  SET_VARSIZE(ret, strdata.len);
 	PG_RETURN_TEXT_P(ret);
 }
 
