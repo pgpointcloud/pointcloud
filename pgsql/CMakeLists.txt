@@ -11,7 +11,7 @@ set ( PC_HEADERS
   )
 
 set ( PC_INSTALL_EXENSIONS
-  pointcloud--1.0.sql
+  pointcloud--${POINTCLOUD_VERSION}.sql
   pointcloud.control
   )
 
