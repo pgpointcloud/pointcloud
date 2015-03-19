@@ -288,6 +288,14 @@ Now that you have created two tables, you'll see entries for them in the `pointc
 >      [-126.93,45.07,7,0],[-126.92,45.08,8,0],[-126.91,45.09,9,0]
 >     ]}
 
+**PC_Summary(p pcpatch)** returns **text** (from 1.1.0)
+
+> Return a JSON formatted summary of the data in that point.
+>
+>     SELECT PC_Summary(pa) FROM patches LIMIT 1;
+>
+>     {"pcid":1, "npts":9, "srid":4326, "compr":"dimensional","dims":[{"pos":0,"name":"X","size":4,"compr":"sigbits","stats":{"min":-126.99,"max":-126.91,"avg":-126.95}},{"pos":1,"name":"Y","size":4,"compr":"sigbits","stats":{"min":45.01,"max":45.09,"avg":45.05}},{"pos":2,"name":"Z","size":4,"compr":"sigbits","stats":{"min":1,"max":9,"avg":5}},{"pos":3,"name":"Intensity","size":2,"compr":"rle","stats":{"min":0,"max":0,"avg":0}}]}
+
 **PC_Uncompress(p pcpatch)** returns **pcpatch**
 
 > Returns an uncompressed version of the patch (compression type 'none').
