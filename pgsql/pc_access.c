@@ -13,6 +13,7 @@
 #include "utils/numeric.h"
 #include "funcapi.h"
 #include "lib/stringinfo.h"
+#include "pc_api_internal.h" /* for pcpatch_summary */
 
 /* General SQL functions */
 Datum pcpoint_get_value(PG_FUNCTION_ARGS);
@@ -581,10 +582,11 @@ Datum pcpatch_pcid(PG_FUNCTION_ARGS)
 PG_FUNCTION_INFO_V1(pcpatch_summary);
 Datum pcpatch_summary(PG_FUNCTION_ARGS)
 {
-  static int stats_size_guess = 400;
+  const int stats_size_guess = 400;
   SERIALIZED_PATCH *serpa;
   PCSCHEMA *schema;
   PCSTATS *stats;
+  PCPATCH *patch = NULL;
   StringInfoData strdata;
   text *ret;
   const char *comma = "";
@@ -592,9 +594,20 @@ Datum pcpatch_summary(PG_FUNCTION_ARGS)
 
   serpa = PG_GETHEADERX_SERPATCH_P(0, stats_size_guess);
   schema = pc_schema_from_pcid(serpa->pcid, fcinfo);
-  if ( stats_size_guess < pc_stats_size(schema) )
+  if ( schema->compression == PC_DIMENSIONAL )
   {
-    serpa = PG_GETHEADERX_SERPATCH_P(0, pc_stats_size(schema) );
+    /* need full data to inspect per-dimension compression */
+    /* NOTE: memory usage could be optimized to only fetch slices
+     *       at specific offsets, but doesn't seem worth at this time
+     *       See https://github.com/pgpointcloud/pointcloud/pull/51#issuecomment-83592363
+     */
+    serpa = PG_GETARG_SERPATCH_P(0);
+	  patch = pc_patch_deserialize(serpa, schema);
+  }
+  else if ( stats_size_guess < pc_stats_size(schema) )
+  {
+    /* only need stats here */
+    serpa = PG_GETHEADERX_SERPATCH_P(0, pc_stats_size(schema));
   }
   stats = pc_patch_stats_deserialize(schema, serpa->data);
 
@@ -611,11 +624,37 @@ Datum pcpatch_summary(PG_FUNCTION_ARGS)
   for (i=0; i<schema->ndims; ++i)
   {
     PCDIMENSION *dim = schema->dims[i];
+    PCBYTES bytes;
     double val;
     appendStringInfo(&strdata,
                        "%s{\"pos\":%d,\"name\":\"%s\",\"size\":%d",
                        comma, dim->position, dim->name, dim->size);
-    /* TODO: compression (if dimensional) */
+
+    /* Print per-dimension compression (if dimensional) */
+    if ( serpa->compression == PC_DIMENSIONAL )
+    {
+      bytes = ((PCPATCH_DIMENSIONAL*)patch)->bytes[i];
+      switch ( bytes.compression )
+      {
+        case PC_DIM_RLE:
+          appendStringInfoString(&strdata,",\"compr\":\"rle\"");
+          break;
+        case PC_DIM_SIGBITS:
+          appendStringInfoString(&strdata,",\"compr\":\"sigbits\"");
+          break;
+        case PC_DIM_ZLIB:
+          appendStringInfoString(&strdata,",\"compr\":\"zlib\"");
+          break;
+        case PC_DIM_NONE:
+          appendStringInfoString(&strdata,",\"compr\":\"none\"");
+          break;
+        default:
+          appendStringInfo(&strdata,",\"compr\":\"unknown(%d)\"",
+            bytes.compression);
+          break;
+      }
+    }
+
     if ( stats )
     {
       pc_point_get_double_by_name(&(stats->min), dim->name, &val);
