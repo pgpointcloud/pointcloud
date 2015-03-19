@@ -6,7 +6,10 @@
  - PC_Get(pcpoint) returns float8[]
  - PC_Summary(pcpatch)
 
-0.1.0
+1.0.0
 -----
 
-- Initial release!
+Initial release, also known as:
+  - 0.1.0 (git tag v0.1.0)
+  - 1.0 (extension script filename)
+
