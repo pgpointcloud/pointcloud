@@ -33,6 +33,7 @@ set_target_properties (libpc-static
     OUTPUT_NAME "pc"
     PREFIX "lib"
     CLEAN_DIRECT_OUTPUT 1
+    COMPILE_FLAGS -fPIC
   )
 
 target_link_libraries (libpc-static xml2)

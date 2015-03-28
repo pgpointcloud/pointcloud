@@ -7,6 +7,7 @@
   - #28, Fix uninterruptible loop from pc_schemaisvalid
   - #27, Fix pointcloud_columns view definition to handle null-typmoded cols
   - #23, Fix computation of dimensional patch extent 
+  - #26, Fix cmake build with GCC 4.8 (-fPIC)
 
 - Enhancements
   - #39, Provide upgrade scripts
