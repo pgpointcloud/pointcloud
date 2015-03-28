@@ -15,6 +15,16 @@ set ( PC_INSTALL_EXENSIONS
   pointcloud.control
   )
 
+configure_file(
+    pointcloud.sql.in
+    ${CMAKE_CURRENT_LIST_DIR}/pointcloud--${POINTCLOUD_VERSION}.sql
+    )
+
+configure_file(
+    pointcloud.control.in
+    ${CMAKE_CURRENT_LIST_DIR}/pointcloud.control
+    )
+
 set(CMAKE_C_FLAGS "${PGSQL_CPPFLAGS}")
 set(CMAKE_SHARED_LINKER_FLAGS "${PGSQL_LDFLAGS}")
 
