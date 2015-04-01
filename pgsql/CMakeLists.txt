@@ -11,18 +11,18 @@ set ( PC_HEADERS
   )
 
 set ( PC_INSTALL_EXENSIONS
-  pointcloud--${POINTCLOUD_VERSION}.sql
-  pointcloud.control
+  "${PROJECT_BINARY_DIR}/pgsql/pointcloud--${POINTCLOUD_VERSION}.sql"
+  "${PROJECT_BINARY_DIR}/pgsql/pointcloud.control"
   )
 
 configure_file(
     pointcloud.sql.in
-    ${CMAKE_CURRENT_LIST_DIR}/pointcloud--${POINTCLOUD_VERSION}.sql
+    "${PROJECT_BINARY_DIR}/pgsql/pointcloud--${POINTCLOUD_VERSION}.sql"
     )
 
 configure_file(
     pointcloud.control.in
-    ${CMAKE_CURRENT_LIST_DIR}/pointcloud.control
+    "${PROJECT_BINARY_DIR}/pgsql/pointcloud.control"
     )
 
 set(CMAKE_C_FLAGS "${PGSQL_CPPFLAGS}")
