@@ -1,6 +1,6 @@
 # pointcloud extension
 comment = 'data type for lidar point clouds'
-default_version = '@@VERSION@@'
+default_version = '@POINTCLOUD_VERSION@'
 module_pathname = '$libdir/pointcloud'
 relocatable = true
 superuser = true
