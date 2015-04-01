@@ -38,7 +38,7 @@ SHLIB_LINK += ../lib/$(LIB_A) $(filter -lm, $(LIBS)) $(XML2_LDFLAGS) $(ZLIB_LDFL
 include $(PGXS)
 
 $(EXTENSION).control: $(EXTENSION).control.in Makefile
-	$(SED) -e 's/@@VERSION@@/$(EXTVERSION)/' $< > $@
+	$(SED) -e 's/@POINTCLOUD_VERSION@/$(EXTVERSION)/' $< > $@
 
 $(EXTENSION)--$(EXTVERSION).sql: $(EXTENSION).sql.in Makefile
 	cp $< $@
