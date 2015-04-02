@@ -574,7 +574,7 @@ pc_bytes_sigbits_encode_16(const PCBYTES pcb, uint16_t commonvalue, uint8_t comm
 	/* How wide are our unique values? */
 	int nbits = bitwidth - commonbits;
 	/* Size of output buffer (#bits/8+1remainder+4metadata)  */
-	size_t size_out_raw = (nbits * pcb.npoints / 8) + 5;
+	size_t size_out_raw = (nbits * pcb.npoints / 8) + 1 + 4;
 	/* Make sure buffer is size to hold all our words */
 	size_t size_out = size_out_raw + (size_out_raw % 2);
 	uint8_t *bytes_out = pcalloc(size_out);
@@ -668,7 +668,7 @@ pc_bytes_sigbits_encode_32(const PCBYTES pcb, uint32_t commonvalue, uint8_t comm
 	/* How wide are our unique values? */
 	int nbits = bitwidth - commonbits;
 	/* Size of output buffer (#bits/8+1remainder+8metadata) */
-	size_t size_out_raw = (nbits * pcb.npoints / 8) + 9;
+	size_t size_out_raw = (nbits * pcb.npoints / 8) + 1 + 8;
 	size_t size_out = size_out_raw + (4 - (size_out_raw % 4));
 	uint8_t *bytes_out = pcalloc(size_out);
 	/* Use this to zero out the parts that are common */
@@ -743,6 +743,99 @@ pc_bytes_sigbits_encode_32(const PCBYTES pcb, uint32_t commonvalue, uint8_t comm
 }
 
 /**
+* Encoded array:
+* <uint64> number of bits per unique section
+* <uint64> common bits for the array
+* [n_bits]... unique bits packed in
+* Size of encoded array comes out in ebytes_size.
+*/
+PCBYTES
+pc_bytes_sigbits_encode_64(const PCBYTES pcb, uint64_t commonvalue, uint8_t commonbits)
+{
+	int i;
+	int shift;
+	uint64_t *bytes = (uint64_t*)(pcb.bytes);
+
+	/* How wide are our words? */
+	static int bitwidth = 64;
+	/* How wide are our unique values? */
+	int nbits = bitwidth - commonbits;
+	/* Size of output buffer (#bits/8+1remainder+16metadata) */
+	size_t size_out_raw = (nbits * pcb.npoints / 8) + 1 + 16;
+	size_t size_out = size_out_raw + (8 - (size_out_raw % 8));
+	uint8_t *bytes_out = pcalloc(size_out);
+	/* Use this to zero out the parts that are common */
+	uint64_t mask = (0xFFFFFFFFFFFFFFFF >> commonbits);
+	/* Write head */
+	uint64_t *byte_ptr = (uint64_t*)bytes_out;
+	/* What bit are we writing to now? */
+	int bit = bitwidth;
+	/* Write to... */
+	PCBYTES pcbout = pcb;
+
+	/* Number of unique bits goes up front */
+	*byte_ptr = nbits;
+	byte_ptr++;
+	/* The common value we'll add the unique values to */
+	*byte_ptr = commonvalue;
+	byte_ptr++;
+
+	/* All the values are the same... */
+	if ( bitwidth == commonbits )
+	{
+		pcbout.size = size_out;
+		pcbout.bytes = bytes_out;
+		pcbout.compression = PC_DIM_SIGBITS;
+		return pcbout;
+	}
+
+	for ( i = 0; i < pcb.npoints; i++ )
+	{
+		uint64_t val = bytes[i];
+		/* Clear off common parts */
+		val &= mask;
+		/* How far to move unique parts to get to write head? */
+		shift = bit - nbits;
+		/* If positive, we can fit this part into the current word */
+		if ( shift >= 0 )
+		{
+			val <<= shift;
+			*byte_ptr |= val;
+			bit -= nbits;
+			if ( bit <= 0 )
+			{
+				bit = bitwidth;
+				byte_ptr++;
+			}
+		}
+		/* If negative, then we need to split this part across words */
+		else
+		{
+			/* First the bit into the current word */
+			uint32_t v = val;
+			int s = abs(shift);
+			v >>= s;
+			*byte_ptr |= v;
+			/* The reset to write the next word */
+			bit = bitwidth;
+			byte_ptr++;
+			v = val;
+			shift = bit - s;
+			/* But only those parts we didn't already write */
+			v <<= shift;
+			*byte_ptr |= v;
+			bit -= s;
+		}
+	}
+
+	pcbout.size = size_out;
+	pcbout.bytes = bytes_out;
+	pcbout.compression = PC_DIM_SIGBITS;
+	pcbout.readonly = PC_FALSE;
+	return pcbout;
+}
+
+/**
 * Convert a raw byte array into with common bits stripped and the
 * remaining bits packed in.
 * <uint8|uint16|uint32> number of bits per unique section
@@ -771,6 +864,11 @@ pc_bytes_sigbits_encode(const PCBYTES pcb)
 	{
 		uint32_t commonvalue = pc_bytes_sigbits_count_32(&pcb, &nbits);
 		return pc_bytes_sigbits_encode_32(pcb, commonvalue, nbits);
+	}
+	case 8:
+	{
+		uint64_t commonvalue = pc_bytes_sigbits_count_64(&pcb, &nbits);
+		return pc_bytes_sigbits_encode_64(pcb, commonvalue, nbits);
 	}
 	default:
 	{
@@ -997,6 +1095,66 @@ pc_bytes_sigbits_decode_32(const PCBYTES pcb)
 	return pcbout;
 }
 
+PCBYTES
+pc_bytes_sigbits_decode_64(const PCBYTES pcb)
+{
+	int i;
+	const uint64_t *bytes_ptr = (const uint64_t *)(pcb.bytes);
+	uint64_t nbits;
+	uint64_t commonvalue;
+	uint64_t mask;
+	int bit = 64;
+	size_t outbytes_size = sizeof(uint64_t) * pcb.npoints;
+	uint8_t *outbytes = pcalloc(outbytes_size);
+	uint64_t *obytes = (uint64_t*)outbytes;
+	PCBYTES pcbout = pcb;
+
+	/* How many unique bits? */
+	nbits = *bytes_ptr;
+	bytes_ptr++;
+	/* What is the shared bit value? */
+	commonvalue = *bytes_ptr;
+	bytes_ptr++;
+	/* Calculate mask */
+	mask = (0xFFFFFFFFFFFFFFFF >> (bit-nbits));
+
+	for ( i = 0; i < pcb.npoints; i++ )
+	{
+		int shift = bit - nbits;
+		uint64_t val = *bytes_ptr;
+		if ( shift >= 0 )
+		{
+			val >>= shift;
+			val &= mask;
+			val |= commonvalue;
+			obytes[i] = val;
+			bit -= nbits;
+		}
+		else
+		{
+			int s = abs(shift);
+			val <<= s;
+			val &= mask;
+			val |= commonvalue;
+			obytes[i] = val;
+			bytes_ptr++;
+			bit = 64;
+			val = *bytes_ptr;
+			shift = bit - s;
+			val >>= shift;
+			val &= mask;
+			bit -= s;
+			obytes[i] |= val;
+		}
+	}
+
+	pcbout.size = outbytes_size;
+	pcbout.compression = PC_DIM_SIGBITS;
+	pcbout.bytes = outbytes;
+	pcbout.readonly = PC_FALSE;
+	return pcbout;
+}
+
 
 PCBYTES
 pc_bytes_sigbits_decode(const PCBYTES pcb)
@@ -1015,6 +1173,10 @@ pc_bytes_sigbits_decode(const PCBYTES pcb)
 	case 4:
 	{
 		return pc_bytes_sigbits_decode_32(pcb);
+	}
+	case 8:
+	{
+		return pc_bytes_sigbits_decode_64(pcb);
 	}
 	default:
 	{

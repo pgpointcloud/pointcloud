@@ -5,6 +5,8 @@
  - PC_PCId(pcpoint|pcpatch)
  - PC_Get(pcpoint) returns float8[]
  - PC_Summary(pcpatch)
+- Enhancements
+ - Support sigbits encoding for 64bit integers (#61)
 
 1.0.0
 -----

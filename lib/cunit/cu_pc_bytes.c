@@ -166,12 +166,14 @@ test_sigbits_encoding()
 	uint8_t *bytes, *ebytes;
     uint16_t *bytes16, *ebytes16;
     uint32_t *bytes32, *ebytes32;
+    uint64_t *bytes64, *ebytes64;
     size_t ebytes_size;
 
 	uint32_t count, nelems;
 	uint8_t common8;
 	uint16_t common16;
 	uint32_t common32;
+	uint64_t common64;
     PCBYTES pcb, epcb, pcb2;
 
 	/*
@@ -294,7 +296,7 @@ test_sigbits_encoding()
     pcb = initbytes(bytes, nelems*4, PC_INT32);
 
     common32 = pc_bytes_sigbits_count_32(&pcb, &count);
-    CU_ASSERT_EQUAL(count, 26);     /* unique bit count */
+    CU_ASSERT_EQUAL(count, 26); /* common bits count */
     CU_ASSERT_EQUAL(common32, 103232);
 
     epcb = pc_bytes_sigbits_encode(pcb);
@@ -331,6 +333,41 @@ test_sigbits_encoding()
     pc_bytes_free(epcb);
     pc_bytes_free(pcb2);
 
+    /* Test the 64 bit implementation path */
+
+    nelems = 6;
+
+    bytes64 = (uint64_t[]){
+        103241, /* 32x0 0000000000000001 1001 0011 0100 1001 */
+        103251, /* 32x0 0000000000000001 1001 0011 0101 0011 */
+        103261, /* 32x0 0000000000000001 1001 0011 0101 1101 */
+        103271, /* 32x0 0000000000000001 1001 0011 0110 0111 */
+        103281, /* 32x0 0000000000000001 1001 0011 0111 0001 */
+        103291  /* 32x0 0000000000000001 1001 0011 0111 1011 */
+        };
+    bytes = (uint8_t*)bytes64;
+    pcb = initbytes(bytes, nelems*8, PC_INT64);
+
+    common64 = pc_bytes_sigbits_count_64(&pcb, &count);
+    CU_ASSERT_EQUAL(count, 58);     /* common bits count */
+    CU_ASSERT_EQUAL(common64, 103232);
+
+    epcb = pc_bytes_sigbits_encode(pcb);
+    ebytes64 = (uint64_t*)(epcb.bytes);
+    CU_ASSERT_EQUAL(ebytes64[0], 6);     /* unique bit count */
+    CU_ASSERT_EQUAL(ebytes64[1], 103232); /* common bits */
+    CU_ASSERT_EQUAL(ebytes64[2], 2681726210471362560); /* packed uint64 */
+
+    pcb2 = pc_bytes_sigbits_decode(epcb);
+    pc_bytes_free(epcb);
+    bytes64 = (uint64_t*)(pcb2.bytes);
+    CU_ASSERT_EQUAL(bytes64[0], 103241);
+    CU_ASSERT_EQUAL(bytes64[1], 103251);
+    CU_ASSERT_EQUAL(bytes64[2], 103261);
+    CU_ASSERT_EQUAL(bytes64[3], 103271);
+    CU_ASSERT_EQUAL(bytes64[4], 103281);
+    CU_ASSERT_EQUAL(bytes64[5], 103291);
+    pc_bytes_free(pcb2);
 }
 
 /*
