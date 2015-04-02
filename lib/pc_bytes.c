@@ -506,6 +506,7 @@ pc_bytes_sigbits_encode_8(const PCBYTES pcb, uint8_t commonvalue, uint8_t common
 		pcbout.size = size_out;
 		pcbout.bytes = bytes_out;
 		pcbout.compression = PC_DIM_SIGBITS;
+		pcbout.readonly = PC_FALSE;
 		return pcbout;
 	}
 
@@ -600,6 +601,7 @@ pc_bytes_sigbits_encode_16(const PCBYTES pcb, uint16_t commonvalue, uint8_t comm
 		pcbout.size = size_out;
 		pcbout.bytes = bytes_out;
 		pcbout.compression = PC_DIM_SIGBITS;
+		pcbout.readonly = PC_FALSE;
 		return pcbout;
 	}
 
@@ -693,6 +695,7 @@ pc_bytes_sigbits_encode_32(const PCBYTES pcb, uint32_t commonvalue, uint8_t comm
 		pcbout.size = size_out;
 		pcbout.bytes = bytes_out;
 		pcbout.compression = PC_DIM_SIGBITS;
+		pcbout.readonly = PC_FALSE;
 		return pcbout;
 	}
 
