@@ -594,7 +594,7 @@ Datum pcpatch_summary(PG_FUNCTION_ARGS)
 
   serpa = PG_GETHEADERX_SERPATCH_P(0, stats_size_guess);
   schema = pc_schema_from_pcid(serpa->pcid, fcinfo);
-  if ( schema->compression == PC_DIMENSIONAL )
+  if ( serpa->compression == PC_DIMENSIONAL )
   {
     /* need full data to inspect per-dimension compression */
     /* NOTE: memory usage could be optimized to only fetch slices
