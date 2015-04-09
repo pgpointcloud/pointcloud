@@ -131,6 +131,8 @@ test_schema_is_valid()
   cu_error_msg_reset();
   rv = pc_schema_is_valid(myschema);
 	CU_ASSERT_EQUAL(rv, PC_FAILURE);
+
+  pc_schema_free(myschema);
 }
 
 
@@ -139,6 +141,50 @@ test_schema_compression(void)
 {
     int compression = schema->compression;
     CU_ASSERT_EQUAL(compression, PC_DIMENSIONAL);
+}
+
+static void
+test_schema_clone(void)
+{
+    int i;
+    PCSCHEMA *clone = pc_schema_clone(schema);
+    hashtable *hash, *chash;
+    CU_ASSERT_EQUAL(clone->pcid, schema->pcid);
+    CU_ASSERT_EQUAL(clone->ndims, schema->ndims);
+    CU_ASSERT_EQUAL(clone->size, schema->size);
+    CU_ASSERT_EQUAL(clone->srid, schema->srid);
+    CU_ASSERT_EQUAL(clone->x_position, schema->x_position);
+    CU_ASSERT_EQUAL(clone->y_position, schema->y_position);
+    CU_ASSERT_EQUAL(clone->compression, schema->compression);
+    CU_ASSERT(clone->dims != schema->dims); /* deep clone */
+    CU_ASSERT(clone->namehash != schema->namehash); /* deep clone */
+    hash = schema->namehash;
+    chash = clone->namehash;
+    CU_ASSERT_EQUAL(chash->tablelength, hash->tablelength);
+    CU_ASSERT_EQUAL(chash->entrycount, hash->entrycount);
+    CU_ASSERT_EQUAL(chash->loadlimit, hash->loadlimit);
+    CU_ASSERT_EQUAL(chash->primeindex, hash->primeindex);
+    CU_ASSERT_EQUAL(chash->hashfn, hash->hashfn);
+    CU_ASSERT_EQUAL(chash->eqfn, hash->eqfn);
+    CU_ASSERT(chash->table != hash->table); /* deep clone */
+    for (i=0; i<schema->ndims; ++i) {
+      PCDIMENSION *dim = schema->dims[i];
+      PCDIMENSION *cdim = clone->dims[i];
+      CU_ASSERT(dim != cdim); /* deep clone */
+      CU_ASSERT_STRING_EQUAL(cdim->name, dim->name);
+      CU_ASSERT_STRING_EQUAL(cdim->description, dim->description);
+      CU_ASSERT_EQUAL(cdim->position, dim->position);
+      CU_ASSERT_EQUAL(cdim->size, dim->size);
+      CU_ASSERT_EQUAL(cdim->byteoffset, dim->byteoffset);
+      CU_ASSERT_EQUAL(cdim->interpretation, dim->interpretation);
+      CU_ASSERT_EQUAL(cdim->scale, dim->scale);
+      CU_ASSERT_EQUAL(cdim->offset, dim->offset);
+      CU_ASSERT_EQUAL(cdim->active, dim->active);
+      /* hash table is correctly setup */
+      CU_ASSERT_EQUAL(cdim, hashtable_search(clone->namehash, dim->name) );
+    }
+
+    pc_schema_free(clone);
 }
 
 /* REGISTER ***********************************************************/
@@ -150,6 +196,7 @@ CU_TestInfo schema_tests[] = {
 	PC_TEST(test_dimension_byteoffsets),
 	PC_TEST(test_schema_compression),
 	PC_TEST(test_schema_is_valid),
+	PC_TEST(test_schema_clone),
 	CU_TEST_INFO_NULL
 };
 
