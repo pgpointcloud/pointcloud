@@ -136,6 +136,11 @@ CREATE OR REPLACE FUNCTION PC_Uncompress(p pcpatch)
     RETURNS pcpatch AS 'MODULE_PATHNAME', 'pcpatch_uncompress'
     LANGUAGE 'c' IMMUTABLE STRICT;
 
+-- Availability: 1.1.0
+CREATE OR REPLACE FUNCTION PC_Compress(p pcpatch, comp text default '', config text default '')
+    RETURNS pcpatch AS 'MODULE_PATHNAME', 'pcpatch_compress'
+    LANGUAGE 'c' IMMUTABLE STRICT;
+
 CREATE OR REPLACE FUNCTION PC_NumPoints(p pcpatch)
     RETURNS int4 AS 'MODULE_PATHNAME', 'pcpatch_numpoints'
     LANGUAGE 'c' IMMUTABLE STRICT;
