@@ -21,6 +21,7 @@ Datum pcpoint_get_values(PG_FUNCTION_ARGS);
 Datum pcpatch_from_pcpoint_array(PG_FUNCTION_ARGS);
 Datum pcpatch_from_pcpatch_array(PG_FUNCTION_ARGS);
 Datum pcpatch_uncompress(PG_FUNCTION_ARGS);
+Datum pcpatch_compress(PG_FUNCTION_ARGS);
 Datum pcpatch_numpoints(PG_FUNCTION_ARGS);
 Datum pcpatch_pcid(PG_FUNCTION_ARGS);
 Datum pcpatch_summary(PG_FUNCTION_ARGS);
@@ -563,6 +564,87 @@ Datum pcpatch_uncompress(PG_FUNCTION_ARGS)
 	SERIALIZED_PATCH *serpa_out = pc_patch_serialize_to_uncompressed(patch);
 	pc_patch_free(patch);
 	PG_RETURN_POINTER(serpa_out);
+}
+
+PG_FUNCTION_INFO_V1(pcpatch_compress);
+Datum pcpatch_compress(PG_FUNCTION_ARGS)
+{
+  SERIALIZED_PATCH *serpa = PG_GETARG_SERPATCH_P(0);
+  text *compr_in_text = PG_GETARG_TEXT_P(1);
+  char *compr_in = text_to_cstring(compr_in_text);
+  text *config_in_text = PG_GETARG_TEXT_P(2);
+  char *config_in = text_to_cstring(config_in_text);
+  PCSCHEMA *schema = pc_schema_from_pcid(serpa->pcid, fcinfo);
+  PCPATCH *patch_in = pc_patch_deserialize(serpa, schema);
+  PCPATCH *pa = patch_in;
+  SERIALIZED_PATCH *serpa_out;
+  PCDIMSTATS *stats = NULL;
+  int i;
+
+  /* Uncompress first */
+  if ( patch_in->type != PC_NONE ) {
+    pa = pc_patch_uncompress(patch_in);
+  }
+
+  schema = pc_schema_clone(schema); /* we're going to modify it */
+
+  /* Set compression scheme */
+  if ( *compr_in == '\0' || strcasecmp(compr_in, "auto") == 0 ) {
+    /* keep schema defined compression */
+  }
+  else if ( strcmp(compr_in, "dimensional") == 0 ) {{
+    char *ptr = config_in;
+    PCPATCH_DIMENSIONAL *pdl = pc_patch_dimensional_from_uncompressed((PCPATCH_UNCOMPRESSED*)pa);
+    schema->compression = PC_DIMENSIONAL;
+    stats = pc_dimstats_make(schema);
+    pc_dimstats_update(stats, pdl);
+    /* make sure to avoid stat updates (not sure if needed) */
+    stats->total_points = PCDIMSTATS_MIN_SAMPLE+1;
+
+    /* Fill in per-dimension compression */
+    for (i=0; i<stats->ndims; ++i) {
+      PCDIMSTAT *stat = &(stats->stats[i]);
+      /*pcinfo("ptr: %s", ptr);*/
+      if ( *ptr == ',' || strncmp(ptr, "auto", strlen("auto")) == 0 ) {
+        /* leave auto-determined compression */
+      }
+      else if ( strncmp(ptr, "rle", strlen("rle")) == 0 ) {
+        stat->recommended_compression = PC_DIM_RLE;
+      }
+      else if ( strncmp(ptr, "sigbits", strlen("sigbits")) == 0 ) {
+        stat->recommended_compression = PC_DIM_SIGBITS;
+      }
+      else if ( strncmp(ptr, "zlib", strlen("zlib")) == 0 ) {
+        stat->recommended_compression = PC_DIM_ZLIB;
+      }
+      else {
+        elog(ERROR, "Unrecognized dimensional compression '%s'. Please specify 'auto', 'rle', 'sigbits' or 'zlib'", ptr);
+      }
+      while (*ptr && *ptr != ',') ++ptr;
+      if ( ! *ptr ) break;
+      else ++ptr;
+    }
+
+    if ( pa != patch_in ) pc_patch_free(pa);
+    pa = (PCPATCH*)pc_patch_dimensional_compress(pdl, stats);
+    pc_patch_dimensional_free(pdl);
+  }}
+  else if ( strcmp(compr_in, "ght") == 0 ) {
+    schema->compression = PC_GHT;
+  }
+  else {
+    elog(ERROR, "Unrecognized compression '%s'. Please specify 'auto','dimensional' or 'ght'", compr_in);
+  }
+
+  pa->schema = schema; /* install overridden schema */
+  serpa_out = pc_patch_serialize(pa, stats);
+
+  if ( pa != patch_in )
+    pc_patch_free(pa);
+  pc_patch_free(patch_in);
+  pc_schema_free(schema);
+
+  PG_RETURN_POINTER(serpa_out);
 }
 
 PG_FUNCTION_INFO_V1(pcpatch_numpoints);
