@@ -147,8 +147,10 @@ static void
 test_schema_clone(void)
 {
     int i;
+    PCSCHEMA *myschema;
     PCSCHEMA *clone = pc_schema_clone(schema);
     hashtable *hash, *chash;
+    char *xmlstr;
     CU_ASSERT_EQUAL(clone->pcid, schema->pcid);
     CU_ASSERT_EQUAL(clone->ndims, schema->ndims);
     CU_ASSERT_EQUAL(clone->size, schema->size);
@@ -184,6 +186,17 @@ test_schema_clone(void)
       CU_ASSERT_EQUAL(cdim, hashtable_search(clone->namehash, dim->name) );
     }
 
+    pc_schema_free(clone);
+
+    /* See https://github.com/pgpointcloud/pointcloud/issues/66 */
+	  xmlstr = "<pc:PointCloudSchema xmlns:pc='x'><pc:dimension><pc:position>1</pc:position></pc:dimension></pc:PointCloudSchema>";
+    i = pc_schema_from_xml(xmlstr, &myschema);
+	  CU_ASSERT_EQUAL(i, PC_SUCCESS);
+    clone = pc_schema_clone(myschema);
+    CU_ASSERT_EQUAL(clone->ndims, myschema->ndims);
+    CU_ASSERT_EQUAL(clone->dims[0]->name, NULL);
+    CU_ASSERT_EQUAL(clone->dims[0]->description, NULL);
+    pc_schema_free(myschema);
     pc_schema_free(clone);
 }
 

@@ -164,8 +164,8 @@ pc_dimension_clone(const PCDIMENSION *dim)
 	/* Copy all the inline data */
 	memcpy(pcd, dim, sizeof(PCDIMENSION));
 	/* Copy the referenced data */
-	pcd->name = pcstrdup(dim->name);
-	pcd->description = pcstrdup(dim->description);
+	if ( dim->name ) pcd->name = pcstrdup(dim->name);
+	if ( dim->description ) pcd->description = pcstrdup(dim->description);
 	return pcd;
 }
 
