@@ -942,7 +942,12 @@ pc_bytes_sigbits_decode_8(const PCBYTES pcb)
 		int shift = bit - nbits;
 		uint8_t val = *bytes_ptr;
 		/* The unique part is all in this word */
-		if ( shift >= 0 )
+		if ( shift == 0 )
+		{
+			obytes[i] = val;
+			++bytes_ptr;
+		}
+		else if ( shift > 0 )
 		{
 			/* Push unique part to bottom of word */
 			val >>= shift;
@@ -1007,7 +1012,12 @@ pc_bytes_sigbits_decode_16(const PCBYTES pcb)
 	{
 		int shift = bit - nbits;
 		uint16_t val = *bytes_ptr;
-		if ( shift >= 0 )
+		if ( shift == 0 )
+		{
+			obytes[i] = val;
+			++bytes_ptr;
+		}
+		else if ( shift > 0 )
 		{
 			val >>= shift;
 			val &= mask;
@@ -1066,7 +1076,12 @@ pc_bytes_sigbits_decode_32(const PCBYTES pcb)
 	{
 		int shift = bit - nbits;
 		uint32_t val = *bytes_ptr;
-		if ( shift >= 0 )
+		if ( shift == 0 )
+		{
+			obytes[i] = val;
+			++bytes_ptr;
+		}
+		else if ( shift > 0 )
 		{
 			val >>= shift;
 			val &= mask;
@@ -1126,7 +1141,12 @@ pc_bytes_sigbits_decode_64(const PCBYTES pcb)
 	{
 		int shift = bit - nbits;
 		uint64_t val = *bytes_ptr;
-		if ( shift >= 0 )
+		if ( shift == 0 )
+		{
+			obytes[i] = val;
+			++bytes_ptr;
+		}
+		else if ( shift > 0 )
 		{
 			val >>= shift;
 			val &= mask;
