@@ -816,7 +816,7 @@ pc_bytes_sigbits_encode_64(const PCBYTES pcb, uint64_t commonvalue, uint8_t comm
 		else
 		{
 			/* First the bit into the current word */
-			uint32_t v = val;
+			uint64_t v = val;
 			int s = abs(shift);
 			v >>= s;
 			*byte_ptr |= v;
