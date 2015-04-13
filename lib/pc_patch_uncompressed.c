@@ -201,6 +201,7 @@ pc_patch_uncompressed_compute_extent(PCPATCH_UNCOMPRESSED *patch)
 	}
 
 	patch->bounds = b;
+  pcfree(pt);
 	return PC_SUCCESS;
 }
 
