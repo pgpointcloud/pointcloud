@@ -405,11 +405,6 @@ Now that you have created two tables, you'll see entries for them in the `pointc
 > Returns a patch with only points whose values are the same as the supplied values
 > for the requested dimension.
 
-**PC_Compress(p pcpatch,global_compression_scheme text,comma_separated_compression_style text)** returns **pcpatch**
-
-> Returns a patch with manually set compression for every dimension
-> only global_compression_scheme authorized is 'dimensional'
-> compression_style authorized values are 'auto', 'zlib','sigbits','rle'
 
 ## PostGIS Integration ##
 
