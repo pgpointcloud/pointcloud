@@ -988,7 +988,8 @@ pc_bytes_sigbits_decode_16(const PCBYTES pcb)
 	uint16_t nbits;
 	uint16_t commonvalue;
 	uint16_t mask;
-	int bit = 16;
+	static const int bitwidth = 16;
+	int bit = bitwidth;
 	size_t outbytes_size = sizeof(uint16_t) * pcb.npoints;
 	uint8_t *outbytes = pcalloc(outbytes_size);
 	uint16_t *obytes = (uint16_t*)outbytes;
@@ -1014,6 +1015,11 @@ pc_bytes_sigbits_decode_16(const PCBYTES pcb)
 			val |= commonvalue;
 			obytes[i] = val;
 			bit -= nbits;
+			if ( bit <= 0 )
+			{
+				bytes_ptr++;
+				bit = bitwidth;
+			}
 		}
 		else
 		{
@@ -1023,7 +1029,7 @@ pc_bytes_sigbits_decode_16(const PCBYTES pcb)
 			val |= commonvalue;
 			obytes[i] = val;
 			bytes_ptr++;
-			bit = 16;
+			bit = bitwidth;
 			val = *bytes_ptr;
 			shift = bit - s;
 			val >>= shift;
@@ -1047,7 +1053,8 @@ pc_bytes_sigbits_decode_32(const PCBYTES pcb)
 	uint32_t nbits;
 	uint32_t commonvalue;
 	uint32_t mask;
-	int bit = 32;
+	static const int bitwidth = 32;
+	int bit = bitwidth;
 	size_t outbytes_size = sizeof(uint32_t) * pcb.npoints;
 	uint8_t *outbytes = pcalloc(outbytes_size);
 	uint32_t *obytes = (uint32_t*)outbytes;
@@ -1073,6 +1080,11 @@ pc_bytes_sigbits_decode_32(const PCBYTES pcb)
 			val |= commonvalue;
 			obytes[i] = val;
 			bit -= nbits;
+			if ( bit <= 0 )
+			{
+				bytes_ptr++;
+				bit = bitwidth;
+			}
 		}
 		else
 		{
@@ -1082,7 +1094,7 @@ pc_bytes_sigbits_decode_32(const PCBYTES pcb)
 			val |= commonvalue;
 			obytes[i] = val;
 			bytes_ptr++;
-			bit = 32;
+			bit = bitwidth;
 			val = *bytes_ptr;
 			shift = bit - s;
 			val >>= shift;
@@ -1107,7 +1119,8 @@ pc_bytes_sigbits_decode_64(const PCBYTES pcb)
 	uint64_t nbits;
 	uint64_t commonvalue;
 	uint64_t mask;
-	int bit = 64;
+	static const int bitwidth = 64;
+	int bit = bitwidth;
 	size_t outbytes_size = sizeof(uint64_t) * pcb.npoints;
 	uint8_t *outbytes = pcalloc(outbytes_size);
 	uint64_t *obytes = (uint64_t*)outbytes;
@@ -1133,6 +1146,11 @@ pc_bytes_sigbits_decode_64(const PCBYTES pcb)
 			val |= commonvalue;
 			obytes[i] = val;
 			bit -= nbits;
+			if ( bit <= 0 )
+			{
+				bytes_ptr++;
+				bit = bitwidth;
+			}
 		}
 		else
 		{
@@ -1142,7 +1160,7 @@ pc_bytes_sigbits_decode_64(const PCBYTES pcb)
 			val |= commonvalue;
 			obytes[i] = val;
 			bytes_ptr++;
-			bit = 64;
+			bit = bitwidth;
 			val = *bytes_ptr;
 			shift = bit - s;
 			val >>= shift;
