@@ -405,6 +405,20 @@ Now that you have created two tables, you'll see entries for them in the `pointc
 > Returns a patch with only points whose values are the same as the supplied values
 > for the requested dimension.
 
+**PC_Compress(p pcpatch,global_compression_scheme text,compression_config text)** returns **pcpatch** (from 1.1.0)
+
+> Compress a patch with a manually specified scheme.
+> The compression_config semantic depends on the global compression scheme.
+> Allowed global compression schemes are:
+>  - auto -- determined by pcid
+>  - ght  -- no compression config supported
+>  - dimensional
+>      configuration is a comma-separated list of per-dimension
+>      compressions from this list:
+>      - auto -- determined automatically, from values stats
+>      - zlib -- deflate compression
+>      - sigbits -- significant bits removal
+>      - rle -- run-length encoding
 
 ## PostGIS Integration ##
 
