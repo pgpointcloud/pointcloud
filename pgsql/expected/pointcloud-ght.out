@@ -119,3 +119,4 @@ SELECT Min(PC_PatchMin(pa,'z')) FROM pa_test_ght;
    1
 (1 row)
 
+TRUNCATE pointcloud_formats;

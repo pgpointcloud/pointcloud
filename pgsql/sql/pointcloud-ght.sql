@@ -77,3 +77,4 @@ SELECT Max(PC_PatchMax(pa,'x')) FROM pa_test_ght;
 SELECT Min(PC_PatchMin(pa,'x')) FROM pa_test_ght;
 SELECT Min(PC_PatchMin(pa,'z')) FROM pa_test_ght;
 
+TRUNCATE pointcloud_formats;

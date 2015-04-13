@@ -184,3 +184,5 @@ SELECT PC_AsText(PC_Patch(ARRAY[PC_MakePoint(3, ARRAY[-127, 45, 124.0, 4.0])]::p
 
 SELECT 'pc_id1', PC_PCId(PC_Patch(PC_MakePoint(3, ARRAY[-1,-2,-3,-4])));
 SELECT 'pc_id2', PC_PCId(PC_MakePoint(3, ARRAY[-1,-2,-3,-4]));
+
+TRUNCATE pointcloud_formats;

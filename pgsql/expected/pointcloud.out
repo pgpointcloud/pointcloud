@@ -324,3 +324,4 @@ SELECT 'pc_id2', PC_PCId(PC_MakePoint(3, ARRAY[-1,-2,-3,-4]));
  pc_id2   |       3
 (1 row)
 
+TRUNCATE pointcloud_formats;
