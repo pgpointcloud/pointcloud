@@ -24,7 +24,7 @@ DATA_built = \
   $(EXTENSION)--$(EXTVERSION).sql \
   $(UPGRADES)
 
-REGRESS = pointcloud pointcloud_columns
+REGRESS = pointcloud pointcloud_columns schema
 
 ifneq ($(GHT_LDFLAGS),)
 REGRESS += pointcloud-ght

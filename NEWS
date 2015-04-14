@@ -2,6 +2,7 @@
 -----
 
 - Bug fixes
+  - #71, Fix crash in pc_schema_from_xml
   - #66, Fix crash in pc_schema_clone (unexploitable via SQL)
   - #37, Fix access to uninitialized variables
   - #31, Fix crash in pc_patch

@@ -1,0 +1,8 @@
+-- See https://github.com/pgpointcloud/pointcloud/issues/71
+select '#71', PC_SchemaIsValid('<xml/>'::xml::text);
+WARNING:  unable to evaluate xpath expression "/pc:PointCloudSchema/pc:dimension" against schema XML
+ ?column? | pc_schemaisvalid 
+----------+------------------
+ #71      | f
+(1 row)
+
