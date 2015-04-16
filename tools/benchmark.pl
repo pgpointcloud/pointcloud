@@ -83,7 +83,7 @@ where "table"='${tn}' and "column" = '${col}'
 --  <pc:interpretation>double</pc:interpretation>
 --</pc:dimension>
   select
-    --(xpath('//pc:name/text()', d, ns))[1] || ':' ||
+    (xpath('//pc:name/text()', d, ns))[1] || ':' ||
     replace((xpath('//pc:interpretation/text()', d, ns))[1]::text, '_t', '')
     d
   from ordered, meta
@@ -91,20 +91,29 @@ where "table"='${tn}' and "column" = '${col}'
 select array_to_string(array_agg(d),',') from dims
 EOF
   );
-  print " Dims: $dims\n";
+  my @dims_interp = ();
+  my @dims_name = ();
+  foreach my $dim (split ',', $dims) {
+    my ($name, $interp) = split(':', $dim);
+    push @dims_name, $name;
+    push @dims_interp, $interp;
+  }
+  print " Dims: " . join(',',@dims_interp) . "\n";
 
   my $info = query(<<"EOF"
 select count(*), min(pc_numpoints(\"${col}\")),
 max(pc_numpoints(\"${col}\")),
 avg(pc_numpoints(\"${col}\")),
 sum(pc_numpoints(\"${col}\")),
-avg(pc_memsize(\"${col}\"))
+avg(pc_memsize(\"${col}\")),
+array_to_string(array_agg(distinct pc_summary(\"${col}\")::json->>'compr'), ',')
 from \"${tn}\"
 EOF
   );
   my @info = split '\|', $info;
   #print ' Info: ' . join(',', @info) . "\n";
   print ' Patches: ' . $info[0] . "\n";
+  printf " Compression: %s\n", $info[6];
   printf " Average patch size (bytes): %d\n", $info[5];
   printf " Average patch points: %d\n", $info[3];
 #  print ' Points: ' . $info[4] . ' ('
@@ -120,26 +129,35 @@ EOF
 
   my $iterations = 10;
 
+  my @fname_vals = ();
+  foreach my $fname (@dims_name) {
+    push @fname_vals, "('${fname}')";
+  }
+  my $fname_vals = join ',', @fname_vals;
+
   # full decompression
   my $sql = <<"EOF";
-select PC_FilterEquals(\"${col}\",'z',
-                       PC_PatchMax(\"${col}\",'z'))
-from \"${tn}\";
+SELECT PC_FilterEquals(\"${col}\",d,
+                       PC_PatchMax(\"${col}\",d))
+FROM \"${tn}\", ( values ${fname_vals} ) f(d);
 EOF
+  #print "SQL: $sql";
   my @time = checkTimes $sql, $iterations;
-  print ' Full decompression time: '
+  print ' Full scan time (ms): '
     . join('/', @time)
-    . ' (min/max/avg) '
+    . ' (min/max/avg)'
     . "\n";
 
   # header only
   $sql = <<"EOF";
-select PC_PatchAvg(\"${col}\",'z') from \"${tn}\";
+SELECT PC_PatchAvg(\"${col}\",d)
+FROM \"${tn}\", ( values ${fname_vals} ) f(d);
 EOF
+  #print "SQL: $sql";
   @time = checkTimes $sql, $iterations;
-  print ' Header reading time: '
+  print ' Stats scan time (ms): '
     . join('/', @time)
-    . ' (min/max/avg) '
+    . ' (min/max/avg)'
     . "\n";
 }
 
