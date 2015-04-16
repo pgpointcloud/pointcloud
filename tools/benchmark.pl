@@ -50,6 +50,23 @@ sub checkTimes {
   return ($min,$max,$avg);
 }
 
+# reportTimes @times, iterations
+# Check min/max/avg times of running <sql> over <iterations> iterations
+sub reportTimes {
+  my $label = shift;
+  my $sql = shift;
+  my $iterations = shift;
+
+  my @time = checkTimes($sql, $iterations);
+  my $s = $label . ': ';
+  if ( $iterations > 1 ) {
+    $s .= join(' / ', @time);
+  } else {
+    $s .= $time[0];
+  }
+  return $s;
+}
+
 foreach $a (@ARGV) {
   my $tn="${a}";
   my $col="p";
@@ -127,38 +144,30 @@ EOF
 
   # Speed tests here
 
-  my $iterations = 10;
+  my $iterations = 3; # this one might be unneeded
 
-  my @fname_vals = ();
-  foreach my $fname (@dims_name) {
-    push @fname_vals, "('${fname}')";
+  print " Timings ";
+  if ( $iterations > 1 ) {
+      print "(min/max/avg ms over ${iterations} iterations):\n";
+  } else {
+    print "(ms):\n";
   }
-  my $fname_vals = join ',', @fname_vals;
 
-  # full decompression
-  my $sql = <<"EOF";
-SELECT PC_FilterEquals(\"${col}\",d,
-                       PC_PatchMax(\"${col}\",d))
-FROM \"${tn}\", ( values ${fname_vals} ) f(d);
-EOF
-  #print "SQL: $sql";
-  my @time = checkTimes $sql, $iterations;
-  print ' Full scan time (ms): '
-    . join('/', @time)
-    . ' (min/max/avg)'
-    . "\n";
-
-  # header only
-  $sql = <<"EOF";
-SELECT PC_PatchAvg(\"${col}\",d)
-FROM \"${tn}\", ( values ${fname_vals} ) f(d);
-EOF
-  #print "SQL: $sql";
-  @time = checkTimes $sql, $iterations;
-  print ' Stats scan time (ms): '
-    . join('/', @time)
-    . ' (min/max/avg)'
-    . "\n";
+  for my $func ( (
+    # Header scan
+    'PC_Envelope',
+    # Decompression
+    'PC_Uncompress',
+    # Full points scan
+    'PC_Explode',
+    # Conversion to JSON (needed?)
+    'PC_AsText'
+    ) )
+  {
+    my $sql = "SELECT ${func}(\"${col}\") FROM \"${tn}\"";
+    #print "SQL: $sql";
+    print '  ' . reportTimes(${func}, $sql, $iterations) . "\n";
+  }
 }
 
 print "\n";
