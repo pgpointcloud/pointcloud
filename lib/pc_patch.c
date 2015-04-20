@@ -13,7 +13,6 @@
 #include <math.h>
 #include <assert.h>
 #include "pc_api_internal.h"
-#include "stringbuffer.h"
 
 int
 pc_patch_compute_extent(PCPATCH *pa)
