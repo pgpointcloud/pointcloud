@@ -74,7 +74,22 @@ foreach $a (@ARGV) {
     $col = $2;
     $tn = $1;
   }
-  print "\n[Table:$tn Column:$col]\n";
+  print "\n[$tn:$col]\n";
+
+  my $info = query(<<"EOF"
+SELECT CASE WHEN attstorage = 'm' THEN 'main'
+            WHEN attstorage = 'e' THEN 'external'
+            WHEN attstorage = 'p' THEN 'plain'
+            WHEN attstorage = 'x' THEN 'extended'
+            ELSE attstorage::text
+       END
+FROM pg_attribute
+WHERE attrelid = '${tn}'::regclass::oid
+  AND attname = '${col}'
+EOF
+  );
+  print ' Patch column storage: ' . $info . "\n";
+
   my $dims = query(<<"EOF"
 with format as (
  select f."schema" s from pointcloud_formats f, pointcloud_columns c
@@ -117,29 +132,36 @@ EOF
   }
   print " Dims: " . join(',',@dims_interp) . "\n";
 
-  my $info = query(<<"EOF"
-select count(*), min(pc_numpoints(\"${col}\")),
-max(pc_numpoints(\"${col}\")),
-avg(pc_numpoints(\"${col}\")),
-sum(pc_numpoints(\"${col}\")),
-avg(pc_memsize(\"${col}\")),
-array_to_string(array_agg(distinct pc_summary(\"${col}\")::json->>'compr'), ',')
+  $info = query(<<"EOF"
+select count(*), -- 0
+min(pc_numpoints(\"${col}\")), -- 1
+max(pc_numpoints(\"${col}\")), -- 2
+avg(pc_numpoints(\"${col}\")), -- 3
+sum(pc_numpoints(\"${col}\")), -- 4
+avg(pc_memsize(\"${col}\")), -- 5
+array_to_string(array_agg(distinct pc_summary(\"${col}\")::json->>'compr'), ','),
+pg_size_pretty(sum(pg_column_size(\"${col}\")))  -- 7
 from \"${tn}\"
 EOF
   );
+
   my @info = split '\|', $info;
   #print ' Info: ' . join(',', @info) . "\n";
+  print ' Total patch column size: ' . $info[7] . "\n";
   print ' Patches: ' . $info[0] . "\n";
-  printf " Compression: %s\n", $info[6];
-  printf " Average patch size (bytes): %d\n", $info[5];
-  printf " Average patch points: %d\n", $info[3];
+  printf "  Compression: %s\n", $info[6];
+  printf "  Average patch size (bytes): %d\n", $info[5];
+  printf "  Average patch points: %d\n", $info[3];
 #  print ' Points: ' . $info[4] . ' ('
 #       . join('/', @info[1 .. 3])
 #       . ' min/max/avg per patch'
 #       . ")\n";
 
-  $info = query("select pg_size_pretty(pg_total_relation_size('${tn}'));\n");
-  print ' Total relation size: ' . $info . "\n";
+
+  #$info = query("select pg_size_pretty(pg_total_relation_size('${tn}'));\n");
+  #print ' Total relation size: ' . $info . "\n";
+
+  #next; # TODO: allow early exit here, before running speed tests
 
 
   # Speed tests here
