@@ -42,7 +42,7 @@ if (LIBGHT_FOUND)
 endif (LIBGHT_FOUND)
 
 set_target_properties (pointcloud PROPERTIES
-  OUTPUT_NAME "pointcloud"
+  OUTPUT_NAME "pointcloud-${POINTCLOUD_VERSION_MAJOR}"
   PREFIX ""
   )
 

@@ -2,7 +2,6 @@
 
 include ../config.mk
 
-MODULE_big = pointcloud
 OBJS = \
 	pc_inout.o \
 	pc_access.o \
@@ -11,6 +10,8 @@ OBJS = \
 SED = sed
 EXTENSION = pointcloud
 EXTVERSION=$(shell cat ../Version.config)
+EXTVERSION_MAJOR=$(shell cut -d. -f1,2 ../Version.config)
+MODULE_big = $(EXTENSION)-$(EXTVERSION_MAJOR)
 UPGRADABLE = 1.0 1.0.1
 
 UPGRADES = \
@@ -38,7 +39,8 @@ SHLIB_LINK += ../lib/$(LIB_A) $(filter -lm, $(LIBS)) $(XML2_LDFLAGS) $(ZLIB_LDFL
 include $(PGXS)
 
 $(EXTENSION).control: $(EXTENSION).control.in Makefile
-	$(SED) -e 's/@POINTCLOUD_VERSION@/$(EXTVERSION)/' $< > $@
+	$(SED) -e 's/@POINTCLOUD_VERSION@/$(EXTVERSION)/' \
+         -e 's/@POINTCLOUD_VERSION_MAJOR@/$(EXTVERSION_MAJOR)/' $< > $@
 
 $(EXTENSION)--$(EXTVERSION).sql: $(EXTENSION).sql.in Makefile
 	cp $< $@

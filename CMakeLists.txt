@@ -10,6 +10,8 @@ project(POINTCLOUD)
 file(READ "Version.config" POINTCLOUD_VERSION)
 string(STRIP ${POINTCLOUD_VERSION} POINTCLOUD_VERSION)
 set (POINTCLOUD_VERSION "${POINTCLOUD_VERSION}")
+string(REGEX REPLACE "\\.[0-9]*$" "" POINTCLOUD_VERSION_MAJOR "${POINTCLOUD_VERSION}")
+set (POINTCLOUD_VERSION_MAJOR "${POINTCLOUD_VERSION_MAJOR}")
 
 
 #------------------------------------------------------------------------------
