@@ -91,6 +91,7 @@ test_endian_flip()
 	ptr = uncompressed_bytes_flip_endian(pt->data, schema, 1);
 	pcfree(pt->data);
 	pt->data = uncompressed_bytes_flip_endian(ptr, schema, 1);
+	pcfree(ptr);
 
 	rv = pc_point_get_double_by_name(pt, "X", &b1);
 	CU_ASSERT_EQUAL(rv, PC_SUCCESS);
@@ -104,6 +105,8 @@ test_endian_flip()
 	CU_ASSERT_DOUBLE_EQUAL(a2, b2, 0.0000001);
 	CU_ASSERT_DOUBLE_EQUAL(a3, b3, 0.0000001);
 	CU_ASSERT_DOUBLE_EQUAL(a4, b4, 0.0000001);
+
+	pc_point_free(pt);
 }
 
 static void
@@ -139,6 +142,7 @@ test_patch_hex_in()
 	str = pc_patch_to_string(pa);
 	CU_ASSERT_STRING_EQUAL(str, "{\"pcid\":0,\"pts\":[[0.02,0.03,0.05,6],[0.02,0.03,0.05,8]]}");
     // printf("\n%s\n",str);
+	pcfree(str);
 
 	pc_pointlist_free(pl);
 	pc_patch_free(pa);
@@ -227,11 +231,14 @@ test_schema_xy()
     pt = pc_point_from_wkb(lasschema, bytes, strlen(hexpt)/2);
     pc_point_get_double_by_name(pt, "x", &val);
     CU_ASSERT_DOUBLE_EQUAL(val, -125.0417204, 0.00001);
+    pc_point_free(pt);
 
     pt = pc_point_from_wkb(lasschema, bytes, strlen(hexpt)/2);
     pc_point_get_double_by_name(pt, "y", &val);
     CU_ASSERT_DOUBLE_EQUAL(val, 49.2540081, 0.00001);
+    pc_point_free(pt);
 
+    pcfree(bytes);
 }
 
 
@@ -469,6 +476,7 @@ test_patch_wkb()
 
     wkb2 = pc_patch_to_wkb(pa3, &z2);
     pa4 = pc_patch_from_wkb(simpleschema, wkb2, z2);
+    pcfree(wkb2);
 
     // printf("pa4\n%s\n",pc_patch_to_string(pa4));
 
@@ -486,6 +494,10 @@ test_patch_wkb()
     pc_pointlist_free(pl1);
     pc_patch_free(pa1);
     pc_patch_free(pa2);
+    pc_patch_free((PCPATCH_DIMENSIONAL*)pa3);
+    pc_patch_free(pa4);
+    pc_patch_uncompressed_free(pu1);
+    pc_patch_uncompressed_free(pu2);
     pcfree(wkb1);
 }
 
