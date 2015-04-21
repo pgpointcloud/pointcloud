@@ -121,6 +121,7 @@ pc_patch_dimensional_compress(const PCPATCH_DIMENSIONAL *pdl, PCDIMSTATS *pds)
 	pdl_compressed = pcalloc(sizeof(PCPATCH_DIMENSIONAL));
 	memcpy(pdl_compressed, pdl, sizeof(PCPATCH_DIMENSIONAL));
 	pdl_compressed->bytes = pcalloc(ndims*sizeof(PCBYTES));
+	pdl_compressed->stats = pc_stats_clone(pdl->stats);
 
 	/* Compress each dimension as dictated by stats */
 	for ( i = 0; i < ndims; i++ )

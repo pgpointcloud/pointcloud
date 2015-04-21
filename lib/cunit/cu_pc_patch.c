@@ -494,8 +494,7 @@ test_patch_wkb()
     pc_pointlist_free(pl1);
     pc_patch_free(pa1);
     pc_patch_free(pa2);
-    /* WARNING: cannot free pa3, see https://github.com/pgpointcloud/pointcloud/issues/75 */
-    /*pc_patch_free((PCPATCH_DIMENSIONAL*)pa3);*/
+    pc_patch_free(pa3);
     pc_patch_free(pa4);
     pc_patch_uncompressed_free(pu1);
     pc_patch_uncompressed_free(pu2);
