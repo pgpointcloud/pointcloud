@@ -221,7 +221,7 @@ Datum pcpoint_from_double_array(PG_FUNCTION_ARGS)
 
 	nelems = ARR_DIMS(arrptr)[0];
 	if ( nelems != schema->ndims || ARR_LBOUND(arrptr)[0] > 1 )
-		elog(ERROR, "array dimenensions do not match schema dimensions of pcid = %d", pcid);
+		elog(ERROR, "array dimensions do not match schema dimensions of pcid = %d", pcid);
 
 	vals = (float8*) ARR_DATA_PTR(arrptr);
 	pt = pc_point_from_double_array(schema, vals, nelems);
