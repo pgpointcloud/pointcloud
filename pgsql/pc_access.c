@@ -602,6 +602,7 @@ Datum pcpatch_compress(PG_FUNCTION_ARGS)
     stats->total_points = PCDIMSTATS_MIN_SAMPLE+1;
 
     /* Fill in per-dimension compression */
+    if ( *ptr )
     for (i=0; i<stats->ndims; ++i) {
       PCDIMSTAT *stat = &(stats->stats[i]);
       /*pcinfo("ptr: %s", ptr);*/

@@ -493,4 +493,11 @@ ORDER BY compr,sc,v;
  compr |  7 | dimensional | zlib    | t
 (60 rows)
 
+SELECT PC_Summary(PC_Compress(PC_Patch(PC_MakePoint(10,ARRAY[1,1,1,1,1,1,1])),
+  'dimensional'))::json->'compr';
+   ?column?    
+---------------
+ "dimensional"
+(1 row)
+
 TRUNCATE pointcloud_formats;

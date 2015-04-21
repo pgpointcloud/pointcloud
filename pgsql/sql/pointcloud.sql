@@ -291,4 +291,7 @@ FROM p1, ( values
 ) dimcompr(compr,sc)
 ORDER BY compr,sc,v;
 
+SELECT PC_Summary(PC_Compress(PC_Patch(PC_MakePoint(10,ARRAY[1,1,1,1,1,1,1])),
+  'dimensional'))::json->'compr';
+
 TRUNCATE pointcloud_formats;
