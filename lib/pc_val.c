@@ -10,6 +10,7 @@
 ***********************************************************************/
 
 #include <math.h>
+#include <stdint.h>
 #include "pc_api_internal.h"
 
 
@@ -120,6 +121,15 @@ pc_double_from_ptr(const uint8_t *ptr, uint32_t interpretation)
 	return 0.0;
 }
 
+#define CLAMP(v,min,max,t) do { \
+    if ( v > max ) { \
+      pcwarn("Value %g truncated to %g to fit in "t, v, max); \
+      v = max; \
+    } else if ( val < min ) { \
+      pcwarn("Value %g truncated to %g to fit in "t, v, min); \
+      v = min; \
+    } \
+  } while(0)
 
 int
 pc_double_to_ptr(uint8_t *ptr, uint32_t interpretation, double val)
@@ -128,49 +138,65 @@ pc_double_to_ptr(uint8_t *ptr, uint32_t interpretation, double val)
 	{
 	case PC_UINT8:
 	{
-		uint8_t v = (uint8_t)lround(val);
+		uint8_t v;
+		CLAMP(val, 0, UINT8_MAX, "uint8_t");
+		v = (uint8_t)lround(val);
 		memcpy(ptr, &(v), sizeof(uint8_t));
 		break;
 	}
 	case PC_UINT16:
 	{
-		uint16_t v = (uint16_t)lround(val);
+		uint16_t v;
+		CLAMP(val, 0, UINT16_MAX, "uint16_t");
+		v = (uint16_t)lround(val);
 		memcpy(ptr, &(v), sizeof(uint16_t));
 		break;
 	}
 	case PC_UINT32:
 	{
-		uint32_t v = (uint32_t)lround(val);
+		uint32_t v;
+		CLAMP(val, 0, UINT32_MAX, "uint32");
+		v = (uint32_t)lround(val);
 		memcpy(ptr, &(v), sizeof(uint32_t));
 		break;
 	}
 	case PC_UINT64:
 	{
-		uint64_t v = (uint64_t)lround(val);
+		uint64_t v;
+		CLAMP(val, 0, UINT64_MAX, "uint64");
+		v = (uint64_t)lround(val);
 		memcpy(ptr, &(v), sizeof(uint64_t));
 		break;
 	}
 	case PC_INT8:
 	{
-		int8_t v = (int8_t)lround(val);
+		int8_t v;
+		CLAMP(val, INT8_MIN, INT8_MAX, "int8");
+		v = (int8_t)lround(val);
 		memcpy(ptr, &(v), sizeof(int8_t));
 		break;
 	}
 	case PC_INT16:
 	{
-		int16_t v = (int16_t)lround(val);
+		int16_t v;
+		CLAMP(val, INT16_MIN, INT16_MAX, "int16");
+		v = (int16_t)lround(val);
 		memcpy(ptr, &(v), sizeof(int16_t));
 		break;
 	}
 	case PC_INT32:
 	{
-		int32_t v = (int32_t)lround(val);
+		int32_t v;
+		CLAMP(val, INT32_MIN, INT32_MAX, "int32");
+		v = (int32_t)lround(val);
 		memcpy(ptr, &(v), sizeof(int32_t));
 		break;
 	}
 	case PC_INT64:
 	{
-		int64_t v = (int64_t)lround(val);
+		int64_t v;
+		CLAMP(val, INT64_MIN, INT64_MAX, "int64");
+		v = (int64_t)lround(val);
 		memcpy(ptr, &(v), sizeof(int64_t));
 		break;
 	}
