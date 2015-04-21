@@ -300,7 +300,6 @@ pc_patch_dimensional_from_pointlist(const PCPOINTLIST *pdl)
 	PCPATCH_UNCOMPRESSED *patch = pc_patch_uncompressed_from_pointlist(pdl);
 	if ( ! patch ) return NULL;
 	PCPATCH_DIMENSIONAL *dimpatch = pc_patch_dimensional_from_uncompressed(patch);
-	pc_patch_uncompressed_free(patch);
+	pc_patch_free((PCPATCH*)patch);
 	return dimpatch;
 }
-
