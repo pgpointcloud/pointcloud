@@ -102,11 +102,12 @@ pc_patch_dimensional_from_uncompressed(const PCPATCH_UNCOMPRESSED *pa)
 }
 
 PCPATCH_DIMENSIONAL *
-pc_patch_dimensional_compress(const PCPATCH_DIMENSIONAL *pdl, PCDIMSTATS *pds)
+pc_patch_dimensional_compress(const PCPATCH_DIMENSIONAL *pdl, PCDIMSTATS *pds_in)
 {
 	int i;
 	int ndims = pdl->schema->ndims;
 	PCPATCH_DIMENSIONAL *pdl_compressed;
+	PCDIMSTATS *pds = pds_in;
 
 	assert(pdl);
 	assert(pdl->schema);
@@ -128,6 +129,8 @@ pc_patch_dimensional_compress(const PCPATCH_DIMENSIONAL *pdl, PCDIMSTATS *pds)
 	{
 		pdl_compressed->bytes[i] = pc_bytes_encode(pdl->bytes[i], pds->stats[i].recommended_compression);
 	}
+
+	if ( pds != pds_in ) pc_dimstats_free(pds);
 
 	return pdl_compressed;
 }
