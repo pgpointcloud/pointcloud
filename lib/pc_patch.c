@@ -47,7 +47,7 @@ pc_patch_compute_stats(PCPATCH *pa)
 	{
 		PCPATCH_UNCOMPRESSED *pu = pc_patch_uncompressed_from_dimensional((PCPATCH_DIMENSIONAL*)pa);
 		pc_patch_uncompressed_compute_stats(pu);
-		pa->stats = pc_stats_clone(pu->stats);
+		pa->stats = pu->stats; pu->stats = NULL;
 		pc_patch_uncompressed_free(pu);
 		return PC_SUCCESS;
 	}
