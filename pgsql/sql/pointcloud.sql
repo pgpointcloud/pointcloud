@@ -289,7 +289,6 @@ FROM p1, ( values
   ('dimensional','auto')
   -- ,('ght',null) -- fails due to https://github.com/pgpointcloud/pointcloud/issues/35
 ) dimcompr(compr,sc)
-WHERE NOT ok
 ORDER BY compr,sc,v;
 
 TRUNCATE pointcloud_formats;

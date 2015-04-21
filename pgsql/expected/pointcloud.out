@@ -428,9 +428,69 @@ FROM p1, ( values
   ('dimensional','auto')
   -- ,('ght',null) -- fails due to https://github.com/pgpointcloud/pointcloud/issues/35
 ) dimcompr(compr,sc)
-WHERE NOT ok
 ORDER BY compr,sc,v;
-ERROR:  column "ok" does not exist
-LINE 32: WHERE NOT ok
-                   ^
+ test  | v  |    compr    |   sc    | ok 
+-------+----+-------------+---------+----
+ compr | -7 | dimensional | auto    | t
+ compr | -6 | dimensional | auto    | t
+ compr | -5 | dimensional | auto    | t
+ compr | -4 | dimensional | auto    | t
+ compr | -3 | dimensional | auto    | t
+ compr | -2 | dimensional | auto    | t
+ compr | -1 | dimensional | auto    | t
+ compr |  0 | dimensional | auto    | t
+ compr |  1 | dimensional | auto    | t
+ compr |  2 | dimensional | auto    | t
+ compr |  3 | dimensional | auto    | t
+ compr |  4 | dimensional | auto    | t
+ compr |  5 | dimensional | auto    | t
+ compr |  6 | dimensional | auto    | t
+ compr |  7 | dimensional | auto    | t
+ compr | -7 | dimensional | rle     | t
+ compr | -6 | dimensional | rle     | t
+ compr | -5 | dimensional | rle     | t
+ compr | -4 | dimensional | rle     | t
+ compr | -3 | dimensional | rle     | t
+ compr | -2 | dimensional | rle     | t
+ compr | -1 | dimensional | rle     | t
+ compr |  0 | dimensional | rle     | t
+ compr |  1 | dimensional | rle     | t
+ compr |  2 | dimensional | rle     | t
+ compr |  3 | dimensional | rle     | t
+ compr |  4 | dimensional | rle     | t
+ compr |  5 | dimensional | rle     | t
+ compr |  6 | dimensional | rle     | t
+ compr |  7 | dimensional | rle     | t
+ compr | -7 | dimensional | sigbits | t
+ compr | -6 | dimensional | sigbits | t
+ compr | -5 | dimensional | sigbits | t
+ compr | -4 | dimensional | sigbits | t
+ compr | -3 | dimensional | sigbits | t
+ compr | -2 | dimensional | sigbits | t
+ compr | -1 | dimensional | sigbits | t
+ compr |  0 | dimensional | sigbits | t
+ compr |  1 | dimensional | sigbits | t
+ compr |  2 | dimensional | sigbits | t
+ compr |  3 | dimensional | sigbits | t
+ compr |  4 | dimensional | sigbits | t
+ compr |  5 | dimensional | sigbits | t
+ compr |  6 | dimensional | sigbits | t
+ compr |  7 | dimensional | sigbits | t
+ compr | -7 | dimensional | zlib    | t
+ compr | -6 | dimensional | zlib    | t
+ compr | -5 | dimensional | zlib    | t
+ compr | -4 | dimensional | zlib    | t
+ compr | -3 | dimensional | zlib    | t
+ compr | -2 | dimensional | zlib    | t
+ compr | -1 | dimensional | zlib    | t
+ compr |  0 | dimensional | zlib    | t
+ compr |  1 | dimensional | zlib    | t
+ compr |  2 | dimensional | zlib    | t
+ compr |  3 | dimensional | zlib    | t
+ compr |  4 | dimensional | zlib    | t
+ compr |  5 | dimensional | zlib    | t
+ compr |  6 | dimensional | zlib    | t
+ compr |  7 | dimensional | zlib    | t
+(60 rows)
+
 TRUNCATE pointcloud_formats;
