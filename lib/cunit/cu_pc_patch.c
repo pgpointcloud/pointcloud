@@ -205,8 +205,8 @@ test_patch_hex_out()
     // printf("wkt %s\n", wkt);
 	CU_ASSERT_STRING_EQUAL(wkt, wkt_result);
 
+	pc_patch_free((PCPATCH*)pa);
 	pc_pointlist_free(pl);
-	pc_patch_uncompressed_free(pa);
 	pcfree(hexwkb);
 	pcfree(wkb);
 	pcfree(wkt);
@@ -292,7 +292,7 @@ test_patch_dimensional()
     pc_dimstats_update(pds, pdl);
 
 
-    pc_patch_dimensional_free(pdl);
+    pc_patch_free((PCPATCH*)pdl);
     pc_pointlist_free(pl1);
     pc_pointlist_free(pl2);
     pc_dimstats_free(pds);
@@ -356,9 +356,8 @@ test_patch_dimensional_compression()
         CU_ASSERT_DOUBLE_EQUAL(v4, 10, 0.001);
     }
 
-    pc_patch_dimensional_free(pch1);
-    pc_patch_dimensional_free(pch2);
-//    pc_patch_dimensional_free(pch3);
+    pc_patch_free((PCPATCH*)pch1);
+    pc_patch_free((PCPATCH*)pch2);
     pc_pointlist_free(pl1);
     pc_pointlist_free(pl2);
     if ( pds ) pc_dimstats_free(pds);
@@ -398,7 +397,7 @@ test_patch_dimensional_extent()
 		CU_ASSERT_EQUAL(pch1->bounds.ymin, -20);
 		CU_ASSERT_EQUAL(pch1->bounds.ymax, -10);
 
-    pc_patch_dimensional_free(pch1);
+    pc_patch_free((PCPATCH*)pch1);
     pc_pointlist_free(pl1);
 }
 
@@ -496,8 +495,8 @@ test_patch_wkb()
     pc_patch_free(pa2);
     pc_patch_free(pa3);
     pc_patch_free(pa4);
-    pc_patch_uncompressed_free(pu1);
-    pc_patch_uncompressed_free(pu2);
+    pc_patch_free((PCPATCH*)pu1);
+    pc_patch_free((PCPATCH*)pu2);
     pcfree(wkb1);
 }
 
