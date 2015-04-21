@@ -13,39 +13,36 @@
 #include "pc_api_internal.h"
 #include "stringbuffer.h"
 
-
-char *
-pc_patch_uncompressed_to_string(const PCPATCH_UNCOMPRESSED *patch)
+/* TODO: expose to API ? Would require also exposing stringbuffer
+ * See https://github.com/pgpointcloud/pointcloud/issues/74
+ */
+static int
+pc_patch_uncompressed_to_stringbuffer(const PCPATCH_UNCOMPRESSED *patch, stringbuffer_t *sb)
 {
-	/* { "pcid":1, "points":[[<dim1>, <dim2>, <dim3>, <dim4>],[<dim1>, <dim2>, <dim3>, <dim4>]] }*/
-	stringbuffer_t *sb = stringbuffer_create();
 	PCPOINTLIST *pl;
-	char *str;
 	int i, j;
+
+	/* { "pcid":1, "points":[[<dim1>, <dim2>, <dim3>, <dim4>],[<dim1>, <dim2>, <dim3>, <dim4>]] }*/
+
+	/* TODO: reserve space in buffer ? */
 
 	pl = pc_pointlist_from_uncompressed(patch);
 	stringbuffer_aprintf(sb, "{\"pcid\":%d,\"pts\":[", patch->schema->pcid);
 	for ( i = 0; i < pl->npoints; i++ )
 	{
 		PCPOINT *pt = pc_pointlist_get_point(pl, i);
-		if ( i )
-		{
-			stringbuffer_append(sb, ",");
-		}
-		stringbuffer_append(sb, "[");
+		if ( i ) stringbuffer_append(sb, ",[");
+		else stringbuffer_append(sb, "[");
 		for ( j = 0; j < pt->schema->ndims; j++ )
 		{
 			double d;
 			if ( ! pc_point_get_double_by_index(pt, j, &d))
 			{
 				pcerror("%s: unable to read double at index %d", __func__, j);
-				return NULL;
+				return PC_FAILURE;
 			}
-			if ( j )
-			{
-				stringbuffer_append(sb, ",");
-			}
-			stringbuffer_aprintf(sb, "%g", d);
+			if ( j ) stringbuffer_aprintf(sb, ",%g", d);
+			else stringbuffer_aprintf(sb, "%g", d);
 		}
 		stringbuffer_append(sb, "]");
 	}
@@ -53,10 +50,20 @@ pc_patch_uncompressed_to_string(const PCPATCH_UNCOMPRESSED *patch)
 
 	/* All done, copy and clean up */
 	pc_pointlist_free(pl);
-	str = stringbuffer_getstringcopy(sb);
-	stringbuffer_destroy(sb);
 
-	return str;
+	return PC_SUCCESS;
+}
+
+char *
+pc_patch_uncompressed_to_string(const PCPATCH_UNCOMPRESSED *patch)
+{
+  stringbuffer_t *sb = stringbuffer_create();
+  char *str;
+  if ( PC_FAILURE == pc_patch_uncompressed_to_stringbuffer(patch, sb) )
+    return NULL;
+  str = stringbuffer_release_string(sb);
+  stringbuffer_destroy(sb);
+  return str;
 }
 
 uint8_t *

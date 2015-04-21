@@ -3,6 +3,7 @@
  *
  * Copyright 2002 Thamer Alharbash
  * Copyright 2009 Paul Ramsey <pramsey@cleverelephant.ca>
+ * Copyright 2015 Sandro Santilli <strk@keybit.net>
  *
  * Redistribution and use in source and binary forms, with or
  * without modification, are permitted provided that the following
@@ -70,6 +71,7 @@ extern void stringbuffer_append(stringbuffer_t *sb, const char *s);
 extern int stringbuffer_aprintf(stringbuffer_t *sb, const char *fmt, ...);
 extern const char *stringbuffer_getstring(stringbuffer_t *sb);
 extern char *stringbuffer_getstringcopy(stringbuffer_t *sb);
+extern char *stringbuffer_release_string(stringbuffer_t *sb);
 extern int stringbuffer_getlength(stringbuffer_t *sb);
 extern char stringbuffer_lastchar(stringbuffer_t *s);
 extern int stringbuffer_trim_trailing_white(stringbuffer_t *s);

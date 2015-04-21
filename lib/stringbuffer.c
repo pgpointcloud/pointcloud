@@ -3,6 +3,7 @@
  *
  * Copyright 2002 Thamer Alharbash
  * Copyright 2009 Paul Ramsey <pramsey@cleverelephant.ca>
+ * Copyright 2015 Sandro Santilli <strk@keybit.net>
  *
  * Redistribution and use in source and binary forms, with or
  * without modification, are permitted provided that the following
@@ -95,8 +96,8 @@ stringbuffer_makeroom(stringbuffer_t *s, size_t size_to_add)
 	size_t capacity = s->capacity;
 	size_t required_size = current_size + size_to_add;
 
-	while (capacity < required_size)
-		capacity *= 2;
+	if ( ! capacity ) capacity = STRINGBUFFER_STARTSIZE;
+	else while (capacity < required_size) capacity *= 2;
 
 	if ( capacity > s->capacity )
 	{
@@ -140,6 +141,19 @@ const char*
 stringbuffer_getstring(stringbuffer_t *s)
 {
 	return s->str_start;
+}
+
+/**
+* Transfer ownership of the internal string to caller,
+* turning this buffer into an empty one
+*/
+char*
+stringbuffer_release_string(stringbuffer_t *s)
+{
+  char *ret = s->str_start;
+  s->str_start = s->str_end = NULL;
+  s->capacity = 0;
+  return ret;
 }
 
 /**
