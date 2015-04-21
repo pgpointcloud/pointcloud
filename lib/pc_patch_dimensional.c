@@ -58,7 +58,7 @@ pc_patch_dimensional_to_string(const PCPATCH_DIMENSIONAL *pa)
 {
 	PCPATCH_UNCOMPRESSED *patch = pc_patch_uncompressed_from_dimensional(pa);
 	char *str = pc_patch_uncompressed_to_string(patch);
-	pc_patch_uncompressed_free(patch);
+	pc_patch_free((PCPATCH*)patch);
 	return str;
 }
 
