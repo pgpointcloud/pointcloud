@@ -393,7 +393,7 @@ pc_patch_from_patchlist(PCPATCH **palist, int numpatches)
 			size_t sz = pu->schema->size * pu->npoints;
 			memcpy(buf, pu->data, sz);
 			buf += sz;
-			pc_patch_uncompressed_free(pu);
+			pc_patch_free((PCPATCH*)pu);
 			break;
 		}
 		case PC_GHT:
