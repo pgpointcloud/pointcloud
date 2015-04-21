@@ -1,3 +1,5 @@
+set client_min_messages to ERROR;
+
 CREATE EXTENSION pointcloud;
 
 SELECT PC_Version();
