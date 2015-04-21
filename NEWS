@@ -7,6 +7,7 @@
  - PC_Summary(pcpatch)
 - Enhancements
  - Support sigbits encoding for 64bit integers (#61)
+ - Warn about truncated values (#68)
 
 1.0.0
 -----
