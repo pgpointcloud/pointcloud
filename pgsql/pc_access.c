@@ -710,8 +710,10 @@ Datum pcpatch_summary(PG_FUNCTION_ARGS)
     PCBYTES bytes;
     double val;
     appendStringInfo(&strdata,
-                       "%s{\"pos\":%d,\"name\":\"%s\",\"size\":%d",
-                       comma, dim->position, dim->name, dim->size);
+                       "%s{\"pos\":%d,\"name\":\"%s\",\"size\":%d"
+                       ",\"type\":\"%s\"",
+                       comma, dim->position, dim->name, dim->size,
+                       pc_interpretation_string(dim->interpretation));
 
     /* Print per-dimension compression (if dimensional) */
     if ( serpa->compression == PC_DIMENSIONAL )

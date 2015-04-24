@@ -124,6 +124,9 @@ int pc_double_to_ptr(uint8_t *ptr, uint32_t interpretation, double val);
 /** Return number of bytes in a given interpretation */
 size_t pc_interpretation_size(uint32_t interp);
 
+/** Convert XML string token to type interpretation number */
+const char * pc_interpretation_string(uint32_t interp);
+
 /** Copy a string within the global memory management context */
 char* pcstrdup(const char *str);
 

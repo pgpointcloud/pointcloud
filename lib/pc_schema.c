@@ -39,7 +39,7 @@ static size_t INTERPRETATION_SIZES[NUM_INTERPRETATIONS] =
 
 
 /** Convert XML string token to type interpretation number */
-static const char *
+const char *
 pc_interpretation_string(uint32_t interp)
 {
 	if ( interp < NUM_INTERPRETATIONS )
