@@ -5,7 +5,34 @@
 
 use strict;
 
-@ARGV || die "Usage: $0 <tabname>[:<colname>] ...\n";
+sub usage {
+  my $s = <<"EOF";
+Usage: $0 [<options>] <tabname>[:<colname>] ...
+Options:
+  --query <query>  A query to run. Can be specified multiple times.
+                   The `:c' string will be replaced with the column name.
+                   A default set of queries are run if none are provided.
+EOF
+  return $s;
+}
+
+my @QUERIES = ();
+
+# Parse commandline arguments
+for (my $i=0; $i<@ARGV; ++$i) {
+  if ( $ARGV[$i] =~ /^--/ ) {
+    my $switch = splice @ARGV, $i, 1;
+    if ( $switch eq '--query' ) {
+      my $query = splice @ARGV, $i, 1;
+      --$i; # rewind as argv shrinked
+      push @QUERIES, $query;
+    } else {
+      die "Unrecognized option $switch\n";
+    }
+  }
+}
+
+@ARGV || die usage;
 
 my $PSQL = "psql";
 my $PSQL_OPTS = '-tXA';
@@ -58,6 +85,7 @@ sub reportTimes {
   my $iterations = shift;
 
   my @time = checkTimes($sql, $iterations);
+
   my $s = $label . ': ';
   if ( $iterations > 1 ) {
     $s .= join(' / ', @time);
@@ -65,6 +93,20 @@ sub reportTimes {
     $s .= $time[0];
   }
   return $s;
+}
+
+# Default queries
+if ( ! @QUERIES ) {
+  push @QUERIES, (
+    # Header scan
+    'PC_Envelope(:c)',
+    # Decompression
+    'PC_Uncompress(:c)'
+    # Full points scan
+    ,'PC_Explode(:c)'
+    # Conversion to JSON (needed?)
+    ,'PC_AsText(:c)'
+   );
 }
 
 foreach $a (@ARGV) {
@@ -175,20 +217,20 @@ EOF
     print "(ms):\n";
   }
 
-  for my $func ( (
-    # Header scan
-    'PC_Envelope',
-    # Decompression
-    'PC_Uncompress',
-    # Full points scan
-    'PC_Explode',
-    # Conversion to JSON (needed?)
-    'PC_AsText'
-    ) )
+  for my $query ( @QUERIES )
   {
-    my $sql = "SELECT ${func}(\"${col}\") FROM \"${tn}\"";
-    #print "SQL: $sql";
-    print '  ' . reportTimes(${func}, $sql, $iterations) . "\n";
+    my $sql = $query;
+    $sql =~ s/:c/"${col}"/g;
+    if ( $sql =~ /\s*SELECT/i ) {
+      $sql =~ s/:t/"${tn}"/g;
+    } else {
+      $sql = "SELECT ${sql} FROM \"${tn}\"";
+      # TODO: add where clause if requested
+    }
+    my $lbl = $sql;
+    $lbl =~ s/.*SELECT *([a-zA-Z_]*).*/\1/i;
+    #print "LBL: $lbl --- SQL: $sql";
+    print '  ' . reportTimes($lbl, $sql, $iterations) . "\n";
   }
 }
 
