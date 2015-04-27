@@ -111,7 +111,7 @@ if ( ! @QUERIES ) {
 
 foreach $a (@ARGV) {
   my $tn="${a}";
-  my $col="p";
+  my $col="pa";
   if ( $tn =~ /(.*):(.*)/ ) {
     $col = $2;
     $tn = $1;
