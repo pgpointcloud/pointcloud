@@ -12,11 +12,14 @@ Options:
   --query <query>  A query to run. Can be specified multiple times.
                    The `:c' string will be replaced with the column name.
                    A default set of queries are run if none are provided.
+  --iterate <n>    Number of times to run each query, defaults to 1.
 EOF
   return $s;
 }
 
 my @QUERIES = ();
+my $iterations = 1; # this one might be unneeded
+
 
 # Parse commandline arguments
 for (my $i=0; $i<@ARGV; ++$i) {
@@ -26,6 +29,9 @@ for (my $i=0; $i<@ARGV; ++$i) {
       my $query = splice @ARGV, $i, 1;
       --$i; # rewind as argv shrinked
       push @QUERIES, $query;
+    } elsif ( $switch eq '--iterate' ) {
+      $iterations = splice @ARGV, $i, 1;
+      --$i; # rewind as argv shrinked
     } else {
       die "Unrecognized option $switch\n";
     }
@@ -207,8 +213,6 @@ EOF
 
 
   # Speed tests here
-
-  my $iterations = 3; # this one might be unneeded
 
   print " Timings ";
   if ( $iterations > 1 ) {
