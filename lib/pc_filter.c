@@ -151,11 +151,19 @@ pc_patch_dimensional_filter(const PCPATCH_DIMENSIONAL *pdl, const PCBITMAP *map)
 
 	for ( i = 0; i < pdl->schema->ndims; i++ )
 	{
+		PCDIMENSION *dim;
         PCDOUBLESTAT stats;
         stats.min = FLT_MAX;
         stats.max = -1*FLT_MAX;
         stats.sum = 0;
 		fpdl->bytes[i] = pc_bytes_filter(&(pdl->bytes[i]), map, &stats);
+
+
+		/* Apply scale and offset */
+		dim = pdl->schema->dims[i];
+		stats.min = pc_value_scale_offset(stats.min, dim);
+		stats.max = pc_value_scale_offset(stats.max, dim);
+		stats.sum = pc_value_scale_offset(stats.sum, dim);
 
 		/* Save the X/Y stats for use in bounds later */
 		if ( i == pdl->schema->x_position )

@@ -5,7 +5,7 @@ CREATE EXTENSION pointcloud;
 SELECT PC_Version();
 
 INSERT INTO pointcloud_formats (pcid, srid, schema)
-VALUES (1, 0, 
+VALUES (1, 0, -- XYZI, scaled, uncompressed
 '<?xml version="1.0" encoding="UTF-8"?>
 <pc:PointCloudSchema xmlns:pc="http://pointcloud.org/schemas/PC/1.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <pc:dimension>
@@ -52,7 +52,7 @@ VALUES (1, 0,
   </pc:metadata>
 </pc:PointCloudSchema>'
 ),
-(3, 0, 
+(3, 0, -- XYZI, scaled, dimensionally compressed
 '<?xml version="1.0" encoding="UTF-8"?>
 <pc:PointCloudSchema xmlns:pc="http://pointcloud.org/schemas/PC/1.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <pc:dimension>
@@ -328,6 +328,18 @@ SELECT '#79' issue,
 FROM ( SELECT
   PC_FilterEquals(
     PC_Patch( PC_MakePoint(20,ARRAY[-1,0,1]) ),
+    'y',0) p
+) foo;
+
+-- https://github.com/pgpointcloud/pointcloud/issues/78
+SELECT '#78' issue,
+  PC_PatchMin(p,'x') x_min, PC_PatchMax(p,'x') x_max,
+  PC_PatchMin(p,'y') y_min, PC_PatchMax(p,'y') y_max,
+  PC_PatchMin(p,'z') z_min, PC_PatchMax(p,'z') z_max,
+  PC_PatchMin(p,'intensity') i_min, PC_PatchMax(p,'intensity') i_max
+FROM ( SELECT
+  PC_FilterEquals(
+    PC_Patch( PC_MakePoint(3,ARRAY[-1,0,4862413,1]) ),
     'y',0) p
 ) foo;
 
