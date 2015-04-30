@@ -153,7 +153,7 @@ pc_patch_dimensional_filter(const PCPATCH_DIMENSIONAL *pdl, const PCBITMAP *map)
 	{
         PCDOUBLESTAT stats;
         stats.min = FLT_MAX;
-        stats.max = FLT_MIN;
+        stats.max = -1*FLT_MAX;
         stats.sum = 0;
 		fpdl->bytes[i] = pc_bytes_filter(&(pdl->bytes[i]), map, &stats);
 

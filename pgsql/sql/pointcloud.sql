@@ -49,10 +49,8 @@ VALUES (1, 0,
     <Metadata name="spatialreference" type="id">4326</Metadata>
   </pc:metadata>
 </pc:PointCloudSchema>'
-);
-
-INSERT INTO pointcloud_formats (pcid, srid, schema)
-VALUES (3, 0, 
+),
+(3, 0,
 '<?xml version="1.0" encoding="UTF-8"?>
 <pc:PointCloudSchema xmlns:pc="http://pointcloud.org/schemas/PC/1.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <pc:dimension>
@@ -92,8 +90,33 @@ VALUES (3, 0,
     <Metadata name="spatialreference" type="id">4326</Metadata>
   </pc:metadata>
 </pc:PointCloudSchema>'
+),
+(20, 0, -- XYZ, unscaled, dimensionally compressed
+'<?xml version="1.0" encoding="UTF-8"?>
+<pc:PointCloudSchema xmlns:pc="http://pointcloud.org/schemas/PC/1.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <pc:dimension>
+    <pc:position>1</pc:position>
+    <pc:size>4</pc:size>
+    <pc:name>X</pc:name>
+    <pc:interpretation>int32_t</pc:interpretation>
+  </pc:dimension>
+  <pc:dimension>
+    <pc:position>2</pc:position>
+    <pc:size>4</pc:size>
+    <pc:name>Y</pc:name>
+    <pc:interpretation>int32_t</pc:interpretation>
+  </pc:dimension>
+  <pc:dimension>
+    <pc:position>3</pc:position>
+    <pc:size>4</pc:size>
+    <pc:name>Z</pc:name>
+    <pc:interpretation>int32_t</pc:interpretation>
+  </pc:dimension>
+  <pc:metadata>
+    <Metadata name="compression">dimensional</Metadata>
+  </pc:metadata>
+</pc:PointCloudSchema>'
 );
-
 
 CREATE TABLE IF NOT EXISTS pt_test (
     pt PCPOINT(1)
@@ -178,3 +201,16 @@ DROP TABLE pa_test_dim;
 
 -- See https://github.com/pgpointcloud/pointcloud/issues/44
 SELECT PC_AsText(PC_Patch(ARRAY[PC_MakePoint(3, ARRAY[-127, 45, 124.0, 4.0])]::pcpoint[]));
+
+-- https://github.com/pgpointcloud/pointcloud/issues/79
+SELECT '#79' issue,
+  PC_PatchMin(p,'x') x_min, PC_PatchMax(p,'x') x_max,
+  PC_PatchMin(p,'y') y_min, PC_PatchMax(p,'y') y_max,
+  PC_PatchMin(p,'z') z_min, PC_PatchMax(p,'z') z_max
+FROM ( SELECT
+  PC_FilterEquals(
+    PC_Patch( PC_MakePoint(20,ARRAY[-1,0,1]) ),
+    'y',0) p
+) foo;
+
+TRUNCATE pointcloud_formats;
