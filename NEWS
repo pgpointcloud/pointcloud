@@ -3,6 +3,7 @@
 
 - Bug fixes
   - #79, Fix PC_Filter stats computation with dimensionally-compressed patches
+  - #78, Fix PC_Filter stats computation with scaled dimensions
   - #71, Fix crash in pc_schema_from_xml
   - #66, Fix crash in pc_schema_clone (unexploitable via SQL)
   - #37, Fix access to uninitialized variables

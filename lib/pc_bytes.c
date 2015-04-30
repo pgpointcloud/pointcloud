@@ -1305,6 +1305,7 @@ pc_bytes_minmax(const PCBYTES *pcb, double *min, double *max, double *avg)
 	return PC_FAILURE;
 }
 
+/* NOTE: stats are gathered without applying scale and offset */
 static PCBYTES
 pc_bytes_uncompressed_filter(const PCBYTES *pcb, const PCBITMAP *map, PCDOUBLESTAT *stats)
 {
@@ -1342,6 +1343,7 @@ pc_bytes_uncompressed_filter(const PCBYTES *pcb, const PCBITMAP *map, PCDOUBLEST
 	return fpcb;
 }
 
+/* NOTE: stats are gathered without applying scale and offset */
 static PCBYTES
 pc_bytes_run_length_filter(const PCBYTES *pcb, const PCBITMAP *map, PCDOUBLESTAT *stats)
 {
@@ -1405,6 +1407,7 @@ pc_bytes_run_length_filter(const PCBYTES *pcb, const PCBITMAP *map, PCDOUBLESTAT
 	return fpcb;
 }
 
+/* NOTE: stats are gathered without applying scale and offset */
 PCBYTES
 pc_bytes_filter(const PCBYTES *pcb, const PCBITMAP *map, PCDOUBLESTAT *stats)
 {
