@@ -125,6 +125,21 @@ foreach $a (@ARGV) {
   print "\n[$tn:$col]\n";
 
   my $info = query(<<"EOF"
+select pg_size_pretty(pg_relation_size('${tn}')), -- main
+       -- toasts
+       pg_size_pretty(pg_table_size('${tn}')-pg_relation_size('${tn}')),
+       -- indexes
+       pg_size_pretty(pg_total_relation_size('${tn}')-pg_table_size('${tn}')),
+       -- total
+       pg_size_pretty(pg_total_relation_size('${tn}'))
+EOF
+  );
+  my @info = split '\|', $info;
+
+  print ' Relation size: ' . $info[0] . ' + ' . $info[1]
+      . ' + ' . $info[2] . ' = ' . $info[3] . " (M+T+I)\n";
+
+  $info = query(<<"EOF"
 SELECT CASE WHEN attstorage = 'm' THEN 'main'
             WHEN attstorage = 'e' THEN 'external'
             WHEN attstorage = 'p' THEN 'plain'
@@ -193,7 +208,7 @@ from \"${tn}\"
 EOF
   );
 
-  my @info = split '\|', $info;
+  @info = split '\|', $info;
   #print ' Info: ' . join(',', @info) . "\n";
   print ' Total patch column size: ' . $info[7] . "\n";
   print ' Patches: ' . $info[0] . "\n";
