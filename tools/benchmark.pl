@@ -106,9 +106,15 @@ sub checkTimes {
 
   if ( $iosum ) {
     my $ioavg = $iosum / $iterations;
-    $min = $iomin . ' + ' . ($min-$iomin) . ' = ' . $min;
-    $max = $iomax . ' + ' . ($max-$iomax) . ' = ' . $max;
-    $avg = $ioavg . ' + ' . ($avg-$ioavg) . ' = ' . $avg;
+    my $p = ($iomin/$min)*100;
+    $min = sprintf("%.2f + %.2f = %.2f (%d%% IO, %d%% CPU)",
+      $iomin, ($min-$iomin), $min, $p, (100-$p));
+    $p = ($iomax/$max)*100;
+    $max = sprintf("%.2f + %.2f = %.2f (%d%% IO, %d%% CPU)",
+      $iomax, ($max-$iomax), $max, $p, (100-$p));
+    $p = ($ioavg/$avg)*100;
+    $avg = sprintf("%.2f + %.2f = %.2f (%d%% IO, %d%% CPU)",
+      $ioavg, ($avg-$ioavg), $avg, $p, (100-$p));
   }
 
   return ($min,$max,$avg);
@@ -125,7 +131,11 @@ sub reportTimes {
 
   my $s = $label . ': ';
   if ( $iterations > 1 ) {
-    $s .= join(' / ', @time);
+    my $pad = $s; $pad =~ s/./ /g;
+    #$s .= join("\n${pad}", @time);
+    $s .= $time[0] . " -- min\n";
+    $s .= $pad   . $time[1] . " -- max\n";
+    $s .= $pad   . $time[2] . " -- avg\n";
   } else {
     $s .= $time[0];
   }
@@ -274,7 +284,7 @@ EOF
 
   print " Timings ";
   if ( $iterations > 1 ) {
-      print "(min/max/avg ms over ${iterations} iterations):\n";
+      print "(ms over ${iterations} iterations):\n";
   } else {
     print "(ms):\n";
   }
@@ -291,8 +301,9 @@ EOF
     }
     my $lbl = $sql;
     $lbl =~ s/.*SELECT *([a-zA-Z_]*).*/\1/i;
+    $lbl = '  '.$lbl;
     #print "LBL: $lbl --- SQL: $sql";
-    print '  ' . reportTimes($lbl, $sql, $iterations) . "\n";
+    print reportTimes($lbl, $sql, $iterations) . "\n";
   }
 }
 
