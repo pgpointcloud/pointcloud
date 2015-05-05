@@ -247,15 +247,20 @@ EOF
   }
   print " Dims: " . join(',',@dims_interp) . "\n";
 
-  # TODO: this query is too expensive, add a switch to skip it ?
   $info = query(<<"EOF"
 select count(*), -- 0
-min(pc_numpoints(\"${col}\")), -- 1
-max(pc_numpoints(\"${col}\")), -- 2
+1, --min(pc_numpoints(\"${col}\")), -- 1
+2, --max(pc_numpoints(\"${col}\")), -- 2
 avg(pc_numpoints(\"${col}\")), -- 3
-sum(pc_numpoints(\"${col}\")), -- 4
+4, --sum(pc_numpoints(\"${col}\")), -- 4
 avg(pc_memsize(\"${col}\")), -- 5
-array_to_string(array_agg(distinct pc_summary(\"${col}\")::json->>'compr'), ','),
+array_to_string(array_agg(distinct
+  CASE WHEN PC_Compression(\"${col}\") = 0 THEN 'NONE'
+       WHEN PC_Compression(\"${col}\") = 1 THEN 'GHT'
+       WHEN PC_Compression(\"${col}\") = 2 THEN 'DIMENSIONAL'
+       ELSE                                     'UNKNOWN'
+  END
+), ','),
 pg_size_pretty(sum(pg_column_size(\"${col}\")))  -- 7
 from \"${tn}\"
 EOF
