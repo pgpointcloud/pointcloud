@@ -2,6 +2,18 @@
 
 # Example usage:
 # PGDATABASE=db1 ./benchmark.pl raw20h64_1000_p3_uncompressed_main
+#
+# NOTE: OS caches behave in a weird way so your timings might be
+#       confusing due to some data being loaded in there in an
+#       arbitrary way. It is recommended to invoke this script
+#       once for each table and flush system caches in between.
+#       There is no standard way to clean caches;
+#       on linux (tested on 3.13), flushing it is done
+#       by first calling sync(1) and then writing the number 3
+#       into /proc/sys/vm/drop_caches, see
+#       https://www.kernel.org/doc/Documentation/sysctl/vm.txt
+#       sudo sync && sudo sh -c 'echo 3 >/proc/sys/vm/drop_caches'
+#
 
 use strict;
 
@@ -61,25 +73,44 @@ sub checkTimes {
   my $min = 1e100; # TODO: use highest number
   my $max = 0;
   my $sum = 0;
+  my $iomin = $min;
+  my $iomax = $max;
+  my $iosum = 0;
   my $i;
 
-  $sql = "explain analyze $sql";
+  $sql = "explain (analyze,buffers) $sql";
   for (my $i=0; $i<$iterations; $i++)
   {
     my $out = query($sql);
     #print $out;
+
+    # Parse "Total runtime"
     $out =~ /Total runtime: ([0-9\.]*) ms/m
       || die "Could not extract runtime info, output is:\n$out\n";
     my $time = 0+$1;
     $min = $time if $time < $min;
     $max = $time if $time > $max;
     $sum += $time;
-    #print " runtime in ms: $time, min:$min, max:$max\n";
-    # TODO: parse "Total Runtime"
-    # Example:
-    # Total runtime: 2.432 ms
+
+    # parse "I/O Timings"
+    if ( $out =~ /I\/O Timings: read=([0-9\.]*)/m )
+    {
+      $time = 0+$1;
+      $iomin = $time if $time < $iomin;
+      $iomax = $time if $time > $iomax;
+      $iosum += $time;
+    }
+
   }
   my $avg = $sum / $iterations;
+
+  if ( $iosum ) {
+    my $ioavg = $iosum / $iterations;
+    $min = $iomin . ' + ' . ($min-$iomin) . ' = ' . $min;
+    $max = $iomax . ' + ' . ($max-$iomax) . ' = ' . $max;
+    $avg = $ioavg . ' + ' . ($avg-$ioavg) . ' = ' . $avg;
+  }
+
   return ($min,$max,$avg);
 }
 
@@ -104,15 +135,26 @@ sub reportTimes {
 # Default queries
 if ( ! @QUERIES ) {
   push @QUERIES, (
-    # Header scan
+    # Inline scan (never need to get to offline storage)
+    'count(:c)',
+    # Header scan (sliced read, if not pgsql-compressed)
     'PC_Envelope(:c)',
-    # Decompression
+    # Decompression (full read)
     'PC_Uncompress(:c)'
-    # Full points scan
+    # Full points scan (needed?)
     ,'PC_Explode(:c)'
     # Conversion to JSON (needed?)
     ,'PC_AsText(:c)'
    );
+}
+
+# General checks
+my $info = query("select version()");
+print "$info\n";
+$info = query("show track_io_timing");
+if ( $info ne 'on' ) {
+  print STDERR "WARNING: it is recommended to set track_io_timing to on\n"
+  # TODO: try to enable it (would need using a single session for all queries)
 }
 
 foreach $a (@ARGV) {
@@ -124,7 +166,7 @@ foreach $a (@ARGV) {
   }
   print "\n[$tn:$col]\n";
 
-  my $info = query(<<"EOF"
+  $info = query(<<"EOF"
 select pg_size_pretty(pg_relation_size('${tn}')), -- main
        -- toasts
        pg_size_pretty(pg_table_size('${tn}')-pg_relation_size('${tn}')),
@@ -195,6 +237,7 @@ EOF
   }
   print " Dims: " . join(',',@dims_interp) . "\n";
 
+  # TODO: this query is too expensive, add a switch to skip it ?
   $info = query(<<"EOF"
 select count(*), -- 0
 min(pc_numpoints(\"${col}\")), -- 1
