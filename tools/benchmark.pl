@@ -149,12 +149,12 @@ if ( ! @QUERIES ) {
     'count(:c)',
     # Header scan (sliced read, if not pgsql-compressed)
     'PC_Envelope(:c)',
-    # Decompression (full read)
+    # Decompression (full read, if pointcloud-compressed)
     'PC_Uncompress(:c)'
-    # Full points scan (needed?)
+    # Full points scan (involves uncompression)
     ,'PC_Explode(:c)'
     # Conversion to JSON (needed?)
-    ,'PC_AsText(:c)'
+    #,'PC_AsText(:c)'
    );
 }
 
