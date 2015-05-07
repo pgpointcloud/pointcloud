@@ -135,7 +135,7 @@ sub reportTimes {
     #$s .= join("\n${pad}", @time);
     $s .= $time[0] . " -- min\n";
     $s .= $pad   . $time[1] . " -- max\n";
-    $s .= $pad   . $time[2] . " -- avg\n";
+    $s .= $pad   . $time[2] . " -- avg";
   } else {
     $s .= $time[0];
   }
