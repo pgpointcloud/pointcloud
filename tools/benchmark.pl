@@ -161,6 +161,8 @@ if ( ! @QUERIES ) {
 # General checks
 my $info = query("select version()");
 print "$info\n";
+$info = query("show block_size");
+print "Block size: $info\n";
 $info = query("show track_io_timing");
 if ( $info ne 'on' ) {
   print STDERR "WARNING: it is recommended to set track_io_timing to on\n"
