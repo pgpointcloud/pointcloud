@@ -721,7 +721,6 @@ The PDAL [writers.pgpointcloud](http://www.pdal.io/stages/writers.pgpointcloud.h
 - **column**: The column name to use in the patch table. [Optional: "pa"]
 - **compression**: The patch compression format to use [Optional: "dimensional"]
 - **overwrite**: Replace any existing table [Optional: true]
-- **capacity**: How many points to store in each patch [Optional: 400]
 - **srid**: The spatial reference id to store data in [Optional: 4326]
 - **pcid**: An existing PCID to use for the point cloud schema [Optional]
 - **pre_sql**: Before the pipeline runs, read and execute this SQL file or command [Optional]
