@@ -254,7 +254,7 @@ select count(*), -- 0
 1, --min(pc_numpoints(\"${col}\")), -- 1
 2, --max(pc_numpoints(\"${col}\")), -- 2
 avg(pc_numpoints(\"${col}\")), -- 3
-4, --sum(pc_numpoints(\"${col}\")), -- 4
+avg(pc_memsize(\"${col}\"))/avg(pc_numpoints(\"${col}\")), -- 4
 avg(pc_memsize(\"${col}\")), -- 5
 array_to_string(array_agg(distinct
   CASE WHEN PC_Compression(\"${col}\") = 0 THEN 'NONE'
@@ -274,7 +274,8 @@ EOF
   print ' Patches: ' . $info[0] . "\n";
   printf "  Compression: %s\n", $info[6];
   printf "  Average patch size (bytes): %d\n", $info[5];
-  printf "  Average patch points: %d\n", $info[3];
+  printf "  Average points per patch: %d\n", $info[3];
+  printf "  Average bytes per point: %d\n", $info[4];
 #  print ' Points: ' . $info[4] . ' ('
 #       . join('/', @info[1 .. 3])
 #       . ' min/max/avg per patch'
