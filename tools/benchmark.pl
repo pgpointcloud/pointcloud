@@ -275,7 +275,7 @@ EOF
   printf "  Compression: %s\n", $info[6];
   printf "  Average patch size (bytes): %d\n", $info[5];
   printf "  Average points per patch: %d\n", $info[3];
-  printf "  Average bytes per point: %d\n", $info[4];
+  printf "  Average bytes per point: %.2f\n", $info[4];
 #  print ' Points: ' . $info[4] . ' ('
 #       . join('/', @info[1 .. 3])
 #       . ' min/max/avg per patch'
