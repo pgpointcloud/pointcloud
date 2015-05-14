@@ -25,6 +25,7 @@ Options:
                    The `:c' string will be replaced with the column name.
                    A default set of queries are run if none are provided.
   --iterate <n>    Number of times to run each query, defaults to 1.
+                   Use 0 to skip running queries (still prints dataset info).
 EOF
   return $s;
 }
@@ -285,8 +286,7 @@ EOF
   #$info = query("select pg_size_pretty(pg_total_relation_size('${tn}'));\n");
   #print ' Total relation size: ' . $info . "\n";
 
-  #next; # TODO: allow early exit here, before running speed tests
-
+  next if ! $iterations;
 
   # Speed tests here
 
