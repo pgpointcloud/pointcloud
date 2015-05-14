@@ -252,7 +252,7 @@ EOF
   $info = query(<<"EOF"
 select count(*), -- 0
 1, --min(pc_numpoints(\"${col}\")), -- 1
-2, --max(pc_numpoints(\"${col}\")), -- 2
+sum(pc_numpoints(\"${col}\")), -- 2
 avg(pc_numpoints(\"${col}\")), -- 3
 avg(pc_memsize(\"${col}\"))/avg(pc_numpoints(\"${col}\")), -- 4
 avg(pc_memsize(\"${col}\")), -- 5
@@ -271,7 +271,7 @@ EOF
   @info = split '\|', $info;
   #print ' Info: ' . join(',', @info) . "\n";
   print ' Total patch column size: ' . $info[7] . "\n";
-  print ' Patches: ' . $info[0] . "\n";
+  print ' Patches: ' . $info[0] . ", points: " . $info[2] . "\n";
   printf "  Compression: %s\n", $info[6];
   printf "  Average patch size (bytes): %d\n", $info[5];
   printf "  Average points per patch: %d\n", $info[3];
