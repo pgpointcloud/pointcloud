@@ -267,6 +267,12 @@ SELECT Max(PC_PatchMax(pa,'x')) FROM pa_test_dim;
 SELECT Min(PC_PatchMin(pa,'x')) FROM pa_test_dim;
 SELECT Min(PC_PatchMin(pa,'z')) FROM pa_test_dim;
 
+-- https://github.com/pgpointcloud/pointcloud/issues/77
+SELECT PC_Get(PC_PatchMax(pa)) FROM pa_test_dim order by 1 limit 1;
+SELECT PC_Get(PC_PatchMin(pa)) FROM pa_test_dim order by 1 limit 1;
+SELECT PC_Get(PC_PatchAvg(pa)) FROM pa_test_dim order by 1 limit 1;
+
+
 SELECT PC_Summary(pa) summary FROM pa_test_dim order by 1 limit 1;
 
 

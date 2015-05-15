@@ -176,17 +176,44 @@ CREATE OR REPLACE FUNCTION PC_PCId(p pcpoint)
     RETURNS int4 AS 'MODULE_PATHNAME', 'pcpoint_pcid'
     LANGUAGE 'c' IMMUTABLE STRICT;
 
-CREATE OR REPLACE FUNCTION PC_PatchMax(p pcpatch, attr text, stat text default 'max')
+-- Availability: 1.1.0
+-- @param statno 0:min 1:max 2:avg
+CREATE OR REPLACE FUNCTION _PC_PatchStat(p pcpatch, statno int)
+	RETURNS pcpoint AS 'MODULE_PATHNAME', 'pcpatch_get_stat'
+    LANGUAGE 'c' IMMUTABLE STRICT;
+
+-- Availability: 1.1.0
+CREATE OR REPLACE FUNCTION PC_PatchMin(p pcpatch)
+	RETURNS pcpoint AS $$ SELECT _PC_PatchStat(p, 0) $$
+    LANGUAGE 'sql' IMMUTABLE STRICT;
+
+-- Availability: 1.1.0
+CREATE OR REPLACE FUNCTION PC_PatchMax(p pcpatch)
+	RETURNS pcpoint AS $$ SELECT _PC_PatchStat(p, 1) $$
+    LANGUAGE 'sql' IMMUTABLE STRICT;
+
+-- Availability: 1.1.0
+CREATE OR REPLACE FUNCTION PC_PatchAvg(p pcpatch)
+	RETURNS pcpoint AS $$ SELECT _PC_PatchStat(p, 2) $$
+    LANGUAGE 'sql' IMMUTABLE STRICT;
+
+-- Availability: 1.1.0
+-- @param statno 0:min 1:max 2:avg
+CREATE OR REPLACE FUNCTION _PC_PatchStat(p pcpatch, statno int, attr text)
 	RETURNS numeric AS 'MODULE_PATHNAME', 'pcpatch_get_stat'
     LANGUAGE 'c' IMMUTABLE STRICT;
 
 CREATE OR REPLACE FUNCTION PC_PatchMin(p pcpatch, attr text, stat text default 'min')
-	RETURNS numeric AS 'MODULE_PATHNAME', 'pcpatch_get_stat'
-    LANGUAGE 'c' IMMUTABLE STRICT;
+	RETURNS numeric AS $$ SELECT _PC_PatchStat(p, 0, attr) $$
+    LANGUAGE 'sql' IMMUTABLE STRICT;
+
+CREATE OR REPLACE FUNCTION PC_PatchMax(p pcpatch, attr text, stat text default 'max')
+	RETURNS numeric AS $$ SELECT _PC_PatchStat(p, 1, attr) $$
+    LANGUAGE 'sql' IMMUTABLE STRICT;
 
 CREATE OR REPLACE FUNCTION PC_PatchAvg(p pcpatch, attr text, stat text default 'avg')
-	RETURNS numeric AS 'MODULE_PATHNAME', 'pcpatch_get_stat'
-    LANGUAGE 'c' IMMUTABLE STRICT;
+	RETURNS numeric AS $$ SELECT _PC_PatchStat(p, 2, attr) $$
+    LANGUAGE 'sql' IMMUTABLE STRICT;
 
 CREATE OR REPLACE FUNCTION PC_FilterLessThan(p pcpatch, attr text, v1 float8 default 0.0, v2 float8 default 0.0, mode int4 default 0)
 	RETURNS pcpatch AS 'MODULE_PATHNAME', 'pcpatch_filter'
