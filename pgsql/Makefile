@@ -18,7 +18,9 @@ UPGRADES = \
   $(shell echo $(UPGRADABLE) | \
      $(SED) 's/^/$(EXTENSION)--/' | \
      $(SED) 's/$$/--$(EXTVERSION).sql/' | \
-     $(SED) 's/ /--$(EXTVERSION).sql $(EXTENSION)--/g')
+     $(SED) 's/ /--$(EXTVERSION).sql $(EXTENSION)--/g') \
+  $(EXTENSION)--$(EXTVERSION)--$(EXTVERSION)next.sql \
+  $(EXTENSION)--$(EXTVERSION)next--$(EXTVERSION).sql
 
 DATA_built = \
   $(EXTENSION).control \
@@ -48,3 +50,6 @@ $(EXTENSION)--$(EXTVERSION).sql: $(EXTENSION).sql.in Makefile
 # NOTE: relies on PERL being defined by PGXS
 $(EXTENSION)--%--$(EXTVERSION).sql: $(EXTENSION)--$(EXTVERSION).sql ../util/proc_upgrade.pl
 	cat $< | ../util/proc_upgrade.pl > $@
+
+$(EXTENSION)--%--$(EXTVERSION)next.sql: $(EXTENSION)--$(EXTVERSION)next--$(EXTVERSION).sql
+	ln $< $@
