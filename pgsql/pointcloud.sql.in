@@ -51,6 +51,48 @@ CREATE OR REPLACE FUNCTION pc_version()
     RETURNS text AS 'MODULE_PATHNAME', 'pc_version'
     LANGUAGE 'c' IMMUTABLE STRICT;
 
+-- Upgrade pointcloud extension to latest (or specified) version.
+-- Takes care of in-development upgrades
+CREATE OR REPLACE FUNCTION pc_upgrade(to_version text DEFAULT NULL)
+    RETURNS text AS
+$$
+DECLARE
+  ver RECORD;
+  target_version text;
+BEGIN
+  SELECT default_version, installed_version
+  FROM pg_catalog.pg_available_extensions
+  WHERE name = 'pointcloud'
+  INTO ver;
+
+  IF to_version IS NULL THEN
+    target_version := ver.default_version;
+  ELSE
+    target_version := to_version;
+  END IF;
+
+  IF target_version != ver.installed_version THEN
+    EXECUTE 'ALTER EXTENSION pointcloud UPDATE TO ' ||
+          quote_literal(target_version);
+  ELSE
+    -- Use the "next" trick
+    IF target_version LIKE '%next' THEN
+      target_version := replace(target_version, 'next', '');
+      EXECUTE 'ALTER EXTENSION pointcloud UPDATE TO ' ||
+               quote_literal(target_version);
+    ELSE
+      -- Doubel upgrade, to get back to "next"-free
+      EXECUTE 'ALTER EXTENSION pointcloud UPDATE TO ' ||
+               quote_literal(target_version || 'next');
+      EXECUTE 'ALTER EXTENSION pointcloud UPDATE TO ' ||
+               quote_literal(target_version);
+    END IF;
+  END IF;
+
+  RETURN pc_version();
+END;
+$$ LANGUAGE 'plpgsql' VOLATILE;
+
 -------------------------------------------------------------------
 --  PCPOINT
 -------------------------------------------------------------------
