@@ -819,6 +819,9 @@ Datum pc_version(PG_FUNCTION_ARGS)
 * PC_PatchMax(patch pcpatch, dimname text) returns Numeric
 * PC_PatchMin(patch pcpatch, dimname text) returns Numeric
 * PC_PatchAvg(patch pcpatch, dimname text) returns Numeric
+* PC_PatchMax(patch pcpatch) returns PcPoint
+* PC_PatchMin(patch pcpatch) returns PcPoint
+* PC_PatchAvg(patch pcpatch) returns PcPoint
 */
 PG_FUNCTION_INFO_V1(pcpatch_get_stat);
 Datum pcpatch_get_stat(PG_FUNCTION_ARGS)
@@ -826,11 +829,19 @@ Datum pcpatch_get_stat(PG_FUNCTION_ARGS)
 	static int stats_size_guess = 400;
 	SERIALIZED_PATCH *serpa = PG_GETHEADERX_SERPATCH_P(0, stats_size_guess);
 	PCSCHEMA *schema = pc_schema_from_pcid(serpa->pcid, fcinfo);
-	char *dim_str = text_to_cstring(PG_GETARG_TEXT_P(1));
-	char *stat_str = text_to_cstring(PG_GETARG_TEXT_P(2));
+	int32 statno = PG_GETARG_INT32(1);
+	char *dim_str = 0;
 	PCSTATS *stats;
+	const PCPOINT *pt;
+	SERIALIZED_POINT *serpt = NULL;
 	float8 double_result;
-	int rv = 0;
+	int rv = 1;
+
+
+	if ( PG_NARGS() > 2 ) {
+		/* TODO: only get small slice ? */
+  	dim_str = text_to_cstring(PG_GETARG_TEXT_P(2));
+	}
 
 	if ( stats_size_guess < pc_stats_size(schema) )
 	{
@@ -842,29 +853,39 @@ Datum pcpatch_get_stat(PG_FUNCTION_ARGS)
 	if ( ! stats )
 		PG_RETURN_NULL();
 
-	/* Max */
-	if ( 0 == strcasecmp("max", stat_str) )
-		rv = pc_point_get_double_by_name(&(stats->max), dim_str, &double_result);
 	/* Min */
-	else if ( 0 == strcasecmp("min", stat_str) )
-		rv = pc_point_get_double_by_name(&(stats->min), dim_str, &double_result);
+	if ( 0 == statno )
+		pt = &(stats->min);
+	/* Max */
+	else if ( 1 == statno )
+		pt = &(stats->max);
 	/* Avg */
-	else if ( 0 == strcasecmp("avg", stat_str) )
-		rv = pc_point_get_double_by_name(&(stats->avg), dim_str, &double_result);
+	else if ( 2 == statno )
+		pt = &(stats->avg);
 	/* Unsupported */
 	else
-		elog(ERROR, "stat type \"%s\" is not supported", stat_str);
+		elog(ERROR, "stat number \"%d\" is not supported", statno);
 
-	pfree(stat_str);
-	pc_stats_free(stats);
-
-	if ( ! rv )
-		elog(ERROR, "dimension \"%s\" does not exist in schema", dim_str);
-
-	pfree(dim_str);
-	PG_RETURN_DATUM(DirectFunctionCall1(float8_numeric, Float8GetDatum(double_result)));
+	/* empty dim string means we want the whole point */
+	if ( ! dim_str )
+	{
+		serpt = pc_point_serialize(pt);
+		pc_stats_free(stats);
+		PG_RETURN_POINTER(serpt);
+	}
+	else
+	{
+		rv = pc_point_get_double_by_name(pt, dim_str, &double_result);
+		pc_stats_free(stats);
+		if ( ! rv )
+		{
+			elog(ERROR, "dimension \"%s\" does not exist in schema", dim_str);
+			PG_RETURN_NULL();
+		}
+		pfree(dim_str);
+		PG_RETURN_DATUM(DirectFunctionCall1(float8_numeric, Float8GetDatum(double_result)));
+	}
 }
-
 
 /**
 * PC_FilterLessThan(patch pcpatch, dimname text, value) returns PcPatch

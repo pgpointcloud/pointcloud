@@ -380,6 +380,33 @@ Now that you have created two tables, you'll see entries for them in the `pointc
 >
 >     45.5
 
+**PC_PatchAvg(p pcpatch,)** returns **pcpoint** (from 1.1.0)
+
+> Returns a PcPoint with the *average* values of each dimension in the patch.
+>
+>     SELECT PC_AsText(PC_PatchAvg(pa))
+>     FROM patches WHERE id = 7;
+>
+>     {"pcid":1,"pt":[-126.46,45.54,54.5,5]}
+
+**PC_PatchMax(p pcpatch)** returns **pcpoint** (from 1.1.0)
+
+> Returns a PcPoint with the *maximum* values of each dimension in the patch.
+>
+>     SELECT PC_PatchMax(pa)
+>     FROM patches WHERE id = 7;
+>
+>     {"pcid":1,"pt":[-126.41,45.59,59,5]}
+
+**PC_PatchMin(p pcpatch)** returns **pcpoint** (from 1.1.0)
+
+> Returns a PcPoint with the *minimum* values of each dimension in the patch.
+>
+>     SELECT PC_PatchMin(pa)
+>     FROM patches WHERE id = 7;
+>
+>     {"pcid":1,"pt":[-126.5,45.5,50,5]}
+
 **PC_FilterGreaterThan(p pcpatch, dimname text, float8 value)** returns **pcpatch**
 
 > Returns a patch with only points whose values are greater than the supplied value
