@@ -6,6 +6,7 @@
  - PC_Get(pcpoint) returns float8[]
  - PC_Summary(pcpatch)
  - PC_Patch{Min,Max,Avg}(pcpatch) returns pcpoint (#77)
+ - PC_Upgrade([<target_version>])
 - Enhancements
  - Support sigbits encoding for 64bit integers (#61)
  - Warn about truncated values (#68)
