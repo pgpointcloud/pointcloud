@@ -16,6 +16,8 @@ Datum pcpoint_in(PG_FUNCTION_ARGS);
 Datum pcpoint_out(PG_FUNCTION_ARGS);
 Datum pcpatch_in(PG_FUNCTION_ARGS);
 Datum pcpatch_out(PG_FUNCTION_ARGS);
+Datum pcpatch_send(PG_FUNCTION_ARGS);
+Datum pcpatch_recv(PG_FUNCTION_ARGS);
 
 /* Typmod support */
 Datum pc_typmod_in(PG_FUNCTION_ARGS);
@@ -157,6 +159,68 @@ Datum pcpatch_out(PG_FUNCTION_ARGS)
 	hexwkb = pc_patch_to_hexwkb(patch);
 	pc_patch_free(patch);
 	PG_RETURN_CSTRING(hexwkb);
+}
+
+PG_FUNCTION_INFO_V1(pcpatch_recv);
+Datum pcpatch_recv(PG_FUNCTION_ARGS)
+{
+	StringInfo  buf = (StringInfo) PG_GETARG_POINTER(0);
+	size_t     wkblen;
+	uint32 pcid = 0;
+	PCPATCH *patch;
+	SERIALIZED_PATCH *serpatch = NULL;
+
+	PCSCHEMA *schema;
+
+	wkblen = buf->len - buf->cursor;
+	uint8 *wkb = &buf->data[buf->cursor];
+  
+	buf->cursor += buf->len;
+
+	pcid = wkb_get_pcid(wkb);
+	if ( ! pcid )
+		elog(ERROR, "%s: pcid is zero", __func__);
+
+	schema = pc_schema_from_pcid(pcid, fcinfo);
+	if ( ! schema )
+		elog(ERROR, "%s: unable to look up schema entry", __func__);
+
+	patch = pc_patch_from_wkb(schema, wkb, wkblen);
+	
+	pcid_consistent(patch->schema->pcid, pcid);
+	serpatch = pc_patch_serialize(patch, NULL);
+	pc_patch_free(patch);
+
+	if ( serpatch ) PG_RETURN_POINTER(serpatch);
+	else PG_RETURN_NULL();
+}
+
+PG_FUNCTION_INFO_V1(pcpatch_send);
+Datum pcpatch_send(PG_FUNCTION_ARGS)
+{
+	PCPATCH *patch = NULL;
+	SERIALIZED_PATCH *serpatch = NULL;
+	PCSCHEMA *schema = NULL;
+	size_t wkb_size;
+	uint8 *wkb;
+	
+	bytea *result = NULL;
+	int result_size = 0;
+
+	serpatch = PG_GETARG_SERPATCH_P(0);
+	schema = pc_schema_from_pcid(serpatch->pcid, fcinfo);
+	patch = pc_patch_deserialize(serpatch, schema);
+	wkb = pc_patch_to_wkb(patch, &wkb_size);
+	pc_patch_free(patch);
+	
+	result_size = wkb_size + VARHDRSZ;
+	result = (bytea *)palloc(result_size);
+	SET_VARSIZE(result, result_size);
+	memcpy(VARDATA(result), wkb, VARSIZE(result) - VARHDRSZ);
+
+	pfree(wkb);
+	
+	PG_RETURN_BYTEA_P(result);
 }
 
 PG_FUNCTION_INFO_V1(pcschema_is_valid);
