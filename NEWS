@@ -10,6 +10,7 @@
 - Enhancements
  - Support sigbits encoding for 64bit integers (#61)
  - Warn about truncated values (#68)
+ - Compatibility with PostgreSQL 9.5 (#90)
 
 1.0.0
 -----
