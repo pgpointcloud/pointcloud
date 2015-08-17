@@ -7,9 +7,11 @@
  - PC_Summary(pcpatch)
  - PC_Patch{Min,Max,Avg}(pcpatch) returns pcpoint (#77)
  - PC_Upgrade([<target_version>])
+ - PC_Lib_Version(), PC_Script_Version() (#40)
 - Enhancements
  - Support sigbits encoding for 64bit integers (#61)
  - Warn about truncated values (#68)
+ - Warn about script/lib version mismatch (#40)
  - Compatibility with PostgreSQL 9.5 (#90)
 
 1.0.1, 2015-08-09

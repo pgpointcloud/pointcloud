@@ -46,10 +46,34 @@ CREATE OR REPLACE FUNCTION pc_typmod_pcid(typmod integer)
     RETURNS int4 AS 'MODULE_PATHNAME','pc_typmod_pcid'
     LANGUAGE 'c' IMMUTABLE STRICT;
 
+-- Return the script version number
+CREATE OR REPLACE FUNCTION pc_script_version()
+    RETURNS text AS $$ SELECT '@POINTCLOUD_VERSION@'::text $$
+    LANGUAGE 'sql' IMMUTABLE STRICT;
+
 -- Return the library version number
-CREATE OR REPLACE FUNCTION pc_version()
+CREATE OR REPLACE FUNCTION pc_lib_version()
     RETURNS text AS 'MODULE_PATHNAME', 'pc_version'
     LANGUAGE 'c' IMMUTABLE STRICT;
+
+-- Return the extension version number and check sanity
+CREATE OR REPLACE FUNCTION pc_version()
+    RETURNS text AS
+$$
+DECLARE
+  libver TEXT;
+  scrver TEXT;
+BEGIN
+  scrver := pc_script_version();
+  libver := pc_lib_version();
+  IF scrver != libver THEN
+    RAISE WARNING 'Library (%) and script (%) version mismatch',
+                  libver, scrver;
+  END IF;
+  RETURN libver;
+END;
+$$
+LANGUAGE 'plpgsql' IMMUTABLE STRICT;
 
 -- Upgrade pointcloud extension to latest (or specified) version.
 -- Takes care of in-development upgrades

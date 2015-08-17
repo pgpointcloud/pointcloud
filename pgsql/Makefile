@@ -45,7 +45,7 @@ $(EXTENSION).control: $(EXTENSION).control.in Makefile
          -e 's/@POINTCLOUD_VERSION_MAJOR@/$(EXTVERSION_MAJOR)/' $< > $@
 
 $(EXTENSION)--$(EXTVERSION).sql: $(EXTENSION).sql.in Makefile
-	cp $< $@
+	$(SED) -e 's/@POINTCLOUD_VERSION@/$(EXTVERSION)/' $< > $@
 
 # NOTE: relies on PERL being defined by PGXS
 $(EXTENSION)--%--$(EXTVERSION).sql: $(EXTENSION)--$(EXTVERSION).sql ../util/proc_upgrade.pl
