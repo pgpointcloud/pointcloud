@@ -54,6 +54,20 @@ test_schema_from_xml()
 }
 
 static void
+test_schema_from_xml_with_empty_field()
+{
+    PCSCHEMA *myschema = NULL;
+    char *myxmlfile = "data/simple-schema-empty-field.xml";
+    char *xmlstr = file_to_str(myxmlfile);
+    int rv = pc_schema_from_xml(xmlstr, &myschema);
+
+    CU_ASSERT(rv == PC_SUCCESS);
+
+    pc_schema_free(myschema);
+    pcfree(xmlstr);
+}
+
+static void
 test_schema_size()
 {
 	size_t sz = schema->size;
@@ -204,6 +218,7 @@ test_schema_clone(void)
 
 CU_TestInfo schema_tests[] = {
 	PC_TEST(test_schema_from_xml),
+	PC_TEST(test_schema_from_xml_with_empty_field),
 	PC_TEST(test_schema_size),
 	PC_TEST(test_dimension_get),
 	PC_TEST(test_dimension_byteoffsets),
