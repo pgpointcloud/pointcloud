@@ -509,9 +509,9 @@ test_uncompressed_filter()
     CU_ASSERT_EQUAL(fpcb.bytes[0], 'c');
     CU_ASSERT_EQUAL(fpcb.size, 4);
     CU_ASSERT_EQUAL(fpcb.npoints, 4);
-	pc_bytes_free(fpcb);
-    
-//	pc_bytes_free(epcb);
+    pc_bytes_free(fpcb);
+    pc_bitmap_free(map1);
+//    pc_bytes_free(epcb);
 
 }
 
