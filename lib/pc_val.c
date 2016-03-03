@@ -125,7 +125,7 @@ pc_double_from_ptr(const uint8_t *ptr, uint32_t interpretation)
     if ( v > max ) { \
       pcwarn("Value %g truncated to "format" to fit in "t, v, max); \
       v = max; \
-    } else if ( val < min ) { \
+    } else if ( v < min ) { \
       pcwarn("Value %g truncated to "format" to fit in "t, v, min); \
       v = min; \
     } \

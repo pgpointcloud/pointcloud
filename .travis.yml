@@ -13,5 +13,6 @@ script:
   - ./configure CFLAGS="-Wall -O2 -g"
   - make
   - make check
+  - valgrind --leak-check=full --error-exitcode=1 --show-leak-kinds=all lib/cunit/cu_tester
   - sudo make install
   - make installcheck || { cat pgsql/regression.diffs && false; }
