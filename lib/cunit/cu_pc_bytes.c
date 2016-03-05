@@ -116,6 +116,10 @@ typedef struct
     epcb = pc_bytes_run_length_encode(pcb);
     pcb2 = pc_bytes_run_length_decode(epcb);
 
+    CU_ASSERT_EQUAL(pcb.compression, PC_DIM_NONE);
+    CU_ASSERT_EQUAL(epcb.compression, PC_DIM_RLE);
+    CU_ASSERT_EQUAL(pcb2.compression, PC_DIM_NONE);
+    
 	CU_ASSERT_EQUAL(memcmp(pcb.bytes, pcb2.bytes, pcb.size), 0);
     CU_ASSERT_EQUAL(pcb.size, pcb2.size);
     CU_ASSERT_EQUAL(pcb.npoints, pcb2.npoints);
@@ -241,6 +245,11 @@ test_sigbits_encoding()
     CU_ASSERT_EQUAL(pcb2.bytes[3], 'd');
     CU_ASSERT_EQUAL(pcb2.bytes[4], 'a');
     CU_ASSERT_EQUAL(pcb2.bytes[5], 'b');
+    
+    CU_ASSERT_EQUAL(pcb.compression, PC_DIM_NONE);
+    CU_ASSERT_EQUAL(epcb.compression, PC_DIM_SIGBITS);
+    CU_ASSERT_EQUAL(pcb2.compression, PC_DIM_NONE);
+
     pc_bytes_free(pcb2);
     pc_bytes_free(epcb);
 
@@ -389,6 +398,11 @@ test_zlib_encoding()
     pcb = initbytes(bytes, strlen((char *)bytes), PC_INT8);
     epcb = pc_bytes_zlib_encode(pcb);
     pcb2 = pc_bytes_zlib_decode(epcb);
+
+    CU_ASSERT_EQUAL(pcb.compression, PC_DIM_NONE);
+    CU_ASSERT_EQUAL(epcb.compression, PC_DIM_ZLIB);
+    CU_ASSERT_EQUAL(pcb2.compression, PC_DIM_NONE);
+
 	CU_ASSERT_EQUAL(memcmp(pcb.bytes, pcb2.bytes, pcb.size), 0);
     pc_bytes_free(epcb);
     pc_bytes_free(pcb2);

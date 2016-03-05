@@ -974,7 +974,7 @@ pc_bytes_sigbits_decode_8(const PCBYTES pcb)
 		}
 	}
 	pcbout.size = outbytes_size;
-	pcbout.compression = PC_DIM_SIGBITS;
+	pcbout.compression = PC_DIM_NONE;
 	pcbout.bytes = outbytes;
 	pcbout.readonly = PC_FALSE;
 	return pcbout;
@@ -1039,7 +1039,7 @@ pc_bytes_sigbits_decode_16(const PCBYTES pcb)
 		}
 	}
 	pcbout.size = outbytes_size;
-	pcbout.compression = PC_DIM_SIGBITS;
+	pcbout.compression = PC_DIM_NONE;
 	pcbout.bytes = outbytes;
 	pcbout.readonly = PC_FALSE;
 	return pcbout;
@@ -1105,7 +1105,7 @@ pc_bytes_sigbits_decode_32(const PCBYTES pcb)
 	}
 
 	pcbout.size = outbytes_size;
-	pcbout.compression = PC_DIM_SIGBITS;
+	pcbout.compression = PC_DIM_NONE;
 	pcbout.bytes = outbytes;
 	pcbout.readonly = PC_FALSE;
 	return pcbout;
@@ -1171,7 +1171,7 @@ pc_bytes_sigbits_decode_64(const PCBYTES pcb)
 	}
 
 	pcbout.size = outbytes_size;
-	pcbout.compression = PC_DIM_SIGBITS;
+	pcbout.compression = PC_DIM_NONE;
 	pcbout.bytes = outbytes;
 	pcbout.readonly = PC_FALSE;
 	return pcbout;
