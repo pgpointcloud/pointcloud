@@ -297,6 +297,14 @@ CREATE OR REPLACE FUNCTION PC_FilterBetween(p pcpatch, attr text, v1 float8 defa
 	RETURNS pcpatch AS 'MODULE_PATHNAME', 'pcpatch_filter'
     LANGUAGE 'c' IMMUTABLE STRICT;
 
+CREATE OR REPLACE FUNCTION PC_Sort(p pcpatch, attr text[])
+        RETURNS pcpatch AS 'MODULE_PATHNAME', 'pcpatch_sort'
+    LANGUAGE 'c' IMMUTABLE STRICT;
+      
+CREATE OR REPLACE FUNCTION PC_IsSorted(p pcpatch, attr text[], strict boolean default false)
+        RETURNS boolean AS 'MODULE_PATHNAME', 'pcpatch_is_sorted'
+    LANGUAGE 'c' IMMUTABLE STRICT;
+
 -------------------------------------------------------------------
 --  POINTCLOUD_COLUMNS
 -------------------------------------------------------------------

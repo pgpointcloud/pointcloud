@@ -421,5 +421,10 @@ PCPATCH* pc_patch_filter_equal_by_name(const PCPATCH *pa, const char *name, doub
 /** Subset batch based on range condition on dimension */
 PCPATCH* pc_patch_filter_between_by_name(const PCPATCH *pa, const char *name, double val1, double val2);
 
+/** Sorted patch after reordering points on dimensions */
+PCPATCH *pc_patch_sort(const PCPATCH *pa, const char **name, int ndims);
+
+/** True/false if the patch is sorted on dimension */
+uint32_t pc_patch_is_sorted(const PCPATCH *pa, const char **name, int ndims, char strict);
 
 #endif /* _PC_API_H */
