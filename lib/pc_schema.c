@@ -458,7 +458,7 @@ pc_schema_from_xml(const char *xml_str, PCSCHEMA **schema)
 				/* These are the values of the dimension */
 				for ( child = cur->children; child; child = child->next )
 				{
-					if( child->type == XML_ELEMENT_NODE )
+					if( child->type == XML_ELEMENT_NODE && child->children != NULL)
 					{
 						char *content = (char*)(child->children->content);
 						char *name = (char*)(child->name);
