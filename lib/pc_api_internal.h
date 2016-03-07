@@ -170,6 +170,7 @@ PCPATCH* pc_patch_dimensional_from_wkb(const PCSCHEMA *schema, const uint8_t *wk
 PCPATCH_DIMENSIONAL* pc_patch_dimensional_from_pointlist(const PCPOINTLIST *pdl);
 PCPOINTLIST* pc_pointlist_from_dimensional(const PCPATCH_DIMENSIONAL *pdl);
 PCPATCH_DIMENSIONAL* pc_patch_dimensional_clone(const PCPATCH_DIMENSIONAL *patch);
+PCPOINT *pc_patch_dimensional_pointn(const PCPATCH_DIMENSIONAL *pdl, int n);
 
 /* UNCOMPRESSED PATCHES */
 char* pc_patch_uncompressed_to_string(const PCPATCH_UNCOMPRESSED *patch);
@@ -183,6 +184,7 @@ PCPOINTLIST* pc_pointlist_from_uncompressed(const PCPATCH_UNCOMPRESSED *patch);
 PCPATCH_UNCOMPRESSED* pc_patch_uncompressed_from_pointlist(const PCPOINTLIST *pl);
 PCPATCH_UNCOMPRESSED* pc_patch_uncompressed_from_dimensional(const PCPATCH_DIMENSIONAL *pdl);
 int pc_patch_uncompressed_add_point(PCPATCH_UNCOMPRESSED *c, const PCPOINT *p);
+PCPOINT *pc_patch_uncompressed_pointn(const PCPATCH_UNCOMPRESSED *patch, int n);
 
 /* GHT PATCHES */
 char* pc_patch_ght_to_string(const PCPATCH_GHT *patch);
@@ -195,7 +197,7 @@ uint8_t* pc_patch_ght_to_wkb(const PCPATCH_GHT *patch, size_t *wkbsize);
 PCPATCH* pc_patch_ght_from_wkb(const PCSCHEMA *schema, const uint8_t *wkb, size_t wkbsize);
 PCPOINTLIST* pc_pointlist_from_ght(const PCPATCH_GHT *pag);
 PCPATCH_GHT* pc_patch_ght_filter(const PCPATCH_GHT *patch, uint32_t dimnum, PC_FILTERTYPE filter, double val1, double val2);
-
+PCPOINT *pc_patch_ght_pointn(const PCPATCH_GHT *patch, int n);
 
 /****************************************************************************
 * BYTES
@@ -242,6 +244,13 @@ PCBYTES pc_bytes_filter(const PCBYTES *pcb, const PCBITMAP *map, PCDOUBLESTAT *s
 PCBITMAP* pc_bytes_bitmap(const PCBYTES *pcb, PC_FILTERTYPE filter, double val1, double val2);
 int pc_bytes_minmax(const PCBYTES *pcb, double *min, double *max, double *avg);
 
+/** getting the n-th point out of a PCBYTE into a buffer */
+void pc_bytes_uncompressed_to_ptr(uint8_t *buf, PCBYTES pcb, int n);
+void pc_bytes_run_length_to_ptr(uint8_t *buf, PCBYTES pcb, int n);
+void pc_bytes_sigbits_to_ptr_32(uint8_t *buf, PCBYTES pcb, int n);
+void pc_bytes_sigbits_to_ptr(uint8_t *buf, PCBYTES pcb, int n);
+void pc_bytes_zlib_to_ptr(uint8_t *buf, PCBYTES pcb, int n);
+void pc_bytes_to_ptr(uint8_t *buf, PCBYTES pcb, int n);
 
 /****************************************************************************
 * BOUNDS

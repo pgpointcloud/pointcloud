@@ -419,3 +419,8 @@ pc_patch_uncompressed_add_point(PCPATCH_UNCOMPRESSED *c, const PCPOINT *p)
 	return PC_SUCCESS;
 }
 
+/** get point n, 0-based, positive */
+PCPOINT *pc_patch_uncompressed_pointn(const PCPATCH_UNCOMPRESSED *patch, int n)
+{
+	return pc_point_from_data(patch->schema, patch->data+n*patch->schema->size);
+}
