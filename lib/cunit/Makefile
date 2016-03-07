@@ -13,7 +13,8 @@ OBJS =	\
 	cu_pc_schema.o \
 	cu_pc_point.o \
 	cu_pc_patch.o \
-	cu_pc_patch_ght.o
+	cu_pc_patch_ght.o \
+	cu_pc_sort.o
 
 ifeq ($(CUNIT_LDFLAGS),)
 # No cunit? Emit message and continue

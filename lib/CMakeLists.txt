@@ -13,6 +13,7 @@ set ( PC_SOURCES
         pc_point.c
         pc_pointlist.c
         pc_schema.c
+        pc_sort.c
         pc_stats.c
         pc_util.c
         pc_val.c
@@ -33,7 +34,7 @@ set_target_properties (libpc-static
     OUTPUT_NAME "pc"
     PREFIX "lib"
     CLEAN_DIRECT_OUTPUT 1
-    COMPILE_FLAGS -fPIC
+    COMPILE_FLAGS "-fPIC -std=gnu89"
   )
 
 target_link_libraries (libpc-static xml2)
