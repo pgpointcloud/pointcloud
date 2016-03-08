@@ -194,8 +194,8 @@ CREATE OR REPLACE FUNCTION PC_AsText(p pcpatch)
 	RETURNS text AS 'MODULE_PATHNAME', 'pcpatch_as_text'
 	LANGUAGE 'c' IMMUTABLE STRICT;
 
-CREATE OR REPLACE FUNCTION PC_Envelope(p pcpatch)
-	RETURNS bytea AS 'MODULE_PATHNAME', 'pcpatch_bytea_envelope'
+CREATE OR REPLACE FUNCTION PC_Envelope_AsBinary(p pcpatch)
+	RETURNS bytea AS 'MODULE_PATHNAME', 'pcpatch_envelope_as_bytea'
 	LANGUAGE 'c' IMMUTABLE STRICT;
 
 CREATE OR REPLACE FUNCTION PC_Uncompress(p pcpatch)

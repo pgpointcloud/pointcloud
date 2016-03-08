@@ -291,8 +291,8 @@ SELECT PC_AsText(pa) FROM pa_test;
  {"pcid":1,"pts":[[0.06,0.07,0.05,6],[0.09,0.1,0.05,10]]}
 (4 rows)
 
-SELECT PC_Envelope(pa) from pa_test;
-                                                                                         pc_envelope                                                                                          
+SELECT PC_Envelope_AsBinary(pa) from pa_test;
+                                                                                     pc_envelope_asbinary                                                                                     
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
  \x010300000001000000050000007b14ae47e17a943fb81e85eb51b89e3f7b14ae47e17a943fb81e85eb51b89e3f7b14ae47e17a943fb81e85eb51b89e3f7b14ae47e17a943fb81e85eb51b89e3f7b14ae47e17a943fb81e85eb51b89e3f
  \x01030000000100000005000000b81e85eb51b8ae3fec51b81e85ebb13fb81e85eb51b8ae3f9a9999999999b93f0ad7a3703d0ab73f9a9999999999b93f0ad7a3703d0ab73fec51b81e85ebb13fb81e85eb51b8ae3fec51b81e85ebb13f
