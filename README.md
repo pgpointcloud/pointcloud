@@ -447,6 +447,15 @@ Now that you have created two tables, you'll see entries for them in the `pointc
 >      - sigbits -- significant bits removal
 >      - rle -- run-length encoding
 
+**PC_IsSorted(p pcpatch, dimnames text[], strict boolean default true)** returns **boolean**
+
+> Checks whether a pcpatch is sorted lexicographically along the given dimensions. The `strict` option further checks that the ordering is strict (no duplicates).
+
+**PC_Sorted(p pcpatch, dimnames text[])** returns **pcpatch**
+
+> Returns a copy of the input patch lexicographically sorted along the given dimensions.
+
+
 ## PostGIS Integration ##
 
 The `pointcloud_postgis` extension adds functions that allow you to use PostgreSQL Pointcloud with PostGIS, converting PcPoint and PcPatch to Geometry and doing spatial filtering on point cloud data. The `pointcloud_postgis` extension depends on both the `postgis` and `pointcloud` extensions, so they must be installed first:
