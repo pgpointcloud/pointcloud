@@ -264,12 +264,12 @@ Now that you have created two tables, you'll see entries for them in the `pointc
 > 
 >     1     
  
-**PC_Envelope(p pcpatch)** returns **bytea**
+**PC_Envelope_AsBinary(p pcpatch)** returns **bytea**
 
 > Return the OGC "well-known binary" format for *bounds* of the patch.
 > Useful for performing intersection tests with geometries.
 > 
->     SELECT PC_Envelope(pa) FROM patches LIMIT 1;
+>     SELECT PC_Envelope_AsBinary(pa) FROM patches LIMIT 1;
 >
 >     \x0103000000010000000500000090c2f5285cbf5fc0e17a
 >     14ae4781464090c2f5285cbf5fc0ec51b81e858b46400ad7
@@ -492,6 +492,11 @@ The `pointcloud_postgis` extension adds functions that allow you to use PostgreS
 >     SELECT ST_AsText(PC_MakePoint(1, ARRAY[-127, 45, 124.0, 4.0])::geometry);
 > 
 >     POINT Z (-127 45 124)
+
+**PC_Envelope(pcpatch)** returns **geometry**<br/>
+**pcpatch::geometry** returns **geometry**
+
+> Get the PcPatch bounds as a PostGIS geometry
 
 ## Compressions ##
 
