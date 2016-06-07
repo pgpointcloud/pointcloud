@@ -421,5 +421,7 @@ PCPATCH* pc_patch_filter_equal_by_name(const PCPATCH *pa, const char *name, doub
 /** Subset batch based on range condition on dimension */
 PCPATCH* pc_patch_filter_between_by_name(const PCPATCH *pa, const char *name, double val1, double val2);
 
+/** get point n */
+PCPOINT *pc_patch_pointn(const PCPATCH *patch, int n);
 
 #endif /* _PC_API_H */

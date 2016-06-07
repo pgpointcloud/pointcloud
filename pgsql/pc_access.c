@@ -23,6 +23,7 @@ Datum pcpatch_from_pcpatch_array(PG_FUNCTION_ARGS);
 Datum pcpatch_uncompress(PG_FUNCTION_ARGS);
 Datum pcpatch_compress(PG_FUNCTION_ARGS);
 Datum pcpatch_numpoints(PG_FUNCTION_ARGS);
+Datum pcpatch_pointn(PG_FUNCTION_ARGS);
 Datum pcpatch_pcid(PG_FUNCTION_ARGS);
 Datum pcpatch_summary(PG_FUNCTION_ARGS);
 Datum pcpatch_compression(PG_FUNCTION_ARGS);
@@ -645,6 +646,25 @@ Datum pcpatch_numpoints(PG_FUNCTION_ARGS)
 {
 	SERIALIZED_PATCH *serpa = PG_GETHEADER_SERPATCH_P(0);
 	PG_RETURN_INT32(serpa->npoints);
+}
+
+PG_FUNCTION_INFO_V1(pcpatch_pointn);
+Datum pcpatch_pointn(PG_FUNCTION_ARGS)
+{
+	SERIALIZED_POINT *serpt;
+	SERIALIZED_PATCH *serpa = PG_GETARG_SERPATCH_P(0);
+	int32 n = PG_GETARG_INT32(1);
+	PCSCHEMA *schema = pc_schema_from_pcid(serpa->pcid, fcinfo);
+	PCPATCH *patch = pc_patch_deserialize(serpa, schema);
+	PCPOINT *pt = NULL;
+	if(patch) {
+		pt = pc_patch_pointn(patch,n);
+		pc_patch_free(patch);
+	}
+	if(!pt) PG_RETURN_NULL();
+	serpt = pc_point_serialize(pt);
+	pc_point_free(pt);
+	PG_RETURN_POINTER(serpt);
 }
 
 PG_FUNCTION_INFO_V1(pcpatch_pcid);

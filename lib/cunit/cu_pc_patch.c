@@ -556,9 +556,174 @@ test_patch_filter()
     pc_patch_free(pa2);
     
     return;
+}
 
+static void
+test_patch_pointn_last_first()
+{
+    // 00 endian (big)
+	// 00000000 pcid
+	// 00000000 compression
+	// 00000003 npoints
+	// 0000000800000003000000050006 pt1 (XYZi)
+	// 0000000200000003000000040008 pt2 (XYZi)
+	// 0000000200000003000000040009 pt3 (XYZi)
 
+	char *hexbuf = "00000000000000000000000003000000080000000300000005000600000002000000030000000400080000000200000003000000040009";
+	size_t hexsize = strlen(hexbuf);
+	uint8_t *wkb = bytes_from_hexbytes(hexbuf, hexsize);
+	char *str;
 
+	PCPATCH *pa = pc_patch_from_wkb(simpleschema, wkb, hexsize/2);
+
+    PCPOINT *pt = pc_patch_pointn(pa, -1);
+    str = pc_point_to_string(pt);
+    CU_ASSERT_STRING_EQUAL(str, "{\"pcid\":0,\"pt\":[0.02,0.03,0.04,9]}");
+    pc_point_free(pt);
+    free(str);
+
+    pt = pc_patch_pointn(pa, -3);
+    str = pc_point_to_string(pt);
+    CU_ASSERT_STRING_EQUAL(str, "{\"pcid\":0,\"pt\":[0.08,0.03,0.05,6]}");
+    pc_point_free(pt);
+    free(str);
+    
+    pc_patch_free(pa);
+    pcfree(wkb);
+}
+
+static void
+test_patch_pointn_no_compression()
+{
+    // 00 endian (big)
+	// 00000000 pcid
+	// 00000000 compression
+	// 00000003 npoints
+	// 0000000800000003000000050006 pt1 (XYZi)
+	// 0000000200000003000000040008 pt2 (XYZi)
+	// 0000000200000003000000040009 pt3 (XYZi)
+
+	char *hexbuf = "00000000000000000000000003000000080000000300000005000600000002000000030000000400080000000200000003000000040009";
+	size_t hexsize = strlen(hexbuf);
+	uint8_t *wkb = bytes_from_hexbytes(hexbuf, hexsize);
+
+	PCPATCH *pa = pc_patch_from_wkb(simpleschema, wkb, hexsize/2);
+    PCPOINTLIST *li = pc_pointlist_from_patch(pa);
+
+    PCPOINT *pt = pc_patch_pointn(pa, 2);
+    CU_ASSERT(pt != NULL);
+    char *str = pc_point_to_string(pt);
+    CU_ASSERT_STRING_EQUAL(str, "{\"pcid\":0,\"pt\":[0.02,0.03,0.04,8]}");
+
+    // free
+    free(str);
+    pcfree(wkb);
+    pc_point_free(pt);
+    pc_patch_free(pa);
+    pc_pointlist_free(li);
+}
+
+static void
+test_patch_pointn_dimensional_compression(enum DIMCOMPRESSIONS dimcomp)
+{
+    // init data
+    PCPATCH_DIMENSIONAL *padim1, *padim2;
+    PCPOINT *pt;
+    PCPOINTLIST *pl;
+    char *str;
+    int i;
+    int npts = PCDIMSTATS_MIN_SAMPLE+1; // force to keep custom compression
+
+    // build a dimensional patch
+    pl = pc_pointlist_make(npts);
+
+    for ( i = npts; i >= 0; i-- )
+    {
+        pt = pc_point_make(simpleschema);
+        pc_point_set_double_by_name(pt, "x", i);
+        pc_point_set_double_by_name(pt, "y", i);
+        pc_point_set_double_by_name(pt, "Z", i);
+        pc_point_set_double_by_name(pt, "intensity", 10);
+        pc_pointlist_add_point(pl, pt);
+    }
+
+    padim1 = pc_patch_dimensional_from_pointlist(pl);
+
+    // set dimensional compression for each dimension
+    PCDIMSTATS *stats = pc_dimstats_make(simpleschema);
+    pc_dimstats_update(stats, padim1);
+    for ( i = 0; i<padim1->schema->ndims; i++ )
+        stats->stats[i].recommended_compression = dimcomp;
+
+    // compress patch
+    padim2 = pc_patch_dimensional_compress(padim1, stats);
+
+    pt = pc_patch_pointn((PCPATCH*) padim2, npts-3);
+    str = pc_point_to_string(pt);
+    CU_ASSERT_STRING_EQUAL(str, "{\"pcid\":0,\"pt\":[4,4,4,10]}");
+
+    free(str);
+    pc_dimstats_free(stats);
+    pc_pointlist_free(pl);
+    pc_point_free(pt);
+    pc_patch_free((PCPATCH *)padim1);
+    pc_patch_free((PCPATCH *)padim2);
+}
+
+static void
+test_patch_pointn_dimensional_compression_none()
+{
+    test_patch_pointn_dimensional_compression(PC_DIM_NONE);
+}
+
+static void
+test_patch_pointn_dimensional_compression_zlib()
+{
+    test_patch_pointn_dimensional_compression(PC_DIM_ZLIB);
+}
+
+static void
+test_patch_pointn_dimensional_compression_sigbits()
+{
+    test_patch_pointn_dimensional_compression(PC_DIM_SIGBITS);
+}
+
+static void
+test_patch_pointn_dimensional_compression_rle()
+{
+    test_patch_pointn_dimensional_compression(PC_DIM_RLE);
+}
+
+static void
+test_patch_pointn_ght_compression()
+{
+    // 00 endian (big)
+	// 00000000 pcid
+	// 00000000 compression
+	// 00000003 npoints
+	// 0000000800000003000000050006 pt1 (XYZi)
+	// 0000000200000003000000040008 pt2 (XYZi)
+	// 0000000200000003000000040009 pt3 (XYZi)
+
+	char *hexbuf = "00000000000000000000000003000000080000000300000005000600000002000000030000000400080000000200000003000000040009";
+	size_t hexsize = strlen(hexbuf);
+	uint8_t *wkb = bytes_from_hexbytes(hexbuf, hexsize);
+
+	PCPATCH *pa = pc_patch_from_wkb(simpleschema, wkb, hexsize/2);
+    PCPOINTLIST *li = pc_pointlist_from_patch(pa);
+
+#ifdef HAVE_LIBGHT
+    pag = pc_patch_ght_from_pointlist(li);
+    pt = pc_patch_pointn((PCPATCH*) pag, 2);
+    CU_ASSERT(pt != NULL);
+    CU_ASSERT_STRING_EQUAL(pc_point_to_string(pt), "{\"pcid\":0,\"pt\":[0.02,0.03,0.04,8]}");
+    pc_point_free(pt);
+#endif
+
+    // free
+    pcfree(wkb);
+    pc_patch_free(pa);
+    pc_pointlist_free(li);
 }
 
 /* REGISTER ***********************************************************/
@@ -574,6 +739,13 @@ CU_TestInfo patch_tests[] = {
 	PC_TEST(test_patch_union),
 	PC_TEST(test_patch_wkb),
 	PC_TEST(test_patch_filter),
+	PC_TEST(test_patch_pointn_last_first),
+	PC_TEST(test_patch_pointn_no_compression),
+	PC_TEST(test_patch_pointn_dimensional_compression_none),
+	PC_TEST(test_patch_pointn_dimensional_compression_zlib),
+	PC_TEST(test_patch_pointn_dimensional_compression_sigbits),
+	PC_TEST(test_patch_pointn_dimensional_compression_rle),
+	PC_TEST(test_patch_pointn_ght_compression),
 	CU_TEST_INFO_NULL
 };
 

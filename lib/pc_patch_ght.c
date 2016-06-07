@@ -609,3 +609,13 @@ pc_pointlist_from_ght(const PCPATCH_GHT *pag)
 	return pc_pointlist_from_uncompressed(pu);
 }
 
+
+PCPOINT *
+pc_patch_ght_pointn(const PCPATCH_GHT *patch, int n)
+{
+	PCPATCH_UNCOMPRESSED *pu;
+	pu = pc_patch_uncompressed_from_ght(patch);
+	PCPOINT *pt = pc_patch_uncompressed_pointn(pu,n);
+	pc_patch_free((PCPATCH *)pu);
+	return pt;
+}
