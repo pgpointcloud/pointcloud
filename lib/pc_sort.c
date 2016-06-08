@@ -13,7 +13,7 @@
 #include <stdlib.h>
 
 // NULL terminated array of PCDIMENSION pointers
-#define PCDIMENSION_LIST PCDIMENSION **
+typedef PCDIMENSION ** PCDIMENSION_LIST;
 
 /**
  * Comparators
