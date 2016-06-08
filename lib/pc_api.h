@@ -424,4 +424,10 @@ PCPATCH* pc_patch_filter_between_by_name(const PCPATCH *pa, const char *name, do
 /** get point n */
 PCPOINT *pc_patch_pointn(const PCPATCH *patch, int n);
 
+/** Sorted patch after reordering points on dimensions */
+PCPATCH *pc_patch_sort(const PCPATCH *pa, const char **name, int ndims);
+
+/** True/false if the patch is sorted on dimension */
+uint32_t pc_patch_is_sorted(const PCPATCH *pa, const char **name, int ndims, char strict);
+
 #endif /* _PC_API_H */

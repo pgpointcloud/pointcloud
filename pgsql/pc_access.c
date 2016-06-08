@@ -30,6 +30,8 @@ Datum pcpatch_compression(PG_FUNCTION_ARGS);
 Datum pcpatch_intersects(PG_FUNCTION_ARGS);
 Datum pcpatch_get_stat(PG_FUNCTION_ARGS);
 Datum pcpatch_filter(PG_FUNCTION_ARGS);
+Datum pcpatch_sort(PG_FUNCTION_ARGS);
+Datum pcpatch_is_sorted(PG_FUNCTION_ARGS);
 Datum pcpatch_size(PG_FUNCTION_ARGS);
 Datum pcpoint_size(PG_FUNCTION_ARGS);
 Datum pcpoint_pcid(PG_FUNCTION_ARGS);
@@ -594,6 +596,7 @@ Datum pcpatch_compress(PG_FUNCTION_ARGS)
     /* make sure to avoid stat updates (not sure if needed) */
     stats->total_points = PCDIMSTATS_MIN_SAMPLE+1;
 
+
     /* Fill in per-dimension compression */
     if ( *ptr )
     for (i=0; i<stats->ndims; ++i) {
@@ -965,5 +968,92 @@ Datum pcpatch_filter(PG_FUNCTION_ARGS)
 	PG_RETURN_POINTER(serpatch_filtered);
 }
 
+const char **array_to_cstring_array(ArrayType *array, int *size)
+{   
+	int i, j, offset = 0;
+	int nelems = ArrayGetNItems(ARR_NDIM(array), ARR_DIMS(array));
+	const char **cstring = nelems ? pcalloc(nelems * sizeof(char*)) : NULL;
+	bits8 *bitmap = ARR_NULLBITMAP(array);
+	for(i=j=0; i<nelems; ++i) 
+	{
+		if(array_get_isnull(bitmap,i)) continue;
+		
+		text *array_text = (text *)(ARR_DATA_PTR(array)+offset);
+		cstring[j++] = text_to_cstring(array_text);
+		offset += INTALIGN(VARSIZE(array_text));
+	}
+	if(size) *size = j;
+	return cstring;
+}
 
+void pc_cstring_array_free(const char **array, int nelems)
+{
+	int i;
+	if(!array) return;
+	for(i=0;i<nelems;++i) pfree((void *)array[i]);
+	pcfree((void *)array);
+}
+
+/**
+* PC_Sort(patch pcpatch, dimname text[]) returns PcPatch
+*/
+PG_FUNCTION_INFO_V1(pcpatch_sort);
+Datum pcpatch_sort(PG_FUNCTION_ARGS)
+{
+	SERIALIZED_PATCH *serpatch = PG_GETARG_SERPATCH_P(0);	
+	ArrayType *array = PG_GETARG_ARRAYTYPE_P(1);
+	int ndims;
+	const char **dim_name = array_to_cstring_array(array,&ndims);
+	if(!ndims)
+	{
+		pc_cstring_array_free(dim_name,ndims);
+		PG_RETURN_POINTER(serpatch);
+	}
+
+	PCSCHEMA *schema = pc_schema_from_pcid(serpatch->pcid, fcinfo);
+	PCPATCH *patch = NULL;
+	PCPATCH *patch_sorted = NULL;
+	SERIALIZED_PATCH *serpatch_sorted = NULL;	
+
+	patch = pc_patch_deserialize(serpatch, schema);
+	if(patch) patch_sorted = pc_patch_sort(patch,dim_name,ndims);	
+
+	pc_cstring_array_free(dim_name,ndims);
+	if(patch) pc_patch_free(patch);
+	PG_FREE_IF_COPY(serpatch, 0);	
+
+	if(!patch_sorted) PG_RETURN_NULL();	
+
+	serpatch_sorted = pc_patch_serialize(patch_sorted,NULL);
+	pc_patch_free(patch_sorted);
+	PG_RETURN_POINTER(serpatch_sorted);
+}
+
+/** True/false if the patch is sorted on dimension */
+PG_FUNCTION_INFO_V1(pcpatch_is_sorted);
+Datum pcpatch_is_sorted(PG_FUNCTION_ARGS)
+{
+	ArrayType *array = PG_GETARG_ARRAYTYPE_P(1);
+	int ndims;
+	const char **dim_name = array_to_cstring_array(array,&ndims);
+	if(!ndims)
+	{
+		pc_cstring_array_free(dim_name,ndims);
+		PG_RETURN_BOOL(PC_TRUE);
+	}
+	SERIALIZED_PATCH *serpatch = PG_GETARG_SERPATCH_P(0);
+	PCSCHEMA *schema = pc_schema_from_pcid(serpatch->pcid, fcinfo);
+	bool strict = PG_GETARG_BOOL(2);
+	PCPATCH *patch = pc_patch_deserialize(serpatch, schema);	
+
+	uint32_t res = pc_patch_is_sorted(patch,dim_name,ndims,strict);	
+
+	pc_cstring_array_free(dim_name,ndims);
+	pc_patch_free(patch);	
+
+	if(res == PC_FAILURE-1)
+		elog(ERROR, "PC_IsSorted failed");
+   
+	PG_RETURN_BOOL(res);
+}
 

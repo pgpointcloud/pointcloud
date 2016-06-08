@@ -8,6 +8,7 @@ set (PC_TEST_SOURCES
   cu_pc_bytes.c
   cu_pc_schema.c
   cu_pc_patch.c
+  cu_pc_sort.c
   cu_tester.c
   )
 
