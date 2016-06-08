@@ -3,9 +3,7 @@
 *
 *  Pointclound patch sorting.
 *
-*  PgSQL Pointcloud is free and open source software provided
-*  by the Government of Canada
-*  Copyright (c) 2013 Natural Resources Canada
+*  Copyright (c) 2016 IGN
 *
 *  Author: M. Brédif
 *
@@ -14,6 +12,8 @@
 #include <assert.h>
 #include <stdlib.h>
 
+// NULL terminated array of PCDIMENSION pointers
+#define PCDIMENSION_LIST PCDIMENSION **
 
 /**
  * Comparators
@@ -22,7 +22,7 @@
 int
 pc_compare_dim (const void *a, const void *b, void *arg)
 {
-    PCDIMENSION **dim = (PCDIMENSION **)arg;
+    PCDIMENSION_LIST dim = (PCDIMENSION_LIST)arg;
     uint32_t byteoffset     = dim[0]->byteoffset;
     uint32_t interpretation = dim[0]->interpretation;
     double da = pc_double_from_ptr(a+byteoffset,interpretation);
@@ -46,7 +46,7 @@ pc_compare_pcb (const void *a, const void *b, const void *arg)
  */
 
 PCPATCH_UNCOMPRESSED *
-pc_patch_uncompressed_sort(const PCPATCH_UNCOMPRESSED *pu, PCDIMENSION **dim)
+pc_patch_uncompressed_sort(const PCPATCH_UNCOMPRESSED *pu, PCDIMENSION_LIST dim)
 {
     PCPATCH_UNCOMPRESSED *spu = pc_patch_uncompressed_make(pu->schema, pu->npoints);
     
@@ -60,9 +60,9 @@ pc_patch_uncompressed_sort(const PCPATCH_UNCOMPRESSED *pu, PCDIMENSION **dim)
     return spu;
 }
 
-PCDIMENSION **pc_schema_get_dimensions_by_name(const PCSCHEMA *schema, const char ** name, int ndims)
+PCDIMENSION_LIST pc_schema_get_dimensions_by_name(const PCSCHEMA *schema, const char ** name, int ndims)
 {
-    PCDIMENSION **dim = pcalloc( (ndims+1) * sizeof(PCDIMENSION *));
+    PCDIMENSION_LIST dim = pcalloc( (ndims+1) * sizeof(PCDIMENSION *));
     int i;
     for(i=0; i<ndims; ++i) 
     {
@@ -80,7 +80,7 @@ PCDIMENSION **pc_schema_get_dimensions_by_name(const PCSCHEMA *schema, const cha
 PCPATCH *
 pc_patch_sort(const PCPATCH *pa, const char ** name, int ndims)
 {
-    PCDIMENSION **dim = pc_schema_get_dimensions_by_name(pa->schema, name, ndims);
+    PCDIMENSION_LIST dim = pc_schema_get_dimensions_by_name(pa->schema, name, ndims);
     PCPATCH *pu = pc_patch_uncompress(pa);
     if ( !pu ) {
         pcfree(dim);
@@ -101,7 +101,7 @@ pc_patch_sort(const PCPATCH *pa, const char ** name, int ndims)
  */
 
 uint32_t
-pc_patch_uncompressed_is_sorted(const PCPATCH_UNCOMPRESSED *pu, PCDIMENSION **dim, char strict)
+pc_patch_uncompressed_is_sorted(const PCPATCH_UNCOMPRESSED *pu, PCDIMENSION_LIST dim, char strict)
 {
     size_t size = pu->schema->size;
     uint8_t *buf = pu->data, *last = pu->data+pu->datasize-size;
@@ -178,7 +178,7 @@ pc_bytes_run_length_is_sorted(const PCBYTES *pcb, char strict)
 
 
 uint32_t
-pc_patch_dimensional_is_sorted(const PCPATCH_DIMENSIONAL *pdl, PCDIMENSION **dim, char strict)
+pc_patch_dimensional_is_sorted(const PCPATCH_DIMENSIONAL *pdl, PCDIMENSION_LIST dim, char strict)
 {
     assert(pdl);
     assert(pdl->schema);
@@ -225,7 +225,7 @@ pc_patch_dimensional_is_sorted(const PCPATCH_DIMENSIONAL *pdl, PCDIMENSION **dim
 
 
 uint32_t
-pc_patch_ght_is_sorted(const PCPATCH_GHT *pa, PCDIMENSION **dim, char strict)
+pc_patch_ght_is_sorted(const PCPATCH_GHT *pa, PCDIMENSION_LIST dim, char strict)
 {
     PCPATCH *pu = pc_patch_uncompress((PCPATCH*) pa);
     if ( !pu ) {
@@ -242,7 +242,7 @@ uint32_t
 pc_patch_is_sorted(const PCPATCH *pa, const char **name, int ndims, char strict)
 {
     int res = PC_FAILURE -1; // aliasing issue : PC_FALSE == PC_FAILURE...
-    PCDIMENSION **dim = pc_schema_get_dimensions_by_name(pa->schema, name, ndims);
+    PCDIMENSION_LIST dim = pc_schema_get_dimensions_by_name(pa->schema, name, ndims);
     if ( ! dim ) return res;
     strict = (strict > 0); // ensure 0-1 value
 
