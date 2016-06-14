@@ -9,6 +9,7 @@ set ( PC_SOURCES
         pc_patch.c
         pc_patch_dimensional.c
         pc_patch_ght.c
+        pc_patch_lazperf.c
         pc_patch_uncompressed.c
         pc_point.c
         pc_pointlist.c
@@ -16,6 +17,10 @@ set ( PC_SOURCES
         pc_stats.c
         pc_util.c
         pc_val.c
+        )
+
+set ( LAZPERF_SOURCES
+        lazperf_adapter.cpp
         )
 
 set ( PC_HEADERS
@@ -27,6 +32,7 @@ set ( PC_HEADERS
         )
 
 add_library (libpc-static STATIC ${PC_SOURCES} ${PC_HEADERS})
+add_library (liblazperf-static STATIC ${LAZPERF_SOURCES})
 
 set_target_properties (libpc-static 
   PROPERTIES
@@ -36,12 +42,23 @@ set_target_properties (libpc-static
     COMPILE_FLAGS -fPIC
   )
 
+set_target_properties (liblazperf-static
+  PROPERTIES
+    OUTPUT_NAME "lazperf"
+    PREFIX "lib"
+    CLEAN_DIRECT_OUTPUT 1
+    COMPILE_FLAGS "-fPIC -std=c++0x"
+  )
+
 target_link_libraries (libpc-static xml2)
 target_link_libraries (libpc-static z)
 target_link_libraries (libpc-static m)
 if (LIBGHT_FOUND)
   target_link_libraries (libpc-static ght)
 endif (LIBGHT_FOUND)
+if (LAZPERF_FOUND)
+  target_link_libraries (libpc-static liblazperf-static)
+endif (LAZPERF_FOUND)
 
 if (WITH_TESTS)
     add_subdirectory (cunit)

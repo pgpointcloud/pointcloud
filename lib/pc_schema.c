@@ -100,6 +100,8 @@ pc_compression_name(int num)
       return "ght";
     case PC_DIMENSIONAL:
       return "dimensional";
+    case PC_LAZPERF:
+      return "laz";
     default:
       return "UNKNOWN";
   }
@@ -115,6 +117,12 @@ pc_compression_number(const char *str)
 	        (strcasecmp(str, "dimensional") == 0) )
 	{
 		return PC_DIMENSIONAL;
+	}
+
+	if ( (str[0] == 'l' || str[0] == 'L') &&
+	        (strcasecmp(str, "laz") == 0) )
+	{
+		return PC_LAZPERF;
 	}
 
 	if ( (str[0] == 'g' || str[0] == 'G') &&

@@ -102,7 +102,7 @@ include_directories (${ZLIB_INCLUDE_DIR})
 
 
 #------------------------------------------------------------------------------
-# cunit and ght
+# cunit, ght and lazperf
 
 if (WITH_TESTS)
     find_package (CUnit)
@@ -113,6 +113,12 @@ find_package (LibGHT)
 if (LIBGHT_FOUND)
   set (HAVE_LIBGHT 1)
 endif (LIBGHT_FOUND)
+
+find_package (LazPerf)
+
+if (LAZPERF_FOUND)
+  set (HAVE_LAZPERF 1)
+endif (LAZPERF_FOUND)
 
 #------------------------------------------------------------------------------
 # use default install location if not specified

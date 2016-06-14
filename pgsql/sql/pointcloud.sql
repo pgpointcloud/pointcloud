@@ -318,7 +318,8 @@ FROM p1, ( values
   ('dimensional','rle'),
   ('dimensional','zlib'),
   ('dimensional','sigbits'),
-  ('dimensional','auto')
+  ('dimensional','auto'),
+  ('laz','null')
   -- ,('ght',null) -- fails due to https://github.com/pgpointcloud/pointcloud/issues/35
 ) dimcompr(compr,sc)
 ORDER BY compr,sc,v;

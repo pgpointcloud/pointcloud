@@ -4,6 +4,8 @@
 
 #cmakedefine HAVE_LIBGHT ${HAVE_LIBGHT}
 
+#cmakedefine HAVE_LAZPERF ${HAVE_LAZPERF}
+
 #cmakedefine HAVE_CUNIT ${HAVE_CUNIT}
 
 #cmakedefine PROJECT_SOURCE_DIR "${PROJECT_SOURCE_DIR}"

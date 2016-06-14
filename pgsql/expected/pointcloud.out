@@ -470,7 +470,8 @@ FROM p1, ( values
   ('dimensional','rle'),
   ('dimensional','zlib'),
   ('dimensional','sigbits'),
-  ('dimensional','auto')
+  ('dimensional','auto'),
+  ('laz','null')
   -- ,('ght',null) -- fails due to https://github.com/pgpointcloud/pointcloud/issues/35
 ) dimcompr(compr,sc)
 ORDER BY compr,sc,v;
@@ -536,7 +537,22 @@ ORDER BY compr,sc,v;
  compr |  5 | dimensional | zlib    | t
  compr |  6 | dimensional | zlib    | t
  compr |  7 | dimensional | zlib    | t
-(60 rows)
+ compr | -7 | laz         | null    | f
+ compr | -6 | laz         | null    | f
+ compr | -5 | laz         | null    | f
+ compr | -4 | laz         | null    | f
+ compr | -3 | laz         | null    | f
+ compr | -2 | laz         | null    | f
+ compr | -1 | laz         | null    | f
+ compr |  0 | laz         | null    | f
+ compr |  1 | laz         | null    | f
+ compr |  2 | laz         | null    | f
+ compr |  3 | laz         | null    | f
+ compr |  4 | laz         | null    | f
+ compr |  5 | laz         | null    | f
+ compr |  6 | laz         | null    | f
+ compr |  7 | laz         | null    | f
+(75 rows)
 
 SELECT PC_Summary(PC_Compress(PC_Patch(PC_MakePoint(10,ARRAY[1,1,1,1,1,1,1])),
   'dimensional'))::json->'compr';

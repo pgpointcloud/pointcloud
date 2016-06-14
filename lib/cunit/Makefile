@@ -13,7 +13,8 @@ OBJS =	\
 	cu_pc_schema.o \
 	cu_pc_point.o \
 	cu_pc_patch.o \
-	cu_pc_patch_ght.o
+	cu_pc_patch_ght.o \
+        cu_pc_patch_lazperf.o
 
 ifeq ($(CUNIT_LDFLAGS),)
 # No cunit? Emit message and continue
@@ -37,11 +38,14 @@ check: $(EXE)
 endif
 
 # Build the main unit test executable
-$(EXE): $(OBJS) ../$(LIB_A)
-	$(CC) -o $@ $^ $(LDFLAGS) -lm
+$(EXE): $(OBJS) ../$(LIB_A) ../$(LIB_A_LAZPERF)
+	$(CC) -o $@ $^ $(LDFLAGS) -lm -lstdc++
 
 ../$(LIB_A):
 	$(MAKE) -C .. $(LIB_A)
+
+../$(LIB_A_LAZPERF):
+	$(MAKE) -C .. $(LIB_A_LAZPERF)
 
 # Clean target
 clean:

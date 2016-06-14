@@ -275,6 +275,28 @@ pc_patch_filter(const PCPATCH *pa, uint32_t dimnum, PC_FILTERTYPE filter, double
 		paout = (PCPATCH*)pdl;
 		break;
 	}
+	case PC_LAZPERF:
+	{
+	    PCBITMAP *map;
+	    PCPATCH_UNCOMPRESSED *pu;
+	    PCPATCH_UNCOMPRESSED *pau;
+
+	    pau = pc_patch_uncompressed_from_lazperf( (PCPATCH_LAZPERF*) pa );
+	    map = pc_patch_uncompressed_bitmap(pau, dimnum, filter, val1, val2);
+	    if ( map->nset == 0 )
+	    {
+		pc_bitmap_free(map);
+		return (PCPATCH*)pc_patch_uncompressed_make(pa->schema, -1);
+	    }
+
+	    pu = pc_patch_uncompressed_filter(pau, map);
+	    pc_bitmap_free(map);
+	    /* pc_patch_uncompressed_filter computes stats and bounds, so we're ready to return here */
+	    /* TODO, it could/should compute bounds and stats while filtering the points */
+	    paout = (PCPATCH*)pu;
+
+	    break;
+	}
 	default:
 		pcerror("%s: failure", __func__);
 		return NULL;
