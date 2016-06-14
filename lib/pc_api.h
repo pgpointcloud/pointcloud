@@ -36,7 +36,8 @@ enum COMPRESSIONS
 {
     PC_NONE = 0,
     PC_GHT = 1,
-    PC_DIMENSIONAL = 2
+    PC_DIMENSIONAL = 2,
+    PC_LAZPERF = 3
 };
 
 /**
@@ -196,6 +197,12 @@ typedef struct
 	uint8_t *ght;
 } PCPATCH_GHT;
 
+typedef struct
+{
+	PCPATCH_COMMON
+	size_t lazperfsize;
+	uint8_t *lazperf;
+} PCPATCH_LAZPERF;
 
 
 /* Global function signatures for memory/logging handlers. */

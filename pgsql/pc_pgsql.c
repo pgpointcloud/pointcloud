@@ -466,6 +466,12 @@ pc_patch_serialized_size(const PCPATCH *patch)
 	{
 		return common_size + stats_size + pc_patch_dimensional_serialized_size((PCPATCH_DIMENSIONAL*)patch);
 	}
+	case PC_LAZPERF:
+	{
+		static size_t lazsize_size = 4;
+		PCPATCH_LAZPERF *pg = (PCPATCH_LAZPERF*)patch;
+		return common_size + stats_size + lazsize_size + pg->lazperfsize;
+	}
 	default:
 	{
 		pcerror("%s: unknown compresed %d", __func__, patch->type);
@@ -607,6 +613,45 @@ pc_patch_ght_serialize(const PCPATCH *patch_in)
 }
 
 static SERIALIZED_PATCH *
+pc_patch_lazperf_serialize(const PCPATCH *patch_in)
+{
+	size_t serpch_size = pc_patch_serialized_size(patch_in);
+	SERIALIZED_PATCH *serpch = pcalloc(serpch_size);
+	const PCPATCH_LAZPERF *patch = (PCPATCH_LAZPERF*)patch_in;
+	uint32_t lazsize = patch->lazperfsize;
+	uint8_t *buf = serpch->data;
+
+	assert(patch);
+	assert(patch->type == PC_LAZPERF);
+
+	/* Copy basics */
+	serpch->pcid = patch->schema->pcid;
+	serpch->npoints = patch->npoints;
+	serpch->bounds = patch->bounds;
+	serpch->compression = patch->type;
+
+	/* Write stats into the buffer first */
+	if ( patch->stats )
+	{
+		buf += pc_patch_stats_serialize(buf, patch->schema, patch->stats);
+	}
+	else
+	{
+		pcerror("%s: stats missing!", __func__);
+	}
+
+	/* Write buffer size */
+	memcpy(buf, &(lazsize), 4);
+	buf += 4;
+
+	/* Write buffer */
+	memcpy(buf, patch->lazperf, patch->lazperfsize);
+	SET_VARSIZE(serpch, serpch_size);
+
+	return serpch;
+}
+
+static SERIALIZED_PATCH *
 pc_patch_uncompressed_serialize(const PCPATCH *patch_in)
 {
 	//  uint32_t size;
@@ -691,6 +736,11 @@ pc_patch_serialize(const PCPATCH *patch_in, void *userdata)
 	case PC_GHT:
 	{
 		serpatch = pc_patch_ght_serialize(patch);
+		break;
+	}
+	case PC_LAZPERF:
+	{
+		serpatch = pc_patch_lazperf_serialize(patch);
 		break;
 	}
 	default:
@@ -880,6 +930,39 @@ pc_patch_ght_deserialize(const SERIALIZED_PATCH *serpatch, const PCSCHEMA *schem
 	return (PCPATCH*)patch;
 }
 
+static PCPATCH *
+pc_patch_lazperf_deserialize(const SERIALIZED_PATCH *serpatch, const PCSCHEMA *schema)
+{
+	PCPATCH_LAZPERF *patch;
+	uint32_t lazperfsize;
+	int npoints = serpatch->npoints;
+	size_t stats_size = pc_stats_size(schema);
+	uint8_t *buf = (uint8_t*)serpatch->data + stats_size;
+
+	/* Reference the external data */
+	patch = pcalloc(sizeof(PCPATCH_LAZPERF));
+
+	/* Set up basic info */
+	patch->type = serpatch->compression;
+	patch->schema = schema;
+	patch->readonly = true;
+	patch->npoints = npoints;
+	patch->bounds = serpatch->bounds;
+
+	/* Point into the stats area */
+	patch->stats = pc_patch_stats_deserialize(schema, serpatch->data);
+
+	/* Set up buffer */
+	memcpy(&lazperfsize, buf, 4);
+	patch->lazperfsize = lazperfsize;
+	buf += 4;
+
+	patch->lazperf = pcalloc( patch->lazperfsize );
+	memcpy(patch->lazperf, buf, patch->lazperfsize);
+
+	return (PCPATCH*)patch;
+}
+
 PCPATCH *
 pc_patch_deserialize(const SERIALIZED_PATCH *serpatch, const PCSCHEMA *schema)
 {
@@ -891,6 +974,8 @@ pc_patch_deserialize(const SERIALIZED_PATCH *serpatch, const PCSCHEMA *schema)
 		return pc_patch_dimensional_deserialize(serpatch, schema);
 	case PC_GHT:
 		return pc_patch_ght_deserialize(serpatch, schema);
+	case PC_LAZPERF:
+		return pc_patch_lazperf_deserialize(serpatch, schema);
 	}
 	pcerror("%s: unsupported compression type", __func__);
 	return NULL;

@@ -3,6 +3,13 @@ language: c
 before_install:
   - sudo apt-get update
   - sudo apt-get install -q postgresql-server-dev-9.3 libcunit1-dev valgrind
+  - sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
+  - sudo apt-get update -qq
+
+install:
+  - sudo apt-get install -qq g++-4.8
+  - export CXX="g++-4.8"
+  - sh .install-lazperf.sh
 
 addons:
   postgresql: "9.3" # for "installcheck"
@@ -10,9 +17,10 @@ addons:
 before_script: ./autogen.sh
 
 script:
-  - ./configure CFLAGS="-Wall -O2 -g"
+  - ./configure CFLAGS="-Wall -O2 -g" --with-lazperf=/usr/local/
   - make
   - make check
   - valgrind --leak-check=full --error-exitcode=1 lib/cunit/cu_tester
   - sudo make install
   - make installcheck || { cat pgsql/regression.diffs && false; }
+  - cd tools/benchmark_compression && sh compression_benchmark.sh

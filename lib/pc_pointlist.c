@@ -124,6 +124,10 @@ pc_pointlist_from_patch(const PCPATCH *patch)
 	{
 		return pc_pointlist_from_dimensional((PCPATCH_DIMENSIONAL*)patch);
 	}
+	case PC_LAZPERF:
+	{
+		return pc_pointlist_from_lazperf((PCPATCH_LAZPERF*)patch);
+	}
 	}
 
 	/* Don't get here */

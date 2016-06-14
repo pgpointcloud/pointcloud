@@ -625,6 +625,9 @@ Datum pcpatch_compress(PG_FUNCTION_ARGS)
   else if ( strcmp(compr_in, "ght") == 0 ) {
     schema->compression = PC_GHT;
   }
+  else if ( strcmp(compr_in, "laz") == 0 ) {
+    schema->compression = PC_LAZPERF;
+  }
   else {
     elog(ERROR, "Unrecognized compression '%s'. Please specify 'auto','dimensional' or 'ght'", compr_in);
   }
