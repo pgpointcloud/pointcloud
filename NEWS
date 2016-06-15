@@ -13,6 +13,7 @@
  - Warn about truncated values (#68)
  - Warn about script/lib version mismatch (#40)
  - Compatibility with PostgreSQL 9.5 (#90)
+ - Support LAZ compression for PcPatch (#105)
 
 1.0.1, 2015-08-09
 -----------------
