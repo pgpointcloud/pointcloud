@@ -54,10 +54,38 @@ test_schema_from_xml()
 }
 
 static void
-test_schema_from_xml_with_empty_field()
+test_schema_from_xml_with_empty_description()
 {
     PCSCHEMA *myschema = NULL;
-    char *myxmlfile = "data/simple-schema-empty-field.xml";
+    char *myxmlfile = "data/simple-schema-empty-description.xml";
+    char *xmlstr = file_to_str(myxmlfile);
+    int rv = pc_schema_from_xml(xmlstr, &myschema);
+
+    CU_ASSERT(rv == PC_SUCCESS);
+
+    pc_schema_free(myschema);
+    pcfree(xmlstr);
+}
+
+static void
+test_schema_from_xml_with_no_name()
+{
+    PCSCHEMA *myschema = NULL;
+    char *myxmlfile = "data/simple-schema-no-name.xml";
+    char *xmlstr = file_to_str(myxmlfile);
+    int rv = pc_schema_from_xml(xmlstr, &myschema);
+
+    CU_ASSERT(rv == PC_SUCCESS);
+
+    pc_schema_free(myschema);
+    pcfree(xmlstr);
+}
+
+static void
+test_schema_from_xml_with_empty_name()
+{
+    PCSCHEMA *myschema = NULL;
+    char *myxmlfile = "data/simple-schema-empty-name.xml";
     char *xmlstr = file_to_str(myxmlfile);
     int rv = pc_schema_from_xml(xmlstr, &myschema);
 
@@ -183,7 +211,6 @@ static void
 test_schema_clone(void)
 {
     int i;
-    PCSCHEMA *myschema;
     PCSCHEMA *clone = pc_schema_clone(schema);
     hashtable *hash, *chash;
     char *xmlstr;
@@ -223,27 +250,78 @@ test_schema_clone(void)
     }
 
     pc_schema_free(clone);
+}
+
+static void
+test_schema_clone_empty_description(void)
+{
+    int i;
+    PCSCHEMA *myschema, *clone;
 
     /* See https://github.com/pgpointcloud/pointcloud/issues/66 */
-    char *myxmlfile = "data/simple-schema-empty-field.xml";
-    xmlstr = file_to_str(myxmlfile);
+    char *myxmlfile = "data/simple-schema-empty-description.xml";
+    char *xmlstr = file_to_str(myxmlfile);
 
     i = pc_schema_from_xml(xmlstr, &myschema);
 	CU_ASSERT_EQUAL(i, PC_SUCCESS);
     clone = pc_schema_clone(myschema);
     CU_ASSERT_EQUAL(clone->ndims, myschema->ndims);
+    CU_ASSERT_NOT_EQUAL(clone->dims[0]->name, myschema->dims[0]->name);
     CU_ASSERT_STRING_EQUAL(clone->dims[0]->name, myschema->dims[0]->name);
     CU_ASSERT_EQUAL(clone->dims[0]->description, myschema->dims[0]->description);
     pc_schema_free(myschema);
     pc_schema_free(clone);
-    pcfree(xmlstr);
+    pcfree(xmlstr);	
+}
+
+static void
+test_schema_clone_no_name(void)
+{
+    int i;
+    PCSCHEMA *myschema, *clone;
+
+    /* See https://github.com/pgpointcloud/pointcloud/issues/66 */
+    char *myxmlfile = "data/simple-schema-no-name.xml";
+    char *xmlstr = file_to_str(myxmlfile);
+
+    i = pc_schema_from_xml(xmlstr, &myschema);
+	CU_ASSERT_EQUAL(i, PC_SUCCESS);
+    clone = pc_schema_clone(myschema);
+    CU_ASSERT_EQUAL(clone->ndims, myschema->ndims);
+    CU_ASSERT_EQUAL(clone->dims[0]->name, myschema->dims[0]->name);
+    CU_ASSERT_EQUAL(clone->dims[0]->description, myschema->dims[0]->description);
+    pc_schema_free(myschema);
+    pc_schema_free(clone);
+    pcfree(xmlstr);	
+}
+
+static void
+test_schema_clone_empty_name(void)
+{
+    int i;
+    PCSCHEMA *myschema, *clone;
+
+    char *myxmlfile = "data/simple-schema-empty-name.xml";
+    char *xmlstr = file_to_str(myxmlfile);
+
+    i = pc_schema_from_xml(xmlstr, &myschema);
+	CU_ASSERT_EQUAL(i, PC_SUCCESS);
+    clone = pc_schema_clone(myschema);
+    CU_ASSERT_EQUAL(clone->ndims, myschema->ndims);
+    CU_ASSERT_EQUAL(clone->dims[0]->name, myschema->dims[0]->name);
+    CU_ASSERT_EQUAL(clone->dims[0]->description, myschema->dims[0]->description);
+    pc_schema_free(myschema);
+    pc_schema_free(clone);
+    pcfree(xmlstr);	
 }
 
 /* REGISTER ***********************************************************/
 
 CU_TestInfo schema_tests[] = {
 	PC_TEST(test_schema_from_xml),
-	PC_TEST(test_schema_from_xml_with_empty_field),
+	PC_TEST(test_schema_from_xml_with_empty_description),
+	PC_TEST(test_schema_from_xml_with_empty_name),
+	PC_TEST(test_schema_from_xml_with_no_name),
 	PC_TEST(test_schema_size),
 	PC_TEST(test_dimension_get),
 	PC_TEST(test_dimension_byteoffsets),
@@ -252,6 +330,9 @@ CU_TestInfo schema_tests[] = {
 	PC_TEST(test_schema_missing_dimension),
 	PC_TEST(test_schema_empty),
 	PC_TEST(test_schema_clone),
+	PC_TEST(test_schema_clone_empty_description),
+	PC_TEST(test_schema_clone_no_name),
+	PC_TEST(test_schema_clone_empty_name),
 	CU_TEST_INFO_NULL
 };
 
