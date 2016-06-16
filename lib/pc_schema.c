@@ -516,6 +516,7 @@ pc_schema_from_xml(const char *xml_str, PCSCHEMA **schema)
 					if ( s->dims[d->position] )
 					{
 						pcwarn("schema dimension at position \"%d\" is declared twice", d->position + 1, ndims);
+						pc_dimension_free(d);
 						goto cleanup;
 					}
 					if ( xydim == 'x' )
@@ -531,6 +532,7 @@ pc_schema_from_xml(const char *xml_str, PCSCHEMA **schema)
 				else
 				{
 					pcwarn("schema dimension states position \"%d\", but number of XML dimensions is \"%d\"", d->position + 1, ndims);
+					pc_dimension_free(d);
 					goto cleanup;
 				}
 			}
