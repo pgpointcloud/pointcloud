@@ -326,7 +326,7 @@ pc_schema_to_json(const PCSCHEMA *pcs)
 	return str;
 }
 
-void pc_schema_check_xy(PCSCHEMA *s)
+int pc_schema_check_xy(PCSCHEMA *s)
 {
 	int i;
 	for ( i = 0; i < s->ndims; i++ )
@@ -352,14 +352,16 @@ void pc_schema_check_xy(PCSCHEMA *s)
 	if ( s->x_position < 0 )
 	{
 		pcerror("pc_schema_check_xy: invalid x_position '%d'", s->x_position);
-		return;
+		return PC_FAILURE;
 	}
 
 	if ( s->y_position < 0 )
 	{
 		pcerror("pc_schema_check_xy: invalid y_position '%d'", s->y_position);
-		return;
+		return PC_FAILURE;
 	}
+
+	return PC_SUCCESS;
 }
 
 static char *
