@@ -160,6 +160,19 @@ test_schema_missing_dimension()
 
 
 static void
+test_schema_empty()
+{
+	static PCSCHEMA *myschema = NULL;
+	char *xmlstr;
+	int rv;
+
+	xmlstr = "";
+	rv = pc_schema_from_xml(xmlstr, &myschema);
+	CU_ASSERT_EQUAL(rv, PC_FAILURE);
+	CU_ASSERT_EQUAL(myschema, NULL);	
+}
+
+static void
 test_schema_compression(void)
 {
     int compression = schema->compression;
@@ -237,6 +250,7 @@ CU_TestInfo schema_tests[] = {
 	PC_TEST(test_schema_compression),
 	PC_TEST(test_schema_invalid_xy),
 	PC_TEST(test_schema_missing_dimension),
+	PC_TEST(test_schema_empty),
 	PC_TEST(test_schema_clone),
 	CU_TEST_INFO_NULL
 };

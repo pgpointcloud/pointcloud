@@ -391,8 +391,8 @@ pc_schema_from_xml(const char *xml_str, PCSCHEMA **schema)
 	xmlDocPtr xml_doc = NULL;
 	xmlNodePtr xml_root = NULL;
 	xmlNsPtr xml_ns = NULL;
-	xmlXPathContextPtr xpath_ctx;
-	xmlXPathObjectPtr xpath_obj;
+	xmlXPathContextPtr xpath_ctx = NULL;
+	xmlXPathObjectPtr xpath_obj = NULL;
 	xmlNodeSetPtr nodes;
 	PCSCHEMA *s = NULL;
 	const char *xml_ptr = xml_str;
