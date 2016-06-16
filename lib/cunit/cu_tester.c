@@ -70,7 +70,7 @@ int main(int argc, char *argv[])
 	/* Set up to use the system memory management / logging */
 	pc_install_default_handlers();
 
-  pc_set_handlers(0, 0, 0, cu_error_reporter, 0, 0);
+  pc_set_handlers(0, 0, 0, cu_error_reporter, 0, cu_error_reporter);
 
 	/* initialize the CUnit test registry */
 	if (CUE_SUCCESS != CU_initialize_registry())
