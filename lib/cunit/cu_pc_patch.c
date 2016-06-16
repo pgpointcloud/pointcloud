@@ -698,25 +698,26 @@ static void
 test_patch_pointn_ght_compression()
 {
     // 00 endian (big)
-	// 00000000 pcid
-	// 00000000 compression
-	// 00000003 npoints
-	// 0000000800000003000000050006 pt1 (XYZi)
-	// 0000000200000003000000040008 pt2 (XYZi)
-	// 0000000200000003000000040009 pt3 (XYZi)
+    // 00000000 pcid
+    // 00000000 compression
+    // 00000003 npoints
+    // 0000000800000003000000050006 pt1 (XYZi)
+    // 0000000200000003000000040008 pt2 (XYZi)
+    // 0000000200000003000000040009 pt3 (XYZi)
 
-	char *hexbuf = "00000000000000000000000003000000080000000300000005000600000002000000030000000400080000000200000003000000040009";
-	size_t hexsize = strlen(hexbuf);
-	uint8_t *wkb = bytes_from_hexbytes(hexbuf, hexsize);
+    char *hexbuf = "00000000000000000000000003000000080000000300000005000600000002000000030000000400080000000200000003000000040009";
+    size_t hexsize = strlen(hexbuf);
+    uint8_t *wkb = bytes_from_hexbytes(hexbuf, hexsize);
 
-	PCPATCH *pa = pc_patch_from_wkb(simpleschema, wkb, hexsize/2);
+    PCPATCH *pa = pc_patch_from_wkb(simpleschema, wkb, hexsize/2);
     PCPOINTLIST *li = pc_pointlist_from_patch(pa);
 
 #ifdef HAVE_LIBGHT
-    pag = pc_patch_ght_from_pointlist(li);
-    pt = pc_patch_pointn((PCPATCH*) pag, 2);
+    PCPATCH_GHT* pag = pc_patch_ght_from_pointlist(li);
+    PCPOINT *pt = pc_patch_pointn((PCPATCH*) pag, 2);
     CU_ASSERT(pt != NULL);
     CU_ASSERT_STRING_EQUAL(pc_point_to_string(pt), "{\"pcid\":0,\"pt\":[0.02,0.03,0.04,8]}");
+    pc_patch_free( (PCPATCH*) pag );
     pc_point_free(pt);
 #endif
 
