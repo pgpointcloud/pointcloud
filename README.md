@@ -507,7 +507,7 @@ One of the issues with LIDAR data is that there is a lot of it. To deal with dat
       <Metadata name="compression">dimensional</Metadata>
     </pc:metadata>
 
-There are currently three supported compressions:
+There are currently four supported compressions:
 
 - **None**, which stores points and patches as byte arrays using the type and formats described in the schema document.
 - **Dimensional**, which stores points the same as 'none' but stores patches as collections of dimensional data arrays, with an "appropriate" compression applied. Dimensional compression makes the most sense for smaller patch sizes, since small patches will tend to have more homogeneous dimensions.
