@@ -364,6 +364,57 @@ test_patch_dimensional_compression()
 }
 
 static void
+test_patch_compression_stats_leak()
+{
+    PCPOINT *pt;
+    int i;
+    int npts = 400;
+    PCPOINTLIST *pl1, *pl2;
+    PCPATCH *pch1, *pch2;
+    PCDIMSTATS *pds = NULL;
+
+    pl1 = pc_pointlist_make(npts);
+
+    for ( i = 0; i < npts; i++ )
+    {
+        pt = pc_point_make(simpleschema);
+        pc_point_set_double_by_name(pt, "x", i*2.0);
+        pc_point_set_double_by_name(pt, "y", i*1.9);
+        pc_point_set_double_by_name(pt, "Z", i*0.34);
+        pc_point_set_double_by_name(pt, "intensity", 10);
+        pc_pointlist_add_point(pl1, pt);
+    }
+
+    pch1 = pc_patch_from_pointlist(pl1);
+
+    pch2 = pc_patch_compress(pch1, pds);
+
+    pl2 = pc_pointlist_from_patch(pch2);
+
+    for ( i = 0; i < npts; i++ )
+    {
+        pt = pc_pointlist_get_point(pl2, i);
+        double v1, v2, v3, v4;
+        pc_point_get_double_by_name(pt, "x", &v1);
+        pc_point_get_double_by_name(pt, "y", &v2);
+        pc_point_get_double_by_name(pt, "Z", &v3);
+        pc_point_get_double_by_name(pt, "intensity", &v4);
+        
+        CU_ASSERT_DOUBLE_EQUAL(v1, i*2.0, 0.001);
+        CU_ASSERT_DOUBLE_EQUAL(v2, i*1.9, 0.001);
+        CU_ASSERT_DOUBLE_EQUAL(v3, i*0.34, 0.001);
+        CU_ASSERT_DOUBLE_EQUAL(v4, 10, 0.001);
+    }
+
+    pc_patch_free((PCPATCH*)pch1);
+    pc_patch_free((PCPATCH*)pch2);
+    pc_pointlist_free(pl1);
+    pc_pointlist_free(pl2);
+    if ( pds ) pc_dimstats_free(pds);
+}
+
+
+static void
 test_patch_dimensional_extent()
 {
     PCPOINT *pt;
@@ -736,6 +787,7 @@ CU_TestInfo patch_tests[] = {
 	PC_TEST(test_schema_xy),
 	PC_TEST(test_patch_dimensional),
 	PC_TEST(test_patch_dimensional_compression),
+    PC_TEST(test_patch_compression_stats_leak),
 	PC_TEST(test_patch_dimensional_extent),
 	PC_TEST(test_patch_union),
 	PC_TEST(test_patch_wkb),
