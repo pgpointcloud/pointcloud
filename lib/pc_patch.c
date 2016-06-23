@@ -141,7 +141,7 @@ pc_patch_compress(const PCPATCH *patch, void *userdata)
 			/* Dimensionalize, dimensionally compress, return */
 			PCPATCH_DIMENSIONAL *pcdu = pc_patch_dimensional_from_uncompressed((PCPATCH_UNCOMPRESSED*)patch);
 			PCPATCH_DIMENSIONAL *pcdd = pc_patch_dimensional_compress(pcdu, (PCDIMSTATS*)userdata);
-			pc_patch_free((PCPATCH*)pcdu);
+			pc_patch_dimensional_free(pcdu);
 			return (PCPATCH*)pcdd;
 		}
 		else if ( patch_compression == PC_DIMENSIONAL )
@@ -155,7 +155,7 @@ pc_patch_compress(const PCPATCH *patch, void *userdata)
 			PCPATCH_UNCOMPRESSED *pcu = pc_patch_uncompressed_from_ght((PCPATCH_GHT*)patch);
 			PCPATCH_DIMENSIONAL *pcdu  = pc_patch_dimensional_from_uncompressed(pcu);
 			PCPATCH_DIMENSIONAL *pcdc  = pc_patch_dimensional_compress(pcdu, NULL);
-			pc_patch_free((PCPATCH*)pcdu);
+			pc_patch_dimensional_free(pcdu);
 			return (PCPATCH*)pcdc;
 		}
 		else if ( patch_compression == PC_LAZPERF )
@@ -163,7 +163,7 @@ pc_patch_compress(const PCPATCH *patch, void *userdata)
 			PCPATCH_UNCOMPRESSED *pcu = pc_patch_uncompressed_from_lazperf( (PCPATCH_LAZPERF*) patch );
 			PCPATCH_DIMENSIONAL *pal = pc_patch_dimensional_from_uncompressed( pcu );
 			PCPATCH_DIMENSIONAL *palc = pc_patch_dimensional_compress( pal, NULL );
-			pc_patch_free((PCPATCH*) pal);
+			pc_patch_dimensional_free(pal);
 			return (PCPATCH*) palc;
 		}
 		else
@@ -210,7 +210,7 @@ pc_patch_compress(const PCPATCH *patch, void *userdata)
 		{
 			PCPATCH_UNCOMPRESSED *pcu = pc_patch_uncompressed_from_dimensional((PCPATCH_DIMENSIONAL*)patch);
 			PCPATCH_GHT *pgc = pc_patch_ght_from_uncompressed((PCPATCH_UNCOMPRESSED*)patch);
-			pc_patch_free((PCPATCH*)pcu);
+			pc_patch_uncompressed_free(pcu);
 			return (PCPATCH*)pgc;
 		}
 		else if ( patch_compression == PC_GHT )
@@ -239,14 +239,14 @@ pc_patch_compress(const PCPATCH *patch, void *userdata)
 		{
 			PCPATCH_UNCOMPRESSED *pad = pc_patch_uncompressed_from_dimensional((PCPATCH_DIMENSIONAL*)patch);
 			PCPATCH_LAZPERF *pal = pc_patch_lazperf_from_uncompressed( (PCPATCH_UNCOMPRESSED*) pad );
-			pc_patch_free( (PCPATCH*)pad );
+			pc_patch_uncompressed_free( pad );
 			return (PCPATCH*)pal;
 		}
 		else if ( patch_compression == PC_GHT )
 		{
 			PCPATCH_UNCOMPRESSED *pcu = pc_patch_uncompressed_from_ght((PCPATCH_GHT*)patch);
 			PCPATCH_LAZPERF *pal = pc_patch_lazperf_from_uncompressed((PCPATCH_UNCOMPRESSED*)patch);
-			pc_patch_free((PCPATCH*)pcu);
+			pc_patch_uncompressed_free(pcu);
 			return (PCPATCH*)pcu;
 		}
 		else if ( patch_compression == PC_LAZPERF )
