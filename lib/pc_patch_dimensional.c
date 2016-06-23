@@ -148,6 +148,7 @@ pc_patch_dimensional_decompress(const PCPATCH_DIMENSIONAL *pdl)
 	pdl_decompressed = pcalloc(sizeof(PCPATCH_DIMENSIONAL));
 	memcpy(pdl_decompressed, pdl, sizeof(PCPATCH_DIMENSIONAL));
 	pdl_decompressed->bytes = pcalloc(ndims*sizeof(PCBYTES));
+	pdl_decompressed->stats = pc_stats_clone(pdl->stats);
 
 	/* Compress each dimension as dictated by stats */
 	for ( i = 0; i < ndims; i++ )
@@ -164,6 +165,8 @@ pc_patch_dimensional_free(PCPATCH_DIMENSIONAL *pdl)
 	int i;
 	assert(pdl);
 	assert(pdl->schema);
+
+	pc_patch_common_free((PCPATCH*) pdl);
 
 	if ( pdl->bytes )
 	{
@@ -280,6 +283,7 @@ pc_patch_dimensional_from_wkb(const PCSCHEMA *schema, const uint8_t *wkb, size_t
 	patch->schema = schema;
 	patch->npoints = npoints;
 	patch->bytes = pcalloc(ndims*sizeof(PCBYTES));
+	patch->stats = NULL;
 
 	buf = wkb+hdrsz;
 	for ( i = 0; i < ndims; i++ )

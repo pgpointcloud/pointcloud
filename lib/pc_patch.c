@@ -80,14 +80,18 @@ pc_patch_compute_stats(PCPATCH *pa)
 }
 
 void
-pc_patch_free(PCPATCH *patch)
+pc_patch_common_free(PCPATCH *patch)
 {
-	if ( patch->stats )
+	if ( patch && patch->stats )
 	{
 		pc_stats_free( patch->stats );
 		patch->stats = NULL;
-	}
+	}	
+}
 
+void
+pc_patch_free(PCPATCH *patch)
+{
 	switch( patch->type )
 	{
 	case PC_NONE:

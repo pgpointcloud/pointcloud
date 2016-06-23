@@ -157,6 +157,7 @@ char* pc_dimstats_to_string(const PCDIMSTATS *pds);
 
 /** Returns newly allocated patch that only contains the points fitting the filter condition */
 PCPATCH* pc_patch_filter(const PCPATCH *pa, uint32_t dimnum, PC_FILTERTYPE filter, double val1, double val2);
+void pc_patch_common_free(PCPATCH *pa);
 
 /* DIMENSIONAL PATCHES */
 char* pc_patch_dimensional_to_string(const PCPATCH_DIMENSIONAL *pa);
