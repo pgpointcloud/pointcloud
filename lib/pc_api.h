@@ -458,4 +458,7 @@ PCPATCH *pc_patch_sort(const PCPATCH *pa, const char **name, int ndims);
 /** True/false if the patch is sorted on dimension */
 uint32_t pc_patch_is_sorted(const PCPATCH *pa, const char **name, int ndims, char strict);
 
+/** Subset batch based on index */
+PCPATCH* pc_patch_range(const PCPATCH *pa, int first, int count);
+
 #endif /* _PC_API_H */

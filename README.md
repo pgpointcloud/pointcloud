@@ -471,6 +471,9 @@ Now that you have created two tables, you'll see entries for them in the `pointc
 
 > Returns a copy of the input patch lexicographically sorted along the given dimensions.
 
+**PC_Range(p pcpatch, start int4, n int4)** returns **pcpatch**
+
+> Returns a patch containing *n* points. These points are selected from the *start*-th point with 1-based indexing.
 
 ## PostGIS Integration ##
 

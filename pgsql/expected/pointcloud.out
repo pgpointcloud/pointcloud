@@ -312,6 +312,15 @@ SELECT sum(PC_NumPoints(pa)) FROM pa_test;
    8
 (1 row)
 
+SELECT PC_AsText(PC_Range(pa, 1, 1)) FROM pa_test;
+               pc_astext               
+---------------------------------------
+ {"pcid":1,"pts":[[0.02,0.03,0.05,6]]}
+ {"pcid":1,"pts":[[0.06,0.07,0.05,6]]}
+ {"pcid":1,"pts":[[0.06,0.07,0.05,6]]}
+ {"pcid":1,"pts":[[0.06,0.07,0.05,6]]}
+(4 rows)
+
 CREATE TABLE IF NOT EXISTS pa_test_dim (
     pa PCPATCH(3)
 );

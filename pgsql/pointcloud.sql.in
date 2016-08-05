@@ -309,6 +309,10 @@ CREATE OR REPLACE FUNCTION PC_IsSorted(p pcpatch, attr text[], strict boolean de
 	RETURNS boolean AS 'MODULE_PATHNAME', 'pcpatch_is_sorted'
 	LANGUAGE 'c' IMMUTABLE STRICT;
 
+CREATE OR REPLACE FUNCTION PC_Range(p pcpatch, first int4, count int4)
+	RETURNS pcpatch AS 'MODULE_PATHNAME', 'pcpatch_range'
+	LANGUAGE 'c' IMMUTABLE STRICT;
+
 -------------------------------------------------------------------
 --  POINTCLOUD_COLUMNS
 -------------------------------------------------------------------

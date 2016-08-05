@@ -232,6 +232,8 @@ SELECT PC_Envelope(pa) from pa_test;
 SELECT PC_AsText(PC_Union(pa)) FROM pa_test;
 SELECT sum(PC_NumPoints(pa)) FROM pa_test;
 
+SELECT PC_AsText(PC_Range(pa, 1, 1)) FROM pa_test;
+
 CREATE TABLE IF NOT EXISTS pa_test_dim (
     pa PCPATCH(3)
 );
