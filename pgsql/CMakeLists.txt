@@ -25,7 +25,7 @@ configure_file(
     "${PROJECT_BINARY_DIR}/pgsql/pointcloud.control"
     )
 
-set(CMAKE_C_FLAGS "${PGSQL_CPPFLAGS}")
+set(CMAKE_C_FLAGS "${PGSQL_CFLAGS}")
 set(CMAKE_SHARED_LINKER_FLAGS "${PGSQL_LDFLAGS}")
 
 include_directories ("${PGSQL_INCLUDEDIR_SERVER}")
