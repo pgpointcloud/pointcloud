@@ -226,7 +226,7 @@ pc_patch_lazperf_compute_extent(PCPATCH_LAZPERF *patch)
 {
 #ifndef HAVE_LAZPERF
 	pcerror("%s: lazperf support is not enabled", __func__);
-	return NULL;
+	return PC_FAILURE;
 #endif
 
 	PCPATCH_UNCOMPRESSED *pau = pc_patch_uncompressed_from_lazperf(patch);
