@@ -112,12 +112,14 @@ find_package (LibGHT)
 
 if (LIBGHT_FOUND)
   set (HAVE_LIBGHT 1)
+  include_directories (${LIBGHT_INCLUDE_DIR})
 endif (LIBGHT_FOUND)
 
 find_package (LazPerf)
 
 if (LAZPERF_FOUND)
   set (HAVE_LAZPERF 1)
+  include_directories (${LAZPERF_INCLUDE_DIR})
 endif (LAZPERF_FOUND)
 
 #------------------------------------------------------------------------------
