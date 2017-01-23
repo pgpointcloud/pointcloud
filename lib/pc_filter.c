@@ -29,7 +29,7 @@ pc_bitmap_free(PCBITMAP *map)
 	pcfree(map);
 }
 
-inline void
+static inline void
 pc_bitmap_set(PCBITMAP *map, int i, int val)
 {
 	uint8_t curval = map->map[i];

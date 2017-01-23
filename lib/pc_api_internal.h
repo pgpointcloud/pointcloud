@@ -281,8 +281,6 @@ void pc_bounds_merge(PCBOUNDS *b1, const PCBOUNDS *b2);
 PCBITMAP* pc_bitmap_new(uint32_t npoints);
 /** Deallocate bitmap */
 void pc_bitmap_free(PCBITMAP *map);
-/** Set the indicated bit to true if val!=0 otherwise false */
-extern inline void pc_bitmap_set(PCBITMAP *map, int i, int val);
 /** Set indicated bit on bitmap if filter and value are consistent */
 void pc_bitmap_filter(PCBITMAP *map, PC_FILTERTYPE filter, int i, double d, double val1, double val2);
 
