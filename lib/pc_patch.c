@@ -27,7 +27,7 @@ pc_patch_compute_extent(PCPATCH *pa)
 	case PC_DIMENSIONAL:
 		return pc_patch_dimensional_compute_extent((PCPATCH_DIMENSIONAL*)pa);
 	case PC_LAZPERF:
-		return pc_patch_lazperf_compute_extent((PCPATCH_DIMENSIONAL*)pa);
+		return pc_patch_lazperf_compute_extent((PCPATCH_LAZPERF*)pa);
 	}
 	return PC_FAILURE;
 }
