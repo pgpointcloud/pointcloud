@@ -204,6 +204,7 @@ PCPATCH_LAZPERF* pc_patch_lazperf_from_pointlist(const PCPOINTLIST *pl);
 PCPATCH_LAZPERF* pc_patch_lazperf_from_uncompressed(const PCPATCH_UNCOMPRESSED *pa);
 PCPOINTLIST* pc_pointlist_from_lazperf(const PCPATCH_LAZPERF *palaz);
 PCPATCH_UNCOMPRESSED* pc_patch_uncompressed_from_lazperf(const PCPATCH_LAZPERF *palaz);
+int pc_patch_lazperf_compute_extent(PCPATCH_LAZPERF *patch);
 char* pc_patch_lazperf_to_string(const PCPATCH_LAZPERF *pa);
 void pc_patch_lazperf_free(PCPATCH_LAZPERF *palaz);
 uint8_t* pc_patch_lazperf_to_wkb(const PCPATCH_LAZPERF *patch, size_t *wkbsize);
