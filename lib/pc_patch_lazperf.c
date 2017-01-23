@@ -9,6 +9,7 @@
 ***********************************************************************/
 
 #include "pc_api_internal.h"
+#include "lazperf_adapter.h"
 #include <assert.h>
 
 void

@@ -23,11 +23,7 @@
 /**********************************************************************
 * C API
 */
-extern "C" {
-	size_t lazperf_compress_from_uncompressed(const PCPATCH_UNCOMPRESSED *pa, uint8_t **compressed);
-
-	size_t lazperf_uncompress_from_compressed(const PCPATCH_LAZPERF *pa, uint8_t **decompressed);
-}
+#include "lazperf_adapter.h"
 
 /**********************************************************************
 * INTERNAL CPP
