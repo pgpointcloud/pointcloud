@@ -228,4 +228,9 @@ CU_TestInfo schema_tests[] = {
 	CU_TEST_INFO_NULL
 };
 
-CU_SuiteInfo schema_suite = {"schema", init_suite, clean_suite, schema_tests};
+CU_SuiteInfo schema_suite = {
+    .pName = "schema",
+    .pInitFunc = init_suite,
+    .pCleanupFunc = clean_suite,
+    .pTests = schema_tests
+};

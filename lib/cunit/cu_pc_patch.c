@@ -750,4 +750,9 @@ CU_TestInfo patch_tests[] = {
 	CU_TEST_INFO_NULL
 };
 
-CU_SuiteInfo patch_suite = {"patch", init_suite, clean_suite, patch_tests};
+CU_SuiteInfo patch_suite = {
+    .pName = "patch",
+    .pInitFunc = init_suite,
+    .pCleanupFunc = clean_suite,
+    .pTests = patch_tests
+};

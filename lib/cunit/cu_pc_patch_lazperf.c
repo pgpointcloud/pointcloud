@@ -261,4 +261,9 @@ CU_TestInfo lazperf_tests[] = {
 	CU_TEST_INFO_NULL
 };
 
-CU_SuiteInfo lazperf_suite = {"lazperf", init_suite, clean_suite, lazperf_tests};
+CU_SuiteInfo lazperf_suite = {
+    .pName = "lazperf",
+    .pInitFunc = init_suite,
+    .pCleanupFunc = clean_suite,
+    .pTests = lazperf_tests
+};

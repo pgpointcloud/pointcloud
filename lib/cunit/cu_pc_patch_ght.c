@@ -144,4 +144,9 @@ CU_TestInfo ght_tests[] = {
 	CU_TEST_INFO_NULL
 };
 
-CU_SuiteInfo ght_suite = {"ght", init_suite, clean_suite, ght_tests};
+CU_SuiteInfo ght_suite = {
+    .pName = "ght",
+    .pInitFunc = init_suite,
+    .pCleanupFunc = clean_suite,
+    .pTests = ght_tests
+};
