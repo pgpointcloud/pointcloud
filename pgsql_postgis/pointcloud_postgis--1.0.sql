@@ -16,14 +16,14 @@ CREATE OR REPLACE FUNCTION PC_Intersection(pcpatch, geometry)
 -----------------------------------------------------------------------------
 -- Cast from pcpatch to polygon
 --
-CREATE OR REPLACE FUNCTION geometry(pcpatch)
+CREATE OR REPLACE FUNCTION PC_Envelope(pcpatch)
     RETURNS geometry AS
     $$
-        SELECT ST_GeomFromEWKB(PC_Envelope($1))
+        SELECT ST_GeomFromEWKB(PC_Envelope_AsBinary($1))
     $$ 
     LANGUAGE 'sql';
 
-CREATE CAST (pcpatch AS geometry) WITH FUNCTION geometry(pcpatch);
+CREATE CAST (pcpatch AS geometry) WITH FUNCTION PC_Envelope(pcpatch);
 
 -----------------------------------------------------------------------------
 -- Cast from pcpoint to point
@@ -44,7 +44,7 @@ CREATE CAST (pcpoint AS geometry) WITH FUNCTION geometry(pcpoint);
 CREATE OR REPLACE FUNCTION PC_Intersects(pcpatch, geometry)
     RETURNS boolean AS
     $$
-        SELECT ST_Intersects($2, geometry($1))
+        SELECT ST_Intersects($2, PC_Envelope($1))
     $$ 
     LANGUAGE 'sql';
 

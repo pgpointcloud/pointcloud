@@ -416,6 +416,9 @@ int pc_patch_compute_extent(PCPATCH *patch);
 /** True/false if bounds intersect */
 int pc_bounds_intersects(const PCBOUNDS *b1, const PCBOUNDS *b2);
 
+/** Returns the bounds as an OGC WKB polygon */
+uint8_t *pc_bounds_to_wkb(const PCBOUNDS *bounds, uint32_t srid, size_t *wkbsize);
+
 /** Subset batch based on less-than condition on dimension */
 PCPATCH* pc_patch_filter_lt_by_name(const PCPATCH *pa, const char *name, double val);
 

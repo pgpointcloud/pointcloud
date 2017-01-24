@@ -263,3 +263,102 @@ void pc_bounds_merge(PCBOUNDS *b1, const PCBOUNDS *b2)
 	if ( b2->ymax > b1->ymax ) b1->ymax = b2->ymax;
 }
 
+
+uint8_t *
+wkb_set_double(uint8_t *wkb, double d)
+{
+	memcpy(wkb, &d, 8);
+	wkb += 8;
+	return wkb;
+}
+
+uint8_t *
+wkb_set_uint32(uint8_t *wkb, uint32_t i)
+{
+	memcpy(wkb, &i, 4);
+	wkb += 4;
+	return wkb;
+}
+
+uint8_t *
+wkb_set_char(uint8_t *wkb, char c)
+{
+	memcpy(wkb, &c, 1);
+	wkb += 1;
+	return wkb;
+}
+
+uint8_t *
+pc_bounds_to_wkb(const PCBOUNDS *bounds, uint32_t srid, size_t *wkbsize)
+{
+    /* Bounds! */
+    double xmin = bounds->xmin;
+    double ymin = bounds->ymin;
+    double xmax = bounds->xmax;
+    double ymax = bounds->ymax;
+
+    static uint32_t srid_mask = 0x20000000;
+    static uint32_t nrings = 1;
+    static uint32_t npoints_by_type[] = { 0, 1, 2, 5 };
+    uint32_t wkbtype = 1 + (xmin!=xmax) + (ymin!=ymax); /* WKB POINT, LINESTRING or POLYGON */
+    uint32_t npoints = npoints_by_type[wkbtype];
+    uint8_t *wkb, *ptr;
+    size_t size = 1 + wkbtype*4 + npoints*2*8; /* endian + type + (nrings?) + (npoints?) + npoints dbl pt */
+    
+    if ( srid )
+    {
+        wkbtype |= srid_mask;
+        size += 4;
+    }
+
+    if ( wkbsize ) *wkbsize = size;
+    wkb = pcalloc(size);
+    ptr = wkb;
+    
+    ptr = wkb_set_char(ptr, machine_endian()); /* Endian flag */
+    
+    ptr = wkb_set_uint32(ptr, wkbtype); /* TYPE = POINT, LINESTRING or POLYGON */
+    
+    if ( srid )
+    {
+        ptr = wkb_set_uint32(ptr, srid); /* SRID */
+    }
+    
+
+    switch( npoints ) 
+    {
+    case 5 : ptr = wkb_set_uint32(ptr, nrings);  /* NRINGS = 1 */
+    case 2 : ptr = wkb_set_uint32(ptr, npoints); /* NPOINTS = 1, 2 or 5 */
+    }
+
+    /* Point 0 */
+    ptr = wkb_set_double(ptr, xmin);
+    ptr = wkb_set_double(ptr, ymin);
+    
+    if(npoints==2) // LINESTRING
+    {
+        /* Point 1 */
+        ptr = wkb_set_double(ptr, xmax);
+        ptr = wkb_set_double(ptr, ymax);
+    }
+    else if(npoints==5) // POLYGON
+    {
+        /* Point 1 */
+        ptr = wkb_set_double(ptr, xmin);
+        ptr = wkb_set_double(ptr, ymax);
+        
+        /* Point 2 */
+        ptr = wkb_set_double(ptr, xmax);
+        ptr = wkb_set_double(ptr, ymax);
+        
+        /* Point 3 */
+        ptr = wkb_set_double(ptr, xmax);
+        ptr = wkb_set_double(ptr, ymin);
+        
+        /* Point 4 */
+        ptr = wkb_set_double(ptr, xmin);
+        ptr = wkb_set_double(ptr, ymin);
+    }
+    
+    return wkb;
+}
