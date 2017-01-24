@@ -541,4 +541,9 @@ CU_TestInfo bytes_tests[] = {
 	CU_TEST_INFO_NULL
 };
 
-CU_SuiteInfo bytes_suite = {"bytes", init_suite, clean_suite, bytes_tests};
+CU_SuiteInfo bytes_suite = {
+    .pName = "bytes",
+    .pInitFunc = init_suite,
+    .pCleanupFunc = clean_suite,
+    .pTests = bytes_tests
+};

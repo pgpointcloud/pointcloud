@@ -160,4 +160,9 @@ CU_TestInfo point_tests[] = {
 	CU_TEST_INFO_NULL
 };
 
-CU_SuiteInfo point_suite = {"point", init_suite, clean_suite, point_tests};
+CU_SuiteInfo point_suite = {
+    .pName = "point",
+    .pInitFunc = init_suite,
+    .pCleanupFunc = clean_suite,
+    .pTests = point_tests
+};
