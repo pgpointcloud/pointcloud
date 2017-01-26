@@ -339,18 +339,25 @@ if test "x$LAZPERFDIR" = "xyes"; then
 fi
 
 if test "x$LAZPERFDIR" = "x"; then
+  dnl LAZPERFDIR was not specified, so search in usual system places
   AC_CHECK_HEADER([las.hpp],
 		  [FOUND_LAZPERF="YES"],
 		  [FOUND_LAZPERF="NO"])
-elif test "x$GHTDIR" != "xno"; then
+elif test "x$LAZPERFDIR" != "xno"; then
+  dnl LAZPERFDIR was specified, so let's look there!
+
   LAZPERF_CPPFLAGS="-I${LAZPERFDIR}/include/"
 
-  CFLAGS="$LAZPERF_CPPFLAGS"
-  CPPFLAGS="$LAZPERF_CPPFLAGS -std=c++0x"
+  dnl Check header file
+  CPPFLAGS_SAVE="${CPPFLAGS}"
+  CPPFLAGS="${LAZPERF_CPPFLAGS} --std=c++0x"
 
   AC_CHECK_HEADER([laz-perf/las.hpp],
 		  [FOUND_LAZPERF="YES"],
 		  [FOUND_LAZPERF="NO"])
+
+  dnl back to the original
+  CPPFLAGS="${CPPFLAGS_SAVE}"
 fi
 
 if test "x$FOUND_LAZPERF" = "xYES"; then
@@ -364,6 +371,7 @@ else
 fi
 
 AC_SUBST([LAZPERF_STATUS])
+AC_SUBST([LAZPERF_CPPFLAGS])
 
 dnl ===========================================================================
 dnl Figure out where this script is running
