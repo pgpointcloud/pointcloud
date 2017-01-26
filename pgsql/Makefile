@@ -38,7 +38,7 @@ REGRESS += pointcloud-laz
 endif
 
 # Add in build/link flags for lib
-PG_CPPFLAGS += -I../lib
+PG_CPPFLAGS += -I../lib $(GHT_CPPFLAGS)
 SHLIB_LINK += ../lib/$(LIB_A) ../lib/$(LIB_A_LAZPERF) -lstdc++ $(filter -lm, $(LIBS)) $(XML2_LDFLAGS) $(ZLIB_LDFLAGS) $(GHT_LDFLAGS)
 
 # We are going to use PGXS for sure

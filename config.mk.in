@@ -19,3 +19,5 @@ PGXS = @PGXS@
 
 LIB_A = libpc.a
 LIB_A_LAZPERF = liblazperf.a
+
+LAZPERF_CPPFLAGS = @LAZPERF_CPPFLAGS@
