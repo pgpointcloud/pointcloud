@@ -25,6 +25,10 @@
 #include "ght.h"
 #endif
 
+#ifndef __GNUC__
+#define __attribute__ (x)
+#endif
+
 /**********************************************************************
 * DATA STRUCTURES
 */
@@ -209,7 +213,8 @@ typedef struct
 typedef void* (*pc_allocator)(size_t size);
 typedef void* (*pc_reallocator)(void *mem, size_t size);
 typedef void  (*pc_deallocator)(void *mem);
-typedef void  (*pc_message_handler)(const char *string, va_list ap);
+typedef void  (*pc_message_handler)(const char *string, va_list ap)
+    __attribute__ (( format (printf, 1, 0) ));
 
 
 

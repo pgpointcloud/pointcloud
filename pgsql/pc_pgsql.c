@@ -60,6 +60,10 @@ pgsql_free(void *ptr)
 
 static void
 pgsql_msg_handler(int sig, const char *fmt, va_list ap)
+    __attribute__ (( format (printf, 2, 0) ));
+
+static void
+pgsql_msg_handler(int sig, const char *fmt, va_list ap)
 {
 #define MSG_MAXLEN 1024
 	char msg[MSG_MAXLEN] = {0};
@@ -69,16 +73,25 @@ pgsql_msg_handler(int sig, const char *fmt, va_list ap)
 }
 
 static void
+pgsql_error(const char *fmt, va_list ap) __attribute__ (( format (printf, 1, 0) ));
+
+static void
 pgsql_error(const char *fmt, va_list ap)
 {
 	pgsql_msg_handler(ERROR, fmt, ap);
 }
 
 static void
+pgsql_warn(const char *fmt, va_list ap) __attribute__ (( format (printf, 1, 0) ));
+
+static void
 pgsql_warn(const char *fmt, va_list ap)
 {
 	pgsql_msg_handler(WARNING, fmt, ap);
 }
+
+static void
+pgsql_info(const char *fmt, va_list ap) __attribute__ (( format (printf, 1, 0) ));
 
 static void
 pgsql_info(const char *fmt, va_list ap)
