@@ -245,9 +245,9 @@ pc_patch_compress(const PCPATCH *patch, void *userdata)
 		else if ( patch_compression == PC_GHT )
 		{
 			PCPATCH_UNCOMPRESSED *pcu = pc_patch_uncompressed_from_ght((PCPATCH_GHT*)patch);
-			PCPATCH_LAZPERF *pal = pc_patch_lazperf_from_uncompressed((PCPATCH_UNCOMPRESSED*)patch);
+			PCPATCH_LAZPERF *pal = pc_patch_lazperf_from_uncompressed((PCPATCH_UNCOMPRESSED*)pcu);
 			pc_patch_uncompressed_free(pcu);
-			return (PCPATCH*)pcu;
+			return (PCPATCH*)pal;
 		}
 		else if ( patch_compression == PC_LAZPERF )
 		{

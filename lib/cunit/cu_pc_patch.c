@@ -15,9 +15,11 @@
 static PCSCHEMA *schema = NULL;
 static PCSCHEMA *simpleschema = NULL;
 static PCSCHEMA *lasschema = NULL;
+static PCSCHEMA *simplelazschema = NULL;
 static const char *xmlfile = "data/pdal-schema.xml";
 static const char *simplexmlfile = "data/simple-schema.xml";
 static const char *lasxmlfile = "data/las-schema.xml";
+static const char *simplelazxmlfile = "data/simple-schema-laz.xml";
 
 /* Setup/teardown for this suite */
 static int
@@ -38,6 +40,11 @@ init_suite(void)
 	pcfree(xmlstr);
 	if ( rv == PC_FAILURE ) return 1;
 
+	xmlstr = file_to_str(simplelazxmlfile);
+	rv = pc_schema_from_xml(xmlstr, &simplelazschema);
+	pcfree(xmlstr);
+	if ( rv == PC_FAILURE ) return 1;
+
 	return 0;
 }
 
@@ -47,6 +54,7 @@ clean_suite(void)
 	pc_schema_free(schema);
 	pc_schema_free(simpleschema);
 	pc_schema_free(lasschema);
+    pc_schema_free(simplelazschema);
 	return 0;
 }
 
@@ -558,6 +566,36 @@ test_patch_filter()
     return;
 }
 
+#if defined(HAVE_LIBGHT) && defined(HAVE_LAZPERF)
+static void
+test_patch_compress_from_ght_to_lazperf()
+{
+    PCPOINT *point;
+    PCPOINTLIST *pointlist;
+	PCPATCH_GHT *patch_ght;
+    PCPATCH_LAZPERF *patch_lazperf;
+
+	pointlist = pc_pointlist_make(1);
+    point = pc_point_make(simplelazschema);
+    pc_point_set_double_by_name(point, "x", 2.0);
+    pc_point_set_double_by_name(point, "y", 1.9);
+    pc_point_set_double_by_name(point, "Z", 0.34);
+    pc_point_set_double_by_name(point, "intensity", 10);
+    pc_pointlist_add_point(pointlist, point);
+
+    patch_ght = pc_patch_ght_from_pointlist(pointlist);
+    CU_ASSERT(patch_ght->type == PC_GHT);
+
+    patch_lazperf = (PCPATCH_LAZPERF *)pc_patch_compress((PCPATCH *)patch_ght, NULL);
+    CU_ASSERT(patch_lazperf != NULL);
+    CU_ASSERT(patch_lazperf->type == PC_LAZPERF);
+
+    pc_pointlist_free(pointlist);
+    pc_patch_free((PCPATCH *)patch_ght);
+    pc_patch_free((PCPATCH *)patch_lazperf);
+}
+#endif  /* defined(HAVE_LIBGHT) && defined(HAVE_LAZPERF) */
+
 static void
 test_patch_pointn_last_first()
 {
@@ -740,6 +778,9 @@ CU_TestInfo patch_tests[] = {
 	PC_TEST(test_patch_union),
 	PC_TEST(test_patch_wkb),
 	PC_TEST(test_patch_filter),
+#if defined(HAVE_LIBGHT) && defined(HAVE_LAZPERF)
+	PC_TEST(test_patch_compress_from_ght_to_lazperf),
+#endif
 	PC_TEST(test_patch_pointn_last_first),
 	PC_TEST(test_patch_pointn_no_compression),
 	PC_TEST(test_patch_pointn_dimensional_compression_none),
