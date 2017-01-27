@@ -33,6 +33,10 @@ Make a build directory, and run ``cmake`` from there. Use ``ccmake`` to browse a
 - ``make``
 - ``sudo make install``
 
+Run unit tests:
+
+- ``make check``
+
 #### Autotools ####
 
 After generating the configure script with ``autogen``,  ``./configure --help`` to get a complete listing of configuration options.
@@ -42,6 +46,13 @@ After generating the configure script with ``autogen``,  ``./configure --help`` 
 - ``make``
 - ``sudo make install``
 
+Run unit tests:
+
+- ``make check``
+
+Note that if you configured PointCloud using a non-standard LibGHT location, you may need to add its location to the ``LD_LIBRARY_PATH`` environment variable. For example:
+
+- ``LD_LIBRARY_PATH=$HOME/local/lib make check``
 
 ### Activate ###
 
