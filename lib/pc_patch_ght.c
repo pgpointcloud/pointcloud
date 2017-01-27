@@ -18,36 +18,6 @@
 /* Includes and functions that expect GHT headers and definitions */
 
 #ifdef HAVE_LIBGHT
-static int
-pc_type_from_ght_type(const GhtType ghttype)
-{
-	switch(ghttype)
-	{
-	case GHT_UNKNOWN:
-		return PC_UNKNOWN;
-	case GHT_INT8:
-		return PC_INT8;
-	case GHT_UINT8:
-		return PC_UINT8;
-	case GHT_INT16:
-		return PC_INT16;
-	case GHT_UINT16:
-		return PC_UINT16;
-	case GHT_INT32:
-		return PC_INT32;
-	case GHT_UINT32:
-		return PC_UINT32;
-	case GHT_INT64:
-		return PC_INT64;
-	case GHT_UINT64:
-		return PC_UINT64;
-	case GHT_DOUBLE:
-		return PC_DOUBLE;
-	case GHT_FLOAT:
-		return PC_FLOAT;
-	}
-}
-
 static GhtType
 ght_type_from_pc_type(const int pctype)
 {
