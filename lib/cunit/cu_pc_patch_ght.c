@@ -44,11 +44,11 @@ test_patch_ght()
     PCPOINT *pt;
     int i;
     static int npts = 100;
-    PCPOINTLIST *pl1, *pl2;
+    PCPOINTLIST *pl;
     PCPATCH_GHT *pag;
     PCPATCH_UNCOMPRESSED *pu;
 
-    pl1 = pc_pointlist_make(npts);
+    pl = pc_pointlist_make(npts);
 
     for ( i = 0; i < npts; i++ )
     {
@@ -57,11 +57,11 @@ test_patch_ght()
         pc_point_set_double_by_name(pt, "y", 45 + i*0.000001666);
         pc_point_set_double_by_name(pt, "Z", 10 + i*0.34);
         pc_point_set_double_by_name(pt, "intensity", 10);
-        pc_pointlist_add_point(pl1, pt);
+        pc_pointlist_add_point(pl, pt);
     }
 
-    pag = pc_patch_ght_from_pointlist(pl1);
-    pc_pointlist_free(pl1);
+    pag = pc_patch_ght_from_pointlist(pl);
+    pc_pointlist_free(pl);
 
     pu = pc_patch_uncompressed_from_ght(pag);
     CU_ASSERT_EQUAL(npts, pag->npoints);
@@ -94,10 +94,10 @@ test_patch_ght_filtering()
     PCPOINT *pt;
     int i;
     static int npts = 100;
-    PCPOINTLIST *pl1, *pl2;
+    PCPOINTLIST *pl;
     PCPATCH_GHT *pag, *pag_filtered;
     
-    pl1 = pc_pointlist_make(npts);
+    pl = pc_pointlist_make(npts);
 
     for ( i = 0; i < npts; i++ )
     {
@@ -106,11 +106,11 @@ test_patch_ght_filtering()
         pc_point_set_double_by_name(pt, "y", 45 + i*0.000001666);
         pc_point_set_double_by_name(pt, "Z", 10 + i*0.34);
         pc_point_set_double_by_name(pt, "intensity", 10);
-        pc_pointlist_add_point(pl1, pt);
+        pc_pointlist_add_point(pl, pt);
     }
 
-    pag = pc_patch_ght_from_pointlist(pl1);
-    pc_pointlist_free(pl1);
+    pag = pc_patch_ght_from_pointlist(pl);
+    pc_pointlist_free(pl);
 
     pag_filtered = pc_patch_ght_filter(pag, dimnum, PC_LT, 10, 10);
     CU_ASSERT_EQUAL(pag_filtered->npoints, 0);
