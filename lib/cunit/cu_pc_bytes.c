@@ -58,13 +58,8 @@ static PCBYTES initbytes(uint8_t *bytes, size_t size, uint32_t interp)
 static void
 test_run_length_encoding()
 {
-	char *bytes, *bytes_rle, *bytes_de_rle;
+	char *bytes;
 	int nr;
-	uint32_t bytes_nelems;
-	size_t bytes_rle_size;
-	size_t size;
-	uint8_t interp;
-	size_t interp_size;
     PCBYTES pcb, epcb, pcb2;
 
 /*
@@ -166,12 +161,10 @@ typedef struct
 static void
 test_sigbits_encoding()
 {
-    int i;
-	uint8_t *bytes, *ebytes;
+	uint8_t *bytes;
     uint16_t *bytes16, *ebytes16;
     uint32_t *bytes32, *ebytes32;
     uint64_t *bytes64, *ebytes64;
-    size_t ebytes_size;
 
 	uint32_t count, nelems;
 	uint8_t common8;
@@ -385,8 +378,7 @@ test_sigbits_encoding()
 static void
 test_zlib_encoding()
 {
-    uint8_t *bytes, *ebytes;
-    uint32_t i;
+    uint8_t *bytes;
     PCBYTES pcb, epcb, pcb2;
     /*
     uint8_t *
@@ -412,7 +404,7 @@ test_zlib_encoding()
 static void
 test_rle_filter()
 {
-	char *bytes, *bytes2;
+	char *bytes;
     PCBYTES pcb, epcb, fpcb;
     PCBITMAP *map1, *map2;
     int i;
@@ -497,8 +489,8 @@ static void
 test_uncompressed_filter()
 {
 	char *bytes;
-    PCBYTES pcb, epcb, fpcb;
-    PCBITMAP *map1, *map2;
+    PCBYTES pcb, fpcb;
+    PCBITMAP *map1;
 
     /*
     typedef struct
