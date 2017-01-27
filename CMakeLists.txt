@@ -123,6 +123,16 @@ if (LAZPERF_FOUND)
 endif (LAZPERF_FOUND)
 
 #------------------------------------------------------------------------------
+# define targets for "check" and "installcheck"
+
+if (WITH_TESTS)
+    add_custom_target(check COMMAND ${PROJECT_BINARY_DIR}/lib/cunit/cu_tester)
+
+    find_program(PG_REGRESS pg_regress ${PGSQL_PKGLIBDIR}/pgxs/src/test/regress/ REQUIRED)
+    add_custom_target(installcheck COMMAND ${PG_REGRESS} --inputdir=${PROJECT_SOURCE_DIR}/pgsql --outputdir=${PROJECT_SOURCE_DIR}/pgsql pointcloud pointcloud_columns schema)
+endif()
+
+#------------------------------------------------------------------------------
 # use default install location if not specified
 
 if (NOT DEFINED LIB_INSTALL_DIR)
