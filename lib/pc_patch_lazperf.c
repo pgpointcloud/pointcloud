@@ -88,7 +88,6 @@ pc_patch_uncompressed_from_lazperf(const PCPATCH_LAZPERF *palaz)
 
 	PCPATCH_UNCOMPRESSED *pcu = NULL;
 	uint8_t *decompressed;
-	int i;
 
 	// cpp call to uncompressed data
 	size_t size = lazperf_uncompress_from_compressed(palaz, &decompressed);
@@ -190,7 +189,7 @@ pc_patch_lazperf_from_wkb(const PCSCHEMA *schema, const uint8_t *wkb, size_t wkb
 	PCPATCH_LAZPERF *patch;
 	uint8_t swap_endian = (wkb[0] != machine_endian());
 	uint32_t npoints;
-	size_t datasize, lazperfsize;
+	size_t lazperfsize;
 	const uint8_t *buf;
 
 	if (wkb_get_compression(wkb) != PC_LAZPERF)
