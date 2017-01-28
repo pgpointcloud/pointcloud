@@ -40,7 +40,7 @@ set_target_properties (libpc-static
     OUTPUT_NAME "pc"
     PREFIX "lib"
     CLEAN_DIRECT_OUTPUT 1
-    COMPILE_FLAGS "-fPIC -std=gnu89"
+    COMPILE_FLAGS "-fPIC"
   )
 
 set_target_properties (liblazperf-static

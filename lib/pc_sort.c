@@ -10,6 +10,9 @@
 ***********************************************************************/
 #include "pc_api_internal.h"
 #include <assert.h>
+
+
+#include "sort_r/sort_r.h"
 #include <stdlib.h>
 
 // NULL terminated array of PCDIMENSION pointers
@@ -55,7 +58,7 @@ pc_patch_uncompressed_sort(const PCPATCH_UNCOMPRESSED *pu, PCDIMENSION_LIST dim)
     spu->bounds  = pu->bounds;
     spu->stats   = pc_stats_clone(pu->stats);
 
-    qsort_r(spu->data, spu->npoints, pu->schema->size, pc_compare_dim, dim);
+    sort_r(spu->data, spu->npoints, pu->schema->size, pc_compare_dim, dim);
 
     return spu;
 }
