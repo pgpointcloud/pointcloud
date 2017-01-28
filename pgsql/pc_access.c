@@ -15,6 +15,10 @@
 #include "lib/stringinfo.h"
 #include "pc_api_internal.h" /* for pcpatch_summary */
 
+/* cstring array utility functions */
+const char **array_to_cstring_array(ArrayType *array, int *size);
+void pc_cstring_array_free(const char **array, int nelems);
+
 /* General SQL functions */
 Datum pcpoint_get_value(PG_FUNCTION_ARGS);
 Datum pcpoint_get_values(PG_FUNCTION_ARGS);
@@ -979,9 +983,10 @@ const char **array_to_cstring_array(ArrayType *array, int *size)
 	bits8 *bitmap = ARR_NULLBITMAP(array);
 	for(i=j=0; i<nelems; ++i) 
 	{
+		text *array_text;
 		if(array_get_isnull(bitmap,i)) continue;
 		
-		text *array_text = (text *)(ARR_DATA_PTR(array)+offset);
+		array_text = (text *)(ARR_DATA_PTR(array)+offset);
 		cstring[j++] = text_to_cstring(array_text);
 		offset += INTALIGN(VARSIZE(array_text));
 	}
@@ -1005,6 +1010,11 @@ Datum pcpatch_sort(PG_FUNCTION_ARGS)
 {
 	SERIALIZED_PATCH *serpatch = PG_GETARG_SERPATCH_P(0);	
 	ArrayType *array = PG_GETARG_ARRAYTYPE_P(1);
+	PCSCHEMA *schema = NULL;
+	PCPATCH *patch = NULL;
+	PCPATCH *patch_sorted = NULL;
+	SERIALIZED_PATCH *serpatch_sorted = NULL;
+
 	int ndims;
 	const char **dim_name = array_to_cstring_array(array,&ndims);
 	if(!ndims)
@@ -1013,10 +1023,7 @@ Datum pcpatch_sort(PG_FUNCTION_ARGS)
 		PG_RETURN_POINTER(serpatch);
 	}
 
-	PCSCHEMA *schema = pc_schema_from_pcid(serpatch->pcid, fcinfo);
-	PCPATCH *patch = NULL;
-	PCPATCH *patch_sorted = NULL;
-	SERIALIZED_PATCH *serpatch_sorted = NULL;	
+	schema = pc_schema_from_pcid(serpatch->pcid, fcinfo);
 
 	patch = pc_patch_deserialize(serpatch, schema);
 	if(patch) patch_sorted = pc_patch_sort(patch,dim_name,ndims);	
@@ -1037,19 +1044,23 @@ PG_FUNCTION_INFO_V1(pcpatch_is_sorted);
 Datum pcpatch_is_sorted(PG_FUNCTION_ARGS)
 {
 	ArrayType *array = PG_GETARG_ARRAYTYPE_P(1);
+	bool strict = PG_GETARG_BOOL(2);
+	PCSCHEMA *schema = NULL;
+	SERIALIZED_PATCH *serpatch = NULL;
+	PCPATCH *patch = NULL;
 	int ndims;
+	uint32_t res;
 	const char **dim_name = array_to_cstring_array(array,&ndims);
 	if(!ndims)
 	{
 		pc_cstring_array_free(dim_name,ndims);
 		PG_RETURN_BOOL(PC_TRUE);
 	}
-	SERIALIZED_PATCH *serpatch = PG_GETARG_SERPATCH_P(0);
-	PCSCHEMA *schema = pc_schema_from_pcid(serpatch->pcid, fcinfo);
-	bool strict = PG_GETARG_BOOL(2);
-	PCPATCH *patch = pc_patch_deserialize(serpatch, schema);	
+	serpatch = PG_GETARG_SERPATCH_P(0);
+	schema = pc_schema_from_pcid(serpatch->pcid, fcinfo);
+	patch = pc_patch_deserialize(serpatch, schema);	
 
-	uint32_t res = pc_patch_is_sorted(patch,dim_name,ndims,strict);	
+	res = pc_patch_is_sorted(patch,dim_name,ndims,strict);	
 
 	pc_cstring_array_free(dim_name,ndims);
 	pc_patch_free(patch);	
