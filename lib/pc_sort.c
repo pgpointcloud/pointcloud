@@ -10,10 +10,7 @@
 ***********************************************************************/
 #include "pc_api_internal.h"
 #include <assert.h>
-
-
 #include "sort_r/sort_r.h"
-#include <stdlib.h>
 
 // NULL terminated array of PCDIMENSION pointers
 typedef PCDIMENSION ** PCDIMENSION_LIST;
@@ -90,12 +87,12 @@ pc_patch_sort(const PCPATCH *pa, const char ** name, int ndims)
         pcerror("Patch uncompression failed");
         return NULL;
     }
-    PCPATCH *ps = (PCPATCH *)pc_patch_uncompressed_sort((PCPATCH_UNCOMPRESSED *)pu, dim);
+    PCPATCH_UNCOMPRESSED *ps = pc_patch_uncompressed_sort((PCPATCH_UNCOMPRESSED *)pu, dim);
     
     pcfree(dim);
     if ( pu != pa )
         pc_patch_free(pu);
-    return ps;
+    return (PCPATCH *) ps;
 }
 
 
@@ -189,14 +186,14 @@ pc_patch_dimensional_is_sorted(const PCPATCH_DIMENSIONAL *pdl, PCDIMENSION_LIST 
     // uncompress when checking multiple dimensions
     if(dim[1])
     {
-        PCPATCH *pu = pc_patch_uncompress((PCPATCH*) pdl);
+        PCPATCH_UNCOMPRESSED *pu = pc_patch_uncompressed_from_dimensional(pdl);
         if ( !pu ) {
             pcerror("Patch uncompression failed");
             return PC_FAILURE - 1; // aliasing issue : PC_FALSE == PC_FAILURE...
         }
-        uint32_t res = pc_patch_uncompressed_is_sorted((PCPATCH_UNCOMPRESSED *)pu,dim,strict);
-        pc_patch_free(pu);
-        return res;
+        uint32_t is_sorted = pc_patch_uncompressed_is_sorted(pu,dim,strict);
+        pc_patch_free((PCPATCH *)pu);
+        return is_sorted;
     }
 
     PCBYTES *pcb = pdl->bytes + dim[0]->position;
@@ -223,48 +220,61 @@ pc_patch_dimensional_is_sorted(const PCPATCH_DIMENSIONAL *pdl, PCDIMENSION_LIST 
         pcerror("%s: Uh oh", __func__);
     }
     }
-    return PC_FAILURE;
+    return PC_FAILURE - 1; // aliasing issue : PC_FALSE == PC_FAILURE...
 }
 
 
 uint32_t
 pc_patch_ght_is_sorted(const PCPATCH_GHT *pa, PCDIMENSION_LIST dim, char strict)
 {
-    PCPATCH *pu = pc_patch_uncompress((PCPATCH*) pa);
+    PCPATCH_UNCOMPRESSED *pu = pc_patch_uncompressed_from_ght(pa);
     if ( !pu ) {
         pcerror("Patch uncompression failed");
         return PC_FAILURE - 1; // aliasing issue : PC_FALSE == PC_FAILURE...
     }
-    uint32_t res = pc_patch_uncompressed_is_sorted((PCPATCH_UNCOMPRESSED *)pu,dim,strict);
-    pc_patch_free(pu);
-    return res;
+    uint32_t is_sorted = pc_patch_uncompressed_is_sorted(pu,dim,strict);
+    pc_patch_free((PCPATCH*)pu);
+    return is_sorted;
 }
 
+uint32_t
+pc_patch_lazperf_is_sorted(const PCPATCH_LAZPERF *pa, PCDIMENSION_LIST dim, char strict)
+{
+    PCPATCH_UNCOMPRESSED *pu = pc_patch_uncompressed_from_lazperf(pa);
+    if ( !pu ) {
+        pcerror("Patch uncompression failed");
+        return PC_FAILURE - 1; // aliasing issue : PC_FALSE == PC_FAILURE...
+    }
+    uint32_t is_sorted = pc_patch_uncompressed_is_sorted(pu,dim,strict);
+    pc_patch_free((PCPATCH*) pu);
+    return is_sorted;
+}
 
 uint32_t
 pc_patch_is_sorted(const PCPATCH *pa, const char **name, int ndims, char strict)
 {
-    int res = PC_FAILURE -1; // aliasing issue : PC_FALSE == PC_FAILURE...
+    int is_sorted = PC_FAILURE -1; // aliasing issue : PC_FALSE == PC_FAILURE...
     PCDIMENSION_LIST dim = pc_schema_get_dimensions_by_name(pa->schema, name, ndims);
-    if ( ! dim ) return res;
+    if ( ! dim ) return is_sorted;
     strict = (strict > 0); // ensure 0-1 value
 
     switch( pa->type )
     {
     case PC_NONE:
-        res = pc_patch_uncompressed_is_sorted((PCPATCH_UNCOMPRESSED*)pa,dim,strict); 
+        is_sorted = pc_patch_uncompressed_is_sorted((PCPATCH_UNCOMPRESSED*)pa,dim,strict); 
         break;
     case PC_DIMENSIONAL:
-        res = pc_patch_dimensional_is_sorted((PCPATCH_DIMENSIONAL*)pa,dim,strict);
+        is_sorted = pc_patch_dimensional_is_sorted((PCPATCH_DIMENSIONAL*)pa,dim,strict);
         break;
     case PC_GHT:
-        res = pc_patch_ght_is_sorted((PCPATCH_GHT*)pa,dim,strict);
+        is_sorted = pc_patch_ght_is_sorted((PCPATCH_GHT*)pa,dim,strict);
+        break;
+    case PC_LAZPERF:
+        is_sorted = pc_patch_lazperf_is_sorted((PCPATCH_LAZPERF*)pa,dim,strict);
         break;
     default:
         pcerror("%s: unsupported compression %d requested", __func__, pa->type);
     }
     pcfree(dim);
-    return res;
+    return is_sorted;
 }
-
-
