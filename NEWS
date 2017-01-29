@@ -8,6 +8,8 @@
  - PC_Patch{Min,Max,Avg}(pcpatch) returns pcpoint (#77)
  - PC_Upgrade([<target_version>])
  - PC_Lib_Version(), PC_Script_Version() (#40)
+ - PC_Sort(pcpatch,text[]) (#106)
+ - PC_IsSorted(pcpatch,text[],boolean) (#106)
 - Enhancements
  - Support sigbits encoding for 64bit integers (#61)
  - Warn about truncated values (#68)

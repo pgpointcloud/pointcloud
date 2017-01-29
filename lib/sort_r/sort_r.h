@@ -1,4 +1,6 @@
 /* Isaac Turner 29 April 2014 Public Domain */
+/* http://github.com/noporpoise/sort_r      */
+
 #ifndef SORT_R_H_
 #define SORT_R_H_
 
