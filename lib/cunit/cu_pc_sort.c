@@ -24,18 +24,18 @@ static const double precision = 0.000001;
 static int
 init_suite(void)
 {
-	char *xmlstr = file_to_str(xmlfile);
-	int rv = pc_schema_from_xml(xmlstr, &schema);
-	pcfree(xmlstr);
-	if ( rv == PC_FAILURE ) return 1;
-	return 0;
+    char *xmlstr = file_to_str(xmlfile);
+    int rv = pc_schema_from_xml(xmlstr, &schema);
+    pcfree(xmlstr);
+    if ( rv == PC_FAILURE ) return 1;
+    return 0;
 }
 
 static int
 clean_suite(void)
 {
-	pc_schema_free(schema);
-	return 0;
+    pc_schema_free(schema);
+    return 0;
 }
 
 /* TESTS **************************************************************/
@@ -43,23 +43,23 @@ clean_suite(void)
 static void
 test_sort_simple()
 {
-	// 00 endian (big)
-	// 00000000 pcid
-	// 00000000 compression
-	// 00000002 npoints
-	// 0000000800000003000000050006 pt1 (XYZi)
-	// 0000000200000001000000040008 pt2 (XYZi)
+    // 00 endian (big)
+    // 00000000 pcid
+    // 00000000 compression
+    // 00000002 npoints
+    // 0000000800000003000000050006 pt1 (XYZi)
+    // 0000000200000001000000040008 pt2 (XYZi)
 
     // init data
     PCPOINTLIST *lisort;
     PCPATCH *pasort;
     double d1;
     double d2;
-	char *hexbuf = "0000000000000000000000000200000008000000030000000500060000000200000001000000040008";
-	size_t hexsize = strlen(hexbuf);
+    char *hexbuf = "0000000000000000000000000200000008000000030000000500060000000200000001000000040008";
+    size_t hexsize = strlen(hexbuf);
 
-	uint8_t *wkb = bytes_from_hexbytes(hexbuf, hexsize);
-	PCPATCH *pa = pc_patch_from_wkb(schema, wkb, hexsize/2);
+    uint8_t *wkb = bytes_from_hexbytes(hexbuf, hexsize);
+    PCPATCH *pa = pc_patch_from_wkb(schema, wkb, hexsize/2);
     PCPOINTLIST *li = pc_pointlist_from_patch(pa);
     const char *X[] = {"X"};
 
@@ -67,8 +67,8 @@ test_sort_simple()
     pc_point_get_double_by_name(pc_pointlist_get_point(li, 0), "X", &d1);
     pc_point_get_double_by_name(pc_pointlist_get_point(li, 1), "X", &d2);
 
-	CU_ASSERT_DOUBLE_EQUAL(d1, 0.08, precision);
-	CU_ASSERT_DOUBLE_EQUAL(d2, 0.02, precision);
+    CU_ASSERT_DOUBLE_EQUAL(d1, 0.08, precision);
+    CU_ASSERT_DOUBLE_EQUAL(d2, 0.02, precision);
 
     // sort on X attribute and check if data are well sorted
     pasort = pc_patch_sort(pa, X, 1);
@@ -77,8 +77,8 @@ test_sort_simple()
     pc_point_get_double_by_name(pc_pointlist_get_point(lisort, 0), "X", &d1);
     pc_point_get_double_by_name(pc_pointlist_get_point(lisort, 1), "X", &d2);
 
-	CU_ASSERT_DOUBLE_EQUAL(d1, 0.02, precision);
-	CU_ASSERT_DOUBLE_EQUAL(d2, 0.08, precision);
+    CU_ASSERT_DOUBLE_EQUAL(d1, 0.02, precision);
+    CU_ASSERT_DOUBLE_EQUAL(d2, 0.08, precision);
 
     // free
     pc_pointlist_free(li);
@@ -91,21 +91,21 @@ test_sort_simple()
 static void
 test_sort_consistency()
 {
-	// 00 endian (big)
-	// 00000000 pcid
-	// 00000000 compression
-	// 00000002 npoints
-	// 0000000800000003000000050006 pt1 (XYZi)
-	// 0000000200000001000000040008 pt2 (XYZi)
+    // 00 endian (big)
+    // 00000000 pcid
+    // 00000000 compression
+    // 00000002 npoints
+    // 0000000800000003000000050006 pt1 (XYZi)
+    // 0000000200000001000000040008 pt2 (XYZi)
 
     // init data
     PCPATCH *pasort;
     char *pastr, *pasortstr;
     uint8_t *wkbsort;
-	char *hexbuf = "0000000000000000000000000200000008000000030000000500060000000200000001000000040008";
-	size_t hexsize = strlen(hexbuf);
-	uint8_t *wkb = bytes_from_hexbytes(hexbuf, hexsize);
-	PCPATCH *pa = pc_patch_from_wkb(schema, wkb, hexsize/2);
+    char *hexbuf = "0000000000000000000000000200000008000000030000000500060000000200000001000000040008";
+    size_t hexsize = strlen(hexbuf);
+    uint8_t *wkb = bytes_from_hexbytes(hexbuf, hexsize);
+    PCPATCH *pa = pc_patch_from_wkb(schema, wkb, hexsize/2);
     PCPOINTLIST *li = pc_pointlist_from_patch(pa);
     const char *X[] = {"X"};
 
@@ -137,20 +137,20 @@ test_sort_consistency()
 static void
 test_sort_one_point()
 {
-	// 00 endian (big)
-	// 00000000 pcid
-	// 00000000 compression
-	// 00000001 npoints
-	// 0000000200000003000000050006 pt1 (XYZi)
+    // 00 endian (big)
+    // 00000000 pcid
+    // 00000000 compression
+    // 00000001 npoints
+    // 0000000200000003000000050006 pt1 (XYZi)
 
     // init data
     PCPATCH *pasort;
     char *pastr, *pasortstr;
     uint8_t *wkbsort;
-	char *hexbuf = "000000000000000000000000010000000200000003000000050006";
-	size_t hexsize = strlen(hexbuf);
-	uint8_t *wkb = bytes_from_hexbytes(hexbuf, hexsize);
-	PCPATCH *pa = pc_patch_from_wkb(schema, wkb, hexsize/2);
+    char *hexbuf = "000000000000000000000000010000000200000003000000050006";
+    size_t hexsize = strlen(hexbuf);
+    uint8_t *wkb = bytes_from_hexbytes(hexbuf, hexsize);
+    PCPATCH *pa = pc_patch_from_wkb(schema, wkb, hexsize/2);
     PCPOINTLIST *li = pc_pointlist_from_patch(pa);
     const char *X[] = {"X"};
 
@@ -180,20 +180,20 @@ test_sort_one_point()
 static void
 test_sort_stable()
 {
-	// 00 endian (big)
-	// 00000000 pcid
-	// 00000000 compression
-	// 00000002 npoints
-	// 0000000800000003000000050006 pt1 (XYZi)
-	// 0000000200000003000000040008 pt2 (XYZi)
-	// 0000000200000003000000040009 pt3 (XYZi)
+    // 00 endian (big)
+    // 00000000 pcid
+    // 00000000 compression
+    // 00000002 npoints
+    // 0000000800000003000000050006 pt1 (XYZi)
+    // 0000000200000003000000040008 pt2 (XYZi)
+    // 0000000200000003000000040009 pt3 (XYZi)
 
     // init data
     PCPATCH *pasort;
-	char *hexbuf = "00000000000000000000000003000000080000000300000005000600000002000000030000000400080000000200000003000000040009";
-	size_t hexsize = strlen(hexbuf);
-	uint8_t *wkb = bytes_from_hexbytes(hexbuf, hexsize);
-	PCPATCH *pa = pc_patch_from_wkb(schema, wkb, hexsize/2);
+    char *hexbuf = "00000000000000000000000003000000080000000300000005000600000002000000030000000400080000000200000003000000040009";
+    size_t hexsize = strlen(hexbuf);
+    uint8_t *wkb = bytes_from_hexbytes(hexbuf, hexsize);
+    PCPATCH *pa = pc_patch_from_wkb(schema, wkb, hexsize/2);
     PCPOINTLIST *li = pc_pointlist_from_patch(pa);
     const char *dims[] = {"Y"};
 
@@ -217,20 +217,20 @@ test_sort_stable()
 static void
 test_sort_patch_is_sorted_no_compression()
 {
-	// 00 endian (big)
-	// 00000000 pcid
-	// 00000000 compression
-	// 00000002 npoints
-	// 0000000800000003000000050006 pt1 (XYZi)
-	// 0000000200000003000000040008 pt2 (XYZi)
-	// 0000000200000003000000040009 pt3 (XYZi)
+    // 00 endian (big)
+    // 00000000 pcid
+    // 00000000 compression
+    // 00000002 npoints
+    // 0000000800000003000000050006 pt1 (XYZi)
+    // 0000000200000003000000040008 pt2 (XYZi)
+    // 0000000200000003000000040009 pt3 (XYZi)
 
     // init data
     PCPATCH *pasort;
-	char *hexbuf = "00000000000000000000000003000000080000000300000005000600000002000000030000000400080000000200000003000000040009";
-	size_t hexsize = strlen(hexbuf);
-	uint8_t *wkb = bytes_from_hexbytes(hexbuf, hexsize);
-	PCPATCH *pa = pc_patch_from_wkb(schema, wkb, hexsize/2);
+    char *hexbuf = "00000000000000000000000003000000080000000300000005000600000002000000030000000400080000000200000003000000040009";
+    size_t hexsize = strlen(hexbuf);
+    uint8_t *wkb = bytes_from_hexbytes(hexbuf, hexsize);
+    PCPATCH *pa = pc_patch_from_wkb(schema, wkb, hexsize/2);
     PCPOINTLIST *li = pc_pointlist_from_patch(pa);
     const char *X[] = {"X"};
 
@@ -329,20 +329,20 @@ test_sort_patch_is_sorted_compression_dimensional_sigbits()
 static void
 test_sort_patch_ndims()
 {
-	// 00 endian (big)
-	// 00000000 pcid
-	// 00000000 compression
-	// 00000002 npoints
-	// 0000000800000001000000050006 pt1 (XYZi)
-	// 0000000200000003000000040008 pt2 (XYZi)
-	// 0000000200000002000000040008 pt2 (XYZi)
+    // 00 endian (big)
+    // 00000000 pcid
+    // 00000000 compression
+    // 00000002 npoints
+    // 0000000800000001000000050006 pt1 (XYZi)
+    // 0000000200000003000000040008 pt2 (XYZi)
+    // 0000000200000002000000040008 pt2 (XYZi)
 
     // init data
     PCPATCH *pasort1, *pasort2;
-	char *hexbuf = "00000000000000000000000003000000080000000400000005000600000002000000030000000400080000000200000002000000040009";
-	size_t hexsize = strlen(hexbuf);
-	uint8_t *wkb = bytes_from_hexbytes(hexbuf, hexsize);
-	PCPATCH *pa = pc_patch_from_wkb(schema, wkb, hexsize/2);
+    char *hexbuf = "00000000000000000000000003000000080000000400000005000600000002000000030000000400080000000200000002000000040009";
+    size_t hexsize = strlen(hexbuf);
+    uint8_t *wkb = bytes_from_hexbytes(hexbuf, hexsize);
+    PCPATCH *pa = pc_patch_from_wkb(schema, wkb, hexsize/2);
     const char *X[] = {"X"};
     const char *Y[] = {"Y"};
     const char *X_Y[] = {"X", "Y"};
@@ -374,7 +374,7 @@ test_sort_patch_ndims()
 /* REGISTER ***********************************************************/
 
 CU_TestInfo sort_tests[] = {
-	PC_TEST(test_sort_simple),
+    PC_TEST(test_sort_simple),
     PC_TEST(test_sort_consistency),
     PC_TEST(test_sort_one_point),
     PC_TEST(test_sort_stable),
