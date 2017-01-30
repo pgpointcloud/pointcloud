@@ -387,4 +387,9 @@ CU_TestInfo sort_tests[] = {
     CU_TEST_INFO_NULL
 };
 
-CU_SuiteInfo sort_suite = {"sort", init_suite, clean_suite, sort_tests};
+CU_SuiteInfo sort_suite = {
+    .pName = "sort",
+    .pInitFunc = init_suite,
+    .pCleanupFunc = clean_suite,
+    .pTests = sort_tests
+};
