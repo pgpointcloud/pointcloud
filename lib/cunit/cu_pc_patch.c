@@ -25,37 +25,37 @@ static const char *simplelazxmlfile = "data/simple-schema-laz.xml";
 static int
 init_suite(void)
 {
-	char *xmlstr = file_to_str(xmlfile);
-	int rv = pc_schema_from_xml(xmlstr, &schema);
-	pcfree(xmlstr);
-	if ( rv == PC_FAILURE ) return 1;
+    char *xmlstr = file_to_str(xmlfile);
+    int rv = pc_schema_from_xml(xmlstr, &schema);
+    pcfree(xmlstr);
+    if ( rv == PC_FAILURE ) return 1;
 
-	xmlstr = file_to_str(simplexmlfile);
-	rv = pc_schema_from_xml(xmlstr, &simpleschema);
-	pcfree(xmlstr);
-	if ( rv == PC_FAILURE ) return 1;
+    xmlstr = file_to_str(simplexmlfile);
+    rv = pc_schema_from_xml(xmlstr, &simpleschema);
+    pcfree(xmlstr);
+    if ( rv == PC_FAILURE ) return 1;
 
-	xmlstr = file_to_str(lasxmlfile);
-	rv = pc_schema_from_xml(xmlstr, &lasschema);
-	pcfree(xmlstr);
-	if ( rv == PC_FAILURE ) return 1;
+    xmlstr = file_to_str(lasxmlfile);
+    rv = pc_schema_from_xml(xmlstr, &lasschema);
+    pcfree(xmlstr);
+    if ( rv == PC_FAILURE ) return 1;
 
-	xmlstr = file_to_str(simplelazxmlfile);
-	rv = pc_schema_from_xml(xmlstr, &simplelazschema);
-	pcfree(xmlstr);
-	if ( rv == PC_FAILURE ) return 1;
+    xmlstr = file_to_str(simplelazxmlfile);
+    rv = pc_schema_from_xml(xmlstr, &simplelazschema);
+    pcfree(xmlstr);
+    if ( rv == PC_FAILURE ) return 1;
 
-	return 0;
+    return 0;
 }
 
 static int
 clean_suite(void)
 {
-	pc_schema_free(schema);
-	pc_schema_free(simpleschema);
-	pc_schema_free(lasschema);
+    pc_schema_free(schema);
+    pc_schema_free(simpleschema);
+    pc_schema_free(lasschema);
     pc_schema_free(simplelazschema);
-	return 0;
+    return 0;
 }
 
 
@@ -64,97 +64,97 @@ clean_suite(void)
 static void
 test_endian_flip()
 {
-	PCPOINT *pt;
-	double a1, a2, a3, a4, b1, b2, b3, b4;
-	int rv;
-	uint8_t *ptr;
+    PCPOINT *pt;
+    double a1, a2, a3, a4, b1, b2, b3, b4;
+    int rv;
+    uint8_t *ptr;
 
-	/* All at once */
-	pt = pc_point_make(schema);
-	a1 = 1.5;
-	a2 = 1501500.12;
-	a3 = 19112;
-	a4 = 200;
-	rv = pc_point_set_double_by_name(pt, "X", a1);
-	CU_ASSERT_EQUAL(rv, PC_SUCCESS);
-	rv = pc_point_set_double_by_name(pt, "Z", a2);
-	CU_ASSERT_EQUAL(rv, PC_SUCCESS);
-	rv = pc_point_set_double_by_name(pt, "Intensity", a3);
-	CU_ASSERT_EQUAL(rv, PC_SUCCESS);
-	rv = pc_point_set_double_by_name(pt, "UserData", a4);
-	CU_ASSERT_EQUAL(rv, PC_SUCCESS);
-	rv = pc_point_get_double_by_name(pt, "X", &b1);
-	CU_ASSERT_EQUAL(rv, PC_SUCCESS);
-	rv = pc_point_get_double_by_name(pt, "Z", &b2);
-	CU_ASSERT_EQUAL(rv, PC_SUCCESS);
-	rv = pc_point_get_double_by_name(pt, "Intensity", &b3);
-	CU_ASSERT_EQUAL(rv, PC_SUCCESS);
-	rv = pc_point_get_double_by_name(pt, "UserData", &b4);
-	CU_ASSERT_EQUAL(rv, PC_SUCCESS);
-	CU_ASSERT_DOUBLE_EQUAL(a1, b1, 0.0000001);
-	CU_ASSERT_DOUBLE_EQUAL(a2, b2, 0.0000001);
-	CU_ASSERT_DOUBLE_EQUAL(a3, b3, 0.0000001);
-	CU_ASSERT_DOUBLE_EQUAL(a4, b4, 0.0000001);
+    /* All at once */
+    pt = pc_point_make(schema);
+    a1 = 1.5;
+    a2 = 1501500.12;
+    a3 = 19112;
+    a4 = 200;
+    rv = pc_point_set_double_by_name(pt, "X", a1);
+    CU_ASSERT_EQUAL(rv, PC_SUCCESS);
+    rv = pc_point_set_double_by_name(pt, "Z", a2);
+    CU_ASSERT_EQUAL(rv, PC_SUCCESS);
+    rv = pc_point_set_double_by_name(pt, "Intensity", a3);
+    CU_ASSERT_EQUAL(rv, PC_SUCCESS);
+    rv = pc_point_set_double_by_name(pt, "UserData", a4);
+    CU_ASSERT_EQUAL(rv, PC_SUCCESS);
+    rv = pc_point_get_double_by_name(pt, "X", &b1);
+    CU_ASSERT_EQUAL(rv, PC_SUCCESS);
+    rv = pc_point_get_double_by_name(pt, "Z", &b2);
+    CU_ASSERT_EQUAL(rv, PC_SUCCESS);
+    rv = pc_point_get_double_by_name(pt, "Intensity", &b3);
+    CU_ASSERT_EQUAL(rv, PC_SUCCESS);
+    rv = pc_point_get_double_by_name(pt, "UserData", &b4);
+    CU_ASSERT_EQUAL(rv, PC_SUCCESS);
+    CU_ASSERT_DOUBLE_EQUAL(a1, b1, 0.0000001);
+    CU_ASSERT_DOUBLE_EQUAL(a2, b2, 0.0000001);
+    CU_ASSERT_DOUBLE_EQUAL(a3, b3, 0.0000001);
+    CU_ASSERT_DOUBLE_EQUAL(a4, b4, 0.0000001);
 
-	ptr = uncompressed_bytes_flip_endian(pt->data, schema, 1);
-	pcfree(pt->data);
-	pt->data = uncompressed_bytes_flip_endian(ptr, schema, 1);
-	pcfree(ptr);
+    ptr = uncompressed_bytes_flip_endian(pt->data, schema, 1);
+    pcfree(pt->data);
+    pt->data = uncompressed_bytes_flip_endian(ptr, schema, 1);
+    pcfree(ptr);
 
-	rv = pc_point_get_double_by_name(pt, "X", &b1);
-	CU_ASSERT_EQUAL(rv, PC_SUCCESS);
-	rv = pc_point_get_double_by_name(pt, "Z", &b2);
-	CU_ASSERT_EQUAL(rv, PC_SUCCESS);
-	rv = pc_point_get_double_by_name(pt, "Intensity", &b3);
-	CU_ASSERT_EQUAL(rv, PC_SUCCESS);
-	rv = pc_point_get_double_by_name(pt, "UserData", &b4);
-	CU_ASSERT_EQUAL(rv, PC_SUCCESS);
-	CU_ASSERT_DOUBLE_EQUAL(a1, b1, 0.0000001);
-	CU_ASSERT_DOUBLE_EQUAL(a2, b2, 0.0000001);
-	CU_ASSERT_DOUBLE_EQUAL(a3, b3, 0.0000001);
-	CU_ASSERT_DOUBLE_EQUAL(a4, b4, 0.0000001);
+    rv = pc_point_get_double_by_name(pt, "X", &b1);
+    CU_ASSERT_EQUAL(rv, PC_SUCCESS);
+    rv = pc_point_get_double_by_name(pt, "Z", &b2);
+    CU_ASSERT_EQUAL(rv, PC_SUCCESS);
+    rv = pc_point_get_double_by_name(pt, "Intensity", &b3);
+    CU_ASSERT_EQUAL(rv, PC_SUCCESS);
+    rv = pc_point_get_double_by_name(pt, "UserData", &b4);
+    CU_ASSERT_EQUAL(rv, PC_SUCCESS);
+    CU_ASSERT_DOUBLE_EQUAL(a1, b1, 0.0000001);
+    CU_ASSERT_DOUBLE_EQUAL(a2, b2, 0.0000001);
+    CU_ASSERT_DOUBLE_EQUAL(a3, b3, 0.0000001);
+    CU_ASSERT_DOUBLE_EQUAL(a4, b4, 0.0000001);
 
-	pc_point_free(pt);
+    pc_point_free(pt);
 }
 
 static void
 test_patch_hex_in()
 {
-	// 00 endian (big)
-	// 00000000 pcid
-	// 00000000 compression
-	// 00000002 npoints
-	// 0000000200000003000000050006 pt1 (XYZi)
-	// 0000000200000003000000050008 pt2 (XYZi)
-	char *hexbuf = "0000000000000000000000000200000002000000030000000500060000000200000003000000050008";
+    // 00 endian (big)
+    // 00000000 pcid
+    // 00000000 compression
+    // 00000002 npoints
+    // 0000000200000003000000050006 pt1 (XYZi)
+    // 0000000200000003000000050008 pt2 (XYZi)
+    char *hexbuf = "0000000000000000000000000200000002000000030000000500060000000200000003000000050008";
 
-	double d;
-	char *str;
-	size_t hexsize = strlen(hexbuf);
-	uint8_t *wkb = bytes_from_hexbytes(hexbuf, hexsize);
-	PCPATCH *pa = pc_patch_from_wkb(simpleschema, wkb, hexsize/2);
-	PCPOINTLIST *pl = pc_pointlist_from_patch(pa);
+    double d;
+    char *str;
+    size_t hexsize = strlen(hexbuf);
+    uint8_t *wkb = bytes_from_hexbytes(hexbuf, hexsize);
+    PCPATCH *pa = pc_patch_from_wkb(simpleschema, wkb, hexsize/2);
+    PCPOINTLIST *pl = pc_pointlist_from_patch(pa);
 
-	pc_point_get_double_by_name(pc_pointlist_get_point(pl, 0), "X", &d);
-	CU_ASSERT_DOUBLE_EQUAL(d, 0.02, 0.000001);
-	pc_point_get_double_by_name(pc_pointlist_get_point(pl, 1), "Intensity", &d);
-	CU_ASSERT_DOUBLE_EQUAL(d, 8, 0.000001);
+    pc_point_get_double_by_name(pc_pointlist_get_point(pl, 0), "X", &d);
+    CU_ASSERT_DOUBLE_EQUAL(d, 0.02, 0.000001);
+    pc_point_get_double_by_name(pc_pointlist_get_point(pl, 1), "Intensity", &d);
+    CU_ASSERT_DOUBLE_EQUAL(d, 8, 0.000001);
 
-	pc_point_get_double_by_name(&(pa->stats->min), "Intensity", &d);
-	CU_ASSERT_DOUBLE_EQUAL(d, 6, 0.000001);
-	pc_point_get_double_by_name(&(pa->stats->max), "Intensity", &d);
-	CU_ASSERT_DOUBLE_EQUAL(d, 8, 0.000001);
-	pc_point_get_double_by_name(&(pa->stats->avg), "Intensity", &d);
-	CU_ASSERT_DOUBLE_EQUAL(d, 7, 0.000001);
+    pc_point_get_double_by_name(&(pa->stats->min), "Intensity", &d);
+    CU_ASSERT_DOUBLE_EQUAL(d, 6, 0.000001);
+    pc_point_get_double_by_name(&(pa->stats->max), "Intensity", &d);
+    CU_ASSERT_DOUBLE_EQUAL(d, 8, 0.000001);
+    pc_point_get_double_by_name(&(pa->stats->avg), "Intensity", &d);
+    CU_ASSERT_DOUBLE_EQUAL(d, 7, 0.000001);
 
-	str = pc_patch_to_string(pa);
-	CU_ASSERT_STRING_EQUAL(str, "{\"pcid\":0,\"pts\":[[0.02,0.03,0.05,6],[0.02,0.03,0.05,8]]}");
+    str = pc_patch_to_string(pa);
+    CU_ASSERT_STRING_EQUAL(str, "{\"pcid\":0,\"pts\":[[0.02,0.03,0.05,6],[0.02,0.03,0.05,8]]}");
     // printf("\n%s\n",str);
-	pcfree(str);
+    pcfree(str);
 
-	pc_pointlist_free(pl);
-	pc_patch_free(pa);
-	pcfree(wkb);
+    pc_pointlist_free(pl);
+    pc_patch_free(pa);
+    pcfree(wkb);
 }
 
 /*
@@ -163,61 +163,61 @@ test_patch_hex_in()
 static void
 test_patch_hex_out()
 {
-	// 00 endian
-	// 00000000 pcid
-	// 00000000 compression
-	// 00000002 npoints
-	// 0000000200000003000000050006 pt1 (XYZi)
-	// 0000000200000003000000050008 pt2 (XYZi)
+    // 00 endian
+    // 00000000 pcid
+    // 00000000 compression
+    // 00000002 npoints
+    // 0000000200000003000000050006 pt1 (XYZi)
+    // 0000000200000003000000050008 pt2 (XYZi)
 
     static char *wkt_result = "{\"pcid\":0,\"pts\":[[0.02,0.03,0.05,6],[0.02,0.03,0.05,8]]}";
-	static char *hexresult_xdr =
-	   "0000000000000000000000000200000002000000030000000500060000000200000003000000050008";
-	static char *hexresult_ndr =
-	   "0100000000000000000200000002000000030000000500000006000200000003000000050000000800";
+    static char *hexresult_xdr =
+       "0000000000000000000000000200000002000000030000000500060000000200000003000000050008";
+    static char *hexresult_ndr =
+       "0100000000000000000200000002000000030000000500000006000200000003000000050000000800";
 
-	double d0[4] = { 0.02, 0.03, 0.05, 6 };
-	double d1[4] = { 0.02, 0.03, 0.05, 8 };
+    double d0[4] = { 0.02, 0.03, 0.05, 6 };
+    double d1[4] = { 0.02, 0.03, 0.05, 8 };
 
-	PCPOINT *pt0 = pc_point_from_double_array(simpleschema, d0, 4);
-	PCPOINT *pt1 = pc_point_from_double_array(simpleschema, d1, 4);
+    PCPOINT *pt0 = pc_point_from_double_array(simpleschema, d0, 4);
+    PCPOINT *pt1 = pc_point_from_double_array(simpleschema, d1, 4);
 
-	PCPATCH_UNCOMPRESSED *pa;
-	uint8_t *wkb;
-	size_t wkbsize;
-	char *hexwkb;
-	char *wkt;
+    PCPATCH_UNCOMPRESSED *pa;
+    uint8_t *wkb;
+    size_t wkbsize;
+    char *hexwkb;
+    char *wkt;
 
-	PCPOINTLIST *pl = pc_pointlist_make(2);
-	pc_pointlist_add_point(pl, pt0);
-	pc_pointlist_add_point(pl, pt1);
+    PCPOINTLIST *pl = pc_pointlist_make(2);
+    pc_pointlist_add_point(pl, pt0);
+    pc_pointlist_add_point(pl, pt1);
 
-	pa = pc_patch_uncompressed_from_pointlist(pl);
-	wkb = pc_patch_uncompressed_to_wkb(pa, &wkbsize);
-	// printf("wkbsize %zu\n", wkbsize);
-	hexwkb = hexbytes_from_bytes(wkb, wkbsize);
+    pa = pc_patch_uncompressed_from_pointlist(pl);
+    wkb = pc_patch_uncompressed_to_wkb(pa, &wkbsize);
+    // printf("wkbsize %zu\n", wkbsize);
+    hexwkb = hexbytes_from_bytes(wkb, wkbsize);
 
-	// printf("hexwkb %s\n", hexwkb);
-	// printf("hexresult_ndr %s\n", hexresult_ndr);
-	// printf("machine_endian %d\n", machine_endian());
-	if ( machine_endian() == PC_NDR )
-	{
-		CU_ASSERT_STRING_EQUAL(hexwkb, hexresult_ndr);
-	}
-	else
-	{
-		CU_ASSERT_STRING_EQUAL(hexwkb, hexresult_xdr);
-	}
+    // printf("hexwkb %s\n", hexwkb);
+    // printf("hexresult_ndr %s\n", hexresult_ndr);
+    // printf("machine_endian %d\n", machine_endian());
+    if ( machine_endian() == PC_NDR )
+    {
+        CU_ASSERT_STRING_EQUAL(hexwkb, hexresult_ndr);
+    }
+    else
+    {
+        CU_ASSERT_STRING_EQUAL(hexwkb, hexresult_xdr);
+    }
 
-	wkt = pc_patch_uncompressed_to_string(pa);
+    wkt = pc_patch_uncompressed_to_string(pa);
     // printf("wkt %s\n", wkt);
-	CU_ASSERT_STRING_EQUAL(wkt, wkt_result);
+    CU_ASSERT_STRING_EQUAL(wkt, wkt_result);
 
-	pc_patch_free((PCPATCH*)pa);
-	pc_pointlist_free(pl);
-	pcfree(hexwkb);
-	pcfree(wkb);
-	pcfree(wkt);
+    pc_patch_free((PCPATCH*)pa);
+    pc_pointlist_free(pl);
+    pcfree(hexwkb);
+    pcfree(wkb);
+    pcfree(wkt);
 }
 
 /*
@@ -230,7 +230,7 @@ test_schema_xy()
     "Intensity", "ReturnNumber", "NumberOfReturns", "ScanDirectionFlag", "EdgeOfFlightLine", "Classification", "ScanAngleRank", "UserData", "PointSourceId", "Time", "Red", "Green", "Blue", "PointID", "BlockID", "X", "Y", "Z"
     25, 1, 1, 1, 0, 1, 6, 124, 7327, 246093, 39, 57, 56, 20, 0, -125.0417204, 49.2540081, 128.85
     */
-	static char *hexpt = "01010000000AE9C90307A1100522A5000019000101010001067C9F1C4953C474650A0E412700390038001400000000000000876B6601962F750155320000";
+    static char *hexpt = "01010000000AE9C90307A1100522A5000019000101010001067C9F1C4953C474650A0E412700390038001400000000000000876B6601962F750155320000";
 
     uint8_t *bytes =  bytes_from_hexbytes(hexpt, strlen(hexpt));
     PCPOINT *pt;
@@ -393,17 +393,17 @@ test_patch_dimensional_extent()
     }
 
     pch1 = pc_patch_dimensional_from_pointlist(pl1);
-		CU_ASSERT_EQUAL(pch1->bounds.xmin, 6);
-		CU_ASSERT_EQUAL(pch1->bounds.xmax, 7);
-		CU_ASSERT_EQUAL(pch1->bounds.ymin, -20);
-		CU_ASSERT_EQUAL(pch1->bounds.ymax, -10);
+        CU_ASSERT_EQUAL(pch1->bounds.xmin, 6);
+        CU_ASSERT_EQUAL(pch1->bounds.xmax, 7);
+        CU_ASSERT_EQUAL(pch1->bounds.ymin, -20);
+        CU_ASSERT_EQUAL(pch1->bounds.ymax, -10);
 
     rv = pc_patch_dimensional_compute_extent(pch1);
     CU_ASSERT_EQUAL(rv, PC_SUCCESS);
-		CU_ASSERT_EQUAL(pch1->bounds.xmin, 6);
-		CU_ASSERT_EQUAL(pch1->bounds.xmax, 7);
-		CU_ASSERT_EQUAL(pch1->bounds.ymin, -20);
-		CU_ASSERT_EQUAL(pch1->bounds.ymax, -10);
+        CU_ASSERT_EQUAL(pch1->bounds.xmin, 6);
+        CU_ASSERT_EQUAL(pch1->bounds.xmax, 7);
+        CU_ASSERT_EQUAL(pch1->bounds.ymin, -20);
+        CU_ASSERT_EQUAL(pch1->bounds.ymax, -10);
 
     pc_patch_free((PCPATCH*)pch1);
     pc_pointlist_free(pl1);
@@ -572,10 +572,10 @@ test_patch_compress_from_ght_to_lazperf()
 {
     PCPOINT *point;
     PCPOINTLIST *pointlist;
-	PCPATCH_GHT *patch_ght;
+    PCPATCH_GHT *patch_ght;
     PCPATCH_LAZPERF *patch_lazperf;
 
-	pointlist = pc_pointlist_make(1);
+    pointlist = pc_pointlist_make(1);
     point = pc_point_make(simplelazschema);
     pc_point_set_double_by_name(point, "x", 2.0);
     pc_point_set_double_by_name(point, "y", 1.9);
@@ -600,19 +600,19 @@ static void
 test_patch_pointn_last_first()
 {
     // 00 endian (big)
-	// 00000000 pcid
-	// 00000000 compression
-	// 00000003 npoints
-	// 0000000800000003000000050006 pt1 (XYZi)
-	// 0000000200000003000000040008 pt2 (XYZi)
-	// 0000000200000003000000040009 pt3 (XYZi)
+    // 00000000 pcid
+    // 00000000 compression
+    // 00000003 npoints
+    // 0000000800000003000000050006 pt1 (XYZi)
+    // 0000000200000003000000040008 pt2 (XYZi)
+    // 0000000200000003000000040009 pt3 (XYZi)
 
-	char *hexbuf = "00000000000000000000000003000000080000000300000005000600000002000000030000000400080000000200000003000000040009";
-	size_t hexsize = strlen(hexbuf);
-	uint8_t *wkb = bytes_from_hexbytes(hexbuf, hexsize);
-	char *str;
+    char *hexbuf = "00000000000000000000000003000000080000000300000005000600000002000000030000000400080000000200000003000000040009";
+    size_t hexsize = strlen(hexbuf);
+    uint8_t *wkb = bytes_from_hexbytes(hexbuf, hexsize);
+    char *str;
 
-	PCPATCH *pa = pc_patch_from_wkb(simpleschema, wkb, hexsize/2);
+    PCPATCH *pa = pc_patch_from_wkb(simpleschema, wkb, hexsize/2);
 
     PCPOINT *pt = pc_patch_pointn(pa, -1);
     str = pc_point_to_string(pt);
@@ -634,18 +634,18 @@ static void
 test_patch_pointn_no_compression()
 {
     // 00 endian (big)
-	// 00000000 pcid
-	// 00000000 compression
-	// 00000003 npoints
-	// 0000000800000003000000050006 pt1 (XYZi)
-	// 0000000200000003000000040008 pt2 (XYZi)
-	// 0000000200000003000000040009 pt3 (XYZi)
+    // 00000000 pcid
+    // 00000000 compression
+    // 00000003 npoints
+    // 0000000800000003000000050006 pt1 (XYZi)
+    // 0000000200000003000000040008 pt2 (XYZi)
+    // 0000000200000003000000040009 pt3 (XYZi)
 
-	char *hexbuf = "00000000000000000000000003000000080000000300000005000600000002000000030000000400080000000200000003000000040009";
-	size_t hexsize = strlen(hexbuf);
-	uint8_t *wkb = bytes_from_hexbytes(hexbuf, hexsize);
+    char *hexbuf = "00000000000000000000000003000000080000000300000005000600000002000000030000000400080000000200000003000000040009";
+    size_t hexsize = strlen(hexbuf);
+    uint8_t *wkb = bytes_from_hexbytes(hexbuf, hexsize);
 
-	PCPATCH *pa = pc_patch_from_wkb(simpleschema, wkb, hexsize/2);
+    PCPATCH *pa = pc_patch_from_wkb(simpleschema, wkb, hexsize/2);
     PCPOINTLIST *li = pc_pointlist_from_patch(pa);
 
     PCPOINT *pt = pc_patch_pointn(pa, 2);
@@ -768,27 +768,27 @@ test_patch_pointn_ght_compression()
 /* REGISTER ***********************************************************/
 
 CU_TestInfo patch_tests[] = {
-	PC_TEST(test_endian_flip),
-	PC_TEST(test_patch_hex_in),
-	PC_TEST(test_patch_hex_out),
-	PC_TEST(test_schema_xy),
-	PC_TEST(test_patch_dimensional),
-	PC_TEST(test_patch_dimensional_compression),
-	PC_TEST(test_patch_dimensional_extent),
-	PC_TEST(test_patch_union),
-	PC_TEST(test_patch_wkb),
-	PC_TEST(test_patch_filter),
+    PC_TEST(test_endian_flip),
+    PC_TEST(test_patch_hex_in),
+    PC_TEST(test_patch_hex_out),
+    PC_TEST(test_schema_xy),
+    PC_TEST(test_patch_dimensional),
+    PC_TEST(test_patch_dimensional_compression),
+    PC_TEST(test_patch_dimensional_extent),
+    PC_TEST(test_patch_union),
+    PC_TEST(test_patch_wkb),
+    PC_TEST(test_patch_filter),
 #if defined(HAVE_LIBGHT) && defined(HAVE_LAZPERF)
-	PC_TEST(test_patch_compress_from_ght_to_lazperf),
+    PC_TEST(test_patch_compress_from_ght_to_lazperf),
 #endif
-	PC_TEST(test_patch_pointn_last_first),
-	PC_TEST(test_patch_pointn_no_compression),
-	PC_TEST(test_patch_pointn_dimensional_compression_none),
-	PC_TEST(test_patch_pointn_dimensional_compression_zlib),
-	PC_TEST(test_patch_pointn_dimensional_compression_sigbits),
-	PC_TEST(test_patch_pointn_dimensional_compression_rle),
-	PC_TEST(test_patch_pointn_ght_compression),
-	CU_TEST_INFO_NULL
+    PC_TEST(test_patch_pointn_last_first),
+    PC_TEST(test_patch_pointn_no_compression),
+    PC_TEST(test_patch_pointn_dimensional_compression_none),
+    PC_TEST(test_patch_pointn_dimensional_compression_zlib),
+    PC_TEST(test_patch_pointn_dimensional_compression_sigbits),
+    PC_TEST(test_patch_pointn_dimensional_compression_rle),
+    PC_TEST(test_patch_pointn_ght_compression),
+    CU_TEST_INFO_NULL
 };
 
 CU_SuiteInfo patch_suite = {
