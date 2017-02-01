@@ -64,6 +64,11 @@ pc_point_from_data(const PCSCHEMA *s, const uint8_t *data)
 	return pt;
 }
 
+void
+pc_point_copy_data(PCPOINT *pt, const uint8_t *data)
+{
+    memcpy(pt->data, data, pt->schema->size);
+}
 
 void
 pc_point_free(PCPOINT *pt)
