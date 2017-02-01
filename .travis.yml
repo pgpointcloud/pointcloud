@@ -10,20 +10,19 @@ install:
   - sudo apt-get install -qq g++-4.8
   - export CXX="g++-4.8"
   - sh .install-lazperf.sh
+  - sh .install-libght.sh
+  - npm install -g eclint@1.1.5
 
 addons:
   postgresql: "9.3" # for "installcheck"
 
-before_script:
-  - npm install -g eclint@1.1.5
-  - eclint check * */* */cunit/*
-  - ./autogen.sh
+# Note: Valgrind currently reports many problems when libght is enabled. So for
+# now, and until the problems are fixed, we just run the unit tests with libght
+# enabled.
 
 script:
-  - ./configure CFLAGS="-Wall -Werror -O2 -g" --with-lazperf=/usr/local/
-  - make
-  - make check
-  - valgrind --leak-check=full --error-exitcode=1 lib/cunit/cu_tester
-  - sudo make install
+  - eclint check * */* */cunit/*
+  - ./tools/build-install.sh --with-lazperf=/usr/local --with-libght=/usr/local && make check
+  - ./tools/build-install.sh --with-lazperf=/usr/local --without-libght && ./tools/valgrind.sh
   - make installcheck || { cat pgsql/regression.diffs && false; }
-  - cd tools/benchmark_compression && sh compression_benchmark.sh
+  - (cd tools/benchmark_compression && sh compression_benchmark.sh)
