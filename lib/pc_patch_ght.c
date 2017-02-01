@@ -576,7 +576,10 @@ pc_pointlist_from_ght(const PCPATCH_GHT *pag)
 {
 	PCPATCH_UNCOMPRESSED *pu;
 	pu = pc_patch_uncompressed_from_ght(pag);
-	return pc_pointlist_from_uncompressed(pu);
+	PCPOINTLIST *pl = pc_pointlist_from_uncompressed(pu);
+	pl->mem = pc_patch_uncompressed_readonly(pu);
+	pc_patch_free((PCPATCH *)pu);
+	return pl;
 }
 
 

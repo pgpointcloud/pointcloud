@@ -180,6 +180,7 @@ PCPATCH_UNCOMPRESSED* pc_patch_uncompressed_make(const PCSCHEMA *s, uint32_t max
 int pc_patch_uncompressed_compute_extent(PCPATCH_UNCOMPRESSED *patch);
 int pc_patch_uncompressed_compute_stats(PCPATCH_UNCOMPRESSED *patch);
 void pc_patch_uncompressed_free(PCPATCH_UNCOMPRESSED *patch);
+uint8_t *pc_patch_uncompressed_readonly(PCPATCH_UNCOMPRESSED *patch);
 PCPOINTLIST* pc_pointlist_from_uncompressed(const PCPATCH_UNCOMPRESSED *patch);
 PCPATCH_UNCOMPRESSED* pc_patch_uncompressed_from_pointlist(const PCPOINTLIST *pl);
 PCPATCH_UNCOMPRESSED* pc_patch_uncompressed_from_dimensional(const PCPATCH_DIMENSIONAL *pdl);
@@ -291,4 +292,3 @@ void pc_bitmap_filter(PCBITMAP *map, PC_FILTERTYPE filter, int i, double d, doub
 
 
 #endif /* _PC_API_INTERNAL_H */
-

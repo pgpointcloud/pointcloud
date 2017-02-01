@@ -222,6 +222,15 @@ pc_patch_uncompressed_free(PCPATCH_UNCOMPRESSED *patch)
 	pcfree(patch);
 }
 
+// Make the patch readonly. Return the memory segment
+// owned by the patch, if any, to enable transfer of ownership
+uint8_t *
+pc_patch_uncompressed_readonly(PCPATCH_UNCOMPRESSED *patch)
+{
+	uint8_t *data = patch->readonly ? NULL : patch->data;
+	patch->readonly = PC_TRUE;
+	return data;
+}
 
 
 PCPATCH_UNCOMPRESSED *
