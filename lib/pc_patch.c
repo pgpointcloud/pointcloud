@@ -602,6 +602,8 @@ PCPOINT *pc_patch_pointn(const PCPATCH *patch, int n)
 		return pc_patch_dimensional_pointn((PCPATCH_DIMENSIONAL*)patch,n);
 	case PC_GHT:
 		return pc_patch_ght_pointn((PCPATCH_GHT*)patch,n);
+	case PC_LAZPERF:
+		return pc_patch_lazperf_pointn((PCPATCH_LAZPERF*)patch, n);
 	}
 	pcerror("%s: unsupported compression %d requested", __func__, patch->type);
 	return NULL;

@@ -765,6 +765,41 @@ test_patch_pointn_ght_compression()
 	pc_pointlist_free(li);
 }
 
+#ifdef HAVE_LAZPERF
+static void
+test_patch_pointn_laz_compression()
+{
+	// 00 endian (big)
+	// 00000000 pcid
+	// 00000000 compression
+	// 00000003 npoints
+	// 0000000800000003000000050006 pt1 (XYZi)
+	// 0000000200000003000000040008 pt2 (XYZi)
+	// 0000000200000003000000040009 pt3 (XYZi)
+
+	char *hexbuf = "00000000000000000000000003000000080000000300000005000600000002000000030000000400080000000200000003000000040009";
+	size_t hexsize = strlen(hexbuf);
+	uint8_t *wkb = bytes_from_hexbytes(hexbuf, hexsize);
+	char *str;
+
+	PCPATCH *pa = pc_patch_from_wkb(simpleschema, wkb, hexsize/2);
+	PCPOINTLIST *li = pc_pointlist_from_patch(pa);
+
+	PCPATCH_LAZPERF* paz = pc_patch_lazperf_from_pointlist(li);
+	PCPOINT *pt = pc_patch_pointn((PCPATCH*) paz, 2);
+	CU_ASSERT(pt != NULL);
+	str = pc_point_to_string(pt);
+	CU_ASSERT_STRING_EQUAL(str, "{\"pcid\":0,\"pt\":[0.02,0.03,0.04,8]}");
+	pc_patch_free((PCPATCH *)paz);
+	pc_point_free(pt);
+	pcfree(str);
+
+	pcfree(wkb);
+	pc_patch_free(pa);
+	pc_pointlist_free(li);
+}
+#endif
+
 static void
 test_patch_range_compression_none()
 {
@@ -1014,6 +1049,9 @@ CU_TestInfo patch_tests[] = {
 	PC_TEST(test_patch_pointn_dimensional_compression_sigbits),
 	PC_TEST(test_patch_pointn_dimensional_compression_rle),
 	PC_TEST(test_patch_pointn_ght_compression),
+#ifdef HAVE_LAZPERF
+	PC_TEST(test_patch_pointn_laz_compression),
+#endif
 	PC_TEST(test_patch_range_compression_none),
 	PC_TEST(test_patch_range_compression_none_with_full_range),
 	PC_TEST(test_patch_range_compression_none_with_zero_count),
