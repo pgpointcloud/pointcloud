@@ -282,7 +282,7 @@ PCSCHEMA* pc_schema_clone(const PCSCHEMA *s);
 /** Add/overwrite a dimension in a schema */
 void pc_schema_set_dimension(PCSCHEMA *s, PCDIMENSION *d);
 /** Check/set the x/y position in the dimension list */
-void pc_schema_check_xy(PCSCHEMA *s);
+int pc_schema_check_xy(PCSCHEMA *s);
 /** Get the width in bytes of a single point in the schema */
 size_t pc_schema_get_size(const PCSCHEMA *s);
 
