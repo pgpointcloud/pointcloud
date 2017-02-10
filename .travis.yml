@@ -10,16 +10,23 @@ install:
   - sudo apt-get install -qq g++-4.8
   - export CXX="g++-4.8"
   - sh .install-lazperf.sh
+  - sh .install-libght.sh
 
 addons:
   postgresql: "9.3" # for "installcheck"
 
-before_script: ./autogen.sh
-
 script:
-  - ./configure CFLAGS="-Wall -O2 -g" --with-lazperf=/usr/local/
+  - ./autogen.sh
+  - ./configure CFLAGS="-Wall -O2 -g" --with-lazperf=/usr/local --with-libght=/usr/local
   - make
   - make check
+# valgrind currently reports many problems with libght. So, for now, and
+# until these problems are fixed, we rebuild pointcloud without libght
+# for the remaining tests
+  - make clean maintainer-clean
+  - ./autogen.sh
+  - ./configure CFLAGS="-Wall -O2 -g" --with-lazperf=/usr/local --without-libght
+  - make
   - valgrind --leak-check=full --error-exitcode=1 lib/cunit/cu_tester
   - sudo make install
   - make installcheck || { cat pgsql/regression.diffs && false; }
