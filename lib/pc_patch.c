@@ -527,20 +527,20 @@ pc_patch_from_patchlist(PCPATCH **palist, int numpatches)
 /** negative 1-based: -1=last  point, -npoints=first point */
 PCPOINT *pc_patch_pointn(const PCPATCH *patch, int n)
 {
-    if(!patch) return NULL;
-    if(n<0) n = patch->npoints+n; // negative indices count a backward
-    else --n; // 1-based => 0-based indexing
-    if(n<0 || n>= patch->npoints) return NULL;
+	if(!patch) return NULL;
+	if(n<0) n = patch->npoints+n; // negative indices count a backward
+	else --n; // 1-based => 0-based indexing
+	if(n<0 || n>= patch->npoints) return NULL;
 
-    switch( patch->type )
-    {
-    case PC_NONE:
-        return pc_patch_uncompressed_pointn((PCPATCH_UNCOMPRESSED*)patch,n);
-    case PC_DIMENSIONAL:
-        return pc_patch_dimensional_pointn((PCPATCH_DIMENSIONAL*)patch,n);
-    case PC_GHT:
-        return pc_patch_ght_pointn((PCPATCH_GHT*)patch,n);
-    }
-    pcerror("%s: unsupported compression %d requested", __func__, patch->type);
-    return NULL;
+	switch( patch->type )
+	{
+	case PC_NONE:
+		return pc_patch_uncompressed_pointn((PCPATCH_UNCOMPRESSED*)patch,n);
+	case PC_DIMENSIONAL:
+		return pc_patch_dimensional_pointn((PCPATCH_DIMENSIONAL*)patch,n);
+	case PC_GHT:
+		return pc_patch_ght_pointn((PCPATCH_GHT*)patch,n);
+	}
+	pcerror("%s: unsupported compression %d requested", __func__, patch->type);
+	return NULL;
 }

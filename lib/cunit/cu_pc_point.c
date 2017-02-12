@@ -45,9 +45,9 @@ clean_suite(void)
 static void
 test_point_hex_inout()
 {
-    // byte:     endianness (1 = NDR, 0 = XDR)
-    // uint32:   pcid (key to POINTCLOUD_SCHEMAS)
-    // uchar[]:  pointdata (interpret relative to pcid)
+	// byte:     endianness (1 = NDR, 0 = XDR)
+	// uint32:   pcid (key to POINTCLOUD_SCHEMAS)
+	// uchar[]:  pointdata (interpret relative to pcid)
 
 	double d;
 	char *hexbuf = "00000000010000000100000002000000030004";
@@ -160,8 +160,8 @@ CU_TestInfo point_tests[] = {
 };
 
 CU_SuiteInfo point_suite = {
-    .pName = "point",
-    .pInitFunc = init_suite,
-    .pCleanupFunc = clean_suite,
-    .pTests = point_tests
+	.pName = "point",
+	.pInitFunc = init_suite,
+	.pCleanupFunc = clean_suite,
+	.pTests = point_tests
 };

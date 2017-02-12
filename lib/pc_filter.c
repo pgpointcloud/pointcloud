@@ -146,16 +146,16 @@ pc_patch_dimensional_filter(const PCPATCH_DIMENSIONAL *pdl, const PCBITMAP *map)
 	int i = 0;
 	PCPATCH_DIMENSIONAL *fpdl = pc_patch_dimensional_clone(pdl);
 
-    fpdl->stats = pc_stats_clone(pdl->stats);
+	fpdl->stats = pc_stats_clone(pdl->stats);
 	fpdl->npoints = map->nset;
 
 	for ( i = 0; i < pdl->schema->ndims; i++ )
 	{
 		PCDIMENSION *dim;
-        PCDOUBLESTAT stats;
-        stats.min = FLT_MAX;
-        stats.max = -1*FLT_MAX;
-        stats.sum = 0;
+		PCDOUBLESTAT stats;
+		stats.min = FLT_MAX;
+		stats.max = -1*FLT_MAX;
+		stats.sum = 0;
 		fpdl->bytes[i] = pc_bytes_filter(&(pdl->bytes[i]), map, &stats);
 
 
@@ -168,18 +168,18 @@ pc_patch_dimensional_filter(const PCPATCH_DIMENSIONAL *pdl, const PCBITMAP *map)
 		/* Save the X/Y stats for use in bounds later */
 		if ( i == pdl->schema->x_position )
 		{
-            fpdl->bounds.xmin = stats.min;
-            fpdl->bounds.xmax = stats.max;
-        }
+			fpdl->bounds.xmin = stats.min;
+			fpdl->bounds.xmax = stats.max;
+		}
 		else if ( i == pdl->schema->y_position )
 		{
-            fpdl->bounds.ymin = stats.min;
-            fpdl->bounds.ymax = stats.max;
-        }
+			fpdl->bounds.ymin = stats.min;
+			fpdl->bounds.ymax = stats.max;
+		}
 
-        pc_point_set_double_by_index(&(fpdl->stats->min), i, stats.min);
-        pc_point_set_double_by_index(&(fpdl->stats->max), i, stats.max);
-        pc_point_set_double_by_index(&(fpdl->stats->avg), i, stats.sum/fpdl->npoints);
+		pc_point_set_double_by_index(&(fpdl->stats->min), i, stats.min);
+		pc_point_set_double_by_index(&(fpdl->stats->max), i, stats.max);
+		pc_point_set_double_by_index(&(fpdl->stats->avg), i, stats.sum/fpdl->npoints);
 	}
 
 	return fpdl;
@@ -189,33 +189,33 @@ pc_patch_dimensional_filter(const PCPATCH_DIMENSIONAL *pdl, const PCBITMAP *map)
 static int
 pc_patch_filter_has_results(const PCSTATS *stats, uint32_t dimnum, PC_FILTERTYPE filter, double val1, double val2)
 {
-    double min, max;
-    pc_point_get_double_by_index(&(stats->min), dimnum, &min);
-    pc_point_get_double_by_index(&(stats->max), dimnum, &max);
+	double min, max;
+	pc_point_get_double_by_index(&(stats->min), dimnum, &min);
+	pc_point_get_double_by_index(&(stats->max), dimnum, &max);
 	switch ( filter )
 	{
-    	case PC_GT:
-    	{
-            if ( max < val1 ) return PC_FALSE;
-    		break;
+		case PC_GT:
+		{
+			if ( max < val1 ) return PC_FALSE;
+			break;
 		}
-    	case PC_LT:
-    	{
-            if ( min > val1 ) return PC_FALSE;
-    		break;
+		case PC_LT:
+		{
+			if ( min > val1 ) return PC_FALSE;
+			break;
 		}
-    	case PC_EQUAL:
-    	{
-            if ( min > val1 || max < val1 ) return PC_FALSE;
-    		break;
+		case PC_EQUAL:
+		{
+			if ( min > val1 || max < val1 ) return PC_FALSE;
+			break;
 		}
-    	case PC_BETWEEN:
-	    {
-            if ( min > val2 || max < val1 ) return PC_FALSE;
-    		break;
+		case PC_BETWEEN:
+		{
+			if ( min > val2 || max < val1 ) return PC_FALSE;
+			break;
 		}
 	}
-    return PC_TRUE;
+	return PC_TRUE;
 }
 
 
@@ -225,13 +225,13 @@ pc_patch_filter(const PCPATCH *pa, uint32_t dimnum, PC_FILTERTYPE filter, double
 	if ( ! pa ) return NULL;
 	PCPATCH *paout;
 
-    /* If the stats say this filter returns an empty result, do that */
-    if ( pa->stats && ! pc_patch_filter_has_results(pa->stats, dimnum, filter, val1, val2) )
-    {
-        /* Empty uncompressed patch to return */
-        paout = (PCPATCH*)pc_patch_uncompressed_make(pa->schema, 0);
-        return paout;
-    }
+	/* If the stats say this filter returns an empty result, do that */
+	if ( pa->stats && ! pc_patch_filter_has_results(pa->stats, dimnum, filter, val1, val2) )
+	{
+		/* Empty uncompressed patch to return */
+		paout = (PCPATCH*)pc_patch_uncompressed_make(pa->schema, 0);
+		return paout;
+	}
 
 	switch ( pa->type )
 	{
@@ -253,11 +253,11 @@ pc_patch_filter(const PCPATCH *pa, uint32_t dimnum, PC_FILTERTYPE filter, double
 	}
 	case PC_GHT:
 	{
-        PCPATCH_GHT *pgh = pc_patch_ght_filter((PCPATCH_GHT*)pa, dimnum, filter, val1, val2);
+		PCPATCH_GHT *pgh = pc_patch_ght_filter((PCPATCH_GHT*)pa, dimnum, filter, val1, val2);
 		/* pc_patch_ght_filter computes the bounds itself */
 		/* TODO: add stats computation to pc_patch_ght_filter */
 		/* pc_patch_ght_filter is just re-using the input stats, which is wrong */
-        paout = (PCPATCH*)pgh;
+		paout = (PCPATCH*)pgh;
 		break;
 	}
 	case PC_DIMENSIONAL:
@@ -277,25 +277,25 @@ pc_patch_filter(const PCPATCH *pa, uint32_t dimnum, PC_FILTERTYPE filter, double
 	}
 	case PC_LAZPERF:
 	{
-	    PCBITMAP *map;
-	    PCPATCH_UNCOMPRESSED *pu;
-	    PCPATCH_UNCOMPRESSED *pau;
+		PCBITMAP *map;
+		PCPATCH_UNCOMPRESSED *pu;
+		PCPATCH_UNCOMPRESSED *pau;
 
-	    pau = pc_patch_uncompressed_from_lazperf( (PCPATCH_LAZPERF*) pa );
-	    map = pc_patch_uncompressed_bitmap(pau, dimnum, filter, val1, val2);
-	    if ( map->nset == 0 )
-	    {
+		pau = pc_patch_uncompressed_from_lazperf( (PCPATCH_LAZPERF*) pa );
+		map = pc_patch_uncompressed_bitmap(pau, dimnum, filter, val1, val2);
+		if ( map->nset == 0 )
+		{
+			pc_bitmap_free(map);
+			return (PCPATCH*)pc_patch_uncompressed_make(pa->schema, -1);
+		}
+
+		pu = pc_patch_uncompressed_filter(pau, map);
 		pc_bitmap_free(map);
-		return (PCPATCH*)pc_patch_uncompressed_make(pa->schema, -1);
-	    }
+		/* pc_patch_uncompressed_filter computes stats and bounds, so we're ready to return here */
+		/* TODO, it could/should compute bounds and stats while filtering the points */
+		paout = (PCPATCH*)pu;
 
-	    pu = pc_patch_uncompressed_filter(pau, map);
-	    pc_bitmap_free(map);
-	    /* pc_patch_uncompressed_filter computes stats and bounds, so we're ready to return here */
-	    /* TODO, it could/should compute bounds and stats while filtering the points */
-	    paout = (PCPATCH*)pu;
-
-	    break;
+		break;
 	}
 	default:
 		pcerror("%s: failure", __func__);

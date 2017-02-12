@@ -92,16 +92,19 @@ void pc_install_default_handlers(void)
 	pc_context.warn = default_warn_handler;
 
 #ifdef HAVE_LIBGHT
-	ght_set_handlers((void *)default_allocator,    (void *)default_reallocator,
-	                 (void *)default_freeor,       (void *)default_error_handler,
-	                 (void *)default_info_handler, (void *)default_warn_handler);
+	ght_set_handlers(
+		(void *)default_allocator,    (void *)default_reallocator,
+		(void *)default_freeor,       (void *)default_error_handler,
+		(void *)default_info_handler, (void *)default_warn_handler
+	);
 #endif
 
 }
 
-void pc_set_handlers(pc_allocator allocator, pc_reallocator reallocator,
-                     pc_deallocator deallocator, pc_message_handler error_handler,
-                     pc_message_handler info_handler, pc_message_handler warn_handler)
+void pc_set_handlers(
+	pc_allocator allocator, pc_reallocator reallocator,
+	pc_deallocator deallocator, pc_message_handler error_handler,
+	pc_message_handler info_handler, pc_message_handler warn_handler)
 {
 	if ( ! allocator ) allocator = pc_context.alloc;
 	if ( ! reallocator ) reallocator = pc_context.realloc;
@@ -118,9 +121,11 @@ void pc_set_handlers(pc_allocator allocator, pc_reallocator reallocator,
 	pc_context.info = info_handler;
 
 #ifdef HAVE_LIBGHT
-	ght_set_handlers((void *)allocator,    (void *)reallocator,
-	                 (void *)deallocator,  (void *)error_handler,
-	                 (void *)info_handler, (void *)warn_handler);
+	ght_set_handlers(
+		(void *)allocator,    (void *)reallocator,
+		(void *)deallocator,  (void *)error_handler,
+		(void *)info_handler, (void *)warn_handler
+	);
 #endif
 
 	return;
