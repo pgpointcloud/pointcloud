@@ -171,6 +171,8 @@ test_schema_clone(void)
 	CU_ASSERT_EQUAL(clone->srid, schema->srid);
 	CU_ASSERT_EQUAL(clone->x_position, schema->x_position);
 	CU_ASSERT_EQUAL(clone->y_position, schema->y_position);
+	CU_ASSERT_EQUAL(clone->z_position, schema->z_position);
+	CU_ASSERT_EQUAL(clone->m_position, schema->m_position);
 	CU_ASSERT_EQUAL(clone->compression, schema->compression);
 	CU_ASSERT(clone->dims != schema->dims); /* deep clone */
 	CU_ASSERT(clone->namehash != schema->namehash); /* deep clone */
