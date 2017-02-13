@@ -34,6 +34,7 @@ clean_suite(void)
 	return 0;
 }
 
+#ifdef HAVE_LAZPERF
 static void
 test_schema_compression_lazperf(void)
 {
@@ -50,7 +51,6 @@ test_schema_compression_lazperf(void)
 	pcfree(xmlstr);
 }
 
-#ifdef HAVE_LAZPERF
 static void
 test_patch_lazperf()
 {
