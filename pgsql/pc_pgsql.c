@@ -31,8 +31,8 @@ pgsql_alloc(size_t size)
 	if ( ! result )
 	{
 		ereport(ERROR,
-		        (errcode(ERRCODE_OUT_OF_MEMORY),
-		         errmsg("Out of virtual memory")));
+			(errcode(ERRCODE_OUT_OF_MEMORY),
+			errmsg("Out of virtual memory")));
 	}
 
 	return result;
@@ -46,8 +46,8 @@ pgsql_realloc(void *mem, size_t size)
 	if ( ! result )
 	{
 		ereport(ERROR,
-		        (errcode(ERRCODE_OUT_OF_MEMORY),
-		         errmsg("Out of virtual memory")));
+				(errcode(ERRCODE_OUT_OF_MEMORY),
+				 errmsg("Out of virtual memory")));
 	}
 	return result;
 }
@@ -60,7 +60,7 @@ pgsql_free(void *ptr)
 
 static void
 pgsql_msg_handler(int sig, const char *fmt, va_list ap)
-    __attribute__ (( format (printf, 2, 0) ));
+	__attribute__ (( format (printf, 2, 0) ));
 
 static void
 pgsql_msg_handler(int sig, const char *fmt, va_list ap)
@@ -113,9 +113,11 @@ void
 _PG_init(void)
 {
 	elog(LOG, "Pointcloud (%s) module loaded", POINTCLOUD_VERSION);
-	pc_set_handlers(pgsql_alloc, pgsql_realloc,
-	                pgsql_free, pgsql_error,
-	                pgsql_info, pgsql_warn);
+	pc_set_handlers(
+		pgsql_alloc, pgsql_realloc,
+		pgsql_free, pgsql_error,
+		pgsql_info, pgsql_warn
+	);
 
 }
 
@@ -240,7 +242,7 @@ pc_schema_from_pcid_uncached(uint32 pcid)
 	}
 
 	sprintf(sql, "select %s, %s from %s where pcid = %d",
-	        POINTCLOUD_FORMATS_XML, POINTCLOUD_FORMATS_SRID, POINTCLOUD_FORMATS, pcid);
+		POINTCLOUD_FORMATS_XML, POINTCLOUD_FORMATS_SRID, POINTCLOUD_FORMATS, pcid);
 	err = SPI_exec(sql, 1);
 
 	if ( err < 0 )
@@ -287,8 +289,8 @@ pc_schema_from_pcid_uncached(uint32 pcid)
 	if ( ! err )
 	{
 		ereport(ERROR,
-		        (errcode(ERRCODE_NOT_AN_XML_DOCUMENT),
-		         errmsg("unable to parse XML for pcid = %d in \"%s\"", pcid, POINTCLOUD_FORMATS)));
+			(errcode(ERRCODE_NOT_AN_XML_DOCUMENT),
+			errmsg("unable to parse XML for pcid = %d in \"%s\"", pcid, POINTCLOUD_FORMATS)));
 	}
 
 	schema->pcid = pcid;
@@ -388,8 +390,8 @@ pc_schema_from_pcid(uint32 pcid, FunctionCallInfoData *fcinfo)
 	if ( ! schema_cache )
 	{
 		ereport(ERROR,
-		        (errcode(ERRCODE_INTERNAL_ERROR),
-		         errmsg("unable to create/load statement level schema cache")));
+			(errcode(ERRCODE_INTERNAL_ERROR),
+			errmsg("unable to create/load statement level schema cache")));
 	}
 
 	/* Find our PCID if it's in there (usually it will be first) */
@@ -410,8 +412,8 @@ pc_schema_from_pcid(uint32 pcid, FunctionCallInfoData *fcinfo)
 	if ( ! schema )
 	{
 		ereport(ERROR,
-		        (errcode(ERRCODE_INTERNAL_ERROR),
-		         errmsg("unable to load schema for pcid %u", pcid)));
+			(errcode(ERRCODE_INTERNAL_ERROR),
+			errmsg("unable to load schema for pcid %u", pcid)));
 	}
 
 	/* Save the XML in the next unused slot */
@@ -1019,12 +1021,13 @@ pc_patch_wkb_set_char(uint8_t *wkb, char c)
 	return wkb;
 }
 
+/* 0 = xdr | big endian */
+/* 1 = ndr | little endian */
 static char
 machine_endian(void)
 {
 	static int check_int = 1; /* dont modify this!!! */
-	return *((char *) &check_int); /* 0 = big endian | xdr,
-	                               * 1 = little endian | ndr */
+	return *((char *) &check_int);
 }
 
 uint8_t *
@@ -1038,15 +1041,15 @@ pc_patch_to_geometry_wkb_envelope(const SERIALIZED_PATCH *pa, const PCSCHEMA *sc
 	int has_srid = false;
 	size_t size = 1 + 4 + 4 + 4 + 2*npoints*8; /* endian + type + nrings + npoints + 5 dbl pts */
 
-    /* Bounds! */
-    double xmin = pa->bounds.xmin;
-    double ymin = pa->bounds.ymin;
-    double xmax = pa->bounds.xmax;
-    double ymax = pa->bounds.ymax;
-    
-    /* Make sure they're slightly bigger than a point */
-    if ( xmin == xmax ) xmax += xmax * 0.0000001;
-    if ( ymin == ymax ) ymax += ymax * 0.0000001;
+	/* Bounds! */
+	double xmin = pa->bounds.xmin;
+	double ymin = pa->bounds.ymin;
+	double xmax = pa->bounds.xmax;
+	double ymax = pa->bounds.ymax;
+
+	/* Make sure they're slightly bigger than a point */
+	if ( xmin == xmax ) xmax += xmax * 0.0000001;
+	if ( ymin == ymax ) ymax += ymax * 0.0000001;
 
 	if ( schema->srid > 0 )
 	{

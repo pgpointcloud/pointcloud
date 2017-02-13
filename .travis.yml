@@ -14,7 +14,10 @@ install:
 addons:
   postgresql: "9.3" # for "installcheck"
 
-before_script: ./autogen.sh
+before_script:
+  - npm install -g eclint
+  - eclint check * */* */cunit/*
+  - ./autogen.sh
 
 script:
   - ./configure CFLAGS="-Wall -O2 -g" --with-lazperf=/usr/local/

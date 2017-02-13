@@ -122,14 +122,14 @@ pc_double_from_ptr(const uint8_t *ptr, uint32_t interpretation)
 }
 
 #define CLAMP(v,min,max,t,format) do { \
-    if ( v > max ) { \
-      pcwarn("Value %g truncated to "format" to fit in "t, v, max); \
-      v = max; \
-    } else if ( v < min ) { \
-      pcwarn("Value %g truncated to "format" to fit in "t, v, min); \
-      v = min; \
-    } \
-  } while(0)
+	if ( v > max ) { \
+		pcwarn("Value %g truncated to "format" to fit in "t, v, max); \
+		v = max; \
+	} else if ( v < min ) { \
+		pcwarn("Value %g truncated to "format" to fit in "t, v, min); \
+		v = min; \
+	} \
+} while(0)
 
 int
 pc_double_to_ptr(uint8_t *ptr, uint32_t interpretation, double val)

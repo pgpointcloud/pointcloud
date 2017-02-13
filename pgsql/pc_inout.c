@@ -40,9 +40,9 @@ pcid_consistent(const uint32 pcid, const uint32 column_pcid)
 	if ( column_pcid && pcid != column_pcid )
 	{
 		ereport(ERROR, (
-		            errcode(ERRCODE_DATATYPE_MISMATCH),
-		            errmsg("point/patch pcid (%u) does not match column pcid (%d)", pcid, column_pcid)
-		        ));
+			errcode(ERRCODE_DATATYPE_MISMATCH),
+			errmsg("point/patch pcid (%u) does not match column pcid (%d)", pcid, column_pcid)
+		));
 	}
 }
 
@@ -325,27 +325,27 @@ Datum pc_typmod_in(PG_FUNCTION_ARGS)
 
 	if (ARR_ELEMTYPE(arr) != CSTRINGOID)
 		ereport(ERROR,
-		        (errcode(ERRCODE_ARRAY_ELEMENT_ERROR),
-		         errmsg("typmod array must be type cstring[]")));
+			(errcode(ERRCODE_ARRAY_ELEMENT_ERROR),
+			errmsg("typmod array must be type cstring[]")));
 
 	if (ARR_NDIM(arr) != 1)
 		ereport(ERROR,
-		        (errcode(ERRCODE_ARRAY_SUBSCRIPT_ERROR),
-		         errmsg("typmod array must be one-dimensional")));
+			(errcode(ERRCODE_ARRAY_SUBSCRIPT_ERROR),
+			errmsg("typmod array must be one-dimensional")));
 
 	if (ARR_HASNULL(arr))
 		ereport(ERROR,
-		        (errcode(ERRCODE_NULL_VALUE_NOT_ALLOWED),
-		         errmsg("typmod array must not contain nulls")));
+			(errcode(ERRCODE_NULL_VALUE_NOT_ALLOWED),
+			errmsg("typmod array must not contain nulls")));
 
 	if (ArrayGetNItems(ARR_NDIM(arr), ARR_DIMS(arr)) > 1)
 		ereport(ERROR,
-		        (errcode(ERRCODE_ARRAY_SUBSCRIPT_ERROR),
-		         errmsg("typmod array must have one element")));
+			(errcode(ERRCODE_ARRAY_SUBSCRIPT_ERROR),
+			errmsg("typmod array must have one element")));
 
 	deconstruct_array(arr,
-	                  CSTRINGOID, -2, false, 'c', /* hardwire cstring representation details */
-	                  &elem_values, NULL, &n);
+		CSTRINGOID, -2, false, 'c', /* hardwire cstring representation details */
+		&elem_values, NULL, &n);
 
 	for (i = 0; i < n; i++)
 	{

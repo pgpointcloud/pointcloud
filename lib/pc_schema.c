@@ -85,26 +85,26 @@ pc_interpretation_number(const char *str)
 	}
 	else
 		return PC_UNKNOWN;
-	
+
 	return PC_UNKNOWN;
 }
 
 const char*
 pc_compression_name(int num)
 {
-  switch (num)
-  {
-    case PC_NONE:
-      return "none";
-    case PC_GHT:
-      return "ght";
-    case PC_DIMENSIONAL:
-      return "dimensional";
-    case PC_LAZPERF:
-      return "laz";
-    default:
-      return "UNKNOWN";
-  }
+	switch (num)
+	{
+	case PC_NONE:
+		return "none";
+	case PC_GHT:
+		return "ght";
+	case PC_DIMENSIONAL:
+		return "dimensional";
+	case PC_LAZPERF:
+		return "laz";
+	default:
+		return "UNKNOWN";
+	}
 }
 
 static int
@@ -113,26 +113,26 @@ pc_compression_number(const char *str)
 	if ( ! str )
 		return PC_NONE;
 
-	if ( (str[0] == 'd' || str[0] == 'D') &&
-	        (strcasecmp(str, "dimensional") == 0) )
+	if (	(str[0] == 'd' || str[0] == 'D') &&
+		(strcasecmp(str, "dimensional") == 0) )
 	{
 		return PC_DIMENSIONAL;
 	}
 
-	if ( (str[0] == 'l' || str[0] == 'L') &&
-	        (strcasecmp(str, "laz") == 0) )
+	if (	(str[0] == 'l' || str[0] == 'L') &&
+		(strcasecmp(str, "laz") == 0) )
 	{
 		return PC_LAZPERF;
 	}
 
-	if ( (str[0] == 'g' || str[0] == 'G') &&
-	        (strcasecmp(str, "ght") == 0) )
+	if (	(str[0] == 'g' || str[0] == 'G') &&
+		(strcasecmp(str, "ght") == 0) )
 	{
 		return PC_GHT;
 	}
 
-	if ( (str[0] == 'n' || str[0] == 'N') &&
-	        (strcasecmp(str, "none") == 0) )
+	if (	(str[0] == 'n' || str[0] == 'N') &&
+		(strcasecmp(str, "none") == 0) )
 	{
 		return PC_NONE;
 	}
@@ -333,16 +333,16 @@ void pc_schema_check_xy(PCSCHEMA *s)
 	{
 		char *dimname = s->dims[i]->name;
 		if ( ! dimname ) continue;
-		if ( strcasecmp(dimname, "X") == 0 ||
-		        strcasecmp(dimname, "Longitude") == 0 ||
-		        strcasecmp(dimname, "Lon") == 0 )
+		if (	strcasecmp(dimname, "X") == 0 ||
+			strcasecmp(dimname, "Longitude") == 0 ||
+			strcasecmp(dimname, "Lon") == 0 )
 		{
 			s->x_position = i;
 			continue;
 		}
-		if ( strcasecmp(dimname, "Y") == 0 ||
-		        strcasecmp(dimname, "Latitude") == 0 ||
-		        strcasecmp(dimname, "Lat") == 0 )
+		if (	strcasecmp(dimname, "Y") == 0 ||
+			strcasecmp(dimname, "Latitude") == 0 ||
+			strcasecmp(dimname, "Lat") == 0 )
 		{
 			s->y_position = i;
 			continue;
@@ -472,15 +472,15 @@ pc_schema_from_xml(const char *xml_str, PCSCHEMA **schema)
 						char *name = (char*)(child->name);
 						if ( strcmp(name, "name") == 0 )
 						{
-							if ( strcasecmp(content, "X") == 0 ||
-							        strcasecmp(content, "Longitude") == 0 ||
-							        strcasecmp(content, "Lon") == 0 )
+							if (	strcasecmp(content, "X") == 0 ||
+								strcasecmp(content, "Longitude") == 0 ||
+								strcasecmp(content, "Lon") == 0 )
 							{
 								xydim = 'x';
 							}
-							if ( strcasecmp(content, "Y") == 0 ||
-							        strcasecmp(content, "Latitude") == 0 ||
-							        strcasecmp(content, "Lat") == 0 )
+							if (	strcasecmp(content, "Y") == 0 ||
+								strcasecmp(content, "Latitude") == 0 ||
+								strcasecmp(content, "Lat") == 0 )
 							{
 								xydim = 'y';
 							}
@@ -520,7 +520,7 @@ pc_schema_from_xml(const char *xml_str, PCSCHEMA **schema)
 						xmlXPathFreeObject(xpath_obj);
 						xmlXPathFreeContext(xpath_ctx);
 						xmlFreeDoc(xml_doc);
-                		xmlCleanupParser();
+						xmlCleanupParser();
 						pc_schema_free(s);
 						pcwarn("schema dimension at position \"%d\" is declared twice", d->position + 1, ndims);
 						return PC_FAILURE;
@@ -541,7 +541,7 @@ pc_schema_from_xml(const char *xml_str, PCSCHEMA **schema)
 					xmlXPathFreeContext(xpath_ctx);
 					xmlFreeDoc(xml_doc);
 					xmlCleanupParser();
-            		pc_schema_free(s);
+					pc_schema_free(s);
 					pcwarn("schema dimension states position \"%d\", but number of XML dimensions is \"%d\"", d->position + 1, ndims);
 					return PC_FAILURE;
 				}

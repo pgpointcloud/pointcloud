@@ -354,15 +354,15 @@ pc_point_to_geometry_wkb(const PCPOINT *pt, size_t *wkbsize)
 
 
 /**
- * @brief this function convert a PCPOINT to an array of double containing
- *        all the dimension values of this point
- *
- * @param a pointer to the point to convert to double
- *
- * @return a pointer to an array of double containing all the dimensions
- *         of the point expressed as double precision
- *
- */
+* @brief this function convert a PCPOINT to an array of double containing
+*        all the dimension values of this point
+*
+* @param a pointer to the point to convert to double
+*
+* @return a pointer to an array of double containing all the dimensions
+*         of the point expressed as double precision
+*
+*/
 double * pc_point_to_double_array(const PCPOINT *p)
 {
 	int i;
