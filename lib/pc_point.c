@@ -155,6 +155,22 @@ pc_point_get_y(const PCPOINT *pt)
 }
 
 double
+pc_point_get_z(const PCPOINT *pt)
+{
+	double d;
+	pc_point_get_double_by_index(pt, pt->schema->z_position, &d);
+	return d;
+}
+
+double
+pc_point_get_m(const PCPOINT *pt)
+{
+	double d;
+	pc_point_get_double_by_index(pt, pt->schema->m_position, &d);
+	return d;
+}
+
+double
 pc_point_set_x(PCPOINT *pt, double val)
 {
 	return pc_point_set_double_by_index(pt, pt->schema->x_position, val);
@@ -164,6 +180,18 @@ double
 pc_point_set_y(PCPOINT *pt, double val)
 {
 	return pc_point_set_double_by_index(pt, pt->schema->y_position, val);
+}
+
+double
+pc_point_set_z(PCPOINT *pt, double val)
+{
+	return pc_point_set_double_by_index(pt, pt->schema->z_position, val);
+}
+
+double
+pc_point_set_m(PCPOINT *pt, double val)
+{
+	return pc_point_set_double_by_index(pt, pt->schema->m_position, val);
 }
 
 char *
@@ -293,29 +321,29 @@ uint8_t *
 pc_point_to_geometry_wkb(const PCPOINT *pt, size_t *wkbsize)
 {
 	static uint32_t srid_mask = 0x20000000;
+	static uint32_t m_mask = 0x40000000;
 	static uint32_t z_mask = 0x80000000;
 	uint32_t wkbtype = 1; /* WKB POINT */
 	size_t size = 1 + 4 + 8 + 8; /* endian + type + dblX, + dblY */
 	uint8_t *wkb, *ptr;
-	uint32_t srid;
-	int has_srid = PC_FALSE, has_z = PC_FALSE;
-	double x, y, z;
+	uint32_t srid = pt->schema->srid;
+	double x, y, z, m;
 
-	x = pc_point_get_x(pt);
-	y = pc_point_get_y(pt);
-
-	if ( pt->schema->srid > 0 )
+	if ( srid != 0 )
 	{
-		has_srid = PC_TRUE;
 		wkbtype |= srid_mask;
 		size += 4;
-		srid = pt->schema->srid;
 	}
 
-	if ( pc_point_get_double_by_name(pt, "Z", &z) )
+	if ( pt->schema->z_position > -1 )
 	{
-		has_z = PC_TRUE;
 		wkbtype |= z_mask;
+		size += 8;
+	}
+
+	if ( pt->schema->m_position > -1 )
+	{
+		wkbtype |= m_mask;
 		size += 8;
 	}
 
@@ -328,21 +356,31 @@ pc_point_to_geometry_wkb(const PCPOINT *pt, size_t *wkbsize)
 	memcpy(ptr, &wkbtype, 4); /* WKB type */
 	ptr += 4;
 
-	if ( has_srid )
+	if ( srid != 0 )
 	{
 		memcpy(ptr, &srid, 4); /* SRID */
 		ptr += 4;
 	}
 
+	x = pc_point_get_x(pt);
 	memcpy(ptr, &x, 8); /* X */
 	ptr += 8;
 
+	y = pc_point_get_y(pt);
 	memcpy(ptr, &y, 8); /* Y */
 	ptr += 8;
 
-	if ( has_z )
+	if ( pt->schema->z_position > -1 )
 	{
+		z = pc_point_get_z(pt);
 		memcpy(ptr, &z, 8); /* Z */
+		ptr += 8;
+	}
+
+	if ( pt->schema->m_position > -1 )
+	{
+		m = pc_point_get_z(pt);
+		memcpy(ptr, &m, 8); /* M */
 		ptr += 8;
 	}
 

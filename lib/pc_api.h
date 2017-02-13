@@ -88,8 +88,10 @@ typedef struct
 	size_t size;          /* How wide (bytes) is a point with this schema? */
 	PCDIMENSION **dims;   /* Array of dimension pointers */
 	uint32_t srid;        /* Foreign key reference to SPATIAL_REF_SYS */
-	int32_t x_position;  /* What entry is the x coordinate at? */
-	int32_t y_position;  /* What entry is the y coordinate at? */
+	int32_t x_position;   /* What entry is the x coordinate at? */
+	int32_t y_position;   /* What entry is the y coordinate at? */
+	int32_t z_position;   /* What entry is the z coordinate at? */
+	int32_t m_position;   /* What entry is the m coordinate at? */
 	uint32_t compression; /* Compression type applied to the data */
 	hashtable *namehash;  /* Look-up from dimension name to pointer */
 } PCSCHEMA;
@@ -283,8 +285,8 @@ uint32_t pc_schema_is_valid(const PCSCHEMA *s);
 PCSCHEMA* pc_schema_clone(const PCSCHEMA *s);
 /** Add/overwrite a dimension in a schema */
 void pc_schema_set_dimension(PCSCHEMA *s, PCDIMENSION *d);
-/** Check/set the x/y position in the dimension list */
-void pc_schema_check_xy(PCSCHEMA *s);
+/** Check/set the xyzm positions in the dimension list */
+void pc_schema_check_xyzm(PCSCHEMA *s);
 /** Get the width in bytes of a single point in the schema */
 size_t pc_schema_get_size(const PCSCHEMA *s);
 
@@ -344,11 +346,23 @@ double pc_point_get_x(const PCPOINT *pt);
 /** Returns Y coordinate */
 double pc_point_get_y(const PCPOINT *pt);
 
+/** Returns Z coordinate */
+double pc_point_get_z(const PCPOINT *pt);
+
+/** Returns M coordinate */
+double pc_point_get_m(const PCPOINT *pt);
+
 /** Set the X coordinate */
 double pc_point_set_x(PCPOINT *pt, double val);
 
 /** Set the Y coordinate */
 double pc_point_set_y(PCPOINT *pt, double val);
+
+/** Set the Z coordinate */
+double pc_point_set_z(PCPOINT *pt, double val);
+
+/** Set the M coordinate */
+double pc_point_set_m(PCPOINT *pt, double val);
 
 /** Create a new readwrite PCPOINT from a hex byte array */
 PCPOINT* pc_point_from_wkb(const PCSCHEMA *s, uint8_t *wkb, size_t wkbsize);
