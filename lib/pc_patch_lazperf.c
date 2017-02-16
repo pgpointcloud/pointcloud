@@ -74,6 +74,7 @@ pc_pointlist_from_lazperf(const PCPATCH_LAZPERF *palaz)
 	PCPATCH_UNCOMPRESSED *pu = NULL;
 	pu = pc_patch_uncompressed_from_lazperf(palaz);
 	PCPOINTLIST *pl = pc_pointlist_from_uncompressed(pu);
+	pl->mem = pc_patch_uncompressed_readonly(pu);
 	pc_patch_free((PCPATCH *)pu);
 	return pl;
 }

@@ -20,7 +20,7 @@ pc_pointlist_make(uint32_t npoints)
 	pl->points = pcalloc(sizeof(PCPOINT*) * npoints);
 	pl->maxpoints = npoints;
 	pl->npoints = 0;
-	pl->readonly = PC_FALSE;
+	pl->mem = NULL;
 	return pl;
 }
 
@@ -32,6 +32,8 @@ pc_pointlist_free(PCPOINTLIST *pl)
 	{
 		pc_point_free(pl->points[i]);
 	}
+	if ( pl->mem )
+		pcfree(pl->mem);
 	pcfree(pl->points);
 	pcfree(pl);
 	return;
@@ -65,6 +67,7 @@ pc_pointlist_from_dimensional(const PCPATCH_DIMENSIONAL *pdl)
 	PCPATCH_DIMENSIONAL *pdl_uncompressed;
 	const PCSCHEMA *schema = pdl->schema;
 	int i, j, ndims, npoints;
+	uint8_t *data;
 	assert(pdl);
 
 	pdl_uncompressed = pc_patch_dimensional_decompress(pdl);
@@ -72,19 +75,21 @@ pc_pointlist_from_dimensional(const PCPATCH_DIMENSIONAL *pdl)
 	ndims = schema->ndims;
 	npoints = pdl->npoints;
 	pl = pc_pointlist_make(npoints);
+	pl->mem = data = pcalloc(npoints * schema->size);
 
 	for ( i = 0; i < npoints; i++ )
 	{
-		PCPOINT *pt = pc_point_make(schema);
+		PCPOINT *pt = pc_point_from_data(schema,data);
 		for ( j = 0; j < ndims; j++ )
 		{
 			PCDIMENSION *dim = pc_schema_get_dimension(schema, j);
 
 			uint8_t *in = pdl_uncompressed->bytes[j].bytes + dim->size * i;
-			uint8_t *out = pt->data + dim->byteoffset;
+			uint8_t *out = data + dim->byteoffset;
 			memcpy(out, in, dim->size);
 		}
 		pc_pointlist_add_point(pl, pt);
+		data += schema->size;
 	}
 	pc_patch_dimensional_free(pdl_uncompressed);
 
@@ -134,4 +139,3 @@ pc_pointlist_from_patch(const PCPATCH *patch)
 	pcerror("pc_pointlist_from_patch: unsupported compression type %d", patch->type);
 	return NULL;
 }
-

@@ -128,7 +128,7 @@ typedef struct
 
 typedef struct
 {
-	int8_t readonly;
+	void *mem; /* An opaque memory buffer to be freed on destruction if not NULL */
 	uint32_t npoints;
 	uint32_t maxpoints;
 	PCPOINT **points;
