@@ -273,4 +273,90 @@ SELECT pc_astext(pc_explode(pa)) FROM pa_test_laz;
  {"pcid":5,"pt":[6,5.7,1.02,10]}
 (4 rows)
 
+INSERT INTO pointcloud_formats (pcid, srid, schema)
+VALUES (6, 0,
+'<?xml version="1.0" encoding="UTF-8"?>
+<pc:PointCloudSchema xmlns:pc="http://pointcloud.org/schemas/PC/1.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <pc:dimension>
+    <pc:position>1</pc:position>
+    <pc:size>4</pc:size>
+    <pc:description>X coordinate as a long integer. You must use the scale and offset information of the header to determine the double value.</pc:description>
+    <pc:name>X</pc:name>
+    <pc:interpretation>int64_t</pc:interpretation>
+    <pc:scale>0.01</pc:scale>
+  </pc:dimension>
+  <pc:dimension>
+    <pc:position>2</pc:position>
+    <pc:size>4</pc:size>
+    <pc:description>Y coordinate as a long integer. You must use the scale and offset information of the header to determine the double value.</pc:description>
+    <pc:name>Y</pc:name>
+    <pc:interpretation>double</pc:interpretation>
+    <pc:scale>0.01</pc:scale>
+  </pc:dimension>
+  <pc:dimension>
+    <pc:position>3</pc:position>
+    <pc:size>4</pc:size>
+    <pc:description>Z coordinate as a long integer. You must use the scale and offset information of the header to determine the double value.</pc:description>
+    <pc:name>Z</pc:name>
+    <pc:interpretation>float</pc:interpretation>
+    <pc:scale>0.01</pc:scale>
+  </pc:dimension>
+  <pc:dimension>
+    <pc:position>4</pc:position>
+    <pc:size>2</pc:size>
+    <pc:description>The intensity value is the integer representation of the pulse return magnitude. This value is optional and system specific. However, it should always be included if available.</pc:description>
+    <pc:name>Intensity</pc:name>
+    <pc:interpretation>uint64_t</pc:interpretation>
+    <pc:scale>1</pc:scale>
+  </pc:dimension>
+  <pc:metadata>
+    <Metadata name="compression">laz</Metadata>
+  </pc:metadata>
+</pc:PointCloudSchema>'
+);
+CREATE TABLE IF NOT EXISTS pa_test_laz_multiple_dim (
+    pa PCPATCH(6)
+);
+\d pa_test_laz_multiple_dim
+Table "public.pa_test_laz_multiple_dim"
+ Column |    Type    | Modifiers 
+--------+------------+-----------
+ pa     | pcpatch(6) | 
+
+INSERT INTO pa_test_laz_multiple_dim (pa)
+SELECT PC_Patch(PC_MakePoint(6, ARRAY[x,y,z,intensity]))
+FROM (
+ SELECT
+    a*2 AS x,
+    a*1.9 AS y,
+    a*0.34 AS z,
+    10 AS intensity,
+    a/400 AS gid
+  FROM generate_series(1,1600) AS a
+) AS values GROUP BY gid;
+SELECT pc_astext(pc_explode(pa)) FROM pa_test_laz_multiple_dim LIMIT 20;
+               pc_astext               
+---------------------------------------
+ {"pcid":6,"pt":[3200,3040,544,10]}
+ {"pcid":6,"pt":[800,760,136,10]}
+ {"pcid":6,"pt":[802,761.9,136.34,10]}
+ {"pcid":6,"pt":[804,763.8,136.68,10]}
+ {"pcid":6,"pt":[806,765.7,137.02,10]}
+ {"pcid":6,"pt":[808,767.6,137.36,10]}
+ {"pcid":6,"pt":[810,769.5,137.7,10]}
+ {"pcid":6,"pt":[812,771.4,138.04,10]}
+ {"pcid":6,"pt":[814,773.3,138.38,10]}
+ {"pcid":6,"pt":[816,775.2,138.72,10]}
+ {"pcid":6,"pt":[818,777.1,139.06,10]}
+ {"pcid":6,"pt":[820,779,139.4,10]}
+ {"pcid":6,"pt":[822,780.9,139.74,10]}
+ {"pcid":6,"pt":[824,782.8,140.08,10]}
+ {"pcid":6,"pt":[826,784.7,140.42,10]}
+ {"pcid":6,"pt":[828,786.6,140.76,10]}
+ {"pcid":6,"pt":[830,788.5,141.1,10]}
+ {"pcid":6,"pt":[832,790.4,141.44,10]}
+ {"pcid":6,"pt":[834,792.3,141.78,10]}
+ {"pcid":6,"pt":[836,794.2,142.12,10]}
+(20 rows)
+
 TRUNCATE pointcloud_formats;

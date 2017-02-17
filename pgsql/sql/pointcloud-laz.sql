@@ -95,4 +95,65 @@ INSERT INTO pa_test_laz( pa ) VALUES ('01050000000300000004000000210000000000000
 SELECT pc_explode(pa) FROM pa_test_laz;
 SELECT pc_astext(pc_explode(pa)) FROM pa_test_laz;
 
+INSERT INTO pointcloud_formats (pcid, srid, schema)
+VALUES (6, 0,
+'<?xml version="1.0" encoding="UTF-8"?>
+<pc:PointCloudSchema xmlns:pc="http://pointcloud.org/schemas/PC/1.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <pc:dimension>
+    <pc:position>1</pc:position>
+    <pc:size>4</pc:size>
+    <pc:description>X coordinate as a long integer. You must use the scale and offset information of the header to determine the double value.</pc:description>
+    <pc:name>X</pc:name>
+    <pc:interpretation>int64_t</pc:interpretation>
+    <pc:scale>0.01</pc:scale>
+  </pc:dimension>
+  <pc:dimension>
+    <pc:position>2</pc:position>
+    <pc:size>4</pc:size>
+    <pc:description>Y coordinate as a long integer. You must use the scale and offset information of the header to determine the double value.</pc:description>
+    <pc:name>Y</pc:name>
+    <pc:interpretation>double</pc:interpretation>
+    <pc:scale>0.01</pc:scale>
+  </pc:dimension>
+  <pc:dimension>
+    <pc:position>3</pc:position>
+    <pc:size>4</pc:size>
+    <pc:description>Z coordinate as a long integer. You must use the scale and offset information of the header to determine the double value.</pc:description>
+    <pc:name>Z</pc:name>
+    <pc:interpretation>float</pc:interpretation>
+    <pc:scale>0.01</pc:scale>
+  </pc:dimension>
+  <pc:dimension>
+    <pc:position>4</pc:position>
+    <pc:size>2</pc:size>
+    <pc:description>The intensity value is the integer representation of the pulse return magnitude. This value is optional and system specific. However, it should always be included if available.</pc:description>
+    <pc:name>Intensity</pc:name>
+    <pc:interpretation>uint64_t</pc:interpretation>
+    <pc:scale>1</pc:scale>
+  </pc:dimension>
+  <pc:metadata>
+    <Metadata name="compression">laz</Metadata>
+  </pc:metadata>
+</pc:PointCloudSchema>'
+);
+
+CREATE TABLE IF NOT EXISTS pa_test_laz_multiple_dim (
+    pa PCPATCH(6)
+);
+\d pa_test_laz_multiple_dim
+
+INSERT INTO pa_test_laz_multiple_dim (pa)
+SELECT PC_Patch(PC_MakePoint(6, ARRAY[x,y,z,intensity]))
+FROM (
+ SELECT
+    a*2 AS x,
+    a*1.9 AS y,
+    a*0.34 AS z,
+    10 AS intensity,
+    a/400 AS gid
+  FROM generate_series(1,1600) AS a
+) AS values GROUP BY gid;
+
+SELECT pc_astext(pc_explode(pa)) FROM pa_test_laz_multiple_dim LIMIT 20;
+
 TRUNCATE pointcloud_formats;

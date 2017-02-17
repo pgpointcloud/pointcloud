@@ -13,7 +13,9 @@
 /* GLOBALS ************************************************************/
 
 static PCSCHEMA *simpleschema = NULL;
+static PCSCHEMA *multipledimschema = NULL;
 static const char *simplexmlfile = "data/simple-schema.xml";
+static const char *multipledimxmlfile = "data/simple-schema-laz-multiple-dim.xml";
 
 /* Setup/teardown for this suite */
 static int
@@ -24,6 +26,11 @@ init_suite(void)
 	pcfree(xmlstr);
 	if ( rv == PC_FAILURE ) return 1;
 
+	xmlstr = file_to_str(multipledimxmlfile);
+	rv = pc_schema_from_xml(xmlstr, &multipledimschema);
+	pcfree(xmlstr);
+	if ( rv == PC_FAILURE ) return 1;
+
 	return 0;
 }
 
@@ -31,6 +38,7 @@ static int
 clean_suite(void)
 {
 	pc_schema_free(simpleschema);
+	pc_schema_free(multipledimschema);
 	return 0;
 }
 
@@ -281,6 +289,47 @@ test_patch_filter_lazperf_zero_point()
 	pc_patch_free((PCPATCH*) pa);
 	pc_pointlist_free(pl);
 }
+
+static void
+test_patch_compression_with_multiple_dimension()
+{
+	PCPOINT *pt;
+	int i;
+	int npts = 5;
+	PCPOINTLIST *pl;
+	PCPATCH_LAZPERF *pal;
+	PCPATCH_UNCOMPRESSED *pau;
+	char *str1, *str2;
+
+	// build a list of points
+	pl = pc_pointlist_make(npts);
+
+	for ( i = 0; i < npts; i++ )
+	{
+		pt = pc_point_make(multipledimschema);
+		pc_point_set_double_by_name(pt, "x", i*2);
+		pc_point_set_double_by_name(pt, "y", i*1.9);
+		pc_point_set_double_by_name(pt, "z", i*0.34);
+		pc_point_set_double_by_name(pt, "intensity", 10);
+		pc_pointlist_add_point(pl, pt);
+	}
+
+	// build patchs
+	pal = pc_patch_lazperf_from_pointlist(pl);
+	pau = pc_patch_uncompressed_from_pointlist(pl);
+
+	// compare str result
+	str1 = pc_patch_lazperf_to_string(pal);
+	str2 = pc_patch_uncompressed_to_string(pau);
+
+	CU_ASSERT_STRING_EQUAL(str1, str2);
+
+	pc_patch_free((PCPATCH*) pal);
+	pc_patch_free((PCPATCH*) pau);
+	pc_pointlist_free(pl);
+	pcfree(str1);
+	pcfree(str2);
+}
 #endif
 
 /* REGISTER ***********************************************************/
@@ -293,6 +342,7 @@ CU_TestInfo lazperf_tests[] = {
 	PC_TEST(test_to_string_lazperf),
 	PC_TEST(test_wkb_lazperf),
 	PC_TEST(test_patch_filter_lazperf_zero_point),
+	PC_TEST(test_patch_compression_with_multiple_dimension),
 #endif
 	CU_TEST_INFO_NULL
 };

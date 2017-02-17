@@ -168,22 +168,25 @@ LazPerf<LazPerfEngine, LazPerfCoder>::addField(const PCDIMENSION *dim)
 		}
 		case PC_INT64:
 		{
-			//_engine->template add_field<I64>();
+			_engine->template add_field<I32>();
+			_engine->template add_field<I32>();
 			break;
 		}
 		case PC_UINT64:
 		{
-			//_engine->template add_field<U64>();
+			_engine->template add_field<U32>();
+			_engine->template add_field<U32>();
 			break;
 		}
 		case PC_DOUBLE:
 		{
-			//_engine->template add_field<F64>();
+			_engine->template add_field<U32>();
+			_engine->template add_field<U32>();
 			break;
 		}
 		case PC_FLOAT:
 		{
-			//_engine->template add_field<F32>();
+			_engine->template add_field<I32>();
 			break;
 		}
 		case PC_UNKNOWN:
