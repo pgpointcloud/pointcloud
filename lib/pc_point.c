@@ -379,7 +379,7 @@ pc_point_to_geometry_wkb(const PCPOINT *pt, size_t *wkbsize)
 
 	if ( pt->schema->m_position > -1 )
 	{
-		m = pc_point_get_z(pt);
+		m = pc_point_get_m(pt);
 		memcpy(ptr, &m, 8); /* M */
 		ptr += 8;
 	}
