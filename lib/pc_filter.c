@@ -165,7 +165,7 @@ pc_patch_dimensional_filter(const PCPATCH_DIMENSIONAL *pdl, const PCBITMAP *map)
 		stats.max = pc_value_scale_offset(stats.max, dim);
 		stats.sum = pc_value_scale_offset(stats.sum, dim);
 
-		/* Save the X/Y stats for use in bounds later */
+		/* Save the XYZM stats for use in bounds later */
 		if ( i == pdl->schema->x_position )
 		{
 			fpdl->bounds.xmin = stats.min;
@@ -175,6 +175,16 @@ pc_patch_dimensional_filter(const PCPATCH_DIMENSIONAL *pdl, const PCBITMAP *map)
 		{
 			fpdl->bounds.ymin = stats.min;
 			fpdl->bounds.ymax = stats.max;
+		}
+		else if ( i == pdl->schema->z_position )
+		{
+			fpdl->bounds.zmin = stats.min;
+			fpdl->bounds.zmax = stats.max;
+		}
+		else if ( i == pdl->schema->m_position )
+		{
+			fpdl->bounds.mmin = stats.min;
+			fpdl->bounds.mmax = stats.max;
 		}
 
 		pc_point_set_double_by_index(&(fpdl->stats->min), i, stats.min);

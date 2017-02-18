@@ -334,7 +334,7 @@ SELECT Sum(PC_NumPoints(pa)) FROM pa_test_dim;
 SELECT Sum(PC_MemSize(pa)) FROM pa_test_dim;
  sum 
 -----
- 684
+ 812
 (1 row)
 
 SELECT Sum(PC_PatchMax(pa,'x')) FROM pa_test_dim;
@@ -370,7 +370,7 @@ SELECT Sum(PC_NumPoints(pa)) FROM pa_test_dim;
 SELECT Sum(PC_MemSize(pa)) FROM pa_test_dim;
  sum  
 ------
- 8733
+ 8893
 (1 row)
 
 SELECT Max(PC_PatchMax(pa,'x')) FROM pa_test_dim;

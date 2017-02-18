@@ -150,6 +150,10 @@ typedef struct
 	double xmax;
 	double ymin;
 	double ymax;
+	double zmin;
+	double zmax;
+	double mmin;
+	double mmax;
 } PCBOUNDS;
 
 /* Used for generic patch statistics */

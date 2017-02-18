@@ -180,7 +180,7 @@ pc_patch_uncompressed_make(const PCSCHEMA *s, uint32_t maxpoints)
 	{
 		pch->data = pcalloc(datasize);
 	}
-	pc_bounds_init(&(pch->bounds));
+	pc_bounds_init(&(pch->bounds), s);
 
 	return pch;
 }
@@ -190,24 +190,16 @@ pc_patch_uncompressed_compute_extent(PCPATCH_UNCOMPRESSED *patch)
 {
 	int i;
 	PCPOINT *pt = pc_point_from_data(patch->schema, patch->data);
-	PCBOUNDS b;
-	double x, y;
 
 	/* Calculate bounds */
-	pc_bounds_init(&b);
+	pc_bounds_init(&(patch->bounds), patch->schema);
 	for ( i = 0; i < patch->npoints; i++ )
 	{
 		/* Just push the data buffer forward by one point at a time */
 		pt->data = patch->data + i * patch->schema->size;
-		x = pc_point_get_x(pt);
-		y = pc_point_get_y(pt);
-		if ( b.xmin > x ) b.xmin = x;
-		if ( b.ymin > y ) b.ymin = y;
-		if ( b.xmax < x ) b.xmax = x;
-		if ( b.ymax < y ) b.ymax = y;
+		pc_bounds_expand(&(patch->bounds), pt);
 	}
 
-	patch->bounds = b;
 	pcfree(pt);
 	return PC_SUCCESS;
 }
@@ -282,7 +274,7 @@ pc_patch_uncompressed_from_pointlist(const PCPOINTLIST *pl)
 	ptr = pch->data;
 
 	/* Initialize bounds */
-	pc_bounds_init(&(pch->bounds));
+	pc_bounds_init(&(pch->bounds), s);
 
 	/* Set up basic info */
 	pch->readonly = PC_FALSE;
@@ -376,7 +368,6 @@ pc_patch_uncompressed_add_point(PCPATCH_UNCOMPRESSED *c, const PCPOINT *p)
 {
 	size_t sz;
 	uint8_t *ptr;
-	double x, y;
 
 	if ( ! ( c && p ) )
 	{
@@ -418,12 +409,7 @@ pc_patch_uncompressed_add_point(PCPATCH_UNCOMPRESSED *c, const PCPOINT *p)
 	c->npoints += 1;
 
 	/* Update bounding box */
-	x = pc_point_get_x(p);
-	y = pc_point_get_y(p);
-	if ( c->bounds.xmin > x ) c->bounds.xmin = x;
-	if ( c->bounds.ymin > y ) c->bounds.ymin = y;
-	if ( c->bounds.xmax < x ) c->bounds.xmax = x;
-	if ( c->bounds.ymax < y ) c->bounds.ymax = y;
+	pc_bounds_expand(&(c->bounds), p);
 
 	return PC_SUCCESS;
 }

@@ -269,11 +269,13 @@ void pc_bytes_to_ptr(uint8_t *buf, PCBYTES pcb, int n);
 */
 
 /** Initialize with very large mins and very small maxes */
-void pc_bounds_init(PCBOUNDS *b);
+void pc_bounds_init(PCBOUNDS *b, const PCSCHEMA *schema);
 /** Copy a bounds */
 PCSTATS* pc_stats_clone(const PCSTATS *stats);
 /** Expand extents of b1 to encompass b2 */
 void pc_bounds_merge(PCBOUNDS *b1, const PCBOUNDS *b2);
+/** Expand extents of b to encompass p */
+void pc_bounds_expand(PCBOUNDS *b, const PCPOINT *p);
 
 /****************************************************************************
 * BITMAPS
