@@ -353,5 +353,3 @@ pc_patch_filter_between_by_name(const PCPATCH *pa, const char *name, double val1
 
 	return pc_patch_filter(pa, d->position, PC_BETWEEN, val1, val2);
 }
-
-

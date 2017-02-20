@@ -199,8 +199,8 @@ pc_patch_uncompressed_compute_extent(PCPATCH_UNCOMPRESSED *patch)
 	{
 		/* Just push the data buffer forward by one point at a time */
 		pt->data = patch->data + i * patch->schema->size;
-		x = pc_point_get_x(pt);
-		y = pc_point_get_y(pt);
+		pc_point_get_x(pt, &x);
+		pc_point_get_y(pt, &y);
 		if ( b.xmin > x ) b.xmin = x;
 		if ( b.ymin > y ) b.ymin = y;
 		if ( b.xmax < x ) b.xmax = x;
@@ -418,8 +418,8 @@ pc_patch_uncompressed_add_point(PCPATCH_UNCOMPRESSED *c, const PCPOINT *p)
 	c->npoints += 1;
 
 	/* Update bounding box */
-	x = pc_point_get_x(p);
-	y = pc_point_get_y(p);
+	pc_point_get_x(p, &x);
+	pc_point_get_y(p, &y);
 	if ( c->bounds.xmin > x ) c->bounds.xmin = x;
 	if ( c->bounds.ymin > y ) c->bounds.ymin = y;
 	if ( c->bounds.xmax < x ) c->bounds.xmax = x;
