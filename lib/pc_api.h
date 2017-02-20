@@ -331,38 +331,47 @@ double* pc_point_to_double_array(const PCPOINT *pt);
 /** Frees the PTPOINT and data (if not readonly). Does not free referenced schema */
 void pc_point_free(PCPOINT *pt);
 
-/** Casts named dimension value to double and scale/offset appropriately before returning */
-int pc_point_get_double_by_name(const PCPOINT *pt, const char *name, double *d);
+/** Get dimension value by dimension name */
+int pc_point_get_double_by_name(const PCPOINT *pt, const char *name, double *val);
 
-/** Casts dimension value to double and scale/offset appropriately before returning */
-int pc_point_get_double_by_index(const PCPOINT *pt, uint32_t idx, double *d);
+/** Get dimension value by dimension index */
+int pc_point_get_double_by_index(const PCPOINT *pt, uint32_t idx, double *val);
 
-/** Reads a double right off the data area */
-int pc_point_get_double(const PCPOINT *pt, const PCDIMENSION *dim, double *d);
+/** Read a double right off the data area, applying scale/offset  */
+int pc_point_get_double(const PCPOINT *pt, const PCDIMENSION *dim, double *val);
+
+/** Set dimension value by dimension name */
+int pc_point_set_double_by_name(PCPOINT *pt, const char *name, double val);
+
+/** Set dimension value by dimension index */
+int pc_point_set_double_by_index(PCPOINT *pt, uint32_t idx, double val);
+
+/** Write a double to the data area after unapplying scale/offset */
+int pc_point_set_double(PCPOINT *pt, const PCDIMENSION *dim, double val);
 
 /** Returns X coordinate */
-double pc_point_get_x(const PCPOINT *pt);
+int pc_point_get_x(const PCPOINT *pt, double *val);
 
 /** Returns Y coordinate */
-double pc_point_get_y(const PCPOINT *pt);
+int pc_point_get_y(const PCPOINT *pt, double *val);
 
 /** Returns Z coordinate */
-double pc_point_get_z(const PCPOINT *pt);
+int pc_point_get_z(const PCPOINT *pt, double *val);
 
 /** Returns M coordinate */
-double pc_point_get_m(const PCPOINT *pt);
+int pc_point_get_m(const PCPOINT *pt, double *val);
 
 /** Set the X coordinate */
-double pc_point_set_x(PCPOINT *pt, double val);
+int pc_point_set_x(PCPOINT *pt, double val);
 
 /** Set the Y coordinate */
-double pc_point_set_y(PCPOINT *pt, double val);
+int pc_point_set_y(PCPOINT *pt, double val);
 
 /** Set the Z coordinate */
-double pc_point_set_z(PCPOINT *pt, double val);
+int pc_point_set_z(PCPOINT *pt, double val);
 
 /** Set the M coordinate */
-double pc_point_set_m(PCPOINT *pt, double val);
+int pc_point_set_m(PCPOINT *pt, double val);
 
 /** Create a new readwrite PCPOINT from a hex byte array */
 PCPOINT* pc_point_from_wkb(const PCSCHEMA *s, uint8_t *wkb, size_t wkbsize);

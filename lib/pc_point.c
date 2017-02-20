@@ -76,42 +76,44 @@ pc_point_free(PCPOINT *pt)
 }
 
 int
-pc_point_get_double(const PCPOINT *pt, const PCDIMENSION *dim, double *d)
+pc_point_get_double(const PCPOINT *pt, const PCDIMENSION *dim, double *val)
 {
 	uint8_t *ptr;
-	double val;
+	double d;
+
+	if ( ! dim ) return PC_FAILURE;
 
 	/* Read raw value from byte buffer */
 	ptr = pt->data + dim->byteoffset;
-	val = pc_double_from_ptr(ptr, dim->interpretation);
-	val = pc_value_scale_offset(val, dim);
+	d = pc_double_from_ptr(ptr, dim->interpretation);
+	d = pc_value_scale_offset(d, dim);
 
-	*d = val;
+	*val = d;
 	return PC_SUCCESS;
 }
 
 int
-pc_point_get_double_by_name(const PCPOINT *pt, const char *name, double *d)
+pc_point_get_double_by_name(const PCPOINT *pt, const char *name, double *val)
 {
 	PCDIMENSION *dim;
 	dim = pc_schema_get_dimension_by_name(pt->schema, name);
-	if ( ! dim ) return PC_FAILURE;
-	return pc_point_get_double(pt, dim, d);
+	return pc_point_get_double(pt, dim, val);
 }
 
 int
-pc_point_get_double_by_index(const PCPOINT *pt, uint32_t idx, double *d)
+pc_point_get_double_by_index(const PCPOINT *pt, uint32_t idx, double *val)
 {
 	PCDIMENSION *dim;
 	dim = pc_schema_get_dimension(pt->schema, idx);
-	if ( ! dim ) return PC_FAILURE;
-	return pc_point_get_double(pt, dim, d);
+	return pc_point_get_double(pt, dim, val);
 }
 
 int
 pc_point_set_double(PCPOINT *pt, const PCDIMENSION *dim, double val)
 {
 	uint8_t *ptr;
+
+	if ( ! dim ) return PC_FAILURE;
 
 	/* Remove scale and offsets */
 	val = pc_value_unscale_unoffset(val, dim);
@@ -125,70 +127,63 @@ pc_point_set_double(PCPOINT *pt, const PCDIMENSION *dim, double val)
 int
 pc_point_set_double_by_index(PCPOINT *pt, uint32_t idx, double val)
 {
-	PCDIMENSION *d;
-	d = pc_schema_get_dimension(pt->schema, idx);
-	return pc_point_set_double(pt, d, val);
+	PCDIMENSION *dim;
+	dim = pc_schema_get_dimension(pt->schema, idx);
+	return pc_point_set_double(pt, dim, val);
 }
 
 int
 pc_point_set_double_by_name(PCPOINT *pt, const char *name, double val)
 {
-	PCDIMENSION *d;
-	d = pc_schema_get_dimension_by_name(pt->schema, name);
-	return pc_point_set_double(pt, d, val);
+	PCDIMENSION *dim;
+	dim = pc_schema_get_dimension_by_name(pt->schema, name);
+	return pc_point_set_double(pt, dim, val);
 }
 
-double
-pc_point_get_x(const PCPOINT *pt)
+int
+pc_point_get_x(const PCPOINT *pt, double *val)
 {
-	double d;
-	pc_point_get_double_by_index(pt, pt->schema->x_position, &d);
-	return d;
+	return pc_point_get_double_by_index(pt, pt->schema->x_position, val);
 }
 
-double
-pc_point_get_y(const PCPOINT *pt)
+int
+pc_point_get_y(const PCPOINT *pt, double *val)
 {
-	double d;
-	pc_point_get_double_by_index(pt, pt->schema->y_position, &d);
-	return d;
+	return pc_point_get_double_by_index(pt, pt->schema->y_position, val);
 }
 
-double
-pc_point_get_z(const PCPOINT *pt)
+int
+pc_point_get_z(const PCPOINT *pt, double *val)
 {
-	double d;
-	pc_point_get_double_by_index(pt, pt->schema->z_position, &d);
-	return d;
+	return pc_point_get_double_by_index(pt, pt->schema->z_position, val);
 }
 
-double
-pc_point_get_m(const PCPOINT *pt)
+int
+pc_point_get_m(const PCPOINT *pt, double *val)
 {
-	double d;
-	pc_point_get_double_by_index(pt, pt->schema->m_position, &d);
-	return d;
+	return pc_point_get_double_by_index(pt, pt->schema->m_position, val);
 }
 
-double
+
+int
 pc_point_set_x(PCPOINT *pt, double val)
 {
 	return pc_point_set_double_by_index(pt, pt->schema->x_position, val);
 }
 
-double
+int
 pc_point_set_y(PCPOINT *pt, double val)
 {
 	return pc_point_set_double_by_index(pt, pt->schema->y_position, val);
 }
 
-double
+int
 pc_point_set_z(PCPOINT *pt, double val)
 {
 	return pc_point_set_double_by_index(pt, pt->schema->z_position, val);
 }
 
-double
+int
 pc_point_set_m(PCPOINT *pt, double val)
 {
 	return pc_point_set_double_by_index(pt, pt->schema->m_position, val);
@@ -328,20 +323,27 @@ pc_point_to_geometry_wkb(const PCPOINT *pt, size_t *wkbsize)
 	uint8_t *wkb, *ptr;
 	uint32_t srid = pt->schema->srid;
 	double x, y, z, m;
+	int has_x = pc_point_get_x(pt, &x);
+	int has_y = pc_point_get_y(pt, &y);
+	int has_z = pc_point_get_z(pt, &z);
+	int has_m = pc_point_get_m(pt, &m);
 
-	if ( srid != 0 )
+	if ( ! ( has_x && has_y ) )
+		return NULL;
+
+	if ( srid )
 	{
 		wkbtype |= srid_mask;
 		size += 4;
 	}
 
-	if ( pt->schema->z_position > -1 )
+	if ( has_z )
 	{
 		wkbtype |= z_mask;
 		size += 8;
 	}
 
-	if ( pt->schema->m_position > -1 )
+	if ( has_m )
 	{
 		wkbtype |= m_mask;
 		size += 8;
@@ -362,24 +364,20 @@ pc_point_to_geometry_wkb(const PCPOINT *pt, size_t *wkbsize)
 		ptr += 4;
 	}
 
-	x = pc_point_get_x(pt);
 	memcpy(ptr, &x, 8); /* X */
 	ptr += 8;
 
-	y = pc_point_get_y(pt);
 	memcpy(ptr, &y, 8); /* Y */
 	ptr += 8;
 
-	if ( pt->schema->z_position > -1 )
+	if ( has_z )
 	{
-		z = pc_point_get_z(pt);
 		memcpy(ptr, &z, 8); /* Z */
 		ptr += 8;
 	}
 
-	if ( pt->schema->m_position > -1 )
+	if ( has_m )
 	{
-		m = pc_point_get_m(pt);
 		memcpy(ptr, &m, 8); /* M */
 		ptr += 8;
 	}
