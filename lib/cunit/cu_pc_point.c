@@ -254,12 +254,78 @@ test_point_xyzm()
 	pc_point_free(pt);
 }
 
+void test_point_geometry_bytes(const PCSCHEMA *s, size_t expectedgeomwkbsize,
+	const char *pthexbytes, const char *expectedgeomhexbytes)
+{
+	/* point
+	byte:     endianness (1 = NDR, 0 = XDR)
+	uint32:   pcid (key to POINTCLOUD_SCHEMAS)
+	uchar[]:  data (interpret relative to pcid)
+	*/
+
+	/* geometry
+	byte:     endianness (1 = NDR, 0 = XDR)
+	uint32:   point type (XYZ=01000080, XYM=01000040, XY=01000000, XYZM=010000C0)
+	double[]: XY(Z?)(M?) coordinates
+	*/
+
+	PCPOINT *pt;
+	uint8_t *ptwkb, *geomwkb;
+	char *geomhexbytes;
+	size_t pthexsize, geomwkbsize;
+
+	pthexsize = strlen(pthexbytes);
+	ptwkb = bytes_from_hexbytes(pthexbytes, pthexsize);
+	pt = pc_point_from_wkb(s, ptwkb, pthexsize/2);
+	CU_ASSERT_PTR_NOT_NULL(pt);
+	geomwkb = pc_point_to_geometry_wkb(pt, &geomwkbsize);
+	CU_ASSERT_EQUAL(geomwkbsize,expectedgeomwkbsize);
+	geomhexbytes = hexbytes_from_bytes(geomwkb,geomwkbsize);
+	CU_ASSERT_STRING_EQUAL(geomhexbytes, expectedgeomhexbytes);
+
+	pcfree(geomhexbytes);
+	pcfree(geomwkb);
+	pc_point_free(pt);
+	pcfree(ptwkb);
+}
+
+
+static void
+test_point_geometry()
+{
+	// pt XYI = 1 2 3, scale = 1 2 1, geom XY = 1 4
+	test_point_geometry_bytes(schema_xy, 5+2*8,
+		"000000000100000001000000020003",
+		"0101000000000000000000F03F0000000000001040"
+	);
+
+	// pt XYZI = 1 2 3 4, scale = 1 2 4 1, geom XYZ = 1 2 3
+	test_point_geometry_bytes(schema_xyz, 5+3*8,
+		"00000000010000000100000002000000030004",
+		"0101000080000000000000F03F00000000000010400000000000002840"
+	);
+
+	// pt XYMI = 1 2 3 4, scale = 1 2 4 1, geom XYM = 1 4 12
+	test_point_geometry_bytes(schema_xym, 5+3*8,
+		"00000000010000000100000002000000030004",
+		"0101000040000000000000F03F00000000000010400000000000002840"
+	);
+
+	// pt XYZMI = 1 2 3 4 5, scale = 1 2 4 8 1, geom XYZM = 1 4 12 32
+	test_point_geometry_bytes(schema_xyzm, 5+4*8,
+		"0000000001000000010000000200000003000000040005",
+		"01010000C0000000000000F03F000000000000104000000000000028400000000000004040"
+	);
+
+}
+
 /* REGISTER ***********************************************************/
 
 CU_TestInfo point_tests[] = {
 	PC_TEST(test_point_hex_inout),
 	PC_TEST(test_point_access),
 	PC_TEST(test_point_xyzm),
+	PC_TEST(test_point_geometry),
 	CU_TEST_INFO_NULL
 };
 
