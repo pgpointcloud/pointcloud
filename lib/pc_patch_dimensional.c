@@ -185,22 +185,24 @@ pc_patch_dimensional_compute_extent(PCPATCH_DIMENSIONAL *pdl)
 
 	assert(pdl);
 	assert(pdl->schema);
+	assert(pdl->schema->xdim);
+	assert(pdl->schema->ydim);
 
 	/* Get x extremes */
-	pcb = &(pdl->bytes[pdl->schema->x_position]);
+	pcb = &(pdl->bytes[pdl->schema->xdim->position]);
 	rv = pc_bytes_minmax(pcb, &xmin, &xmax, &xavg);
 	if ( PC_FAILURE == rv ) return PC_FAILURE;
-	xmin = pc_value_scale_offset(xmin, pdl->schema->dims[pdl->schema->x_position]);
-	xmax = pc_value_scale_offset(xmax, pdl->schema->dims[pdl->schema->x_position]);
+	xmin = pc_value_scale_offset(xmin, pdl->schema->xdim);
+	xmax = pc_value_scale_offset(xmax, pdl->schema->xdim);
 	pdl->bounds.xmin = xmin;
 	pdl->bounds.xmax = xmax;
 
 	/* Get y extremes */
-	pcb = &(pdl->bytes[pdl->schema->y_position]);
+	pcb = &(pdl->bytes[pdl->schema->ydim->position]);
 	rv = pc_bytes_minmax(pcb, &ymin, &ymax, &yavg);
 	if ( PC_FAILURE == rv ) return PC_FAILURE;
-	ymin = pc_value_scale_offset(ymin, pdl->schema->dims[pdl->schema->y_position]);
-	ymax = pc_value_scale_offset(ymax, pdl->schema->dims[pdl->schema->y_position]);
+	ymin = pc_value_scale_offset(ymin, pdl->schema->ydim);
+	ymax = pc_value_scale_offset(ymax, pdl->schema->ydim);
 	pdl->bounds.ymin = ymin;
 	pdl->bounds.ymax = ymax;
 

@@ -88,10 +88,10 @@ typedef struct
 	size_t size;          /* How wide (bytes) is a point with this schema? */
 	PCDIMENSION **dims;   /* Array of dimension pointers */
 	uint32_t srid;        /* Foreign key reference to SPATIAL_REF_SYS */
-	int32_t x_position;   /* What entry is the x coordinate at? */
-	int32_t y_position;   /* What entry is the y coordinate at? */
-	int32_t z_position;   /* What entry is the z coordinate at? */
-	int32_t m_position;   /* What entry is the m coordinate at? */
+	PCDIMENSION *xdim;    /* pointer to the x dimension within dims */
+	PCDIMENSION *ydim;    /* pointer to the y dimension within dims */
+	PCDIMENSION *zdim;    /* pointer to the z dimension within dims */
+	PCDIMENSION *mdim;    /* pointer to the m dimension within dims */
 	uint32_t compression; /* Compression type applied to the data */
 	hashtable *namehash;  /* Look-up from dimension name to pointer */
 } PCSCHEMA;
