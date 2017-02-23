@@ -143,50 +143,50 @@ pc_point_set_double_by_name(PCPOINT *pt, const char *name, double val)
 int
 pc_point_get_x(const PCPOINT *pt, double *val)
 {
-	return pc_point_get_double_by_index(pt, pt->schema->x_position, val);
+	return pc_point_get_double(pt, pt->schema->xdim, val);
 }
 
 int
 pc_point_get_y(const PCPOINT *pt, double *val)
 {
-	return pc_point_get_double_by_index(pt, pt->schema->y_position, val);
+	return pc_point_get_double(pt, pt->schema->ydim, val);
 }
 
 int
 pc_point_get_z(const PCPOINT *pt, double *val)
 {
-	return pc_point_get_double_by_index(pt, pt->schema->z_position, val);
+	return pc_point_get_double(pt, pt->schema->zdim, val);
 }
 
 int
 pc_point_get_m(const PCPOINT *pt, double *val)
 {
-	return pc_point_get_double_by_index(pt, pt->schema->m_position, val);
+	return pc_point_get_double(pt, pt->schema->mdim, val);
 }
 
 
 int
 pc_point_set_x(PCPOINT *pt, double val)
 {
-	return pc_point_set_double_by_index(pt, pt->schema->x_position, val);
+	return pc_point_set_double(pt, pt->schema->xdim, val);
 }
 
 int
 pc_point_set_y(PCPOINT *pt, double val)
 {
-	return pc_point_set_double_by_index(pt, pt->schema->y_position, val);
+	return pc_point_set_double(pt, pt->schema->ydim, val);
 }
 
 int
 pc_point_set_z(PCPOINT *pt, double val)
 {
-	return pc_point_set_double_by_index(pt, pt->schema->z_position, val);
+	return pc_point_set_double(pt, pt->schema->zdim, val);
 }
 
 int
 pc_point_set_m(PCPOINT *pt, double val)
 {
-	return pc_point_set_double_by_index(pt, pt->schema->m_position, val);
+	return pc_point_set_double(pt, pt->schema->mdim, val);
 }
 
 char *

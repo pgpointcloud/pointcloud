@@ -196,10 +196,7 @@ pc_schema_new(uint32_t ndims)
 	pcs->dims = pcalloc(sizeof(PCDIMENSION*) * ndims);
 	pcs->namehash = create_string_hashtable();
 	pcs->ndims = ndims;
-	pcs->x_position = -1;
-	pcs->y_position = -1;
-	pcs->z_position = -1;
-	pcs->m_position = -1;
+	/* pcalloc memsets to 0, so xdim,ydim,zdim and mdim are already NULL */
 	return pcs;
 }
 
@@ -237,10 +234,6 @@ pc_schema_clone(const PCSCHEMA *s)
 	PCSCHEMA *pcs = pc_schema_new(s->ndims);
 	pcs->pcid = s->pcid;
 	pcs->srid = s->srid;
-	pcs->x_position = s->x_position;
-	pcs->y_position = s->y_position;
-	pcs->z_position = s->z_position;
-	pcs->m_position = s->m_position;
 	pcs->compression = s->compression;
 	for ( i = 0; i < pcs->ndims; i++ )
 	{
@@ -249,6 +242,10 @@ pc_schema_clone(const PCSCHEMA *s)
 			pc_schema_set_dimension(pcs, pc_dimension_clone(s->dims[i]));
 		}
 	}
+	pcs->xdim = s->xdim ? pcs->dims[s->xdim->position] : NULL;
+	pcs->ydim = s->ydim ? pcs->dims[s->ydim->position] : NULL;
+	pcs->zdim = s->zdim ? pcs->dims[s->zdim->position] : NULL;
+	pcs->mdim = s->mdim ? pcs->dims[s->mdim->position] : NULL;
 	pc_schema_calculate_byteoffsets(pcs);
 	return pcs;
 }
@@ -341,21 +338,21 @@ void pc_schema_check_xyzm(PCSCHEMA *s)
 			 strcasecmp(dimname, "Longitude") == 0 ||
 			 strcasecmp(dimname, "Lon") == 0 )
 		{
-			s->x_position = i;
+			s->xdim = s->dims[i];
 			continue;
 		}
 		if ( strcasecmp(dimname, "Y") == 0 ||
 			 strcasecmp(dimname, "Latitude") == 0 ||
 			 strcasecmp(dimname, "Lat") == 0 )
 		{
-			s->y_position = i;
+			s->ydim = s->dims[i];
 			continue;
 		}
 		if ( strcasecmp(dimname, "Z") == 0 ||
 			 strcasecmp(dimname, "H") == 0 ||
 			 strcasecmp(dimname, "Height") == 0 )
 		{
-			s->z_position = i;
+			s->zdim = s->dims[i];
 			continue;
 		}
 		if ( strcasecmp(dimname, "M") == 0 ||
@@ -363,7 +360,7 @@ void pc_schema_check_xyzm(PCSCHEMA *s)
 			 strcasecmp(dimname, "Time") == 0 ||
 			 strcasecmp(dimname, "GPSTime") == 0 )
 		{
-			s->m_position = i;
+			s->mdim = s->dims[i];
 			continue;
 		}
 	}
@@ -584,13 +581,13 @@ pc_schema_is_valid(const PCSCHEMA *s)
 {
 	int i;
 
-	if ( s->x_position < 0 )
+	if ( ! s->xdim )
 	{
 		pcwarn("schema does not include an X coordinate");
 		return PC_FALSE;
 	}
 
-	if ( s->y_position < 0 )
+	if ( ! s->ydim )
 	{
 		pcwarn("schema does not include a Y coordinate");
 		return PC_FALSE;
