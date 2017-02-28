@@ -81,7 +81,7 @@ exec_program(${PG_CONFIG} ARGS --includedir-server
 exec_program(${PG_CONFIG} ARGS --pkglibdir OUTPUT_VARIABLE PGSQL_PKGLIBDIR)
 exec_program(${PG_CONFIG} ARGS --sharedir OUTPUT_VARIABLE PGSQL_SHAREDIR)
 exec_program(${PG_CONFIG} ARGS --bindir OUTPUT_VARIABLE PGSQL_BINDIR)
-exec_program(${PG_CONFIG} ARGS --cppflags OUTPUT_VARIABLE PGSQL_CPPFLAGS)
+exec_program(${PG_CONFIG} ARGS --cflags OUTPUT_VARIABLE PGSQL_CFLAGS)
 exec_program(${PG_CONFIG} ARGS --ldflags OUTPUT_VARIABLE PGSQL_LDFLAGS)
 exec_program(${PG_CONFIG} ARGS --libs OUTPUT_VARIABLE PGSQL_LIBS)
 
@@ -102,7 +102,7 @@ include_directories (${ZLIB_INCLUDE_DIR})
 
 
 #------------------------------------------------------------------------------
-# cunit and ght
+# cunit, ght and lazperf
 
 if (WITH_TESTS)
     find_package (CUnit)
@@ -112,7 +112,25 @@ find_package (LibGHT)
 
 if (LIBGHT_FOUND)
   set (HAVE_LIBGHT 1)
+  include_directories (${LIBGHT_INCLUDE_DIR})
 endif (LIBGHT_FOUND)
+
+find_package (LazPerf)
+
+if (LAZPERF_FOUND)
+  set (HAVE_LAZPERF 1)
+  include_directories (${LAZPERF_INCLUDE_DIR})
+endif (LAZPERF_FOUND)
+
+#------------------------------------------------------------------------------
+# define targets for "check" and "installcheck"
+
+if (WITH_TESTS)
+    add_custom_target(check COMMAND ${PROJECT_BINARY_DIR}/lib/cunit/cu_tester)
+
+    find_program(PG_REGRESS pg_regress ${PGSQL_PKGLIBDIR}/pgxs/src/test/regress/ REQUIRED)
+    add_custom_target(installcheck COMMAND ${PG_REGRESS} --inputdir=${PROJECT_SOURCE_DIR}/pgsql --outputdir=${PROJECT_SOURCE_DIR}/pgsql pointcloud pointcloud_columns schema)
+endif()
 
 #------------------------------------------------------------------------------
 # use default install location if not specified

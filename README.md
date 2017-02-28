@@ -16,6 +16,7 @@ A PostgreSQL extension for storing point cloud (LIDAR) data.
 - LibXML2 development packages must be installed, usually "libxml2-dev" or "libxml2-devel".
 - CUnit packages must be installed, or [source built and installed](http://sourceforge.net/projects/cunit/ "CUnit").
 - [Optional] GHT library may be installed for GHT compression support, [built from source](http://github.com/pramsey/libght/ "LibGHT")
+- [Optional] LAZPERF library may be installed for LAZ compression support, [built from source](http://github.com/hobu/laz-perf "LAZPERF")
 
 Tests can be disabled by passing ``WITH_TESTS=FALSE`` to cmake, e.g. ``cmake .. -DWITH_TESTS=FALSE``.
 This removes the CUnit dependency.
@@ -32,6 +33,10 @@ Make a build directory, and run ``cmake`` from there. Use ``ccmake`` to browse a
 - ``make``
 - ``sudo make install``
 
+Run unit tests:
+
+- ``make check``
+
 #### Autotools ####
 
 After generating the configure script with ``autogen``,  ``./configure --help`` to get a complete listing of configuration options.
@@ -41,6 +46,13 @@ After generating the configure script with ``autogen``,  ``./configure --help`` 
 - ``make``
 - ``sudo make install``
 
+Run unit tests:
+
+- ``make check``
+
+Note that if you configured PointCloud using a non-standard LibGHT location, you may need to add its location to the ``LD_LIBRARY_PATH`` environment variable. For example:
+
+- ``LD_LIBRARY_PATH=$HOME/local/lib make check``
 
 ### Activate ###
 
@@ -439,6 +451,7 @@ Now that you have created two tables, you'll see entries for them in the `pointc
 > Allowed global compression schemes are:
 >  - auto -- determined by pcid
 >  - ght  -- no compression config supported
+>  - laz -- no compression config supported
 >  - dimensional
 >      configuration is a comma-separated list of per-dimension
 >      compressions from this list:
@@ -446,6 +459,19 @@ Now that you have created two tables, you'll see entries for them in the `pointc
 >      - zlib -- deflate compression
 >      - sigbits -- significant bits removal
 >      - rle -- run-length encoding
+
+**PC_PointN(p pcpatch, n int4)** returns **pcpoint**
+
+> Returns the n-th point of the patch with 1-based indexing. Negative n counts point from the end. 
+
+**PC_IsSorted(p pcpatch, dimnames text[], strict boolean default true)** returns **boolean**
+
+> Checks whether a pcpatch is sorted lexicographically along the given dimensions. The `strict` option further checks that the ordering is strict (no duplicates).
+
+**PC_Sort(p pcpatch, dimnames text[])** returns **pcpatch**
+
+> Returns a copy of the input patch lexicographically sorted along the given dimensions.
+
 
 ## PostGIS Integration ##
 
@@ -501,11 +527,12 @@ One of the issues with LIDAR data is that there is a lot of it. To deal with dat
       <Metadata name="compression">dimensional</Metadata>
     </pc:metadata>
 
-There are currently three supported compressions:
+There are currently four supported compressions:
 
 - **None**, which stores points and patches as byte arrays using the type and formats described in the schema document.
 - **Dimensional**, which stores points the same as 'none' but stores patches as collections of dimensional data arrays, with an "appropriate" compression applied. Dimensional compression makes the most sense for smaller patch sizes, since small patches will tend to have more homogeneous dimensions.
 - **GHT** or "GeoHash Tree", which stores the points in a tree where each node stores the common values shared by all nodes below. For larger patch sizes, GHT should provide effective compression and performance for patch-wise operations. You must build Pointcloud with libght support to make use of the GHT compression.
+- **LAZ** or "LASZip". You must build Pointcloud with LAZPERF support to make use of the LAZ compression.
 
 If no compression is declared in `<pc:metadata>`, then a compression of "none" is assumed.
 
@@ -629,6 +656,17 @@ Where simple compression schemes fail, general purpose compression is applied to
     uint8:         GHT data
 
 GHT patches are much like dimensional patches, except their internal structure is more opaque. Use LibGHT to read the GHT data buffer out into a GHT tree in memory.
+
+### Patch Binary (LAZ) ####
+
+    byte:          endianness (1 = NDR, 0 = XDR)
+    uint32:        pcid (key to POINTCLOUD_SCHEMAS)
+    uint32:        3 = LAZ compression
+    uint32:        npoints
+    uint32:        LAZ data size
+    data[]:        LAZ data
+
+LAZ patches are much like GHT patches. Use LAZPERF library to read the LAZ data buffer out into a LAZ buffer.
 
 ## Loading Data ##
 

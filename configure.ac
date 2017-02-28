@@ -12,6 +12,7 @@ dnl ***********************************************************************/
 AC_INIT()
 AC_CONFIG_MACRO_DIR([macros])
 AC_CONFIG_HEADERS([lib/pc_config.h])
+AC_LANG([C++])
 
 dnl
 dnl Compilers
@@ -325,6 +326,52 @@ fi
 AC_SUBST([GHT_LDFLAGS])
 AC_SUBST([GHT_CPPFLAGS])
 
+dnl ===========================================================================
+dnl Detect LazPerf
+dnl ===========================================================================
+
+AC_ARG_WITH([lazperf],
+	[AS_HELP_STRING([--with-lazperf=DIR], [specify the base lazperf installation directory])],
+	[LAZPERFDIR="$withval"], [LAZPERFDIR=""])
+
+if test "x$LAZPERFDIR" = "xyes"; then
+	AC_MSG_ERROR([you must specify a parameter to --with-lazperf, e.g. --with-lazperf=/opt/local])
+fi
+
+if test "x$LAZPERFDIR" = "x"; then
+  dnl LAZPERFDIR was not specified, so search in usual system places
+  AC_CHECK_HEADER([las.hpp],
+		  [FOUND_LAZPERF="YES"],
+		  [FOUND_LAZPERF="NO"])
+elif test "x$LAZPERFDIR" != "xno"; then
+  dnl LAZPERFDIR was specified, so let's look there!
+
+  LAZPERF_CPPFLAGS="-I${LAZPERFDIR}/include/"
+
+  dnl Check header file
+  CPPFLAGS_SAVE="${CPPFLAGS}"
+  CPPFLAGS="${LAZPERF_CPPFLAGS} --std=c++0x"
+
+  AC_CHECK_HEADER([laz-perf/las.hpp],
+		  [FOUND_LAZPERF="YES"],
+		  [FOUND_LAZPERF="NO"])
+
+  dnl back to the original
+  CPPFLAGS="${CPPFLAGS_SAVE}"
+fi
+
+if test "x$FOUND_LAZPERF" = "xYES"; then
+  AC_DEFINE([HAVE_LAZPERF])
+  LAZPERF_STATUS="enabled"
+  if test $LAZPERFDIR; then
+    LAZPERF_STATUS="$LAZPERFDIR/include/laz-perf"
+  fi
+else
+  LAZPERF_STATUS="disabled"
+fi
+
+AC_SUBST([LAZPERF_STATUS])
+AC_SUBST([LAZPERF_CPPFLAGS])
 
 dnl ===========================================================================
 dnl Figure out where this script is running
@@ -357,5 +404,6 @@ AC_MSG_RESULT([  PostgreSQL version:   ${PGSQL_FULL_VERSION}])
 AC_MSG_RESULT([  Libxml2 config:       ${XML2CONFIG}])
 AC_MSG_RESULT([  Libxml2 version:      ${LIBXML2_VERSION}])
 AC_MSG_RESULT([  LibGHT status:        ${GHT_STATUS}])
+AC_MSG_RESULT([  LazPerf status:       ${LAZPERF_STATUS}])
 AC_MSG_RESULT([  CUnit status:         ${CUNIT_STATUS}])
 AC_MSG_RESULT()

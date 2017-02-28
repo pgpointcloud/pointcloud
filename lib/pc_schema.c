@@ -85,24 +85,26 @@ pc_interpretation_number(const char *str)
 	}
 	else
 		return PC_UNKNOWN;
-	
+
 	return PC_UNKNOWN;
 }
 
 const char*
 pc_compression_name(int num)
 {
-  switch (num)
-  {
-    case PC_NONE:
-      return "none";
-    case PC_GHT:
-      return "ght";
-    case PC_DIMENSIONAL:
-      return "dimensional";
-    default:
-      return "UNKNOWN";
-  }
+	switch (num)
+	{
+	case PC_NONE:
+		return "none";
+	case PC_GHT:
+		return "ght";
+	case PC_DIMENSIONAL:
+		return "dimensional";
+	case PC_LAZPERF:
+		return "laz";
+	default:
+		return "UNKNOWN";
+	}
 }
 
 static int
@@ -111,20 +113,26 @@ pc_compression_number(const char *str)
 	if ( ! str )
 		return PC_NONE;
 
-	if ( (str[0] == 'd' || str[0] == 'D') &&
-	        (strcasecmp(str, "dimensional") == 0) )
+	if (	(str[0] == 'd' || str[0] == 'D') &&
+		(strcasecmp(str, "dimensional") == 0) )
 	{
 		return PC_DIMENSIONAL;
 	}
 
-	if ( (str[0] == 'g' || str[0] == 'G') &&
-	        (strcasecmp(str, "ght") == 0) )
+	if (	(str[0] == 'l' || str[0] == 'L') &&
+		(strcasecmp(str, "laz") == 0) )
+	{
+		return PC_LAZPERF;
+	}
+
+	if (	(str[0] == 'g' || str[0] == 'G') &&
+		(strcasecmp(str, "ght") == 0) )
 	{
 		return PC_GHT;
 	}
 
-	if ( (str[0] == 'n' || str[0] == 'N') &&
-	        (strcasecmp(str, "none") == 0) )
+	if (	(str[0] == 'n' || str[0] == 'N') &&
+		(strcasecmp(str, "none") == 0) )
 	{
 		return PC_NONE;
 	}
@@ -190,6 +198,8 @@ pc_schema_new(uint32_t ndims)
 	pcs->ndims = ndims;
 	pcs->x_position = -1;
 	pcs->y_position = -1;
+	pcs->z_position = -1;
+	pcs->m_position = -1;
 	return pcs;
 }
 
@@ -229,6 +239,8 @@ pc_schema_clone(const PCSCHEMA *s)
 	pcs->srid = s->srid;
 	pcs->x_position = s->x_position;
 	pcs->y_position = s->y_position;
+	pcs->z_position = s->z_position;
+	pcs->m_position = s->m_position;
 	pcs->compression = s->compression;
 	for ( i = 0; i < pcs->ndims; i++ )
 	{
@@ -318,38 +330,53 @@ pc_schema_to_json(const PCSCHEMA *pcs)
 	return str;
 }
 
-void pc_schema_check_xy(PCSCHEMA *s)
+void pc_schema_check_xyzm(PCSCHEMA *s)
 {
 	int i;
 	for ( i = 0; i < s->ndims; i++ )
 	{
 		char *dimname = s->dims[i]->name;
 		if ( ! dimname ) continue;
-		if ( strcasecmp(dimname, "X") == 0 ||
-		        strcasecmp(dimname, "Longitude") == 0 ||
-		        strcasecmp(dimname, "Lon") == 0 )
+		if (	strcasecmp(dimname, "X") == 0 ||
+			strcasecmp(dimname, "Longitude") == 0 ||
+			strcasecmp(dimname, "Lon") == 0 )
 		{
 			s->x_position = i;
 			continue;
 		}
-		if ( strcasecmp(dimname, "Y") == 0 ||
-		        strcasecmp(dimname, "Latitude") == 0 ||
-		        strcasecmp(dimname, "Lat") == 0 )
+		if (	strcasecmp(dimname, "Y") == 0 ||
+			strcasecmp(dimname, "Latitude") == 0 ||
+			strcasecmp(dimname, "Lat") == 0 )
 		{
 			s->y_position = i;
+			continue;
+		}
+		if (	strcasecmp(dimname, "Z") == 0 ||
+			strcasecmp(dimname, "H") == 0 ||
+			strcasecmp(dimname, "Height") == 0 )
+		{
+			s->z_position = i;
+			continue;
+		}
+		if (	strcasecmp(dimname, "M") == 0 ||
+			strcasecmp(dimname, "T") == 0 ||
+			strcasecmp(dimname, "Time") == 0 ||
+			strcasecmp(dimname, "GPSTime") == 0 )
+		{
+			s->m_position = i;
 			continue;
 		}
 	}
 
 	if ( s->x_position < 0 )
 	{
-		pcerror("pc_schema_check_xy: invalid x_position '%d'", s->x_position);
+		pcerror("pc_schema_check_xyzm: invalid x_position '%d'", s->x_position);
 		return;
 	}
 
 	if ( s->y_position < 0 )
 	{
-		pcerror("pc_schema_check_xy: invalid y_position '%d'", s->y_position);
+		pcerror("pc_schema_check_xyzm: invalid y_position '%d'", s->y_position);
 		return;
 	}
 }
@@ -402,6 +429,7 @@ pc_schema_from_xml(const char *xml_str, PCSCHEMA **schema)
 	xml_doc = xmlReadMemory(xml_ptr, xml_size, NULL, NULL, 0);
 	if ( ! xml_doc )
 	{
+		xmlCleanupParser();
 		pcwarn("unable to parse schema XML");
 		return PC_FAILURE;
 	}
@@ -416,6 +444,7 @@ pc_schema_from_xml(const char *xml_str, PCSCHEMA **schema)
 	if( ! xpath_ctx )
 	{
 		xmlFreeDoc(xml_doc);
+		xmlCleanupParser();
 		pcwarn("unable to create new XPath context to read schema XML");
 		return PC_FAILURE;
 	}
@@ -430,6 +459,7 @@ pc_schema_from_xml(const char *xml_str, PCSCHEMA **schema)
 	{
 		xmlXPathFreeContext(xpath_ctx);
 		xmlFreeDoc(xml_doc);
+		xmlCleanupParser();
 		pcwarn("unable to evaluate xpath expression \"%s\" against schema XML", xpath_str);
 		return PC_FAILURE;
 	}
@@ -450,31 +480,16 @@ pc_schema_from_xml(const char *xml_str, PCSCHEMA **schema)
 				xmlNodePtr cur = nodes->nodeTab[i];
 				xmlNodePtr child;
 				PCDIMENSION *d = pc_dimension_new();
-				char xydim = 0;
 
 				/* These are the values of the dimension */
 				for ( child = cur->children; child; child = child->next )
 				{
-					if( child->type == XML_ELEMENT_NODE )
+					if( child->type == XML_ELEMENT_NODE && child->children != NULL)
 					{
 						char *content = (char*)(child->children->content);
 						char *name = (char*)(child->name);
 						if ( strcmp(name, "name") == 0 )
-						{
-							if ( strcasecmp(content, "X") == 0 ||
-							        strcasecmp(content, "Longitude") == 0 ||
-							        strcasecmp(content, "Lon") == 0 )
-							{
-								xydim = 'x';
-							}
-							if ( strcasecmp(content, "Y") == 0 ||
-							        strcasecmp(content, "Latitude") == 0 ||
-							        strcasecmp(content, "Lat") == 0 )
-							{
-								xydim = 'y';
-							}
 							d->name = pcstrdup(content);
-						}
 						else if ( strcmp(name, "description") == 0 )
 							d->description = pcstrdup(content);
 						else if ( strcmp(name, "size") == 0 )
@@ -509,17 +524,10 @@ pc_schema_from_xml(const char *xml_str, PCSCHEMA **schema)
 						xmlXPathFreeObject(xpath_obj);
 						xmlXPathFreeContext(xpath_ctx);
 						xmlFreeDoc(xml_doc);
+						xmlCleanupParser();
 						pc_schema_free(s);
 						pcwarn("schema dimension at position \"%d\" is declared twice", d->position + 1, ndims);
 						return PC_FAILURE;
-					}
-					if ( xydim == 'x' )
-					{
-						s->x_position = d->position;
-					}
-					if ( xydim == 'y' )
-					{
-						s->y_position = d->position;
 					}
 					pc_schema_set_dimension(s, d);
 				}
@@ -528,6 +536,7 @@ pc_schema_from_xml(const char *xml_str, PCSCHEMA **schema)
 					xmlXPathFreeObject(xpath_obj);
 					xmlXPathFreeContext(xpath_ctx);
 					xmlFreeDoc(xml_doc);
+					xmlCleanupParser();
 					pc_schema_free(s);
 					pcwarn("schema dimension states position \"%d\", but number of XML dimensions is \"%d\"", d->position + 1, ndims);
 					return PC_FAILURE;
@@ -537,8 +546,8 @@ pc_schema_from_xml(const char *xml_str, PCSCHEMA **schema)
 
 		/* Complete the byte offsets of dimensions from the ordered sizes */
 		pc_schema_calculate_byteoffsets(s);
-		/* Check X/Y positions */
-		pc_schema_check_xy(s);
+		/* Check XYZM positions */
+		pc_schema_check_xyzm(s);
 	}
 
 	xmlXPathFreeObject(xpath_obj);
@@ -549,6 +558,7 @@ pc_schema_from_xml(const char *xml_str, PCSCHEMA **schema)
 	{
 		xmlXPathFreeContext(xpath_ctx);
 		xmlFreeDoc(xml_doc);
+		xmlCleanupParser();
 		pcwarn("unable to evaluate xpath expression \"%s\" against schema XML", xpath_metadata_str);
 		return PC_FAILURE;
 	}
@@ -588,6 +598,7 @@ pc_schema_from_xml(const char *xml_str, PCSCHEMA **schema)
 
 	xmlXPathFreeContext(xpath_ctx);
 	xmlFreeDoc(xml_doc);
+	xmlCleanupParser();
 
 	return PC_SUCCESS;
 }
@@ -651,4 +662,3 @@ pc_schema_get_size(const PCSCHEMA *s)
 {
 	return s->size;
 }
-

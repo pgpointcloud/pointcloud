@@ -14,8 +14,8 @@
 #include "stringbuffer.h"
 
 /* TODO: expose to API ? Would require also exposing stringbuffer
- * See https://github.com/pgpointcloud/pointcloud/issues/74
- */
+*  See https://github.com/pgpointcloud/pointcloud/issues/74
+*/
 static int
 pc_patch_uncompressed_to_stringbuffer(const PCPATCH_UNCOMPRESSED *patch, stringbuffer_t *sb)
 {
@@ -57,13 +57,13 @@ pc_patch_uncompressed_to_stringbuffer(const PCPATCH_UNCOMPRESSED *patch, stringb
 char *
 pc_patch_uncompressed_to_string(const PCPATCH_UNCOMPRESSED *patch)
 {
-  stringbuffer_t *sb = stringbuffer_create();
-  char *str;
-  if ( PC_FAILURE == pc_patch_uncompressed_to_stringbuffer(patch, sb) )
-    return NULL;
-  str = stringbuffer_release_string(sb);
-  stringbuffer_destroy(sb);
-  return str;
+	stringbuffer_t *sb = stringbuffer_create();
+	char *str;
+	if ( PC_FAILURE == pc_patch_uncompressed_to_stringbuffer(patch, sb) )
+		return NULL;
+	str = stringbuffer_release_string(sb);
+	stringbuffer_destroy(sb);
+	return str;
 }
 
 uint8_t *
@@ -175,10 +175,10 @@ pc_patch_uncompressed_make(const PCSCHEMA *s, uint32_t maxpoints)
 	/* Make our own data area */
 	datasize = s->size * maxpoints;
 	pch->datasize = datasize;
-    pch->data = NULL;
+	pch->data = NULL;
 	if ( datasize )
 	{
-    	pch->data = pcalloc(datasize);
+		pch->data = pcalloc(datasize);
 	}
 	pc_bounds_init(&(pch->bounds));
 
@@ -208,7 +208,7 @@ pc_patch_uncompressed_compute_extent(PCPATCH_UNCOMPRESSED *patch)
 	}
 
 	patch->bounds = b;
-  pcfree(pt);
+	pcfree(pt);
 	return PC_SUCCESS;
 }
 
@@ -222,6 +222,15 @@ pc_patch_uncompressed_free(PCPATCH_UNCOMPRESSED *patch)
 	pcfree(patch);
 }
 
+// Make the patch readonly. Return the memory segment
+// owned by the patch, if any, to enable transfer of ownership
+uint8_t *
+pc_patch_uncompressed_readonly(PCPATCH_UNCOMPRESSED *patch)
+{
+	uint8_t *data = patch->readonly ? NULL : patch->data;
+	patch->readonly = PC_TRUE;
+	return data;
+}
 
 
 PCPATCH_UNCOMPRESSED *
@@ -336,7 +345,7 @@ pc_patch_uncompressed_from_dimensional(const PCPATCH_DIMENSIONAL *pdl)
 	patch->npoints = npoints;
 	patch->maxpoints = npoints;
 	patch->bounds = pdl->bounds;
-    patch->stats = pc_stats_clone(pdl->stats);
+	patch->stats = pc_stats_clone(pdl->stats);
 	patch->datasize = schema->size * pdl->npoints;
 	patch->data = pcalloc(patch->datasize);
 	buf = patch->data;
@@ -419,3 +428,8 @@ pc_patch_uncompressed_add_point(PCPATCH_UNCOMPRESSED *c, const PCPOINT *p)
 	return PC_SUCCESS;
 }
 
+/** get point n, 0-based, positive */
+PCPOINT *pc_patch_uncompressed_pointn(const PCPATCH_UNCOMPRESSED *patch, int n)
+{
+	return pc_point_from_data(patch->schema, patch->data+n*patch->schema->size);
+}

@@ -18,36 +18,6 @@
 /* Includes and functions that expect GHT headers and definitions */
 
 #ifdef HAVE_LIBGHT
-static int
-pc_type_from_ght_type(const GhtType ghttype)
-{
-	switch(ghttype)
-	{
-	case GHT_UNKNOWN:
-		return PC_UNKNOWN;
-	case GHT_INT8:
-		return PC_INT8;
-	case GHT_UINT8:
-		return PC_UINT8;
-	case GHT_INT16:
-		return PC_INT16;
-	case GHT_UINT16:
-		return PC_UINT16;
-	case GHT_INT32:
-		return PC_INT32;
-	case GHT_UINT32:
-		return PC_UINT32;
-	case GHT_INT64:
-		return PC_INT64;
-	case GHT_UINT64:
-		return PC_UINT64;
-	case GHT_DOUBLE:
-		return PC_DOUBLE;
-	case GHT_FLOAT:
-		return PC_FLOAT;
-	}
-}
-
 static GhtType
 ght_type_from_pc_type(const int pctype)
 {
@@ -76,7 +46,7 @@ ght_type_from_pc_type(const int pctype)
 	case PC_FLOAT:
 		return GHT_FLOAT;
 	}
-	
+
 	return GHT_UNKNOWN;
 }
 
@@ -246,7 +216,7 @@ pc_patch_ght_from_uncompressed(const PCPATCH_UNCOMPRESSED *pa)
 		ght_writer_free(writer);
 	}
 
-    // Let the heirarchical memory manager clean up the tree
+	// Let the hierarchical memory manager clean up the tree
 	// ght_tree_free(tree);
 	return paght;
 #endif
@@ -266,8 +236,8 @@ pc_patch_ght_free(PCPATCH_GHT *paght)
 	/* so only free a readwrite tree */
 	if ( ! paght->readonly )
 	{
-	    if ( paght->ght )
-		    pcfree(paght->ght);
+		if ( paght->ght )
+			pcfree(paght->ght);
 	}
 
 	pcfree(paght);
@@ -509,93 +479,93 @@ pc_patch_ght_filter(const PCPATCH_GHT *patch, uint32_t dimnum, PC_FILTERTYPE fil
 
 	GhtTreePtr tree;
 	GhtTreePtr tree_filtered;
-    GhtErr err;
+	GhtErr err;
 	GhtWriterPtr writer;
 	GhtArea area;
-    const char *dimname;
-    const PCDIMENSION *dim;
-    PCPATCH_GHT *paght;
-    int npoints;
+	const char *dimname;
+	const PCDIMENSION *dim;
+	PCPATCH_GHT *paght;
+	int npoints;
 
-    /* Echo null back */
-    if ( ! patch ) return NULL;
-    
+	/* Echo null back */
+	if ( ! patch ) return NULL;
+
 	/* Get a tree */
 	tree = ght_tree_from_pc_patch(patch);
 	if ( ! tree ) pcerror("%s: call to ght_tree_from_pc_patch failed", __func__);
 
-    /* Get dimname */
-    dim = pc_schema_get_dimension(patch->schema, dimnum);
-    if ( ! dim ) pcerror("%s: invalid dimension number (%d)", __func__, dimnum);
-    dimname = dim->name;
+	/* Get dimname */
+	dim = pc_schema_get_dimension(patch->schema, dimnum);
+	if ( ! dim ) pcerror("%s: invalid dimension number (%d)", __func__, dimnum);
+	dimname = dim->name;
 
-    switch ( filter )
-    {
-    	case PC_GT:
-            err = ght_tree_filter_greater_than(tree, dimname, val1 > val2 ? val1 : val2, &tree_filtered);
-    		break;
-    	case PC_LT:
-            err = ght_tree_filter_less_than(tree, dimname, val1 < val2 ? val1 : val2, &tree_filtered);
-    		break;
-    	case PC_EQUAL:
-            err = ght_tree_filter_equal(tree, dimname, val1, &tree_filtered);
-    		break;
-    	case PC_BETWEEN:
-            err = ght_tree_filter_between(tree, dimname, val1, val2, &tree_filtered);
-    		break;
-        default:
-            pcerror("%s: invalid filter type (%d)", __func__, filter);
-            return NULL;
-    }
+	switch ( filter )
+	{
+		case PC_GT:
+			err = ght_tree_filter_greater_than(tree, dimname, val1 > val2 ? val1 : val2, &tree_filtered);
+			break;
+		case PC_LT:
+			err = ght_tree_filter_less_than(tree, dimname, val1 < val2 ? val1 : val2, &tree_filtered);
+			break;
+		case PC_EQUAL:
+			err = ght_tree_filter_equal(tree, dimname, val1, &tree_filtered);
+			break;
+		case PC_BETWEEN:
+			err = ght_tree_filter_between(tree, dimname, val1, val2, &tree_filtered);
+			break;
+		default:
+			pcerror("%s: invalid filter type (%d)", __func__, filter);
+			return NULL;
+	}
 
-    /* ght_tree_filter_* returns a tree with NULL tree element and npoints == 0 */
-    /* for empty filter results (everything got filtered away) */
-    if ( err != GHT_OK || ! tree_filtered )
-        pcerror("%s: ght_tree_filter failed", __func__);
+	/* ght_tree_filter_* returns a tree with NULL tree element and npoints == 0 */
+	/* for empty filter results (everything got filtered away) */
+	if ( err != GHT_OK || ! tree_filtered )
+		pcerror("%s: ght_tree_filter failed", __func__);
 
-    /* Read numpoints left in patch */
-    ght_tree_get_numpoints(tree_filtered, &(npoints));
+	/* Read numpoints left in patch */
+	ght_tree_get_numpoints(tree_filtered, &(npoints));
 
-    /* Allocate a fresh GHT patch for output */
+	/* Allocate a fresh GHT patch for output */
 	paght = pcalloc(sizeof(PCPATCH_GHT));
 	paght->type = PC_GHT;
 	paght->readonly = PC_FALSE;
 	paght->schema = patch->schema;
 	paght->npoints = npoints;
 
-	/* No points, not much to do... */	
+	/* No points, not much to do... */
 	if ( ! npoints )
 	{
-        paght->ghtsize = 0;
-        paght->ght = NULL;
-    }
-    else
-    {
-    	/* Calculate bounds and save */
-    	if ( GHT_OK != ght_tree_get_extent(tree_filtered, &area) )
-    		pcerror("%s: ght_tree_get_extent failed", __func__);
+		paght->ghtsize = 0;
+		paght->ght = NULL;
+	}
+	else
+	{
+		/* Calculate bounds and save */
+		if ( GHT_OK != ght_tree_get_extent(tree_filtered, &area) )
+			pcerror("%s: ght_tree_get_extent failed", __func__);
 
-    	paght->bounds.xmin = area.x.min;
-    	paght->bounds.xmax = area.x.max;
-    	paght->bounds.ymin = area.y.min;
-    	paght->bounds.ymax = area.y.max;
+		paght->bounds.xmin = area.x.min;
+		paght->bounds.xmax = area.x.max;
+		paght->bounds.ymin = area.y.min;
+		paght->bounds.ymax = area.y.max;
 
-        /* TODO: Replace this; need to update stats too */
-    	paght->stats = pc_stats_clone(patch->stats);    	
-    	
-    	/* Convert the tree to a memory buffer */
-    	ght_writer_new_mem(&writer);
-    	ght_tree_write(tree_filtered, writer);
-    	ght_writer_get_size(writer, &(paght->ghtsize));
-    	paght->ght = pcalloc(paght->ghtsize);
-    	ght_writer_get_bytes(writer, paght->ght);
-    	ght_writer_free(writer);
+		/* TODO: Replace this; need to update stats too */
+		paght->stats = pc_stats_clone(patch->stats);
+
+		/* Convert the tree to a memory buffer */
+		ght_writer_new_mem(&writer);
+		ght_tree_write(tree_filtered, writer);
+		ght_writer_get_size(writer, &(paght->ghtsize));
+		paght->ght = pcalloc(paght->ghtsize);
+		ght_writer_get_bytes(writer, paght->ght);
+		ght_writer_free(writer);
 	}
 
 	// ght_tree_free(tree_filtered);
 	// ght_tree_free(tree);
 
-    return paght;
+	return paght;
 
 #endif
 }
@@ -606,6 +576,19 @@ pc_pointlist_from_ght(const PCPATCH_GHT *pag)
 {
 	PCPATCH_UNCOMPRESSED *pu;
 	pu = pc_patch_uncompressed_from_ght(pag);
-	return pc_pointlist_from_uncompressed(pu);
+	PCPOINTLIST *pl = pc_pointlist_from_uncompressed(pu);
+	pl->mem = pc_patch_uncompressed_readonly(pu);
+	pc_patch_free((PCPATCH *)pu);
+	return pl;
 }
 
+
+PCPOINT *
+pc_patch_ght_pointn(const PCPATCH_GHT *patch, int n)
+{
+	PCPATCH_UNCOMPRESSED *pu;
+	pu = pc_patch_uncompressed_from_ght(patch);
+	PCPOINT *pt = pc_patch_uncompressed_pointn(pu,n);
+	pc_patch_free((PCPATCH *)pu);
+	return pt;
+}

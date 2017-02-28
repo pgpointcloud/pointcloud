@@ -33,9 +33,13 @@ ifneq ($(GHT_LDFLAGS),)
 REGRESS += pointcloud-ght
 endif
 
+ifneq ($(LAZPERF_STATUS), "disabled")
+REGRESS += pointcloud-laz
+endif
+
 # Add in build/link flags for lib
-PG_CPPFLAGS += -I../lib
-SHLIB_LINK += ../lib/$(LIB_A) $(filter -lm, $(LIBS)) $(XML2_LDFLAGS) $(ZLIB_LDFLAGS) $(GHT_LDFLAGS)
+PG_CPPFLAGS += -I../lib $(GHT_CPPFLAGS)
+SHLIB_LINK += ../lib/$(LIB_A) ../lib/$(LIB_A_LAZPERF) -lstdc++ $(filter -lm, $(LIBS)) $(XML2_LDFLAGS) $(ZLIB_LDFLAGS) $(GHT_LDFLAGS)
 
 # We are going to use PGXS for sure
 include $(PGXS)
@@ -45,7 +49,7 @@ $(EXTENSION).control: $(EXTENSION).control.in Makefile
          -e 's/@POINTCLOUD_VERSION_MAJOR@/$(EXTVERSION_MAJOR)/' $< > $@
 
 $(EXTENSION)--$(EXTVERSION).sql: $(EXTENSION).sql.in Makefile
-	cp $< $@
+	$(SED) -e 's/@POINTCLOUD_VERSION@/$(EXTVERSION)/' $< > $@
 
 # NOTE: relies on PERL being defined by PGXS
 $(EXTENSION)--%--$(EXTVERSION).sql: $(EXTENSION)--$(EXTVERSION).sql ../util/proc_upgrade.pl

@@ -95,13 +95,13 @@ hexbytes_from_bytes(const uint8_t *bytebuf, size_t bytesize)
 }
 
 
+/* 0 = xdr | big endian    */
+/* 1 = ndr | little endian */
 char
 machine_endian(void)
 {
 	static int check_int = 1; /* dont modify this!!! */
-	return *((char *) &check_int); /* 0 = big endian | xdr,
-	                               * 1 = little endian | ndr
-                                   */
+	return *((char *) &check_int);
 }
 
 int32_t
@@ -238,10 +238,10 @@ uncompressed_bytes_flip_endian(const uint8_t *bytebuf, const PCSCHEMA *schema, u
 int
 pc_bounds_intersects(const PCBOUNDS *b1, const PCBOUNDS *b2)
 {
-	if ( b1->xmin > b2->xmax ||
-	        b1->xmax < b2->xmin ||
-	        b1->ymin > b2->ymax ||
-	        b1->ymax < b2->ymin )
+	if (	b1->xmin > b2->xmax ||
+		b1->xmax < b2->xmin ||
+		b1->ymin > b2->ymax ||
+		b1->ymax < b2->ymin )
 	{
 		return PC_FALSE;
 	}

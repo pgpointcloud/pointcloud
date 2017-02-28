@@ -1,7 +1,7 @@
 
 include ../config.mk
 
-CPPFLAGS = $(XML2_CPPFLAGS) $(ZLIB_CPPFLAGS) $(GHT_CPPFLAGS)
+CPPFLAGS = $(XML2_CPPFLAGS) $(ZLIB_CPPFLAGS) $(GHT_CPPFLAGS) $(LAZPERF_CPPFLAGS)
 LDFLAGS = $(XML2_LDFLAGS) $(ZLIB_LDFLAGS) $(GHT_LDFLASGS)
 CFLAGS += -fPIC
 
@@ -17,20 +17,28 @@ OBJS = \
 	pc_point.o \
 	pc_pointlist.o \
 	pc_schema.o \
+	pc_sort.o \
 	pc_stats.o \
 	pc_util.o \
 	pc_val.o \
 	stringbuffer.o \
-	hashtable.o
+	hashtable.o \
+	pc_patch_lazperf.o
 
-all: $(LIB_A)
+OBJS_LAZPERF = \
+	lazperf_adapter.o
+
+all: $(LIB_A) $(LIB_A_LAZPERF)
 	$(MAKE) -C cunit $@
 
 $(LIB_A): $(OBJS)
 	ar rs $@ $^
 
+$(LIB_A_LAZPERF): $(OBJS_LAZPERF)
+	ar rs $@ $^
+
 clean:
-	@rm -f $(OBJS) $(LIB_A)
+	@rm -f $(OBJS) $(LIB_A) $(OBJS_LAZPERF) $(LIB_A_LAZPERF)
 	$(MAKE) -C cunit $@
 
 install:

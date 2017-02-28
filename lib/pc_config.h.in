@@ -4,6 +4,8 @@
 
 #undef HAVE_LIBGHT
 
+#undef HAVE_LAZPERF
+
 #undef HAVE_CUNIT
 
 #undef PROJECT_SOURCE_DIR 

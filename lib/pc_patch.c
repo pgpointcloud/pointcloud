@@ -26,6 +26,8 @@ pc_patch_compute_extent(PCPATCH *pa)
 		return pc_patch_ght_compute_extent((PCPATCH_GHT*)pa);
 	case PC_DIMENSIONAL:
 		return pc_patch_dimensional_compute_extent((PCPATCH_DIMENSIONAL*)pa);
+	case PC_LAZPERF:
+		return pc_patch_lazperf_compute_extent((PCPATCH_LAZPERF*)pa);
 	}
 	return PC_FAILURE;
 }
@@ -54,6 +56,14 @@ pc_patch_compute_stats(PCPATCH *pa)
 	case PC_GHT:
 	{
 		PCPATCH_UNCOMPRESSED *pu = pc_patch_uncompressed_from_ght((PCPATCH_GHT*)pa);
+		pc_patch_uncompressed_compute_stats(pu);
+		pa->stats = pc_stats_clone(pu->stats);
+		pc_patch_uncompressed_free(pu);
+		return PC_SUCCESS;
+	}
+	case PC_LAZPERF:
+	{
+		PCPATCH_UNCOMPRESSED *pu = pc_patch_uncompressed_from_lazperf((PCPATCH_LAZPERF*)pa);
 		pc_patch_uncompressed_compute_stats(pu);
 		pa->stats = pc_stats_clone(pu->stats);
 		pc_patch_uncompressed_free(pu);
@@ -93,6 +103,11 @@ pc_patch_free(PCPATCH *patch)
 	case PC_DIMENSIONAL:
 	{
 		pc_patch_dimensional_free((PCPATCH_DIMENSIONAL*)patch);
+		break;
+	}
+	case PC_LAZPERF:
+	{
+		pc_patch_lazperf_free((PCPATCH_LAZPERF*)patch);
 		break;
 	}
 	default:
@@ -143,6 +158,14 @@ pc_patch_compress(const PCPATCH *patch, void *userdata)
 			pc_patch_dimensional_free(pcdu);
 			return (PCPATCH*)pcdc;
 		}
+		else if ( patch_compression == PC_LAZPERF )
+		{
+			PCPATCH_UNCOMPRESSED *pcu = pc_patch_uncompressed_from_lazperf( (PCPATCH_LAZPERF*) patch );
+			PCPATCH_DIMENSIONAL *pal = pc_patch_dimensional_from_uncompressed( pcu );
+			PCPATCH_DIMENSIONAL *palc = pc_patch_dimensional_compress( pal, NULL );
+			pc_patch_dimensional_free(pal);
+			return (PCPATCH*) palc;
+		}
 		else
 		{
 			pcerror("%s: unknown patch compression type %d", __func__, patch_compression);
@@ -163,6 +186,11 @@ pc_patch_compress(const PCPATCH *patch, void *userdata)
 		else if ( patch_compression == PC_GHT )
 		{
 			PCPATCH_UNCOMPRESSED *pcu = pc_patch_uncompressed_from_ght((PCPATCH_GHT*)patch);
+			return (PCPATCH*)pcu;
+		}
+		else if ( patch_compression == PC_LAZPERF )
+		{
+			PCPATCH_UNCOMPRESSED *pcu = pc_patch_uncompressed_from_lazperf( (PCPATCH_LAZPERF*)patch );
 			return (PCPATCH*)pcu;
 		}
 		else
@@ -186,6 +214,42 @@ pc_patch_compress(const PCPATCH *patch, void *userdata)
 			return (PCPATCH*)pgc;
 		}
 		else if ( patch_compression == PC_GHT )
+		{
+			return (PCPATCH*)patch;
+		}
+		else if ( patch_compression == PC_LAZPERF )
+		{
+			PCPATCH_LAZPERF *pal = pc_patch_lazperf_from_uncompressed((PCPATCH_UNCOMPRESSED*)patch);
+			return (PCPATCH*)pal;
+		}
+		else
+		{
+			pcerror("%s: unknown patch compression type %d", __func__, patch_compression);
+		}
+	}
+	case PC_LAZPERF:
+	{
+		if ( patch_compression == PC_NONE )
+		{
+			PCPATCH_LAZPERF *pgc = pc_patch_lazperf_from_uncompressed((PCPATCH_UNCOMPRESSED*)patch);
+			if ( ! pgc ) pcerror("%s: lazperf compression failed", __func__);
+			return (PCPATCH*)pgc;
+		}
+		else if ( patch_compression == PC_DIMENSIONAL )
+		{
+			PCPATCH_UNCOMPRESSED *pad = pc_patch_uncompressed_from_dimensional((PCPATCH_DIMENSIONAL*)patch);
+			PCPATCH_LAZPERF *pal = pc_patch_lazperf_from_uncompressed( (PCPATCH_UNCOMPRESSED*) pad );
+			pc_patch_uncompressed_free( pad );
+			return (PCPATCH*)pal;
+		}
+		else if ( patch_compression == PC_GHT )
+		{
+			PCPATCH_UNCOMPRESSED *pcu = pc_patch_uncompressed_from_ght((PCPATCH_GHT*)patch);
+			PCPATCH_LAZPERF *pal = pc_patch_lazperf_from_uncompressed((PCPATCH_UNCOMPRESSED*)pcu);
+			pc_patch_uncompressed_free(pcu);
+			return (PCPATCH*)pal;
+		}
+		else if ( patch_compression == PC_LAZPERF )
 		{
 			return (PCPATCH*)patch;
 		}
@@ -225,6 +289,12 @@ pc_patch_uncompress(const PCPATCH *patch)
 	{
 		PCPATCH_UNCOMPRESSED *pu = pc_patch_uncompressed_from_ght((PCPATCH_GHT*)patch);
 		return (PCPATCH*)pu;
+	}
+
+	if ( patch_compression == PC_LAZPERF )
+	{
+		PCPATCH_UNCOMPRESSED *pu = pc_patch_uncompressed_from_lazperf( (PCPATCH_LAZPERF*)patch );
+		return (PCPATCH*) pu;
 	}
 
 	return NULL;
@@ -279,6 +349,11 @@ pc_patch_from_wkb(const PCSCHEMA *s, uint8_t *wkb, size_t wkbsize)
 		patch = pc_patch_ght_from_wkb(s, wkb, wkbsize);
 		break;
 	}
+	case PC_LAZPERF:
+	{
+		patch = pc_patch_lazperf_from_wkb(s, wkb, wkbsize);
+		break;
+	}
 	default:
 	{
 		/* Don't get here */
@@ -322,6 +397,10 @@ pc_patch_to_wkb(const PCPATCH *patch, size_t *wkbsize)
 	{
 		return pc_patch_ght_to_wkb((PCPATCH_GHT*)patch, wkbsize);
 	}
+	case PC_LAZPERF:
+	{
+		return pc_patch_lazperf_to_wkb((PCPATCH_LAZPERF*)patch, wkbsize);
+	}
 	}
 	pcerror("%s: unknown compression requested '%d'", __func__, patch->schema->compression);
 	return NULL;
@@ -338,6 +417,8 @@ pc_patch_to_string(const PCPATCH *patch)
 		return pc_patch_dimensional_to_string((PCPATCH_DIMENSIONAL*)patch);
 	case PC_GHT:
 		return pc_patch_ght_to_string((PCPATCH_GHT*)patch);
+	case PC_LAZPERF:
+		return pc_patch_lazperf_to_string( (PCPATCH_LAZPERF*)patch );
 	}
 	pcerror("%s: unsupported compression %d requested", __func__, patch->type);
 	return NULL;
@@ -413,6 +494,15 @@ pc_patch_from_patchlist(PCPATCH **palist, int numpatches)
 			buf += sz;
 			break;
 		}
+		case PC_LAZPERF:
+		{
+			PCPATCH_UNCOMPRESSED *pu = pc_patch_uncompressed_from_lazperf((const PCPATCH_LAZPERF*)pa);
+			size_t sz = pu->schema->size * pu->npoints;
+			memcpy(buf, pu->data, sz);
+			buf += sz;
+			pc_patch_uncompressed_free(pu);
+			break;
+		}
 		default:
 		{
 			pcerror("%s: unknown compression type (%d)", __func__, pa->type);
@@ -432,3 +522,25 @@ pc_patch_from_patchlist(PCPATCH **palist, int numpatches)
 	return (PCPATCH*)paout;
 }
 
+/** get point n from patch */
+/** positive 1-based:  1=first point,  npoints=last  point */
+/** negative 1-based: -1=last  point, -npoints=first point */
+PCPOINT *pc_patch_pointn(const PCPATCH *patch, int n)
+{
+	if(!patch) return NULL;
+	if(n<0) n = patch->npoints+n; // negative indices count a backward
+	else --n; // 1-based => 0-based indexing
+	if(n<0 || n>= patch->npoints) return NULL;
+
+	switch( patch->type )
+	{
+	case PC_NONE:
+		return pc_patch_uncompressed_pointn((PCPATCH_UNCOMPRESSED*)patch,n);
+	case PC_DIMENSIONAL:
+		return pc_patch_dimensional_pointn((PCPATCH_DIMENSIONAL*)patch,n);
+	case PC_GHT:
+		return pc_patch_ght_pointn((PCPATCH_GHT*)patch,n);
+	}
+	pcerror("%s: unsupported compression %d requested", __func__, patch->type);
+	return NULL;
+}

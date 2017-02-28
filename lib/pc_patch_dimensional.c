@@ -17,13 +17,13 @@
 /*
 typedef struct
 {
-    int type;
+	int type;
 	int8_t readonly;
 	const PCSCHEMA *schema;
 	uint32_t npoints;
 	double xmin, xmax, ymin, ymax;
 	PCSTATS *stats;
-    PCBYTES *bytes;
+	PCBYTES *bytes;
 } PCPATCH_DIMENSIONAL;
 */
 
@@ -302,4 +302,22 @@ pc_patch_dimensional_from_pointlist(const PCPOINTLIST *pdl)
 	PCPATCH_DIMENSIONAL *dimpatch = pc_patch_dimensional_from_uncompressed(patch);
 	pc_patch_free((PCPATCH*)patch);
 	return dimpatch;
+}
+
+/** get point n, 0-based, positive */
+PCPOINT *pc_patch_dimensional_pointn(const PCPATCH_DIMENSIONAL *pdl, int n)
+{
+	assert(pdl);
+	assert(pdl->schema);
+	int i;
+	int ndims = pdl->schema->ndims;
+	PCPOINT *pt = pc_point_make(pdl->schema);
+	uint8_t *buf = pt->data;
+	for ( i = 0; i < ndims; i++ )
+	{
+		PCDIMENSION *dim = pc_schema_get_dimension(pdl->schema, i);
+		pc_bytes_to_ptr(buf+dim->byteoffset,pdl->bytes[i], n);
+	}
+
+	return pt;
 }

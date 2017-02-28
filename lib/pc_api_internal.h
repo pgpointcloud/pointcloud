@@ -48,20 +48,20 @@
 
 enum INTERPRETATIONS
 {
-    PC_UNKNOWN = 0,
-    PC_INT8   = 1,  PC_UINT8  = 2,
-    PC_INT16  = 3,  PC_UINT16 = 4,
-    PC_INT32  = 5,  PC_UINT32 = 6,
-    PC_INT64  = 7,  PC_UINT64 = 8,
-    PC_DOUBLE = 9,  PC_FLOAT  = 10
+	PC_UNKNOWN = 0,
+	PC_INT8   = 1,  PC_UINT8  = 2,
+	PC_INT16  = 3,  PC_UINT16 = 4,
+	PC_INT32  = 5,  PC_UINT32 = 6,
+	PC_INT64  = 7,  PC_UINT64 = 8,
+	PC_DOUBLE = 9,  PC_FLOAT  = 10
 };
 
 enum DIMCOMPRESSIONS
 {
-    PC_DIM_NONE = 0,
-    PC_DIM_RLE = 1,
-    PC_DIM_SIGBITS = 2,
-    PC_DIM_ZLIB = 3
+	PC_DIM_NONE = 0,
+	PC_DIM_RLE = 1,
+	PC_DIM_SIGBITS = 2,
+	PC_DIM_ZLIB = 3
 };
 
 /* PCDOUBLESTAT are members of PCDOUBLESTATS */
@@ -170,6 +170,7 @@ PCPATCH* pc_patch_dimensional_from_wkb(const PCSCHEMA *schema, const uint8_t *wk
 PCPATCH_DIMENSIONAL* pc_patch_dimensional_from_pointlist(const PCPOINTLIST *pdl);
 PCPOINTLIST* pc_pointlist_from_dimensional(const PCPATCH_DIMENSIONAL *pdl);
 PCPATCH_DIMENSIONAL* pc_patch_dimensional_clone(const PCPATCH_DIMENSIONAL *patch);
+PCPOINT *pc_patch_dimensional_pointn(const PCPATCH_DIMENSIONAL *pdl, int n);
 
 /* UNCOMPRESSED PATCHES */
 char* pc_patch_uncompressed_to_string(const PCPATCH_UNCOMPRESSED *patch);
@@ -179,10 +180,12 @@ PCPATCH_UNCOMPRESSED* pc_patch_uncompressed_make(const PCSCHEMA *s, uint32_t max
 int pc_patch_uncompressed_compute_extent(PCPATCH_UNCOMPRESSED *patch);
 int pc_patch_uncompressed_compute_stats(PCPATCH_UNCOMPRESSED *patch);
 void pc_patch_uncompressed_free(PCPATCH_UNCOMPRESSED *patch);
+uint8_t *pc_patch_uncompressed_readonly(PCPATCH_UNCOMPRESSED *patch);
 PCPOINTLIST* pc_pointlist_from_uncompressed(const PCPATCH_UNCOMPRESSED *patch);
 PCPATCH_UNCOMPRESSED* pc_patch_uncompressed_from_pointlist(const PCPOINTLIST *pl);
 PCPATCH_UNCOMPRESSED* pc_patch_uncompressed_from_dimensional(const PCPATCH_DIMENSIONAL *pdl);
 int pc_patch_uncompressed_add_point(PCPATCH_UNCOMPRESSED *c, const PCPOINT *p);
+PCPOINT *pc_patch_uncompressed_pointn(const PCPATCH_UNCOMPRESSED *patch, int n);
 
 /* GHT PATCHES */
 char* pc_patch_ght_to_string(const PCPATCH_GHT *patch);
@@ -195,7 +198,18 @@ uint8_t* pc_patch_ght_to_wkb(const PCPATCH_GHT *patch, size_t *wkbsize);
 PCPATCH* pc_patch_ght_from_wkb(const PCSCHEMA *schema, const uint8_t *wkb, size_t wkbsize);
 PCPOINTLIST* pc_pointlist_from_ght(const PCPATCH_GHT *pag);
 PCPATCH_GHT* pc_patch_ght_filter(const PCPATCH_GHT *patch, uint32_t dimnum, PC_FILTERTYPE filter, double val1, double val2);
+PCPOINT *pc_patch_ght_pointn(const PCPATCH_GHT *patch, int n);
 
+/* LAZPERF PATCHES */
+PCPATCH_LAZPERF* pc_patch_lazperf_from_pointlist(const PCPOINTLIST *pl);
+PCPATCH_LAZPERF* pc_patch_lazperf_from_uncompressed(const PCPATCH_UNCOMPRESSED *pa);
+PCPOINTLIST* pc_pointlist_from_lazperf(const PCPATCH_LAZPERF *palaz);
+PCPATCH_UNCOMPRESSED* pc_patch_uncompressed_from_lazperf(const PCPATCH_LAZPERF *palaz);
+int pc_patch_lazperf_compute_extent(PCPATCH_LAZPERF *patch);
+char* pc_patch_lazperf_to_string(const PCPATCH_LAZPERF *pa);
+void pc_patch_lazperf_free(PCPATCH_LAZPERF *palaz);
+uint8_t* pc_patch_lazperf_to_wkb(const PCPATCH_LAZPERF *patch, size_t *wkbsize);
+PCPATCH* pc_patch_lazperf_from_wkb(const PCSCHEMA *schema, const uint8_t *wkb, size_t wkbsize);
 
 /****************************************************************************
 * BYTES
@@ -242,6 +256,13 @@ PCBYTES pc_bytes_filter(const PCBYTES *pcb, const PCBITMAP *map, PCDOUBLESTAT *s
 PCBITMAP* pc_bytes_bitmap(const PCBYTES *pcb, PC_FILTERTYPE filter, double val1, double val2);
 int pc_bytes_minmax(const PCBYTES *pcb, double *min, double *max, double *avg);
 
+/** getting the n-th point out of a PCBYTE into a buffer */
+void pc_bytes_uncompressed_to_ptr(uint8_t *buf, PCBYTES pcb, int n);
+void pc_bytes_run_length_to_ptr(uint8_t *buf, PCBYTES pcb, int n);
+void pc_bytes_sigbits_to_ptr_32(uint8_t *buf, PCBYTES pcb, int n);
+void pc_bytes_sigbits_to_ptr(uint8_t *buf, PCBYTES pcb, int n);
+void pc_bytes_zlib_to_ptr(uint8_t *buf, PCBYTES pcb, int n);
+void pc_bytes_to_ptr(uint8_t *buf, PCBYTES pcb, int n);
 
 /****************************************************************************
 * BOUNDS
@@ -262,8 +283,6 @@ void pc_bounds_merge(PCBOUNDS *b1, const PCBOUNDS *b2);
 PCBITMAP* pc_bitmap_new(uint32_t npoints);
 /** Deallocate bitmap */
 void pc_bitmap_free(PCBITMAP *map);
-/** Set the indicated bit to true if val!=0 otherwise false */
-extern inline void pc_bitmap_set(PCBITMAP *map, int i, int val);
 /** Set indicated bit on bitmap if filter and value are consistent */
 void pc_bitmap_filter(PCBITMAP *map, PC_FILTERTYPE filter, int i, double d, double val1, double val2);
 
@@ -273,4 +292,3 @@ void pc_bitmap_filter(PCBITMAP *map, PC_FILTERTYPE filter, int i, double d, doub
 
 
 #endif /* _PC_API_INTERNAL_H */
-

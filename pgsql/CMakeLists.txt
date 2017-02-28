@@ -25,7 +25,7 @@ configure_file(
     "${PROJECT_BINARY_DIR}/pgsql/pointcloud.control"
     )
 
-set(CMAKE_C_FLAGS "${PGSQL_CPPFLAGS}")
+set(CMAKE_C_FLAGS "${PGSQL_CFLAGS}")
 set(CMAKE_SHARED_LINKER_FLAGS "${PGSQL_LDFLAGS}")
 
 include_directories ("${PGSQL_INCLUDEDIR_SERVER}")
@@ -34,12 +34,6 @@ include_directories ("${PROJECT_SOURCE_DIR}/lib")
 add_library (pointcloud MODULE ${PC_SOURCES} ${PC_HEADERS})
 
 target_link_libraries (pointcloud libpc-static)
-target_link_libraries (pointcloud xml2)
-target_link_libraries (pointcloud z)
-
-if (LIBGHT_FOUND)
-  target_link_libraries (pointcloud ght)
-endif (LIBGHT_FOUND)
 
 set_target_properties (pointcloud PROPERTIES
   OUTPUT_NAME "pointcloud-${POINTCLOUD_VERSION_MAJOR}"

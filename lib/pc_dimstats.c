@@ -44,17 +44,17 @@ pc_dimstats_free(PCDIMSTATS *pds)
 /*
 typedef struct
 {
-    uint32_t total_runs;
-    uint32_t total_commonbits;
-    uint32_t recommended_compression;
+	uint32_t total_runs;
+	uint32_t total_commonbits;
+	uint32_t recommended_compression;
 } PCDIMSTAT;
 
 typedef struct
 {
-    int32_t ndims;
-    uint32_t total_points;
-    uint32_t total_patches;
-    PCDIMSTAT *stats;
+	int32_t ndims;
+	uint32_t total_points;
+	uint32_t total_patches;
+	PCDIMSTAT *stats;
 } PCDIMSTATS;
 */
 
@@ -65,20 +65,22 @@ pc_dimstats_to_string(const PCDIMSTATS *pds)
 	stringbuffer_t *sb = stringbuffer_create();
 	char *str;
 
-	stringbuffer_aprintf(sb,"{\"ndims\":%d,\"total_points\":%d,\"total_patches\":%d,\"dims\":[",
-	                     pds->ndims,
-	                     pds->total_points,
-	                     pds->total_patches
-	                    );
+	stringbuffer_aprintf(sb,
+		"{\"ndims\":%d,\"total_points\":%d,\"total_patches\":%d,\"dims\":[",
+		pds->ndims,
+		pds->total_points,
+		pds->total_patches
+	);
 
 	for ( i = 0; i < pds->ndims; i++ )
 	{
 		if ( i ) stringbuffer_append(sb, ",");
-		stringbuffer_aprintf(sb, "{\"total_runs\":%d,\"total_commonbits\":%d,\"recommended_compression\":%d}",
-		                     pds->stats[i].total_runs,
-		                     pds->stats[i].total_commonbits,
-		                     pds->stats[i].recommended_compression
-		                    );
+		stringbuffer_aprintf(sb,
+			"{\"total_runs\":%d,\"total_commonbits\":%d,\"recommended_compression\":%d}",
+			pds->stats[i].total_runs,
+			pds->stats[i].total_commonbits,
+			pds->stats[i].recommended_compression
+		);
 	}
 	stringbuffer_append(sb, "]}");
 

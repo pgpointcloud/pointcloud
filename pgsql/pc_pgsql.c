@@ -31,8 +31,8 @@ pgsql_alloc(size_t size)
 	if ( ! result )
 	{
 		ereport(ERROR,
-		        (errcode(ERRCODE_OUT_OF_MEMORY),
-		         errmsg("Out of virtual memory")));
+			(errcode(ERRCODE_OUT_OF_MEMORY),
+			errmsg("Out of virtual memory")));
 	}
 
 	return result;
@@ -46,8 +46,8 @@ pgsql_realloc(void *mem, size_t size)
 	if ( ! result )
 	{
 		ereport(ERROR,
-		        (errcode(ERRCODE_OUT_OF_MEMORY),
-		         errmsg("Out of virtual memory")));
+				(errcode(ERRCODE_OUT_OF_MEMORY),
+				 errmsg("Out of virtual memory")));
 	}
 	return result;
 }
@@ -60,6 +60,10 @@ pgsql_free(void *ptr)
 
 static void
 pgsql_msg_handler(int sig, const char *fmt, va_list ap)
+	__attribute__ (( format (printf, 2, 0) ));
+
+static void
+pgsql_msg_handler(int sig, const char *fmt, va_list ap)
 {
 #define MSG_MAXLEN 1024
 	char msg[MSG_MAXLEN] = {0};
@@ -69,16 +73,25 @@ pgsql_msg_handler(int sig, const char *fmt, va_list ap)
 }
 
 static void
+pgsql_error(const char *fmt, va_list ap) __attribute__ (( format (printf, 1, 0) ));
+
+static void
 pgsql_error(const char *fmt, va_list ap)
 {
 	pgsql_msg_handler(ERROR, fmt, ap);
 }
 
 static void
+pgsql_warn(const char *fmt, va_list ap) __attribute__ (( format (printf, 1, 0) ));
+
+static void
 pgsql_warn(const char *fmt, va_list ap)
 {
 	pgsql_msg_handler(WARNING, fmt, ap);
 }
+
+static void
+pgsql_info(const char *fmt, va_list ap) __attribute__ (( format (printf, 1, 0) ));
 
 static void
 pgsql_info(const char *fmt, va_list ap)
@@ -100,9 +113,11 @@ void
 _PG_init(void)
 {
 	elog(LOG, "Pointcloud (%s) module loaded", POINTCLOUD_VERSION);
-	pc_set_handlers(pgsql_alloc, pgsql_realloc,
-	                pgsql_free, pgsql_error,
-	                pgsql_info, pgsql_warn);
+	pc_set_handlers(
+		pgsql_alloc, pgsql_realloc,
+		pgsql_free, pgsql_error,
+		pgsql_info, pgsql_warn
+	);
 
 }
 
@@ -227,7 +242,7 @@ pc_schema_from_pcid_uncached(uint32 pcid)
 	}
 
 	sprintf(sql, "select %s, %s from %s where pcid = %d",
-	        POINTCLOUD_FORMATS_XML, POINTCLOUD_FORMATS_SRID, POINTCLOUD_FORMATS, pcid);
+		POINTCLOUD_FORMATS_XML, POINTCLOUD_FORMATS_SRID, POINTCLOUD_FORMATS, pcid);
 	err = SPI_exec(sql, 1);
 
 	if ( err < 0 )
@@ -274,8 +289,8 @@ pc_schema_from_pcid_uncached(uint32 pcid)
 	if ( ! err )
 	{
 		ereport(ERROR,
-		        (errcode(ERRCODE_NOT_AN_XML_DOCUMENT),
-		         errmsg("unable to parse XML for pcid = %d in \"%s\"", pcid, POINTCLOUD_FORMATS)));
+			(errcode(ERRCODE_NOT_AN_XML_DOCUMENT),
+			errmsg("unable to parse XML for pcid = %d in \"%s\"", pcid, POINTCLOUD_FORMATS)));
 	}
 
 	schema->pcid = pcid;
@@ -375,8 +390,8 @@ pc_schema_from_pcid(uint32 pcid, FunctionCallInfoData *fcinfo)
 	if ( ! schema_cache )
 	{
 		ereport(ERROR,
-		        (errcode(ERRCODE_INTERNAL_ERROR),
-		         errmsg("unable to create/load statement level schema cache")));
+			(errcode(ERRCODE_INTERNAL_ERROR),
+			errmsg("unable to create/load statement level schema cache")));
 	}
 
 	/* Find our PCID if it's in there (usually it will be first) */
@@ -397,8 +412,8 @@ pc_schema_from_pcid(uint32 pcid, FunctionCallInfoData *fcinfo)
 	if ( ! schema )
 	{
 		ereport(ERROR,
-		        (errcode(ERRCODE_INTERNAL_ERROR),
-		         errmsg("unable to load schema for pcid %u", pcid)));
+			(errcode(ERRCODE_INTERNAL_ERROR),
+			errmsg("unable to load schema for pcid %u", pcid)));
 	}
 
 	/* Save the XML in the next unused slot */
@@ -465,6 +480,12 @@ pc_patch_serialized_size(const PCPATCH *patch)
 	case PC_DIMENSIONAL:
 	{
 		return common_size + stats_size + pc_patch_dimensional_serialized_size((PCPATCH_DIMENSIONAL*)patch);
+	}
+	case PC_LAZPERF:
+	{
+		static size_t lazsize_size = 4;
+		PCPATCH_LAZPERF *pg = (PCPATCH_LAZPERF*)patch;
+		return common_size + stats_size + lazsize_size + pg->lazperfsize;
 	}
 	default:
 	{
@@ -607,6 +628,45 @@ pc_patch_ght_serialize(const PCPATCH *patch_in)
 }
 
 static SERIALIZED_PATCH *
+pc_patch_lazperf_serialize(const PCPATCH *patch_in)
+{
+	size_t serpch_size = pc_patch_serialized_size(patch_in);
+	SERIALIZED_PATCH *serpch = pcalloc(serpch_size);
+	const PCPATCH_LAZPERF *patch = (PCPATCH_LAZPERF*)patch_in;
+	uint32_t lazsize = patch->lazperfsize;
+	uint8_t *buf = serpch->data;
+
+	assert(patch);
+	assert(patch->type == PC_LAZPERF);
+
+	/* Copy basics */
+	serpch->pcid = patch->schema->pcid;
+	serpch->npoints = patch->npoints;
+	serpch->bounds = patch->bounds;
+	serpch->compression = patch->type;
+
+	/* Write stats into the buffer first */
+	if ( patch->stats )
+	{
+		buf += pc_patch_stats_serialize(buf, patch->schema, patch->stats);
+	}
+	else
+	{
+		pcerror("%s: stats missing!", __func__);
+	}
+
+	/* Write buffer size */
+	memcpy(buf, &(lazsize), 4);
+	buf += 4;
+
+	/* Write buffer */
+	memcpy(buf, patch->lazperf, patch->lazperfsize);
+	SET_VARSIZE(serpch, serpch_size);
+
+	return serpch;
+}
+
+static SERIALIZED_PATCH *
 pc_patch_uncompressed_serialize(const PCPATCH *patch_in)
 {
 	//  uint32_t size;
@@ -691,6 +751,11 @@ pc_patch_serialize(const PCPATCH *patch_in, void *userdata)
 	case PC_GHT:
 	{
 		serpatch = pc_patch_ght_serialize(patch);
+		break;
+	}
+	case PC_LAZPERF:
+	{
+		serpatch = pc_patch_lazperf_serialize(patch);
 		break;
 	}
 	default:
@@ -880,6 +945,39 @@ pc_patch_ght_deserialize(const SERIALIZED_PATCH *serpatch, const PCSCHEMA *schem
 	return (PCPATCH*)patch;
 }
 
+static PCPATCH *
+pc_patch_lazperf_deserialize(const SERIALIZED_PATCH *serpatch, const PCSCHEMA *schema)
+{
+	PCPATCH_LAZPERF *patch;
+	uint32_t lazperfsize;
+	int npoints = serpatch->npoints;
+	size_t stats_size = pc_stats_size(schema);
+	uint8_t *buf = (uint8_t*)serpatch->data + stats_size;
+
+	/* Reference the external data */
+	patch = pcalloc(sizeof(PCPATCH_LAZPERF));
+
+	/* Set up basic info */
+	patch->type = serpatch->compression;
+	patch->schema = schema;
+	patch->readonly = true;
+	patch->npoints = npoints;
+	patch->bounds = serpatch->bounds;
+
+	/* Point into the stats area */
+	patch->stats = pc_patch_stats_deserialize(schema, serpatch->data);
+
+	/* Set up buffer */
+	memcpy(&lazperfsize, buf, 4);
+	patch->lazperfsize = lazperfsize;
+	buf += 4;
+
+	patch->lazperf = pcalloc( patch->lazperfsize );
+	memcpy(patch->lazperf, buf, patch->lazperfsize);
+
+	return (PCPATCH*)patch;
+}
+
 PCPATCH *
 pc_patch_deserialize(const SERIALIZED_PATCH *serpatch, const PCSCHEMA *schema)
 {
@@ -891,6 +989,8 @@ pc_patch_deserialize(const SERIALIZED_PATCH *serpatch, const PCSCHEMA *schema)
 		return pc_patch_dimensional_deserialize(serpatch, schema);
 	case PC_GHT:
 		return pc_patch_ght_deserialize(serpatch, schema);
+	case PC_LAZPERF:
+		return pc_patch_lazperf_deserialize(serpatch, schema);
 	}
 	pcerror("%s: unsupported compression type", __func__);
 	return NULL;
@@ -921,12 +1021,13 @@ pc_patch_wkb_set_char(uint8_t *wkb, char c)
 	return wkb;
 }
 
+/* 0 = xdr | big endian */
+/* 1 = ndr | little endian */
 static char
 machine_endian(void)
 {
 	static int check_int = 1; /* dont modify this!!! */
-	return *((char *) &check_int); /* 0 = big endian | xdr,
-	                               * 1 = little endian | ndr */
+	return *((char *) &check_int);
 }
 
 uint8_t *
@@ -940,15 +1041,15 @@ pc_patch_to_geometry_wkb_envelope(const SERIALIZED_PATCH *pa, const PCSCHEMA *sc
 	int has_srid = false;
 	size_t size = 1 + 4 + 4 + 4 + 2*npoints*8; /* endian + type + nrings + npoints + 5 dbl pts */
 
-    /* Bounds! */
-    double xmin = pa->bounds.xmin;
-    double ymin = pa->bounds.ymin;
-    double xmax = pa->bounds.xmax;
-    double ymax = pa->bounds.ymax;
-    
-    /* Make sure they're slightly bigger than a point */
-    if ( xmin == xmax ) xmax += xmax * 0.0000001;
-    if ( ymin == ymax ) ymax += ymax * 0.0000001;
+	/* Bounds! */
+	double xmin = pa->bounds.xmin;
+	double ymin = pa->bounds.ymin;
+	double xmax = pa->bounds.xmax;
+	double ymax = pa->bounds.ymax;
+
+	/* Make sure they're slightly bigger than a point */
+	if ( xmin == xmax ) xmax += xmax * 0.0000001;
+	if ( ymin == ymax ) ymax += ymax * 0.0000001;
 
 	if ( schema->srid > 0 )
 	{

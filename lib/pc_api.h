@@ -25,6 +25,10 @@
 #include "ght.h"
 #endif
 
+#ifndef __GNUC__
+#define __attribute__ (x)
+#endif
+
 /**********************************************************************
 * DATA STRUCTURES
 */
@@ -34,9 +38,10 @@
 */
 enum COMPRESSIONS
 {
-    PC_NONE = 0,
-    PC_GHT = 1,
-    PC_DIMENSIONAL = 2
+	PC_NONE = 0,
+	PC_GHT = 1,
+	PC_DIMENSIONAL = 2,
+	PC_LAZPERF = 3
 };
 
 /**
@@ -45,16 +50,16 @@ enum COMPRESSIONS
 */
 enum ENDIANS
 {
-    PC_XDR = 0,   /* Big */
-    PC_NDR = 1    /* Little */
+	PC_XDR = 0,   /* Big */
+	PC_NDR = 1    /* Little */
 };
 
 typedef enum
 {
-    PC_GT,
-    PC_LT,
-    PC_EQUAL,
-    PC_BETWEEN
+	PC_GT,
+	PC_LT,
+	PC_EQUAL,
+	PC_BETWEEN
 } PC_FILTERTYPE;
 
 
@@ -83,8 +88,10 @@ typedef struct
 	size_t size;          /* How wide (bytes) is a point with this schema? */
 	PCDIMENSION **dims;   /* Array of dimension pointers */
 	uint32_t srid;        /* Foreign key reference to SPATIAL_REF_SYS */
-	int32_t x_position;  /* What entry is the x coordinate at? */
-	int32_t y_position;  /* What entry is the y coordinate at? */
+	int32_t x_position;   /* What entry is the x coordinate at? */
+	int32_t y_position;   /* What entry is the y coordinate at? */
+	int32_t z_position;   /* What entry is the z coordinate at? */
+	int32_t m_position;   /* What entry is the m coordinate at? */
 	uint32_t compression; /* Compression type applied to the data */
 	hashtable *namehash;  /* Look-up from dimension name to pointer */
 } PCSCHEMA;
@@ -121,7 +128,7 @@ typedef struct
 
 typedef struct
 {
-	int8_t readonly;
+	void *mem; /* An opaque memory buffer to be freed on destruction if not NULL */
 	uint32_t npoints;
 	uint32_t maxpoints;
 	PCPOINT **points;
@@ -163,12 +170,12 @@ PCSTATS;
 */
 
 #define PCPATCH_COMMON \
-    int type; \
-    int8_t readonly; \
-    const PCSCHEMA *schema; \
-    uint32_t npoints;  \
-    PCBOUNDS bounds; \
-    PCSTATS *stats;
+	int type; \
+	int8_t readonly; \
+	const PCSCHEMA *schema; \
+	uint32_t npoints;  \
+	PCBOUNDS bounds; \
+	PCSTATS *stats;
 
 typedef struct
 {
@@ -196,13 +203,20 @@ typedef struct
 	uint8_t *ght;
 } PCPATCH_GHT;
 
+typedef struct
+{
+	PCPATCH_COMMON
+	size_t lazperfsize;
+	uint8_t *lazperf;
+} PCPATCH_LAZPERF;
 
 
 /* Global function signatures for memory/logging handlers. */
 typedef void* (*pc_allocator)(size_t size);
 typedef void* (*pc_reallocator)(void *mem, size_t size);
 typedef void  (*pc_deallocator)(void *mem);
-typedef void  (*pc_message_handler)(const char *string, va_list ap);
+typedef void  (*pc_message_handler)(const char *string, va_list ap)
+	__attribute__ (( format (printf, 1, 0) ));
 
 
 
@@ -224,9 +238,11 @@ void  pcinfo(const char *fmt, ...);
 void  pcwarn(const char *fmt, ...);
 
 /** Set custom memory allocators and messaging (used by PgSQL module) */
-void pc_set_handlers(pc_allocator allocator, pc_reallocator reallocator,
-                     pc_deallocator deallocator, pc_message_handler error_handler,
-                     pc_message_handler info_handler, pc_message_handler warning_handler);
+void pc_set_handlers(
+	pc_allocator allocator, pc_reallocator reallocator,
+	pc_deallocator deallocator, pc_message_handler error_handler,
+	pc_message_handler info_handler, pc_message_handler warning_handler
+);
 
 /** Set program to use system memory allocators and messaging */
 void pc_install_default_handlers(void);
@@ -269,8 +285,8 @@ uint32_t pc_schema_is_valid(const PCSCHEMA *s);
 PCSCHEMA* pc_schema_clone(const PCSCHEMA *s);
 /** Add/overwrite a dimension in a schema */
 void pc_schema_set_dimension(PCSCHEMA *s, PCDIMENSION *d);
-/** Check/set the x/y position in the dimension list */
-void pc_schema_check_xy(PCSCHEMA *s);
+/** Check/set the xyzm positions in the dimension list */
+void pc_schema_check_xyzm(PCSCHEMA *s);
 /** Get the width in bytes of a single point in the schema */
 size_t pc_schema_get_size(const PCSCHEMA *s);
 
@@ -306,10 +322,10 @@ PCPOINT* pc_point_from_data(const PCSCHEMA *s, const uint8_t *data);
 PCPOINT* pc_point_from_double_array(const PCSCHEMA *s, double *array, uint32_t nelems);
 
 /**
- * Return an allocated double array of doubles representing point values
- *
- * The number of elements in the array is equal to pt->schema->n_dims
- */
+* Return an allocated double array of doubles representing point values
+*
+* The number of elements in the array is equal to pt->schema->n_dims
+*/
 double* pc_point_to_double_array(const PCPOINT *pt);
 
 /** Frees the PTPOINT and data (if not readonly). Does not free referenced schema */
@@ -330,11 +346,23 @@ double pc_point_get_x(const PCPOINT *pt);
 /** Returns Y coordinate */
 double pc_point_get_y(const PCPOINT *pt);
 
+/** Returns Z coordinate */
+double pc_point_get_z(const PCPOINT *pt);
+
+/** Returns M coordinate */
+double pc_point_get_m(const PCPOINT *pt);
+
 /** Set the X coordinate */
 double pc_point_set_x(PCPOINT *pt, double val);
 
 /** Set the Y coordinate */
 double pc_point_set_y(PCPOINT *pt, double val);
+
+/** Set the Z coordinate */
+double pc_point_set_z(PCPOINT *pt, double val);
+
+/** Set the M coordinate */
+double pc_point_set_m(PCPOINT *pt, double val);
 
 /** Create a new readwrite PCPOINT from a hex byte array */
 PCPOINT* pc_point_from_wkb(const PCSCHEMA *s, uint8_t *wkb, size_t wkbsize);
@@ -421,5 +449,13 @@ PCPATCH* pc_patch_filter_equal_by_name(const PCPATCH *pa, const char *name, doub
 /** Subset batch based on range condition on dimension */
 PCPATCH* pc_patch_filter_between_by_name(const PCPATCH *pa, const char *name, double val1, double val2);
 
+/** get point n */
+PCPOINT *pc_patch_pointn(const PCPATCH *patch, int n);
+
+/** Sorted patch after reordering points on dimensions */
+PCPATCH *pc_patch_sort(const PCPATCH *pa, const char **name, int ndims);
+
+/** True/false if the patch is sorted on dimension */
+uint32_t pc_patch_is_sorted(const PCPATCH *pa, const char **name, int ndims, char strict);
 
 #endif /* _PC_API_H */
