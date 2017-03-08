@@ -15,8 +15,25 @@ set ( PC_INSTALL_EXENSIONS
   "${PROJECT_BINARY_DIR}/pgsql/pointcloud.control"
   )
 
+set ( PC_SQLS
+  pointcloud.sql.in
+  )
+
+# create a "cat" function, used for concatenating the sql.in files
+# in PC_SQLS into one sql.in file
+function(cat IN_FILE OUT_FILE)
+  file(READ ${IN_FILE} CONTENTS)
+  file(APPEND ${OUT_FILE} "${CONTENTS}")
+endfunction()
+
+# concatenate the sql.in files
+file(WRITE pointcloud--${POINTCLOUD_VERSION}.sql.in "")
+foreach(SQL ${PC_SQLS})
+  cat(${SQL} pointcloud--${POINTCLOUD_VERSION}.sql.in)
+endforeach()
+
 configure_file(
-    pointcloud.sql.in
+    pointcloud--${POINTCLOUD_VERSION}.sql.in
     "${PROJECT_BINARY_DIR}/pgsql/pointcloud--${POINTCLOUD_VERSION}.sql"
     )
 
