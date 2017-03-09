@@ -323,10 +323,10 @@ pc_point_to_geometry_wkb(const PCPOINT *pt, size_t *wkbsize)
 	uint8_t *wkb, *ptr;
 	uint32_t srid = pt->schema->srid;
 	double x, y, z, m;
-	int has_x = pc_point_get_x(pt, &x);
-	int has_y = pc_point_get_y(pt, &y);
-	int has_z = pc_point_get_z(pt, &z);
-	int has_m = pc_point_get_m(pt, &m);
+	int has_x = pc_point_get_x(pt, &x) == PC_SUCCESS;
+	int has_y = pc_point_get_y(pt, &y) == PC_SUCCESS;
+	int has_z = pc_point_get_z(pt, &z) == PC_SUCCESS;
+	int has_m = pc_point_get_m(pt, &m) == PC_SUCCESS;
 
 	if ( ! ( has_x && has_y ) )
 		return NULL;
