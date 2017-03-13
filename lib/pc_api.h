@@ -174,7 +174,7 @@ PCSTATS;
 */
 
 #define PCPATCH_COMMON \
-	int type; \
+	uint32_t type; \
 	int8_t readonly; \
 	const PCSCHEMA *schema; \
 	uint32_t npoints;  \

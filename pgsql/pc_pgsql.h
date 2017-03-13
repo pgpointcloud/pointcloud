@@ -23,6 +23,7 @@
 #define POINTCLOUD_FORMATS "pointcloud_formats"
 #define POINTCLOUD_FORMATS_XML "schema"
 #define POINTCLOUD_FORMATS_SRID "srid"
+#define POINTCLOUD_COMPRESSION_OFFSET (UINT16_MAX + 1)
 
 #define PG_GETARG_SERPOINT_P(argnum) (SERIALIZED_POINT*)PG_DETOAST_DATUM(PG_GETARG_DATUM(argnum))
 #define PG_GETARG_SERPATCH_P(argnum) (SERIALIZED_PATCH*)PG_DETOAST_DATUM(PG_GETARG_DATUM(argnum))
@@ -115,6 +116,9 @@ char* pc_patch_to_hexwkb(const PCPATCH *patch);
 
 /** Returns OGC WKB for envelope of PCPATCH */
 uint8_t* pc_patch_to_geometry_wkb_envelope(const SERIALIZED_PATCH *pa, const PCSCHEMA *schema, size_t *wkbsize);
+
+/** Read the compression value from the serialized patch */
+uint32_t pc_patch_compression(const SERIALIZED_PATCH *serpatch);
 
 /** Read the first few bytes off an object to get the datum */
 uint32 pcid_from_datum(Datum d);
