@@ -246,6 +246,41 @@ test_wkb_lazperf()
 	pcfree(wkb1);
 	pcfree(wkb2);
 }
+
+static void
+test_patch_filter_lazperf_zero_point()
+{
+	PCPOINT *pt;
+	int i;
+	int npts = 5;
+	PCPOINTLIST *pl;
+	PCPATCH_LAZPERF *pal;
+	PCPATCH *pa;
+
+	// build a list of points
+	pl = pc_pointlist_make(npts);
+
+	for ( i = 0; i < npts; i++ )
+	{
+		pt = pc_point_make(simpleschema);
+		pc_point_set_double_by_name(pt, "x", i*2.0);
+		pc_point_set_double_by_name(pt, "y", i*1.9);
+		pc_point_set_double_by_name(pt, "Z", i*0.34);
+		pc_point_set_double_by_name(pt, "intensity", 10);
+		pc_pointlist_add_point(pl, pt);
+	}
+
+	// build patch lazperf
+	pal = pc_patch_lazperf_from_pointlist(pl);
+
+	// filter with a resulting patch of 0 point(s)
+	pa = pc_patch_filter((PCPATCH*) pal, 0, PC_BETWEEN, 0.0, 0.0);
+	CU_ASSERT_EQUAL(pa->npoints, 0);
+
+	pc_patch_free((PCPATCH*) pal);
+	pc_patch_free((PCPATCH*) pa);
+	pc_pointlist_free(pl);
+}
 #endif
 
 /* REGISTER ***********************************************************/
@@ -257,6 +292,7 @@ CU_TestInfo lazperf_tests[] = {
 	PC_TEST(test_pointlist_lazperf),
 	PC_TEST(test_to_string_lazperf),
 	PC_TEST(test_wkb_lazperf),
+	PC_TEST(test_patch_filter_lazperf_zero_point),
 #endif
 	CU_TEST_INFO_NULL
 };
