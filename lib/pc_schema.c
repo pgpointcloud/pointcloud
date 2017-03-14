@@ -113,26 +113,26 @@ pc_compression_number(const char *str)
 	if ( ! str )
 		return PC_NONE;
 
-	if (	(str[0] == 'd' || str[0] == 'D') &&
-		(strcasecmp(str, "dimensional") == 0) )
+	if ( (str[0] == 'd' || str[0] == 'D') &&
+		 (strcasecmp(str, "dimensional") == 0) )
 	{
 		return PC_DIMENSIONAL;
 	}
 
-	if (	(str[0] == 'l' || str[0] == 'L') &&
-		(strcasecmp(str, "laz") == 0) )
+	if ( (str[0] == 'l' || str[0] == 'L') &&
+		 (strcasecmp(str, "laz") == 0) )
 	{
 		return PC_LAZPERF;
 	}
 
-	if (	(str[0] == 'g' || str[0] == 'G') &&
-		(strcasecmp(str, "ght") == 0) )
+	if ( (str[0] == 'g' || str[0] == 'G') &&
+		 (strcasecmp(str, "ght") == 0) )
 	{
 		return PC_GHT;
 	}
 
-	if (	(str[0] == 'n' || str[0] == 'N') &&
-		(strcasecmp(str, "none") == 0) )
+	if ( (str[0] == 'n' || str[0] == 'N') &&
+		 (strcasecmp(str, "none") == 0) )
 	{
 		return PC_NONE;
 	}
@@ -337,31 +337,31 @@ void pc_schema_check_xyzm(PCSCHEMA *s)
 	{
 		char *dimname = s->dims[i]->name;
 		if ( ! dimname ) continue;
-		if (	strcasecmp(dimname, "X") == 0 ||
-			strcasecmp(dimname, "Longitude") == 0 ||
-			strcasecmp(dimname, "Lon") == 0 )
+		if ( strcasecmp(dimname, "X") == 0 ||
+			 strcasecmp(dimname, "Longitude") == 0 ||
+			 strcasecmp(dimname, "Lon") == 0 )
 		{
 			s->x_position = i;
 			continue;
 		}
-		if (	strcasecmp(dimname, "Y") == 0 ||
-			strcasecmp(dimname, "Latitude") == 0 ||
-			strcasecmp(dimname, "Lat") == 0 )
+		if ( strcasecmp(dimname, "Y") == 0 ||
+			 strcasecmp(dimname, "Latitude") == 0 ||
+			 strcasecmp(dimname, "Lat") == 0 )
 		{
 			s->y_position = i;
 			continue;
 		}
-		if (	strcasecmp(dimname, "Z") == 0 ||
-			strcasecmp(dimname, "H") == 0 ||
-			strcasecmp(dimname, "Height") == 0 )
+		if ( strcasecmp(dimname, "Z") == 0 ||
+			 strcasecmp(dimname, "H") == 0 ||
+			 strcasecmp(dimname, "Height") == 0 )
 		{
 			s->z_position = i;
 			continue;
 		}
-		if (	strcasecmp(dimname, "M") == 0 ||
-			strcasecmp(dimname, "T") == 0 ||
-			strcasecmp(dimname, "Time") == 0 ||
-			strcasecmp(dimname, "GPSTime") == 0 )
+		if ( strcasecmp(dimname, "M") == 0 ||
+			 strcasecmp(dimname, "T") == 0 ||
+			 strcasecmp(dimname, "Time") == 0 ||
+			 strcasecmp(dimname, "GPSTime") == 0 )
 		{
 			s->m_position = i;
 			continue;
