@@ -286,11 +286,13 @@ pc_patch_filter(const PCPATCH *pa, uint32_t dimnum, PC_FILTERTYPE filter, double
 		if ( map->nset == 0 )
 		{
 			pc_bitmap_free(map);
-			return (PCPATCH*)pc_patch_uncompressed_make(pa->schema, -1);
+			pc_patch_free((PCPATCH*) pau);
+			return (PCPATCH*)pc_patch_uncompressed_make(pa->schema, 0);
 		}
 
 		pu = pc_patch_uncompressed_filter(pau, map);
 		pc_bitmap_free(map);
+		pc_patch_free((PCPATCH*) pau);
 		/* pc_patch_uncompressed_filter computes stats and bounds, so we're ready to return here */
 		/* TODO, it could/should compute bounds and stats while filtering the points */
 		paout = (PCPATCH*)pu;
