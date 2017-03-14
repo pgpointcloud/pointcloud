@@ -156,4 +156,6 @@ FROM (
 
 SELECT pc_astext(pc_explode(pa)) FROM pa_test_laz_multiple_dim LIMIT 20;
 
+SELECT pc_astext(PC_PointN(pa, 2)) FROM pa_test_laz;
+
 TRUNCATE pointcloud_formats;
