@@ -54,14 +54,42 @@ test_schema_from_xml()
 }
 
 static void
-test_schema_from_xml_with_empty_field()
+test_schema_from_xml_with_empty_description()
 {
 	PCSCHEMA *myschema = NULL;
-	char *myxmlfile = "data/simple-schema-empty-field.xml";
+	char *myxmlfile = "data/simple-schema-empty-description.xml";
 	char *xmlstr = file_to_str(myxmlfile);
 	int rv = pc_schema_from_xml(xmlstr, &myschema);
 
-	CU_ASSERT(rv == PC_SUCCESS);
+	CU_ASSERT_EQUAL(rv, PC_SUCCESS);
+
+	pc_schema_free(myschema);
+	pcfree(xmlstr);
+}
+
+static void
+test_schema_from_xml_with_no_name()
+{
+	PCSCHEMA *myschema = NULL;
+	char *myxmlfile = "data/simple-schema-no-name.xml";
+	char *xmlstr = file_to_str(myxmlfile);
+	int rv = pc_schema_from_xml(xmlstr, &myschema);
+
+	CU_ASSERT_EQUAL(rv, PC_SUCCESS);
+
+	pc_schema_free(myschema);
+	pcfree(xmlstr);
+}
+
+static void
+test_schema_from_xml_with_empty_name()
+{
+	PCSCHEMA *myschema = NULL;
+	char *myxmlfile = "data/simple-schema-empty-name.xml";
+	char *xmlstr = file_to_str(myxmlfile);
+	int rv = pc_schema_from_xml(xmlstr, &myschema);
+
+	CU_ASSERT_EQUAL(rv, PC_SUCCESS);
 
 	pc_schema_free(myschema);
 	pcfree(xmlstr);
@@ -131,7 +159,7 @@ test_dimension_byteoffsets()
 }
 
 static void
-test_schema_is_valid()
+test_schema_invalid_xy()
 {
 	static PCSCHEMA *myschema = NULL;
 	char *xmlstr;
@@ -140,15 +168,35 @@ test_schema_is_valid()
 	// See https://github.com/pgpointcloud/pointcloud/issues/28
 	xmlstr = "<pc:PointCloudSchema xmlns:pc='x'><pc:dimension>1</pc:dimension></pc:PointCloudSchema>";
 	rv = pc_schema_from_xml(xmlstr, &myschema);
-	CU_ASSERT_EQUAL(rv, PC_SUCCESS);
-
-	cu_error_msg_reset();
-	rv = pc_schema_is_valid(myschema);
 	CU_ASSERT_EQUAL(rv, PC_FAILURE);
-
-	pc_schema_free(myschema);
+	CU_ASSERT_PTR_NULL(myschema);
 }
 
+static void
+test_schema_missing_dimension()
+{
+	PCSCHEMA *myschema;
+	char *myxmlfile = "data/simple-schema-missing-dimension.xml";
+	char *xmlstr = file_to_str(myxmlfile);
+	int rv = pc_schema_from_xml(xmlstr, &myschema);
+
+	CU_ASSERT_EQUAL(rv, PC_FAILURE);
+	CU_ASSERT_PTR_NULL(myschema);
+
+	pcfree(xmlstr);
+}
+
+
+static void
+test_schema_empty()
+{
+	PCSCHEMA *myschema;
+	char *xmlstr = "";
+	int rv = pc_schema_from_xml(xmlstr, &myschema);
+
+	CU_ASSERT_EQUAL(rv, PC_FAILURE);
+	CU_ASSERT_PTR_NULL(myschema);
+}
 
 static void
 test_schema_compression(void)
@@ -161,10 +209,8 @@ static void
 test_schema_clone(void)
 {
 	int i;
-	PCSCHEMA *myschema;
 	PCSCHEMA *clone = pc_schema_clone(schema);
 	hashtable *hash, *chash;
-	char *xmlstr;
 	CU_ASSERT_EQUAL(clone->pcid, schema->pcid);
 	CU_ASSERT_EQUAL(clone->ndims, schema->ndims);
 	CU_ASSERT_EQUAL(clone->size, schema->size);
@@ -203,30 +249,90 @@ test_schema_clone(void)
 	}
 
 	pc_schema_free(clone);
+}
 
-	/* See https://github.com/pgpointcloud/pointcloud/issues/66 */
-	  xmlstr = "<pc:PointCloudSchema xmlns:pc='x'><pc:dimension><pc:position>1</pc:position></pc:dimension></pc:PointCloudSchema>";
-	i = pc_schema_from_xml(xmlstr, &myschema);
-	  CU_ASSERT_EQUAL(i, PC_SUCCESS);
+static void
+test_schema_clone_empty_description(void)
+{
+	PCSCHEMA *myschema, *clone;
+
+	char *myxmlfile = "data/simple-schema-empty-description.xml";
+	char *xmlstr = file_to_str(myxmlfile);
+
+	int rv = pc_schema_from_xml(xmlstr, &myschema);
+	CU_ASSERT_EQUAL(rv, PC_SUCCESS);
 	clone = pc_schema_clone(myschema);
+	CU_ASSERT_PTR_NOT_NULL(clone);
 	CU_ASSERT_EQUAL(clone->ndims, myschema->ndims);
-	CU_ASSERT_EQUAL(clone->dims[0]->name, NULL);
-	CU_ASSERT_EQUAL(clone->dims[0]->description, NULL);
+	CU_ASSERT_NOT_EQUAL(clone->dims[0]->name, myschema->dims[0]->name);
+	CU_ASSERT_STRING_EQUAL(clone->dims[0]->name, myschema->dims[0]->name);
+	CU_ASSERT_EQUAL(clone->dims[0]->description, myschema->dims[0]->description);
 	pc_schema_free(myschema);
 	pc_schema_free(clone);
+	pcfree(xmlstr);
+}
+
+static void
+test_schema_clone_no_name(void)
+{
+	PCSCHEMA *myschema, *clone;
+
+	/* See https://github.com/pgpointcloud/pointcloud/issues/66 */
+	char *myxmlfile = "data/simple-schema-no-name.xml";
+	char *xmlstr = file_to_str(myxmlfile);
+
+	int rv = pc_schema_from_xml(xmlstr, &myschema);
+	CU_ASSERT_EQUAL(rv, PC_SUCCESS);
+	CU_ASSERT_PTR_NOT_NULL(myschema);
+	clone = pc_schema_clone(myschema);
+	CU_ASSERT_PTR_NOT_NULL(clone);
+	CU_ASSERT_EQUAL(clone->ndims, myschema->ndims);
+	CU_ASSERT_PTR_NULL(clone->dims[0]->name);
+	CU_ASSERT_PTR_NULL(clone->dims[0]->description);
+	pc_schema_free(myschema);
+	pc_schema_free(clone);
+	pcfree(xmlstr);
+}
+
+static void
+test_schema_clone_empty_name(void)
+{
+	PCSCHEMA *myschema, *clone;
+
+	char *myxmlfile = "data/simple-schema-empty-name.xml";
+	char *xmlstr = file_to_str(myxmlfile);
+
+	int rv = pc_schema_from_xml(xmlstr, &myschema);
+	CU_ASSERT_EQUAL(rv, PC_SUCCESS);
+	CU_ASSERT_PTR_NOT_NULL(myschema);
+	clone = pc_schema_clone(myschema);
+	CU_ASSERT_PTR_NOT_NULL(clone);
+	CU_ASSERT_EQUAL(clone->ndims, myschema->ndims);
+	CU_ASSERT_PTR_NULL(clone->dims[0]->name);
+	CU_ASSERT_PTR_NULL(clone->dims[0]->description);
+	pc_schema_free(myschema);
+	pc_schema_free(clone);
+	pcfree(xmlstr);
 }
 
 /* REGISTER ***********************************************************/
 
 CU_TestInfo schema_tests[] = {
 	PC_TEST(test_schema_from_xml),
-	PC_TEST(test_schema_from_xml_with_empty_field),
+	PC_TEST(test_schema_from_xml_with_empty_description),
+	PC_TEST(test_schema_from_xml_with_empty_name),
+	PC_TEST(test_schema_from_xml_with_no_name),
 	PC_TEST(test_schema_size),
 	PC_TEST(test_dimension_get),
 	PC_TEST(test_dimension_byteoffsets),
 	PC_TEST(test_schema_compression),
-	PC_TEST(test_schema_is_valid),
+	PC_TEST(test_schema_invalid_xy),
+	PC_TEST(test_schema_missing_dimension),
+	PC_TEST(test_schema_empty),
 	PC_TEST(test_schema_clone),
+	PC_TEST(test_schema_clone_empty_description),
+	PC_TEST(test_schema_clone_no_name),
+	PC_TEST(test_schema_clone_empty_name),
 	CU_TEST_INFO_NULL
 };
 

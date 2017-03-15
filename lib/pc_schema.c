@@ -367,18 +367,6 @@ void pc_schema_check_xyzm(PCSCHEMA *s)
 			continue;
 		}
 	}
-
-	if ( s->x_position < 0 )
-	{
-		pcerror("pc_schema_check_xyzm: invalid x_position '%d'", s->x_position);
-		return;
-	}
-
-	if ( s->y_position < 0 )
-	{
-		pcerror("pc_schema_check_xyzm: invalid y_position '%d'", s->y_position);
-		return;
-	}
 }
 
 static char *
@@ -406,8 +394,8 @@ pc_schema_from_xml(const char *xml_str, PCSCHEMA **schema)
 	xmlDocPtr xml_doc = NULL;
 	xmlNodePtr xml_root = NULL;
 	xmlNsPtr xml_ns = NULL;
-	xmlXPathContextPtr xpath_ctx;
-	xmlXPathObjectPtr xpath_obj;
+	xmlXPathContextPtr xpath_ctx = NULL;
+	xmlXPathObjectPtr xpath_obj = NULL;
 	xmlNodeSetPtr nodes;
 	PCSCHEMA *s = NULL;
 	const char *xml_ptr = xml_str;
@@ -429,9 +417,8 @@ pc_schema_from_xml(const char *xml_str, PCSCHEMA **schema)
 	xml_doc = xmlReadMemory(xml_ptr, xml_size, NULL, NULL, 0);
 	if ( ! xml_doc )
 	{
-		xmlCleanupParser();
 		pcwarn("unable to parse schema XML");
-		return PC_FAILURE;
+		goto cleanup;
 	}
 
 	/* Capture the namespace */
@@ -441,12 +428,10 @@ pc_schema_from_xml(const char *xml_str, PCSCHEMA **schema)
 
 	/* Create xpath evaluation context */
 	xpath_ctx = xmlXPathNewContext(xml_doc);
-	if( ! xpath_ctx )
+	if ( ! xpath_ctx )
 	{
-		xmlFreeDoc(xml_doc);
-		xmlCleanupParser();
 		pcwarn("unable to create new XPath context to read schema XML");
-		return PC_FAILURE;
+		goto cleanup;
 	}
 
 	/* Register the root namespace if there is one */
@@ -455,13 +440,10 @@ pc_schema_from_xml(const char *xml_str, PCSCHEMA **schema)
 
 	/* Evaluate xpath expression */
 	xpath_obj = xmlXPathEvalExpression(xpath_str, xpath_ctx);
-	if( ! xpath_obj )
+	if ( ! xpath_obj )
 	{
-		xmlXPathFreeContext(xpath_ctx);
-		xmlFreeDoc(xml_doc);
-		xmlCleanupParser();
 		pcwarn("unable to evaluate xpath expression \"%s\" against schema XML", xpath_str);
-		return PC_FAILURE;
+		goto cleanup;
 	}
 
 	/* Iterate on the dimensions we found */
@@ -475,7 +457,7 @@ pc_schema_from_xml(const char *xml_str, PCSCHEMA **schema)
 		for ( i = 0; i < ndims; i++ )
 		{
 			/* This is a "dimension" */
-			if( nodes->nodeTab[i]->type == XML_ELEMENT_NODE )
+			if ( nodes->nodeTab[i]->type == XML_ELEMENT_NODE )
 			{
 				xmlNodePtr cur = nodes->nodeTab[i];
 				xmlNodePtr child;
@@ -484,7 +466,7 @@ pc_schema_from_xml(const char *xml_str, PCSCHEMA **schema)
 				/* These are the values of the dimension */
 				for ( child = cur->children; child; child = child->next )
 				{
-					if( child->type == XML_ELEMENT_NODE && child->children != NULL)
+					if ( child->type == XML_ELEMENT_NODE && child->children != NULL)
 					{
 						char *content = (char*)(child->children->content);
 						char *name = (char*)(child->name);
@@ -517,30 +499,20 @@ pc_schema_from_xml(const char *xml_str, PCSCHEMA **schema)
 				d->size = pc_interpretation_size(d->interpretation);
 
 				/* Store the dimension in the schema */
-				if ( d->position < ndims )
+				if ( d->position >= ndims )
 				{
-					if ( s->dims[d->position] )
-					{
-						xmlXPathFreeObject(xpath_obj);
-						xmlXPathFreeContext(xpath_ctx);
-						xmlFreeDoc(xml_doc);
-						xmlCleanupParser();
-						pc_schema_free(s);
-						pcwarn("schema dimension at position \"%d\" is declared twice", d->position + 1, ndims);
-						return PC_FAILURE;
-					}
-					pc_schema_set_dimension(s, d);
-				}
-				else
-				{
-					xmlXPathFreeObject(xpath_obj);
-					xmlXPathFreeContext(xpath_ctx);
-					xmlFreeDoc(xml_doc);
-					xmlCleanupParser();
-					pc_schema_free(s);
 					pcwarn("schema dimension states position \"%d\", but number of XML dimensions is \"%d\"", d->position + 1, ndims);
-					return PC_FAILURE;
+					pc_dimension_free(d);
+					goto cleanup;
+
 				}
+				else if ( s->dims[d->position] )
+				{
+					pcwarn("schema dimension at position \"%d\" is declared twice", d->position + 1, ndims);
+					pc_dimension_free(d);
+					goto cleanup;
+				}
+				pc_schema_set_dimension(s, d);
 			}
 		}
 
@@ -554,13 +526,10 @@ pc_schema_from_xml(const char *xml_str, PCSCHEMA **schema)
 
 	/* SEARCH FOR METADATA ENTRIES */
 	xpath_obj = xmlXPathEvalExpression(xpath_metadata_str, xpath_ctx);
-	if( ! xpath_obj )
+	if ( ! xpath_obj )
 	{
-		xmlXPathFreeContext(xpath_ctx);
-		xmlFreeDoc(xml_doc);
-		xmlCleanupParser();
 		pcwarn("unable to evaluate xpath expression \"%s\" against schema XML", xpath_metadata_str);
-		return PC_FAILURE;
+		goto cleanup;
 	}
 
 	/* Iterate on the <Metadata> we find */
@@ -575,7 +544,7 @@ pc_schema_from_xml(const char *xml_str, PCSCHEMA **schema)
 			/* Read the metadata name and value from the node */
 			/* <Metadata name="somename">somevalue</Metadata> */
 			xmlNodePtr cur = nodes->nodeTab[i];
-			if( cur->type == XML_ELEMENT_NODE && strcmp((char*)(cur->name), "Metadata") == 0 )
+			if ( cur->type == XML_ELEMENT_NODE && strcmp((char*)(cur->name), "Metadata") == 0 )
 			{
 				metadata_name = (char*)xmlGetProp(cur, (xmlChar*)"name");
 				metadata_value = xml_node_get_content(cur);
@@ -594,13 +563,22 @@ pc_schema_from_xml(const char *xml_str, PCSCHEMA **schema)
 		}
 	}
 
-	xmlXPathFreeObject(xpath_obj);
+cleanup:
+	if ( s && ! pc_schema_is_valid(s) )
+	{
+		pc_schema_free(s);
+		*schema = s = NULL;
+	}
 
-	xmlXPathFreeContext(xpath_ctx);
-	xmlFreeDoc(xml_doc);
+	if ( xpath_obj )
+		xmlXPathFreeObject(xpath_obj);
+	if ( xpath_ctx )
+		xmlXPathFreeContext(xpath_ctx);
+	if ( xml_doc )
+		xmlFreeDoc(xml_doc);
 	xmlCleanupParser();
 
-	return PC_SUCCESS;
+	return s ? PC_SUCCESS : PC_FAILURE;
 }
 
 uint32_t
