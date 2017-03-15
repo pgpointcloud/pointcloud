@@ -344,7 +344,7 @@ if test "x$LAZPERFDIR" = "x"; then
 		  [FOUND_LAZPERF="YES"],
 		  [FOUND_LAZPERF="NO"])
 elif test "x$LAZPERFDIR" != "xno"; then
-  dnl LAZPERFDIR was specified, so let's look there!
+  dnl LAZPERFDIR was specified, so let's look there!
 
   LAZPERF_CPPFLAGS="-I${LAZPERFDIR}/include/"
 
