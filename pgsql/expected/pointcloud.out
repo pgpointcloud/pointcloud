@@ -537,21 +537,21 @@ ORDER BY compr,sc,v;
  compr |  5 | dimensional | zlib    | t
  compr |  6 | dimensional | zlib    | t
  compr |  7 | dimensional | zlib    | t
- compr | -7 | laz         | null    | f
- compr | -6 | laz         | null    | f
- compr | -5 | laz         | null    | f
- compr | -4 | laz         | null    | f
- compr | -3 | laz         | null    | f
- compr | -2 | laz         | null    | f
- compr | -1 | laz         | null    | f
- compr |  0 | laz         | null    | f
- compr |  1 | laz         | null    | f
- compr |  2 | laz         | null    | f
- compr |  3 | laz         | null    | f
- compr |  4 | laz         | null    | f
- compr |  5 | laz         | null    | f
- compr |  6 | laz         | null    | f
- compr |  7 | laz         | null    | f
+ compr | -7 | laz         | null    | t
+ compr | -6 | laz         | null    | t
+ compr | -5 | laz         | null    | t
+ compr | -4 | laz         | null    | t
+ compr | -3 | laz         | null    | t
+ compr | -2 | laz         | null    | t
+ compr | -1 | laz         | null    | t
+ compr |  0 | laz         | null    | t
+ compr |  1 | laz         | null    | t
+ compr |  2 | laz         | null    | t
+ compr |  3 | laz         | null    | t
+ compr |  4 | laz         | null    | t
+ compr |  5 | laz         | null    | t
+ compr |  6 | laz         | null    | t
+ compr |  7 | laz         | null    | t
 (75 rows)
 
 SELECT PC_Summary(PC_Compress(PC_Patch(PC_MakePoint(10,ARRAY[1,1,1,1,1,1,1])),
