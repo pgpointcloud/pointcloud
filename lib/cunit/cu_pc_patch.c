@@ -26,24 +26,24 @@ static int
 init_suite(void)
 {
 	char *xmlstr = file_to_str(xmlfile);
-	int rv = pc_schema_from_xml(xmlstr, &schema);
+	schema = pc_schema_from_xml(xmlstr);
 	pcfree(xmlstr);
-	if ( rv == PC_FAILURE ) return 1;
+	if ( !schema ) return 1;
 
 	xmlstr = file_to_str(simplexmlfile);
-	rv = pc_schema_from_xml(xmlstr, &simpleschema);
+	simpleschema = pc_schema_from_xml(xmlstr);
 	pcfree(xmlstr);
-	if ( rv == PC_FAILURE ) return 1;
+	if ( !simpleschema ) return 1;
 
 	xmlstr = file_to_str(lasxmlfile);
-	rv = pc_schema_from_xml(xmlstr, &lasschema);
+	lasschema = pc_schema_from_xml(xmlstr);
 	pcfree(xmlstr);
-	if ( rv == PC_FAILURE ) return 1;
+	if ( !lasschema ) return 1;
 
 	xmlstr = file_to_str(simplelazxmlfile);
-	rv = pc_schema_from_xml(xmlstr, &simplelazschema);
+	simplelazschema = pc_schema_from_xml(xmlstr);
 	pcfree(xmlstr);
-	if ( rv == PC_FAILURE ) return 1;
+	if ( !simplelazschema ) return 1;
 
 	return 0;
 }

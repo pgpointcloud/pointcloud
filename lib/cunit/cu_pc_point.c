@@ -26,9 +26,9 @@ static int
 init_suite(void)
 {
 	char *xmlstr = file_to_str(xmlfile);
-	int rv = pc_schema_from_xml(xmlstr, &schema);
+	schema = pc_schema_from_xml(xmlstr);
 	pcfree(xmlstr);
-	if ( rv == PC_FAILURE ) return 1;
+	if ( !schema ) return 1;
 	return 0;
 }
 

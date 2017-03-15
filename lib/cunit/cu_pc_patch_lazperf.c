@@ -22,14 +22,14 @@ static int
 init_suite(void)
 {
 	char *xmlstr = file_to_str(simplexmlfile);
-	int rv = pc_schema_from_xml(xmlstr, &simpleschema);
+	simpleschema = pc_schema_from_xml(xmlstr);
 	pcfree(xmlstr);
-	if ( rv == PC_FAILURE ) return 1;
+	if ( !simpleschema ) return 1;
 
 	xmlstr = file_to_str(multipledimxmlfile);
-	rv = pc_schema_from_xml(xmlstr, &multipledimschema);
+	multipledimschema = pc_schema_from_xml(xmlstr);
 	pcfree(xmlstr);
-	if ( rv == PC_FAILURE ) return 1;
+	if ( !multipledimschema ) return 1;
 
 	return 0;
 }
@@ -49,9 +49,9 @@ test_schema_compression_lazperf(void)
 	PCSCHEMA *myschema = NULL;
 	char *myxmlfile = "data/simple-schema-laz.xml";
 	char *xmlstr = file_to_str(myxmlfile);
-	int rv = pc_schema_from_xml(xmlstr, &myschema);
+	myschema = pc_schema_from_xml(xmlstr);
 
-	CU_ASSERT(rv == PC_SUCCESS);
+	CU_ASSERT_PTR_NOT_NULL(myschema);
 	int compression = myschema->compression;
 	CU_ASSERT_EQUAL(compression, PC_LAZPERF);
 

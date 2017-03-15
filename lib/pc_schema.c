@@ -388,8 +388,8 @@ xml_node_get_content(xmlNodePtr node)
 }
 
 /** Population a PCSCHEMA struct from the XML representation */
-int
-pc_schema_from_xml(const char *xml_str, PCSCHEMA **schema)
+PCSCHEMA *
+pc_schema_from_xml(const char *xml_str)
 {
 	xmlDocPtr xml_doc = NULL;
 	xmlNodePtr xml_root = NULL;
@@ -412,7 +412,6 @@ pc_schema_from_xml(const char *xml_str, PCSCHEMA **schema)
 
 
 	/* Parse XML doc */
-	*schema = NULL;
 	xmlInitParser();
 	xml_doc = xmlReadMemory(xml_ptr, xml_size, NULL, NULL, 0);
 	if ( ! xml_doc )
@@ -452,7 +451,6 @@ pc_schema_from_xml(const char *xml_str, PCSCHEMA **schema)
 		int ndims = nodes->nodeNr;
 		int i;
 		s = pc_schema_new(ndims);
-		*schema = s;
 
 		for ( i = 0; i < ndims; i++ )
 		{
@@ -567,7 +565,7 @@ cleanup:
 	if ( s && ! pc_schema_is_valid(s) )
 	{
 		pc_schema_free(s);
-		*schema = s = NULL;
+		s = NULL;
 	}
 
 	if ( xpath_obj )
@@ -578,7 +576,7 @@ cleanup:
 		xmlFreeDoc(xml_doc);
 	xmlCleanupParser();
 
-	return s ? PC_SUCCESS : PC_FAILURE;
+	return s;
 }
 
 uint32_t

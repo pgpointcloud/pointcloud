@@ -20,9 +20,9 @@ static int
 init_suite(void)
 {
 	char *xmlstr = file_to_str(xmlfile);
-	int rv = pc_schema_from_xml(xmlstr, &schema);
+	schema = pc_schema_from_xml(xmlstr);
 	pcfree(xmlstr);
-	return rv == PC_FAILURE ? -1 : 0;
+	return schema ? 0 : -1;
 }
 
 static int
@@ -38,10 +38,9 @@ clean_suite(void)
 static void
 test_schema_from_xml()
 {
-	static PCSCHEMA *myschema = NULL;
 	char *xmlstr = file_to_str(xmlfile);
-	int rv = pc_schema_from_xml(xmlstr, &myschema);
-	CU_ASSERT_EQUAL(rv, PC_SUCCESS);
+	PCSCHEMA *myschema = pc_schema_from_xml(xmlstr);
+	CU_ASSERT_PTR_NOT_NULL(myschema);
 	pcfree(xmlstr);
 
 	// char *schemastr = pc_schema_to_json(schema);
@@ -49,19 +48,17 @@ test_schema_from_xml()
 	// printf("name0 %s\n", schema->dims[0]->name);
 	// printf("%s\n", schemastr);
 
-	CU_ASSERT(myschema != NULL);
 	pc_schema_free(myschema);
 }
 
 static void
 test_schema_from_xml_with_empty_description()
 {
-	PCSCHEMA *myschema = NULL;
 	char *myxmlfile = "data/simple-schema-empty-description.xml";
 	char *xmlstr = file_to_str(myxmlfile);
-	int rv = pc_schema_from_xml(xmlstr, &myschema);
+	PCSCHEMA *myschema = pc_schema_from_xml(xmlstr);
 
-	CU_ASSERT_EQUAL(rv, PC_SUCCESS);
+	CU_ASSERT_PTR_NOT_NULL(myschema);
 
 	pc_schema_free(myschema);
 	pcfree(xmlstr);
@@ -70,12 +67,11 @@ test_schema_from_xml_with_empty_description()
 static void
 test_schema_from_xml_with_no_name()
 {
-	PCSCHEMA *myschema = NULL;
 	char *myxmlfile = "data/simple-schema-no-name.xml";
 	char *xmlstr = file_to_str(myxmlfile);
-	int rv = pc_schema_from_xml(xmlstr, &myschema);
+	PCSCHEMA *myschema = pc_schema_from_xml(xmlstr);
 
-	CU_ASSERT_EQUAL(rv, PC_SUCCESS);
+	CU_ASSERT_PTR_NOT_NULL(myschema);
 
 	pc_schema_free(myschema);
 	pcfree(xmlstr);
@@ -84,12 +80,11 @@ test_schema_from_xml_with_no_name()
 static void
 test_schema_from_xml_with_empty_name()
 {
-	PCSCHEMA *myschema = NULL;
 	char *myxmlfile = "data/simple-schema-empty-name.xml";
 	char *xmlstr = file_to_str(myxmlfile);
-	int rv = pc_schema_from_xml(xmlstr, &myschema);
+	PCSCHEMA *myschema = pc_schema_from_xml(xmlstr);
 
-	CU_ASSERT_EQUAL(rv, PC_SUCCESS);
+	CU_ASSERT_PTR_NOT_NULL(myschema);
 
 	pc_schema_free(myschema);
 	pcfree(xmlstr);
@@ -161,26 +156,19 @@ test_dimension_byteoffsets()
 static void
 test_schema_invalid_xy()
 {
-	static PCSCHEMA *myschema = NULL;
-	char *xmlstr;
-	int rv;
-
 	// See https://github.com/pgpointcloud/pointcloud/issues/28
-	xmlstr = "<pc:PointCloudSchema xmlns:pc='x'><pc:dimension>1</pc:dimension></pc:PointCloudSchema>";
-	rv = pc_schema_from_xml(xmlstr, &myschema);
-	CU_ASSERT_EQUAL(rv, PC_FAILURE);
+	char *xmlstr = "<pc:PointCloudSchema xmlns:pc='x'><pc:dimension>1</pc:dimension></pc:PointCloudSchema>";
+	PCSCHEMA *myschema = pc_schema_from_xml(xmlstr);
 	CU_ASSERT_PTR_NULL(myschema);
 }
 
 static void
 test_schema_missing_dimension()
 {
-	PCSCHEMA *myschema;
 	char *myxmlfile = "data/simple-schema-missing-dimension.xml";
 	char *xmlstr = file_to_str(myxmlfile);
-	int rv = pc_schema_from_xml(xmlstr, &myschema);
+	PCSCHEMA *myschema = pc_schema_from_xml(xmlstr);
 
-	CU_ASSERT_EQUAL(rv, PC_FAILURE);
 	CU_ASSERT_PTR_NULL(myschema);
 
 	pcfree(xmlstr);
@@ -190,11 +178,9 @@ test_schema_missing_dimension()
 static void
 test_schema_empty()
 {
-	PCSCHEMA *myschema;
 	char *xmlstr = "";
-	int rv = pc_schema_from_xml(xmlstr, &myschema);
+	PCSCHEMA *myschema = pc_schema_from_xml(xmlstr);
 
-	CU_ASSERT_EQUAL(rv, PC_FAILURE);
 	CU_ASSERT_PTR_NULL(myschema);
 }
 
@@ -259,8 +245,9 @@ test_schema_clone_empty_description(void)
 	char *myxmlfile = "data/simple-schema-empty-description.xml";
 	char *xmlstr = file_to_str(myxmlfile);
 
-	int rv = pc_schema_from_xml(xmlstr, &myschema);
-	CU_ASSERT_EQUAL(rv, PC_SUCCESS);
+	myschema = pc_schema_from_xml(xmlstr);
+	CU_ASSERT_PTR_NOT_NULL(myschema);
+
 	clone = pc_schema_clone(myschema);
 	CU_ASSERT_PTR_NOT_NULL(clone);
 	CU_ASSERT_EQUAL(clone->ndims, myschema->ndims);
@@ -281,8 +268,7 @@ test_schema_clone_no_name(void)
 	char *myxmlfile = "data/simple-schema-no-name.xml";
 	char *xmlstr = file_to_str(myxmlfile);
 
-	int rv = pc_schema_from_xml(xmlstr, &myschema);
-	CU_ASSERT_EQUAL(rv, PC_SUCCESS);
+	myschema = pc_schema_from_xml(xmlstr);
 	CU_ASSERT_PTR_NOT_NULL(myschema);
 	clone = pc_schema_clone(myschema);
 	CU_ASSERT_PTR_NOT_NULL(clone);
@@ -302,8 +288,7 @@ test_schema_clone_empty_name(void)
 	char *myxmlfile = "data/simple-schema-empty-name.xml";
 	char *xmlstr = file_to_str(myxmlfile);
 
-	int rv = pc_schema_from_xml(xmlstr, &myschema);
-	CU_ASSERT_EQUAL(rv, PC_SUCCESS);
+	myschema = pc_schema_from_xml(xmlstr);
 	CU_ASSERT_PTR_NOT_NULL(myschema);
 	clone = pc_schema_clone(myschema);
 	CU_ASSERT_PTR_NOT_NULL(clone);
