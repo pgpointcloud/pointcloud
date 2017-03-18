@@ -689,7 +689,7 @@ With PDAL installed you're ready to run a PDAL import into PostgreSQL PointClou
 
 #### Running `pdal pipeline` ####
 
-PDAL includes a `command linen program <http://www.pointcloud.org/apps.html>`_ that allows both simple format translations and more complex "pipelines" of transformation.  The `pdal translate` does simple format transformations. In order to load data into Pointcloud we use a "PDAL pipeline", by calling `pdal pipeline`. A pipeline combines a format reader, and format writer, with filters that can alter or group the points together.
+PDAL includes a [command line program](http://www.pointcloud.org/apps.html) that allows both simple format translations and more complex "pipelines" of transformation.  The `pdal translate` does simple format transformations. In order to load data into Pointcloud we use a "PDAL pipeline", by calling `pdal pipeline`. A pipeline combines a format reader, and format writer, with filters that can alter or group the points together.
 
 PDAL pipelines are XML files, which nest together readers, filters, and writers into a processing chain that will be applied to the LIDAR data. 
 
