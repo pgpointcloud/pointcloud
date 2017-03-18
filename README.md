@@ -670,7 +670,7 @@ LAZ patches are much like GHT patches. Use LAZPERF library to read the LAZ data 
 
 ## Loading Data ##
 
-The examples above show how to form patches from array of doubles, and well-known binary. You can write your own loader, using the uncompressed WKB format, or more simply you can load existing LIDAR files using the [PDAL](http://pointcloud.org "PDAL") processing and format conversion library.
+The examples above show how to form patches from array of doubles, and well-known binary. You can write your own loader, using the uncompressed WKB format, or more simply you can load existing LIDAR files using the [PDAL](https://www.pdal.io) processing and format conversion library.
 
 ### From WKB ###
 
