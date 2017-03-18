@@ -682,30 +682,10 @@ The only issues to watch when creating WKB patches are: ensuring the data you wr
 
 #### Build and Install PDAL ####
 
-Support for PostgreSQL Pointcloud has been added to PDAL. It is in most recent builds, but if you want the latest version, you can [build from source](http://www.pointcloud.org/compilation/index.html). 
+To build and install PDAL check out the [PDAL development
+documentation](https://www.pdal.io/development).
 
-First, you will need to install the many, many dependencies of PDAL.
-
- - Read the compilation instructions: http://www.pdal.io/compilation/index.html
- - Read the dependency information: http://www.pdal.io/compilation/dependencies.html
- - Install the "proj4" library: https://trac.osgeo.org/proj/
- - Install the "geos" library: https://trac.osgeo.org/geos/
- - Install the "geotiff" library: http://trac.osgeo.org/geotiff/
- - Install the "gdal" library: http://gdal.org/
- - Install the "liblas" library: http://liblas.org/
-
-Then, clone the PDAL repository:
-
- - Clone into a source directory: `git clone https://github.com/PDAL/PDAL PDAL`
- - Make a build directory: `mkdir PDAL-build`
- - Enter the build directory: `cd PDAL-build`
- - Run CMake to find dependencies: `cmake ../PDAL`
-   - Or, see https://github.com/PDAL/PDAL/blob/master/cmake/examples/pramsey-config.sh
- - If dependencies are not found, manually set them: `ccmake ../PDAL`
- - Once CMake has found all dependencies, run the build: `make all`
- - And install the artifacts: `make install`
- 
-If all the dependencies were found, you're ready to run a PDAL import into PostgreSQL Pointcloud!
+With PDAL installed you're ready to run a PDAL import into PostgreSQL PointCloud!
 
 #### Running `pdal pipeline` ####
 
