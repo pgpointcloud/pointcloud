@@ -1,5 +1,4 @@
-[![Build Status](https://secure.travis-ci.org/pgpointcloud/pointcloud.png)]
-(http://travis-ci.org/pgpointcloud/pointcloud)
+[![Build Status](https://travis-ci.org/pgpointcloud/pointcloud.svg?branch=master)](https://travis-ci.org/pgpointcloud/pointcloud)
 
 # Pointcloud #
 
