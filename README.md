@@ -593,7 +593,7 @@ The patch binary formats have additional standard header information:
     byte:         endianness (1 = NDR, 0 = XDR)
     uint32:       pcid (key to POINTCLOUD_SCHEMAS)
     uint32:       0 = no compression
-    uint32:        npoints
+    uint32:       npoints
     pointdata[]:  interpret relative to pcid
 
 ### Patch Binary (Dimensional) ###
