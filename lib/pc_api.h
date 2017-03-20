@@ -272,7 +272,7 @@ const char* pc_compression_name(int num);
 /** Release the memory in a schema structure */
 void pc_schema_free(PCSCHEMA *pcs);
 /** Build a schema structure from the XML serialisation */
-int pc_schema_from_xml(const char *xmlstr, PCSCHEMA **schema);
+PCSCHEMA *pc_schema_from_xml(const char *xmlstr);
 /** Print out JSON readable format of schema */
 char* pc_schema_to_json(const PCSCHEMA *pcs);
 /** Extract dimension information by position */

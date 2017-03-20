@@ -284,9 +284,9 @@ pc_schema_from_pcid_uncached(uint32 pcid)
 	SPI_finish();
 
 	/* Build the schema object */
-	err = pc_schema_from_xml(xml, &schema);
+	schema = pc_schema_from_xml(xml);
 
-	if ( ! err )
+	if ( !schema )
 	{
 		ereport(ERROR,
 			(errcode(ERRCODE_NOT_AN_XML_DOCUMENT),

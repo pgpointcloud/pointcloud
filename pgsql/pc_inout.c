@@ -165,11 +165,10 @@ Datum pcschema_is_valid(PG_FUNCTION_ARGS)
 	bool valid;
 	text *xml = PG_GETARG_TEXT_P(0);
 	char *xmlstr = text_to_cstring(xml);
-	PCSCHEMA *schema;
-	int err = pc_schema_from_xml(xmlstr, &schema);
+	PCSCHEMA *schema = pc_schema_from_xml(xmlstr);
 	pfree(xmlstr);
 
-	if ( ! err )
+	if ( !schema )
 	{
 		PG_RETURN_BOOL(FALSE);
 	}
