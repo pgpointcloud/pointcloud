@@ -1,5 +1,4 @@
-[![Build Status](https://secure.travis-ci.org/pgpointcloud/pointcloud.png)]
-(http://travis-ci.org/pgpointcloud/pointcloud)
+[![Build Status](https://travis-ci.org/pgpointcloud/pointcloud.svg?branch=master)](https://travis-ci.org/pgpointcloud/pointcloud)
 
 # Pointcloud #
 
@@ -593,7 +592,7 @@ The patch binary formats have additional standard header information:
     byte:         endianness (1 = NDR, 0 = XDR)
     uint32:       pcid (key to POINTCLOUD_SCHEMAS)
     uint32:       0 = no compression
-    uint32:        npoints
+    uint32:       npoints
     pointdata[]:  interpret relative to pcid
 
 ### Patch Binary (Dimensional) ###
@@ -670,7 +669,7 @@ LAZ patches are much like GHT patches. Use LAZPERF library to read the LAZ data 
 
 ## Loading Data ##
 
-The examples above show how to form patches from array of doubles, and well-known binary. You can write your own loader, using the uncompressed WKB format, or more simply you can load existing LIDAR files using the [PDAL](http://pointcloud.org "PDAL") processing and format conversion library.
+The examples above show how to form patches from array of doubles, and well-known binary. You can write your own loader, using the uncompressed WKB format, or more simply you can load existing LIDAR files using the [PDAL](https://www.pdal.io) processing and format conversion library.
 
 ### From WKB ###
 
@@ -682,99 +681,90 @@ The only issues to watch when creating WKB patches are: ensuring the data you wr
 
 #### Build and Install PDAL ####
 
-Support for PostgreSQL Pointcloud has been added to PDAL. It is in most recent builds, but if you want the latest version, you can [build from source](http://www.pointcloud.org/compilation/index.html). 
+To build and install PDAL check out the [PDAL development
+documentation](https://www.pdal.io/development).
 
-First, you will need to install the many, many dependencies of PDAL.
-
- - Read the compilation instructions: http://www.pdal.io/compilation/index.html
- - Read the dependency information: http://www.pdal.io/compilation/dependencies.html
- - Install the "proj4" library: https://trac.osgeo.org/proj/
- - Install the "geos" library: https://trac.osgeo.org/geos/
- - Install the "geotiff" library: http://trac.osgeo.org/geotiff/
- - Install the "gdal" library: http://gdal.org/
- - Install the "liblas" library: http://liblas.org/
-
-Then, clone the PDAL repository:
-
- - Clone into a source directory: `git clone https://github.com/PDAL/PDAL PDAL`
- - Make a build directory: `mkdir PDAL-build`
- - Enter the build directory: `cd PDAL-build`
- - Run CMake to find dependencies: `cmake ../PDAL`
-   - Or, see https://github.com/PDAL/PDAL/blob/master/cmake/examples/pramsey-config.sh
- - If dependencies are not found, manually set them: `ccmake ../PDAL`
- - Once CMake has found all dependencies, run the build: `make all`
- - And install the artifacts: `make install`
- 
-If all the dependencies were found, you're ready to run a PDAL import into PostgreSQL Pointcloud!
+With PDAL installed you're ready to run a PDAL import into PostgreSQL PointCloud!
 
 #### Running `pdal pipeline` ####
 
-PDAL includes a `command linen program <http://www.pointcloud.org/apps.html>`_ that allows both simple format translations and more complex "pipelines" of transformation.  The `pdal translate` does simple format transformations. In order to load data into Pointcloud we use a "PDAL pipeline", by calling `pdal pipeline`. A pipeline combines a format reader, and format writer, with filters that can alter or group the points together.
+PDAL includes a [command line program](http://www.pointcloud.org/apps.html) that allows both simple format translations and more complex "pipelines" of transformation.  The `pdal translate` does simple format transformations. In order to load data into Pointcloud we use a "PDAL pipeline", by calling `pdal pipeline`. A pipeline combines a format reader, and format writer, with filters that can alter or group the points together.
 
-PDAL pipelines are XML files, which nest together readers, filters, and writers into a processing chain that will be applied to the LIDAR data. 
+PDAL pipelines are JSON files, which declare readers, filters, and writers forming a processing chain that will be applied to the LIDAR data.
 
 To execute a pipeline file, run it through the `pdal pipeline` command:
 
-    pdal pipeline --input pipelinefile.xml
+    pdal pipeline --input pipelinefile.json
 
 Here is a simple example pipeline that reads a LAS file and writes into a PostgreSQL Pointcloud database.
 
-    <?xml version="1.0" encoding="utf-8"?>
-    <Pipeline version="1.0">
-        <Writer type="writers.pgpointcloud">
-            <Option name="connection">host='localhost' dbname='pc' user='lidar'</Option>
-            <Option name="table">sthsm</Option>
-            <Option name="srid">26910</Option>
-            <Filter type="filters.chipper">
-                <Option name="capacity">600</Option>
-                <Filter type="filters.cache">
-                    <Reader type="readers.las">
-                        <Option name="filename">/home/lidar/st-helens-small.las</Option>
-                        <Option name="spatialreference">EPSG:26910</Option>
-                    </Reader>
-                </Filter>
-            </Filter>
-        </Writer>
-    </Pipeline>
+```json
+{
+  "pipeline":[
+    {
+      "type":"readers.las",
+      "filename":"/home/lidar/st-helens-small.las",
+      "spatialreference":"EPSG:26910"
+    },
+    {
+      "type":"filters.chipper",
+      "capacity":400
+    }
+    {
+      "type":"writers.pgpointcloud",
+      "connection":"host='localhost' dbname='pc' user='lidar'",
+      "table":"sthsm",
+      "compression":"dimensional",
+      "srid":"26910"
+    }
+  ]
+}
+```
 
 PostgreSQL Pointcloud storage of LIDAR works best when each "patch" of points consists of points that are close together, and when most patches do not overlap. In order to convert unordered data from a LIDAR file into patch-organized data in the database, we need to pass it through a filter to "chip" the data into compact patches. The "chipper" is one of the filters we need to apply to the data while loading.
 
 Similarly, reading data from a PostgreSQL Pointcloud uses a Pointcloud reader and a file writer of some sort. This example reads from the database and writes to a CSV text file:
 
-    <?xml version="1.0" encoding="utf-8"?>
-    <Pipeline version="1.0">
-        <Writer type="writers.text">
-            <Option name="filename">/home/lidar/st-helens-small-out.txt</Option>
-            <Option name="cache_block_size">32184</Option>
-            <Option name="spatialreference">EPSG:26910</Option>
-            <Reader type="readers.pgpointcloud">
-                <Option name="connection">host='localhost' dbname='pc' user='lidar'</Option>
-                <Option name="table">sthsm</Option>
-                <Option name="column">pa</Option>
-                <Option name="srid">26910</Option>
-            </Reader>
-        </Writer>
-    </Pipeline>
+```json
+{
+  "pipeline":[
+    {
+      "type":"readers.pgpointcloud",
+      "connection":"host=localhost dbname='pc' user='lidar'",
+      "table":"sthsm",
+      "column":"pa",
+      "spatialreference":"EPSG:26910"
+    },
+    {
+      "type":"writers.text",
+      "filename":"/home/lidar/st-helens-small-out.txt"
+    }
+  ]
+}
+```
 
 Note that we do not need to chip the data stream when reading from the database, as the writer does not care if the points are blocked into patches or not.
 
 You can use the "where" option to restrict a read to just an envelope, allowing partial extracts from a table:
 
-    <?xml version="1.0" encoding="utf-8"?>
-    <Pipeline version="1.0">
-        <Writer type="writers.las">
-            <Option name="filename">st-helens-small-out.las</Option>
-            <Option name="spatialreference">EPSG:26910</Option>
-            <Reader type="readers.pgpointcloud">
-                <Option name="connection">dbname='pc' user='pramsey'</Option>
-                <Option name="table">sthsm</Option>
-                <Option name="column">pa</Option>
-                <Option name="srid">26910</Option>
-                <Option name="where">PC_Intersects(pa, ST_MakeEnvelope(560037.36, 5114846.45, 562667.31, 5118943.24, 26910))</Option>
-            </Reader>
-        </Writer>
-    </Pipeline>
-
+```json
+{
+  "pipeline":[
+    {
+      "type":"readers.pgpointcloud",
+      "connection":"host=localhost dbname='pc' user='lidar'",
+      "table":"sthsm",
+      "column":"pa",
+      "spatialreference":"EPSG:26910",
+      "where":"PC_Intersects(pa, ST_MakeEnvelope(560037.36, 5114846.45, 562667.31, 5118943.24, 26910))",
+    },
+    {
+      "type":"writers.text",
+      "filename":"/home/lidar/st-helens-small-out.txt"
+    }
+  ]
+}
+```
 
 #### PDAL pgpointcloud Reader/Writer Options ####
 
