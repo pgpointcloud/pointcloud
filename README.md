@@ -518,6 +518,18 @@ The `pointcloud_postgis` extension adds functions that allow you to use PostgreS
 > 
 >     POINT Z (-127 45 124)
 
+**PC_Compress(p pcpatch, compression_type text, compression_details text)** returns **pcpatch**
+PC_Compress(mypatch, 'dimensional','zlib,sigbits,auto,rle');
+
+> Returns a PcPatch compressed following the arguments
+> compression_type : can be 'auto', 'ght', or 'dimensionnal' 
+> compression_details : can be comma separated list of  'auto', 'zlib', 'sigbits', 'rle'
+> 'auto' lets the classical heuristic chose the compression
+> warning : this function is only necessary for test purpose.
+ 
+
+
+
 ## Compressions ##
 
 One of the issues with LIDAR data is that there is a lot of it. To deal with data volumes, PostgreSQL Pointcloud allows schemas to declare their preferred compression method in the `<pc:metadata>` block of the schema document. In the example schema, we declared our compression as follows:
