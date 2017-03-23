@@ -15,7 +15,7 @@ addons:
   postgresql: "9.3" # for "installcheck"
 
 before_script:
-  - npm install -g eclint
+  - npm install -g eclint@1.1.5
   - eclint check * */* */cunit/*
   - ./autogen.sh
 
