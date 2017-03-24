@@ -359,4 +359,12 @@ SELECT PC_BoundingDiagonalAsBinary(
 		PC_MakePoint(1, ARRAY[1.,1.,1.,10.]),
 		PC_MakePoint(1, ARRAY[10.,10.,10.,10.])]));
 
+-- test PC_SetSchema
+-- From pcid 3 to 1
+-- pcid 1 has X, Y, Z and I
+-- pcid 3 has X, Y and Z
+SELECT
+  PC_AsText(PC_SetSchema(p, 1))
+FROM ( SELECT PC_Patch(PC_MakePoint(3, ARRAY[-1,0,4862413,1])) p ) foo;
+
 TRUNCATE pointcloud_formats;

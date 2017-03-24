@@ -612,4 +612,16 @@ SELECT PC_BoundingDiagonalAsBinary(
  \x010200008002000000000000000000000000000000000000000000000000000000000000000000244000000000000024400000000000002440
 (1 row)
 
+-- test PC_SetSchema
+-- From pcid 3 to 1
+-- pcid 1 has X, Y, Z and I
+-- pcid 3 has X, Y and Z
+SELECT
+  PC_AsText(PC_SetSchema(p, 1))
+FROM ( SELECT PC_Patch(PC_MakePoint(3, ARRAY[-1,0,4862413,1])) p ) foo;
+                pc_astext                
+-----------------------------------------
+ {"pcid":1,"pts":[[-1,0,4.86241e+06,1]]}
+(1 row)
+
 TRUNCATE pointcloud_formats;

@@ -5,6 +5,7 @@ include ../config.mk
 OBJS = \
 	pc_inout.o \
 	pc_access.o \
+	pc_editor.o \
 	pc_pgsql.o
 
 SED = sed

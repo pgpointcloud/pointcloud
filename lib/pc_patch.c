@@ -608,3 +608,63 @@ PCPOINT *pc_patch_pointn(const PCPATCH *patch, int n)
 	pcerror("%s: unsupported compression %d requested", __func__, patch->type);
 	return NULL;
 }
+
+/** set schema for patch */
+PCPATCH*
+pc_patch_set_schema(PCPATCH *patch, const PCSCHEMA *new_schema)
+{
+	PCDIMENSION** new_dimensions = new_schema->dims;
+	PCDIMENSION* old_dimensions[new_schema->ndims];
+	double default_values[new_schema->ndims];
+	PCPATCH_UNCOMPRESSED *paout = NULL;
+	PCPOINTLIST *opl, *npl;
+	PCPOINT *opt, *npt;
+	size_t i, j;
+	double val;
+
+	if ( pc_schema_similar(patch->schema, new_schema) )
+	{
+		// fast path!
+		patch->schema = new_schema;
+		return patch;
+	}
+
+	for ( j = 0; j < new_schema->ndims; j++ )
+	{
+		PCDIMENSION *ndim = new_dimensions[j];
+		old_dimensions[j] = pc_schema_get_dimension_by_name(
+				patch->schema, ndim->name);
+		default_values[j] = pc_value_scale_offset(0.0, ndim);
+	}
+
+	// init point lists
+	opl = pc_pointlist_from_patch(patch);
+	npl = pc_pointlist_make(patch->npoints);
+
+	// build the new pointlist
+	for ( i = 0; i <patch->npoints; i++ )
+	{
+		opt = pc_pointlist_get_point(opl, i);
+		npt = pc_point_make(new_schema);
+
+		for ( j = 0; j < new_schema->ndims; j++ )
+		{
+			PCDIMENSION *ndim = new_dimensions[j];
+			PCDIMENSION *odim = old_dimensions[j];
+			if ( odim == NULL )
+				val = default_values[j];
+			else
+				pc_point_get_double(opt, odim, &val);
+			pc_point_set_double(npt, ndim, val);
+		}
+
+		pc_pointlist_add_point(npl, npt);
+	}
+
+	paout = pc_patch_uncompressed_from_pointlist(npl);
+
+	pc_pointlist_free(npl);
+	pc_pointlist_free(opl);
+
+	return (PCPATCH*) paout;
+}

@@ -289,6 +289,8 @@ void pc_schema_set_dimension(PCSCHEMA *s, PCDIMENSION *d);
 void pc_schema_check_xyzm(PCSCHEMA *s);
 /** Get the width in bytes of a single point in the schema */
 size_t pc_schema_get_size(const PCSCHEMA *s);
+/** Check whether the schemas are similar */
+uint32_t pc_schema_similar(const PCSCHEMA *s1, const PCSCHEMA *s2);
 
 
 /**********************************************************************
@@ -478,5 +480,8 @@ uint32_t pc_patch_is_sorted(const PCPATCH *pa, const char **name, int ndims, cha
 
 /** Subset batch based on index */
 PCPATCH* pc_patch_range(const PCPATCH *pa, int first, int count);
+
+/** assign a schema to the patch */
+PCPATCH *pc_patch_set_schema(PCPATCH *patch, const PCSCHEMA *schema);
 
 #endif /* _PC_API_H */
