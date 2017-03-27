@@ -223,7 +223,7 @@ Now that you have created two tables, you'll see entries for them in the `pointc
 
 > Return the `pcid` schema number of this point.
 >
->     SELECT PC_PCId('010100000064CEFFFF94110000703000000400'::pcpoint));
+>     SELECT PC_PCId('010100000064CEFFFF94110000703000000400'::pcpoint);
 > 
 >     1     
 
