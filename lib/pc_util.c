@@ -241,7 +241,11 @@ pc_bounds_intersects(const PCBOUNDS *b1, const PCBOUNDS *b2)
 	if ( b1->xmin > b2->xmax ||
 		 b1->xmax < b2->xmin ||
 		 b1->ymin > b2->ymax ||
-		 b1->ymax < b2->ymin )
+		 b1->ymax < b2->ymin ||
+		 b1->zmin > b2->zmax ||
+		 b1->zmax < b2->zmin ||
+		 b1->mmin > b2->mmax ||
+		 b1->mmax < b2->mmin )
 	{
 		return PC_FALSE;
 	}
@@ -249,17 +253,60 @@ pc_bounds_intersects(const PCBOUNDS *b1, const PCBOUNDS *b2)
 }
 
 void
-pc_bounds_init(PCBOUNDS *b)
+pc_bounds_init(PCBOUNDS *b, const PCSCHEMA *schema)
 {
-	b->xmin = b->ymin = DBL_MAX;
-	b->xmax = b->ymax = -1*DBL_MAX;
+	b->xmin = (schema->x_position == -1) ? -DBL_MAX : DBL_MAX;
+	b->ymin = (schema->y_position == -1) ? -DBL_MAX : DBL_MAX;
+	b->zmin = (schema->z_position == -1) ? -DBL_MAX : DBL_MAX;
+	b->mmin = (schema->m_position == -1) ? -DBL_MAX : DBL_MAX;
+
+	b->xmax = -b->xmin;
+	b->ymax = -b->ymin;
+	b->zmax = -b->zmin;
+	b->mmax = -b->mmin;
 }
 
 void pc_bounds_merge(PCBOUNDS *b1, const PCBOUNDS *b2)
 {
 	if ( b2->xmin < b1->xmin ) b1->xmin = b2->xmin;
 	if ( b2->ymin < b1->ymin ) b1->ymin = b2->ymin;
+	if ( b2->zmin < b1->zmin ) b1->zmin = b2->zmin;
+	if ( b2->mmin < b1->mmin ) b1->mmin = b2->mmin;
 	if ( b2->xmax > b1->xmax ) b1->xmax = b2->xmax;
 	if ( b2->ymax > b1->ymax ) b1->ymax = b2->ymax;
+	if ( b2->zmax > b1->zmax ) b1->zmax = b2->zmax;
+	if ( b2->mmax > b1->mmax ) b1->mmax = b2->mmax;
 }
 
+void pc_bounds_expand(PCBOUNDS *b, const PCPOINT *p)
+{
+	double v;
+
+	if ( p->schema->x_position > -1 )
+	{
+		v = pc_point_get_x(p);
+		if ( b->xmin > v ) b->xmin = v;
+		if ( b->xmax < v ) b->xmax = v;
+	}
+
+	if ( p->schema->y_position > -1 )
+	{
+		v = pc_point_get_y(p);
+		if ( b->ymin > v ) b->ymin = v;
+		if ( b->ymax < v ) b->ymax = v;
+	}
+
+	if ( p->schema->z_position > -1 )
+	{
+		v = pc_point_get_z(p);
+		if ( b->zmin > v ) b->zmin = v;
+		if ( b->zmax < v ) b->zmax = v;
+	}
+
+	if ( p->schema->m_position > -1 )
+	{
+		v = pc_point_get_m(p);
+		if ( b->mmin > v ) b->mmin = v;
+		if ( b->mmax < v ) b->mmax = v;
+	}
+}

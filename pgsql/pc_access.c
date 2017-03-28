@@ -692,6 +692,7 @@ Datum pcpatch_summary(PG_FUNCTION_ARGS)
 	PCSCHEMA *schema;
 	PCSTATS *stats;
 	PCPATCH *patch = NULL;
+	uint32_t compression;
 	StringInfoData strdata;
 	text *ret;
 	const char *comma = "";
@@ -699,7 +700,9 @@ Datum pcpatch_summary(PG_FUNCTION_ARGS)
 
 	serpa = PG_GETHEADERX_SERPATCH_P(0, stats_size_guess);
 	schema = pc_schema_from_pcid(serpa->pcid, fcinfo);
-	if ( serpa->compression == PC_DIMENSIONAL )
+	compression = pc_patch_compression(serpa);
+
+	if ( compression == PC_DIMENSIONAL )
 	{
 		/* need full data to inspect per-dimension compression */
 		/* NOTE: memory usage could be optimized to only fetch slices
@@ -724,7 +727,7 @@ Datum pcpatch_summary(PG_FUNCTION_ARGS)
 		"\"pcid\":%d, \"npts\":%d, \"srid\":%d, "
 		"\"compr\":\"%s\",\"dims\":[",
 		serpa->pcid, serpa->npoints, schema->srid,
-		pc_compression_name(serpa->compression));
+		pc_compression_name(compression));
 
 	for (i=0; i<schema->ndims; ++i)
 	{
@@ -738,7 +741,7 @@ Datum pcpatch_summary(PG_FUNCTION_ARGS)
 			pc_interpretation_string(dim->interpretation));
 
 		/* Print per-dimension compression (if dimensional) */
-		if ( serpa->compression == PC_DIMENSIONAL )
+		if ( compression == PC_DIMENSIONAL )
 		{
 			bytes = ((PCPATCH_DIMENSIONAL*)patch)->bytes[i];
 			switch ( bytes.compression )
@@ -786,7 +789,7 @@ PG_FUNCTION_INFO_V1(pcpatch_compression);
 Datum pcpatch_compression(PG_FUNCTION_ARGS)
 {
 	SERIALIZED_PATCH *serpa = PG_GETHEADER_SERPATCH_P(0);
-	PG_RETURN_INT32(serpa->compression);
+	PG_RETURN_INT32(pc_patch_compression(serpa));
 }
 
 PG_FUNCTION_INFO_V1(pcpatch_intersects);

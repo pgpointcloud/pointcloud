@@ -402,6 +402,12 @@ pc_patch_ght_compute_extent(PCPATCH_GHT *patch)
 	patch->bounds.ymin = area.y.min;
 	patch->bounds.ymax = area.y.max;
 
+	// provide a conservative non-discriminative bounding box
+	patch->bounds.zmin = -DBLMAX;
+	patch->bounds.zmax =  DBLMAX;
+	patch->bounds.mmin = -DBLMAX;
+	patch->bounds.mmax =  DBLMAX;
+
 	// ght_tree_free(tree);
 
 	return PC_SUCCESS;

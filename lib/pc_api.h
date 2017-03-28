@@ -150,6 +150,10 @@ typedef struct
 	double xmax;
 	double ymin;
 	double ymax;
+	double zmin;
+	double zmax;
+	double mmin;
+	double mmax;
 } PCBOUNDS;
 
 /* Used for generic patch statistics */
@@ -170,7 +174,7 @@ PCSTATS;
 */
 
 #define PCPATCH_COMMON \
-	int type; \
+	uint32_t type; \
 	int8_t readonly; \
 	const PCSCHEMA *schema; \
 	uint32_t npoints;  \
