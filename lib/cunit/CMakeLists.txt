@@ -10,6 +10,7 @@ set (PC_TEST_SOURCES
   cu_pc_patch.c
   cu_pc_patch_lazperf.c
   cu_pc_sort.c
+  cu_pc_util.c
   cu_tester.c
   )
 

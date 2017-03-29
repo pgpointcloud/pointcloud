@@ -431,6 +431,9 @@ int pc_bytes_deserialize(const uint8_t *buf, const PCDIMENSION *dim, PCBYTES *pc
 /** Wrap serialized stats in a new stats objects */
 PCSTATS* pc_stats_new_from_data(const PCSCHEMA *schema, const uint8_t *mindata, const uint8_t *maxdata, const uint8_t *avgdata);
 
+/** Allocate a stats object */
+PCSTATS* pc_stats_new(const PCSCHEMA *schema);
+
 /** Free a stats object */
 void pc_stats_free(PCSTATS *stats);
 
@@ -445,6 +448,12 @@ int pc_patch_compute_extent(PCPATCH *patch);
 
 /** True/false if bounds intersect */
 int pc_bounds_intersects(const PCBOUNDS *b1, const PCBOUNDS *b2);
+
+/** Returns OGC WKB of the bounding diagonal of XY bounds */
+uint8_t* pc_bounding_diagonal_wkb_from_bounds(const PCBOUNDS *bounds, const PCSCHEMA *schema, size_t *wkbsize);
+
+/** Returns OGC WKB of the bounding diagonal of XY, XYZ, XYM or XYZM bounds */
+uint8_t* pc_bounding_diagonal_wkb_from_stats(const PCSTATS *stats, size_t *wkbsize);
 
 /** Subset batch based on less-than condition on dimension */
 PCPATCH* pc_patch_filter_lt_by_name(const PCPATCH *pa, const char *name, double val);

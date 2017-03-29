@@ -492,6 +492,18 @@ Now that you have created two tables, you'll see entries for them in the `pointc
 >     a3703dba5fc0ec51b81e858b46400ad7a3703dba5fc0e17a
 >     14ae4781464090c2f5285cbf5fc0e17a14ae47814640
 
+**PC_BoundingDiagonalAsBinary(p pcpatch)** returns **bytea**
+
+> Return the OGC "well-known binary" format for the bounding diagonal of the patch.
+>
+>    SELECT PC_BoundingDiagonalAsBinary(
+>        PC_Patch(ARRAY[
+>            PC_MakePoint(1, ARRAY[0.,0.,0.,10.]),
+>            PC_MakePoint(1, ARRAY[1.,1.,1.,10.]),
+>            PC_MakePoint(1, ARRAY[10.,10.,10.,10.])]));
+>
+>    \x01020000a0e610000002000000000000000000000000000000000000000000000000000000000000000000244000000000000024400000000000002440
+
 ## PostGIS Integration ##
 
 The `pointcloud_postgis` extension adds functions that allow you to use PostgreSQL Pointcloud with PostGIS, converting PcPoint and PcPatch to Geometry and doing spatial filtering on point cloud data. The `pointcloud_postgis` extension depends on both the `postgis` and `pointcloud` extensions, so they must be installed first:
