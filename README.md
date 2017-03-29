@@ -53,6 +53,17 @@ Note that if you configured PointCloud using a non-standard LibGHT location, you
 
 - ``LD_LIBRARY_PATH=$HOME/local/lib make check``
 
+### SQL Tests ###
+
+pointcloud includes SQL tests to run against an existing installation.
+
+Run the SQL tests:
+
+- `sudo make install`
+- `PGUSER=a_user PGPASSWORD=a_password PGHOST=localhost make installcheck`
+
+This command will create a database named `contrib_regression` and will execute the SQL scripts located in `pgsql/sql` in this database.
+
 ### Activate ###
 
 - Create a new database: ``CREATE DATABASE mynewdb``
