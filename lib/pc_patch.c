@@ -306,7 +306,7 @@ PCPATCH *
 pc_patch_from_wkb(const PCSCHEMA *s, uint8_t *wkb, size_t wkbsize)
 {
 	/*
-	byte:     endianness (1 = NDR, 0 = XDR)
+	byte:	  endianness (1 = NDR, 0 = XDR)
 	uint32:   pcid (key to POINTCLOUD_SCHEMAS)
 	uint32:   compression (0 = no compression, 1 = dimensional, 2 = GHT)
 	uchar[]:  data (interpret relative to pcid and compression)
@@ -378,7 +378,7 @@ uint8_t *
 pc_patch_to_wkb(const PCPATCH *patch, size_t *wkbsize)
 {
 	/*
-	byte:     endianness (1 = NDR, 0 = XDR)
+	byte:	  endianness (1 = NDR, 0 = XDR)
 	uint32:   pcid (key to POINTCLOUD_SCHEMAS)
 	uint32:   compression (0 = no compression, 1 = dimensional, 2 = GHT)
 	uchar[]:  data (interpret relative to pcid and compression)
@@ -520,6 +520,68 @@ pc_patch_from_patchlist(PCPATCH **palist, int numpatches)
 	}
 
 	return (PCPATCH*)paout;
+}
+
+// first: the first element to select (1-based indexing)
+// count: the number of points to select
+PCPATCH *
+pc_patch_range(const PCPATCH *pa, int first, int count)
+{
+	PCPATCH_UNCOMPRESSED *paout, *pu;
+	int countmax;
+	uint8_t *buf;
+	size_t size;
+	size_t start;
+
+	assert(pa);
+
+	first--;
+	countmax = pa->npoints - first;
+
+	if ( count > countmax )
+		count = countmax;
+
+	if ( first < 0 || count <= 0 )
+		return NULL;
+
+	if ( count == pa->npoints )
+		return (PCPATCH *) pa;
+
+	paout = pc_patch_uncompressed_make(pa->schema, count);
+	if ( !paout )
+		return NULL;
+	paout->npoints = count;
+
+	pu = (PCPATCH_UNCOMPRESSED *) pc_patch_uncompress(pa);
+	if ( !pu )
+	{
+		pc_patch_free((PCPATCH *) paout);
+		return NULL;
+	}
+
+	buf = paout->data;
+	start = pa->schema->size * first;
+	size = pa->schema->size * count;
+
+	memcpy(buf, pu->data + start, size);
+
+	if ( ((PCPATCH *) pu) != pa )
+		pc_patch_free((PCPATCH *) pu);
+
+	if ( PC_FAILURE == pc_patch_uncompressed_compute_extent(paout) )
+	{
+		pcerror("%s: extent computation failed", __func__);
+		pc_patch_free((PCPATCH *) paout);
+		return NULL;
+	}
+	if ( PC_FAILURE == pc_patch_uncompressed_compute_stats(paout) )
+	{
+		pcerror("%s: stats computation failed", __func__);
+		pc_patch_free((PCPATCH *) paout);
+		return NULL;
+	}
+
+	return (PCPATCH *) paout;
 }
 
 /** get point n from patch */
