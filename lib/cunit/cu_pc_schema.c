@@ -201,17 +201,13 @@ test_schema_clone(void)
 	CU_ASSERT_EQUAL(clone->ndims, schema->ndims);
 	CU_ASSERT_EQUAL(clone->size, schema->size);
 	CU_ASSERT_EQUAL(clone->srid, schema->srid);
-	CU_ASSERT_EQUAL(clone->xdim->position, schema->xdim->position);
-	CU_ASSERT_EQUAL(clone->ydim->position, schema->ydim->position);
-	CU_ASSERT_EQUAL(clone->zdim->position, schema->zdim->position);
-	CU_ASSERT_EQUAL(clone->mdim->position, schema->mdim->position);
+	CU_ASSERT_EQUAL(clone->x_position, schema->x_position);
+	CU_ASSERT_EQUAL(clone->y_position, schema->y_position);
+	CU_ASSERT_EQUAL(clone->z_position, schema->z_position);
+	CU_ASSERT_EQUAL(clone->m_position, schema->m_position);
 	CU_ASSERT_EQUAL(clone->compression, schema->compression);
-	CU_ASSERT_NOT_EQUAL(clone->xdim, schema->xdim); /* deep clone */
-	CU_ASSERT_NOT_EQUAL(clone->ydim, schema->ydim); /* deep clone */
-	CU_ASSERT_NOT_EQUAL(clone->zdim, schema->zdim); /* deep clone */
-	CU_ASSERT_NOT_EQUAL(clone->mdim, schema->mdim); /* deep clone */
-	CU_ASSERT_NOT_EQUAL(clone->dims, schema->dims); /* deep clone */
-	CU_ASSERT_NOT_EQUAL(clone->namehash, schema->namehash); /* deep clone */
+	CU_ASSERT(clone->dims != schema->dims); /* deep clone */
+	CU_ASSERT(clone->namehash != schema->namehash); /* deep clone */
 	hash = schema->namehash;
 	chash = clone->namehash;
 	CU_ASSERT_EQUAL(chash->tablelength, hash->tablelength);

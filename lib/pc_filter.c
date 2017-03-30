@@ -166,12 +166,12 @@ pc_patch_dimensional_filter(const PCPATCH_DIMENSIONAL *pdl, const PCBITMAP *map)
 		stats.sum = pc_value_scale_offset(stats.sum, dim);
 
 		/* Save the X/Y stats for use in bounds later */
-		if ( dim == pdl->schema->xdim )
+		if ( i == pdl->schema->x_position )
 		{
 			fpdl->bounds.xmin = stats.min;
 			fpdl->bounds.xmax = stats.max;
 		}
-		else if ( dim == pdl->schema->ydim )
+		else if ( i == pdl->schema->y_position )
 		{
 			fpdl->bounds.ymin = stats.min;
 			fpdl->bounds.ymax = stats.max;
@@ -353,3 +353,5 @@ pc_patch_filter_between_by_name(const PCPATCH *pa, const char *name, double val1
 
 	return pc_patch_filter(pa, d->position, PC_BETWEEN, val1, val2);
 }
+
+
