@@ -317,7 +317,7 @@ CREATE OR REPLACE FUNCTION PC_BoundingDiagonalAsBinary(p pcpatch)
 	RETURNS bytea AS 'MODULE_PATHNAME', 'pcpatch_bounding_diagonal_as_bytea'
 	LANGUAGE 'c' IMMUTABLE STRICT;
 
-CREATE OR REPLACE FUNCTION PC_SetSchema(p pcpatch, pcid int4)
+CREATE OR REPLACE FUNCTION PC_SetSchema(p pcpatch, pcid int4, reinterpret boolean default false)
 	RETURNS pcpatch AS 'MODULE_PATHNAME', 'pcpatch_setschema'
 	LANGUAGE 'c' IMMUTABLE STRICT;
 

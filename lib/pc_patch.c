@@ -611,7 +611,7 @@ PCPOINT *pc_patch_pointn(const PCPATCH *patch, int n)
 
 /** set schema for patch */
 PCPATCH*
-pc_patch_set_schema(PCPATCH *patch, const PCSCHEMA *new_schema)
+pc_patch_set_schema(PCPATCH *patch, const PCSCHEMA *new_schema, char reinterpret)
 {
 	PCDIMENSION** new_dimensions = new_schema->dims;
 	PCDIMENSION* old_dimensions[new_schema->ndims];
@@ -627,6 +627,12 @@ pc_patch_set_schema(PCPATCH *patch, const PCSCHEMA *new_schema)
 		// fast path!
 		patch->schema = new_schema;
 		return patch;
+	}
+
+	if ( !reinterpret )
+	{
+		pcwarn("incompatible schemas, and reinterpret is false");
+		return NULL;
 	}
 
 	for ( j = 0; j < new_schema->ndims; j++ )
