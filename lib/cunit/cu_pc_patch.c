@@ -1062,14 +1062,14 @@ test_patch_set_schema_compression_none()
 	pau = pc_patch_uncompressed_from_pointlist(pl);
 
 	// assign a valid schema to the patch
-	pat0 = pc_patch_set_schema((PCPATCH*) pau, simpleschema_nointensity, 1);
+	pat0 = pc_patch_set_schema((PCPATCH*) pau, simpleschema_nointensity, 1, 0.0);
 	CU_ASSERT(pat0 != NULL);
 	str = pc_patch_to_string(pat0);
 	CU_ASSERT_STRING_EQUAL(str, "{\"pcid\":0,\"pts\":[[0.4,0.8,1.2],[0.3,0.6,0.9],[0.2,0.4,0.6],[0.1,0.2,0.3],[0,0,0]]}");
 	pcfree(str);
 
 	// assign a schema with unknown dimension to the patch
-	pat1 = pc_patch_set_schema(pat0, simpleschema, 1);
+	pat1 = pc_patch_set_schema(pat0, simpleschema, 1, 0.0);
 	CU_ASSERT(pat1 != NULL);
 	str = pc_patch_to_string(pat1);
 	CU_ASSERT_STRING_EQUAL(str, "{\"pcid\":0,\"pts\":[[0.4,0.8,1.2,0],[0.3,0.6,0.9,0],[0.2,0.4,0.6,0],[0.1,0.2,0.3,0],[0,0,0,0]]}");
@@ -1112,7 +1112,7 @@ test_patch_set_schema_compression_none_fast_path()
 	new_schema->pcid = 20;
 
 	// assign a valid schema to the patch
-	pat = pc_patch_set_schema((PCPATCH *) pau, new_schema, 0);
+	pat = pc_patch_set_schema((PCPATCH *) pau, new_schema, 0, 0.0);
 	CU_ASSERT(pat != NULL);
 	CU_ASSERT(pat == (PCPATCH *) pau);
 	str = pc_patch_to_string(pat);
@@ -1153,7 +1153,7 @@ test_patch_set_schema_compression_none_offset()
 	new_schema->dims[3]->offset = 10;
 
 	// assign a valid schema to the patch
-	pat = pc_patch_set_schema((PCPATCH *) pau, new_schema, 1);
+	pat = pc_patch_set_schema((PCPATCH *) pau, new_schema, 1, 0.0);
 	CU_ASSERT(pat != NULL);
 	str = pc_patch_to_string(pat);
 	CU_ASSERT_STRING_EQUAL(str, "{\"pcid\":0,\"pts\":[[0.4,0.8,1.2,10],[0.3,0.6,0.9,10],[0.2,0.4,0.6,10],[0.1,0.2,0.3,10],[0,0,0,10]]}");
@@ -1194,7 +1194,7 @@ test_patch_set_schema_compression_lazperf()
 	pal = pc_patch_lazperf_from_pointlist(pl);
 
 	// assign a valid schema to the patch
-	pat = pc_patch_set_schema((PCPATCH*) pal, simpleschema_nointensity, 1);
+	pat = pc_patch_set_schema((PCPATCH*) pal, simpleschema_nointensity, 1, 0.0);
 	CU_ASSERT(pat != NULL);
 	str = pc_patch_to_string(pat);
 	CU_ASSERT_STRING_EQUAL(str, "{\"pcid\":0,\"pts\":[[0.4,0.8,1.2],[0.3,0.6,0.9],[0.2,0.4,0.6],[0.1,0.2,0.3],[0,0,0]]}");
@@ -1235,14 +1235,14 @@ test_patch_set_schema_compression_ght()
 	pag = pc_patch_ght_from_pointlist(pl);
 
 	// assign a valid schema to the patch
-	pat0 = pc_patch_set_schema((PCPATCH*) pag, simpleschema_nointensity, 1);
+	pat0 = pc_patch_set_schema((PCPATCH*) pag, simpleschema_nointensity, 1, 0.0);
 	CU_ASSERT(pat0 != NULL);
 	str = pc_patch_to_string(pat0);
 	CU_ASSERT_STRING_EQUAL(str, "{\"pcid\":0,\"pts\":[[0.4,0.8,1.2],[0.3,0.6,0.9],[0.2,0.4,0.6],[0.1,0.2,0.3],[0,0,0]]}");
 	pcfree(str);
 
 	// assign a schema with unknown dimension to the patch
-	pat1 = pc_patch_set_schema(pat0, simpleschema, 1);
+	pat1 = pc_patch_set_schema(pat0, simpleschema, 1, 0.0);
 	CU_ASSERT(pat1 != NULL);
 	str = pc_patch_to_string(pat1);
 	CU_ASSERT_STRING_EQUAL(str, "{\"pcid\":0,\"pts\":[[0.4,0.8,1.2,0],[0.3,0.6,0.9,0],[0.2,0.4,0.6,0],[0.1,0.2,0.3,0],[0,0,0,0]]}");
@@ -1293,7 +1293,7 @@ test_patch_set_schema_dimensional_compression(enum DIMCOMPRESSIONS dimcomp)
 	padim2 = pc_patch_dimensional_compress(padim1, stats);
 
 	// assign a valid schema to the patch
-	pat = pc_patch_set_schema((PCPATCH*) padim2, simpleschema_nointensity, 1);
+	pat = pc_patch_set_schema((PCPATCH*) padim2, simpleschema_nointensity, 1, 0.0);
 	CU_ASSERT(pat != NULL);
 	pt = pc_patch_pointn(pat, 1);
 	str = pc_point_to_string(pt);
