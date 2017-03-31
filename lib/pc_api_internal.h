@@ -210,6 +210,7 @@ char* pc_patch_lazperf_to_string(const PCPATCH_LAZPERF *pa);
 void pc_patch_lazperf_free(PCPATCH_LAZPERF *palaz);
 uint8_t* pc_patch_lazperf_to_wkb(const PCPATCH_LAZPERF *patch, size_t *wkbsize);
 PCPATCH* pc_patch_lazperf_from_wkb(const PCSCHEMA *schema, const uint8_t *wkb, size_t wkbsize);
+PCPOINT *pc_patch_lazperf_pointn(const PCPATCH_LAZPERF *patch, int n);
 
 /****************************************************************************
 * BYTES

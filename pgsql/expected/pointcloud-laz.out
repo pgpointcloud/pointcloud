@@ -359,4 +359,10 @@ SELECT pc_astext(pc_explode(pa)) FROM pa_test_laz_multiple_dim LIMIT 20;
  {"pcid":6,"pt":[836,794.2,142.12,10]}
 (20 rows)
 
+SELECT pc_astext(PC_PointN(pa, 2)) FROM pa_test_laz;
+            pc_astext            
+---------------------------------
+ {"pcid":5,"pt":[2,1.9,0.34,10]}
+(1 row)
+
 TRUNCATE pointcloud_formats;
