@@ -292,8 +292,8 @@ Datum pcpoint_as_bytea(PG_FUNCTION_ARGS)
 	PG_RETURN_BYTEA_P(wkb);
 }
 
-PG_FUNCTION_INFO_V1(pcpatch_bytea_envelope);
-Datum pcpatch_bytea_envelope(PG_FUNCTION_ARGS)
+PG_FUNCTION_INFO_V1(pcpatch_envelope_as_bytea);
+Datum pcpatch_envelope_as_bytea(PG_FUNCTION_ARGS)
 {
 	uint8 *bytes;
 	size_t bytes_size;

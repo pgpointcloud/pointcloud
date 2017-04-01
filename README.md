@@ -201,6 +201,8 @@ Now that you have created two tables, you'll see entries for them in the `pointc
 
 ## Functions ##
 
+### PcPoint Functions
+
 **PC_MakePoint(pcid integer, vals float8[])** returns **pcpoint**
 
 > Given a valid `pcid` schema number and an array of doubles that matches the schema, construct a new `pcpoint`.
@@ -238,14 +240,6 @@ Now that you have created two tables, you'll see entries for them in the `pointc
 > 
 >     1     
 
-**PC_AsBinary(p pcpoint)** returns **bytea**
-
-> Return the OGC "well-known binary" format for the point.
->
->     SELECT PC_AsBinary('010100000064CEFFFF94110000703000000400'::pcpoint);
->
->     \x01010000800000000000c05fc000000000008046400000000000005f40
-
 **PC_Get(pt pcpoint, dimname text)** returns **numeric**
 
 > Return the numeric value of the named dimension. The dimension name
@@ -262,6 +256,8 @@ Now that you have created two tables, you'll see entries for them in the `pointc
 >     SELECT PC_Get('010100000064CEFFFF94110000703000000400'::pcpoint);
 >
 >     {-127,45,124,4}
+
+### PcPatch Functions
 
 **PC_Patch(pts pcpoint[])** returns **pcpatch**
 
@@ -285,19 +281,7 @@ Now that you have created two tables, you'll see entries for them in the `pointc
 >     SELECT PC_PCId(pa) FROM patches LIMIT 1;
 > 
 >     1     
- 
-**PC_Envelope(p pcpatch)** returns **bytea**
 
-> Return the OGC "well-known binary" format for *bounds* of the patch.
-> Useful for performing intersection tests with geometries.
-> 
->     SELECT PC_Envelope(pa) FROM patches LIMIT 1;
->
->     \x0103000000010000000500000090c2f5285cbf5fc0e17a
->     14ae4781464090c2f5285cbf5fc0ec51b81e858b46400ad7
->     a3703dba5fc0ec51b81e858b46400ad7a3703dba5fc0e17a
->     14ae4781464090c2f5285cbf5fc0e17a14ae47814640
- 
 **PC_AsText(p pcpatch)** returns **text**
 
 > Return a JSON version of the data in that patch.
@@ -402,7 +386,7 @@ Now that you have created two tables, you'll see entries for them in the `pointc
 >
 >     45.5
 
-**PC_PatchAvg(p pcpatch,)** returns **pcpoint** (from 1.1.0)
+**PC_PatchAvg(p pcpatch)** returns **pcpoint** (from 1.1.0)
 
 > Returns a PcPoint with the *average* values of each dimension in the patch.
 >
@@ -486,6 +470,28 @@ Now that you have created two tables, you'll see entries for them in the `pointc
 
 > Returns a patch containing *n* points. These points are selected from the *start*-th point with 1-based indexing.
 
+### OGC "well-known binary" Functions
+
+**PC_AsBinary(p pcpoint)** returns **bytea**
+
+> Return the OGC "well-known binary" format for the point.
+>
+>     SELECT PC_AsBinary('010100000064CEFFFF94110000703000000400'::pcpoint);
+>
+>     \x01010000800000000000c05fc000000000008046400000000000005f40
+
+**PC_EnvelopeAsBinary(p pcpatch)** returns **bytea**
+
+> Return the OGC "well-known binary" format for the 2D *bounds* of the patch.
+> Useful for performing 2D intersection tests with geometries.
+>
+>     SELECT PC_EnvelopeAsBinary(pa) FROM patches LIMIT 1;
+>
+>     \x0103000000010000000500000090c2f5285cbf5fc0e17a
+>     14ae4781464090c2f5285cbf5fc0ec51b81e858b46400ad7
+>     a3703dba5fc0ec51b81e858b46400ad7a3703dba5fc0e17a
+>     14ae4781464090c2f5285cbf5fc0e17a14ae47814640
+
 ## PostGIS Integration ##
 
 The `pointcloud_postgis` extension adds functions that allow you to use PostgreSQL Pointcloud with PostGIS, converting PcPoint and PcPatch to Geometry and doing spatial filtering on point cloud data. The `pointcloud_postgis` extension depends on both the `postgis` and `pointcloud` extensions, so they must be installed first:
@@ -525,12 +531,22 @@ The `pointcloud_postgis` extension adds functions that allow you to use PostgreS
 **Geometry(pcpoint)** returns **geometry**<br/>
 **pcpoint::geometry** returns **geometry**
 
-> Cast PcPoint to the PostGIS geometry equivalent, placing the x/y/z of the 
-> PcPoint into the x/y/z of the PostGIS point. 
+> Casts PcPoint to the PostGIS geometry equivalent, placing the x/y/z/m of the
+> PcPoint into the x/y/z/m of the PostGIS point.
 > 
 >     SELECT ST_AsText(PC_MakePoint(1, ARRAY[-127, 45, 124.0, 4.0])::geometry);
 > 
 >     POINT Z (-127 45 124)
+
+**PC_Envelope(pcpatch)** returns **geometry**
+
+> Returns the 2D *bounds* of the patch as a PostGIS Polygon 2D.
+> Useful for performing 2D intersection tests with PostGIS geometries.
+>
+>     SELECT ST_AsText(PC_Envelope(pa)) FROM patches LIMIT 1;
+>
+>     POLYGON((-126.99 45.01,-126.99 45.09,-126.91 45.09,-126.91 45.01,-126.99 45.01))
+
 
 ## Compressions ##
 
