@@ -11,6 +11,7 @@
  - PC_Sort(pcpatch,text[]) (#106)
  - PC_IsSorted(pcpatch,text[],boolean) (#106)
  - PC_Range(pcpatch, int, int) returns pcpatch (#152)
+ - PC_BoundingDiagonalAsBinary(pcpatch) and PC_BoundingDiagonal(pcpach) (#158)
 - Enhancements
  - Support sigbits encoding for 64bit integers (#61)
  - Warn about truncated values (#68)
