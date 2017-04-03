@@ -21,32 +21,46 @@ Datum pcpatch_setschema(PG_FUNCTION_ARGS)
 	int32 mode = PG_GETARG_INT32(3);
 	PCSCHEMA *schema = pc_schema_from_pcid(serpa->pcid, fcinfo);
 	PCSCHEMA *new_schema = pc_schema_from_pcid(pcid, fcinfo);
-	PCPATCH *patch = pc_patch_deserialize(serpa, schema);
-	bool reinterpret;
-	float8 defaultvalue;
+	PCPATCH *patch;
+	float8 defaultvalue = 0.0;
 
-	if ( ! patch )
-		PG_RETURN_NULL();
-
-	switch ( mode )
+	if ( mode == 0 )
 	{
-	case 0:
+		bool reinterpret;
+		if ( pc_schema_similar(schema, new_schema) )
+		{
+			// fast path!
+			serpatch = palloc(serpa->size);
+			if ( ! serpatch )
+				PG_RETURN_NULL();
+			memcpy(serpatch, serpa, serpa->size);
+			serpatch->pcid = pcid;
+			PG_RETURN_POINTER(serpatch);
+		}
 		reinterpret = PG_GETARG_BOOL(2);
-		paout = pc_patch_set_schema(patch, new_schema, reinterpret, 0.0);
-		break;
-	case 1:
+		if ( ! reinterpret )
+			pcwarn("incompatible schemas, and reinterpret is false");
+	}
+	else if ( mode == 1 )
+	{
 		defaultvalue = PG_GETARG_FLOAT8(2);
-		paout = pc_patch_set_schema(patch, new_schema, 1, defaultvalue);
-		break;
-	default:
+	}
+	else
+	{
 		elog(ERROR, "unknown mode \"%d\"", mode);
 		PG_RETURN_NULL();
 	}
 
+	patch = pc_patch_deserialize(serpa, schema);
+	if ( ! patch )
+		PG_RETURN_NULL();
+
+	paout = pc_patch_set_schema(patch, new_schema, defaultvalue);
+
 	if ( patch != paout )
 		pc_patch_free(patch);
 
-	if ( !paout )
+	if ( ! paout )
 		PG_RETURN_NULL();
 
 	serpatch = pc_patch_serialize(paout, NULL);
