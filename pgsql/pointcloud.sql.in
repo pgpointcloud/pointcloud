@@ -317,11 +317,7 @@ CREATE OR REPLACE FUNCTION PC_BoundingDiagonalAsBinary(p pcpatch)
 	RETURNS bytea AS 'MODULE_PATHNAME', 'pcpatch_bounding_diagonal_as_bytea'
 	LANGUAGE 'c' IMMUTABLE STRICT;
 
-CREATE OR REPLACE FUNCTION PC_SetPCId(p pcpatch, pcid int4, reinterpret boolean default false, mode int4 default 0)
-	RETURNS pcpatch AS 'MODULE_PATHNAME', 'pcpatch_setpcid'
-	LANGUAGE 'c' IMMUTABLE STRICT;
-
-CREATE OR REPLACE FUNCTION PC_SetPCId(p pcpatch, pcid int4, defaultvalue float, mode int4 default 1)
+CREATE OR REPLACE FUNCTION PC_SetPCId(p pcpatch, pcid int4, reinterpret boolean default false, defaultvalue float8 default 0.0)
 	RETURNS pcpatch AS 'MODULE_PATHNAME', 'pcpatch_setpcid'
 	LANGUAGE 'c' IMMUTABLE STRICT;
 
