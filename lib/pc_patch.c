@@ -615,7 +615,6 @@ pc_patch_set_schema(PCPATCH *patch, const PCSCHEMA *new_schema, double defaultva
 {
 	PCDIMENSION** new_dimensions = new_schema->dims;
 	PCDIMENSION* old_dimensions[new_schema->ndims];
-	double default_values[new_schema->ndims];
 	PCPATCH_UNCOMPRESSED *paout = NULL;
 	PCPOINTLIST *opl, *npl;
 	PCPOINT *opt, *npt;
@@ -627,7 +626,6 @@ pc_patch_set_schema(PCPATCH *patch, const PCSCHEMA *new_schema, double defaultva
 		PCDIMENSION *ndim = new_dimensions[j];
 		old_dimensions[j] = pc_schema_get_dimension_by_name(
 				patch->schema, ndim->name);
-		default_values[j] = pc_value_scale_offset(defaultvalue, ndim);
 	}
 
 	// init point lists
@@ -645,7 +643,7 @@ pc_patch_set_schema(PCPATCH *patch, const PCSCHEMA *new_schema, double defaultva
 			PCDIMENSION *ndim = new_dimensions[j];
 			PCDIMENSION *odim = old_dimensions[j];
 			if ( odim == NULL )
-				val = default_values[j];
+				val = defaultvalue;
 			else
 				pc_point_get_double(opt, odim, &val);
 			pc_point_set_double(npt, ndim, val);
