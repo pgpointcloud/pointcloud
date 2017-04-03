@@ -559,6 +559,29 @@ The `pointcloud_postgis` extension adds functions that allow you to use PostgreS
 >
 >     POLYGON((-126.99 45.01,-126.99 45.09,-126.91 45.09,-126.91 45.01,-126.99 45.01))
 
+**PC_BoundingDiagonal(pcpatch)** returns **geometry**
+
+> Returns the bounding diagonal of a patch. This is a LineString (2D), a LineString Z or a LineString M or a LineString ZM, based on the existence of the Z and M dimensions in the patch. This function is useful for creating an index on a patch column.
+>
+>     SELECT ST_AsText(PC_BoundingDiagonal(pa)) FROM patches;
+>                       st_astext
+>    ------------------------------------------------
+>     LINESTRING Z (-126.99 45.01 1,-126.91 45.09 9)
+>     LINESTRING Z (-126 46 100,-126 46 100)
+>     LINESTRING Z (-126.2 45.8 80,-126.11 45.89 89)
+>     LINESTRING Z (-126.4 45.6 60,-126.31 45.69 69)
+>     LINESTRING Z (-126.3 45.7 70,-126.21 45.79 79)
+>     LINESTRING Z (-126.8 45.2 20,-126.71 45.29 29)
+>     LINESTRING Z (-126.5 45.5 50,-126.41 45.59 59)
+>     LINESTRING Z (-126.6 45.4 40,-126.51 45.49 49)
+>     LINESTRING Z (-126.9 45.1 10,-126.81 45.19 19)
+>     LINESTRING Z (-126.7 45.3 30,-126.61 45.39 39)
+>     LINESTRING Z (-126.1 45.9 90,-126.01 45.99 99)
+>    (11 rows)gq
+>
+> For example, this is how one may want to create an index:
+>
+>     CREATE INDEX ON patches USING GIST(PC_BoundingDiagonal(patch) gist_geometry_ops_nd);
 
 ## Compressions ##
 
