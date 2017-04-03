@@ -9,10 +9,10 @@
 
 #include "pc_pgsql.h"	   /* Common PgSQL support for our type */
 
-Datum pcpatch_setschema(PG_FUNCTION_ARGS);
+Datum pcpatch_setpcid(PG_FUNCTION_ARGS);
 
-PG_FUNCTION_INFO_V1(pcpatch_setschema);
-Datum pcpatch_setschema(PG_FUNCTION_ARGS)
+PG_FUNCTION_INFO_V1(pcpatch_setpcid);
+Datum pcpatch_setpcid(PG_FUNCTION_ARGS)
 {
 	PCPATCH *paout = NULL;
 	SERIALIZED_PATCH *serpatch;
@@ -55,7 +55,7 @@ Datum pcpatch_setschema(PG_FUNCTION_ARGS)
 	if ( ! patch )
 		PG_RETURN_NULL();
 
-	paout = pc_patch_set_schema(patch, new_schema, defaultvalue);
+	paout = pc_patch_set_pcid(patch, new_schema, defaultvalue);
 
 	if ( patch != paout )
 		pc_patch_free(patch);

@@ -612,12 +612,13 @@ SELECT PC_BoundingDiagonalAsBinary(
  \x010200008002000000000000000000000000000000000000000000000000000000000000000000244000000000000024400000000000002440
 (1 row)
 
--- test PC_SetSchema
+-- test PC_SetPCId
+>>>>>>> Change SetSchema to SetPCId
 -- From pcid 3 to 1
 -- pcid 1 has X, Y, Z and I
 -- pcid 3 has X, Y and Z
 SELECT
-  PC_AsText(PC_SetSchema(p, 1, TRUE))
+  PC_AsText(PC_SetPCId(p, 1, TRUE))
 FROM ( SELECT PC_Patch(PC_MakePoint(3, ARRAY[-1,0,4862413,1])) p ) foo;
                 pc_astext                
 -----------------------------------------

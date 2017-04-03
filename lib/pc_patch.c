@@ -611,7 +611,7 @@ PCPOINT *pc_patch_pointn(const PCPATCH *patch, int n)
 
 /** set schema for patch */
 PCPATCH*
-pc_patch_set_schema(PCPATCH *patch, const PCSCHEMA *new_schema, double defaultvalue)
+pc_patch_set_pcid(PCPATCH *patch, const PCSCHEMA *new_schema, double defaultvalue)
 {
 	PCDIMENSION** new_dimensions = new_schema->dims;
 	PCDIMENSION* old_dimensions[new_schema->ndims];
