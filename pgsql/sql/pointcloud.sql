@@ -390,4 +390,12 @@ SELECT
   PC_AsText(PC_SetPCId(p, 10, TRUE)) t, PC_Summary(PC_SetPCId(p, 10, TRUE))::json->'compr' c
 FROM ( SELECT PC_Patch(PC_MakePoint(1, ARRAY[-1,0,4862413,1])) p ) foo;
 
+-- test PC_SetPCID
+-- from pcid 1 to 10 (non-similar schemas)
+-- pcid 1: (X,Y,Z,I), scaled, uncompressed
+-- pcid 10: (x,y,i2,i4,i8,f4,f8), unscaled, uncompressed
+SELECT
+  PC_SetPCId(p, 10)
+FROM ( SELECT PC_Patch(PC_MakePoint(1, ARRAY[-1,0,4862413,1])) p ) foo;
+
 TRUNCATE pointcloud_formats;

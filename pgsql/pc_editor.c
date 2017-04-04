@@ -47,7 +47,7 @@ Datum pcpatch_setpcid(PG_FUNCTION_ARGS)
 
 		if ( ! reinterpret )
 		{
-			pcwarn("incompatible schemas, and reinterpret is false");
+			pcerror("incompatible schemas, and reinterpret is false");
 			PG_RETURN_NULL();
 		}
 
