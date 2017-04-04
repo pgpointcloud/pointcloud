@@ -22,33 +22,44 @@ Datum pcpatch_setpcid(PG_FUNCTION_ARGS)
 	float8 defaultvalue = PG_GETARG_FLOAT8(3);
 	PCSCHEMA *schema = pc_schema_from_pcid(serpa->pcid, fcinfo);
 	PCSCHEMA *new_schema = pc_schema_from_pcid(pcid, fcinfo);
-	PCPATCH *patch;
 
 	if ( pc_schema_similar(schema, new_schema) )
 	{
-		// fast path!
-		serpatch = palloc(serpa->size);
-		if ( ! serpatch )
+		if ( schema->compression == new_schema->compression )
+		{
+			// no need to deserialize the patch
+			serpatch = palloc(serpa->size);
+			if ( ! serpatch )
+				PG_RETURN_NULL();
+			memcpy(serpatch, serpa, serpa->size);
+			serpatch->pcid = pcid;
+			PG_RETURN_POINTER(serpatch);
+		}
+		else
+		{
+			paout = pc_patch_deserialize(serpa, schema);
+			if ( ! paout )
+				PG_RETURN_NULL();
+			paout->schema = new_schema;
+		}
+	} else {
+		PCPATCH *patch;
+
+		if ( ! reinterpret )
+		{
+			pcwarn("incompatible schemas, and reinterpret is false");
 			PG_RETURN_NULL();
-		memcpy(serpatch, serpa, serpa->size);
-		serpatch->pcid = pcid;
-		PG_RETURN_POINTER(serpatch);
+		}
+
+		patch = pc_patch_deserialize(serpa, schema);
+		if ( ! patch )
+			PG_RETURN_NULL();
+
+		paout = pc_patch_set_pcid(patch, new_schema, defaultvalue);
+
+		if ( patch != paout )
+			pc_patch_free(patch);
 	}
-
-	if ( ! reinterpret )
-	{
-		pcwarn("incompatible schemas, and reinterpret is false");
-		PG_RETURN_NULL();
-	}
-
-	patch = pc_patch_deserialize(serpa, schema);
-	if ( ! patch )
-		PG_RETURN_NULL();
-
-	paout = pc_patch_set_pcid(patch, new_schema, defaultvalue);
-
-	if ( patch != paout )
-		pc_patch_free(patch);
 
 	if ( ! paout )
 		PG_RETURN_NULL();
