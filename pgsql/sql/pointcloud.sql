@@ -360,11 +360,34 @@ SELECT PC_BoundingDiagonalAsBinary(
 		PC_MakePoint(1, ARRAY[10.,10.,10.,10.])]));
 
 -- test PC_SetPCId
--- From pcid 3 to 1
--- pcid 1 has X, Y, Z and I
--- pcid 3 has X, Y and Z
+-- from pcid 1 to 1 (similar schemas with same compression)
+-- pcid 1: XYZI, scaled, uncompressed
 SELECT
-  PC_AsText(PC_SetPCId(p, 1, TRUE))
-FROM ( SELECT PC_Patch(PC_MakePoint(3, ARRAY[-1,0,4862413,1])) p ) foo;
+  PC_AsText(PC_SetPCId(p, 1)) t, PC_Summary(PC_SetPCId(p, 1))::json->'compr' c
+FROM ( SELECT PC_Patch(PC_MakePoint(1, ARRAY[-1,0,4862413,1])) p ) foo;
+
+-- test PC_SetPCId
+-- from pcid 1 to 3 (similar schemas with different compressions)
+-- pcid 1: (X,Y,Z,I), scaled, uncompressed
+-- pcid 3: (X,Y,Z,I), scaled, dimensionally compressed
+SELECT
+  PC_AsText(PC_SetPCId(p, 3)) t, PC_Summary(PC_SetPCId(p, 3))::json->'compr' c
+FROM ( SELECT PC_Patch(PC_MakePoint(1, ARRAY[-1,0,4862413,1])) p ) foo;
+
+-- test PC_SetPCId
+-- from pcid 1 to 20 (non-similar schemas)
+-- pcid 1: (X,Y,Z,I), scaled, uncompressed
+-- pcid 20: (X,Y,Z), unscaled, dimensionally compressed
+SELECT
+  PC_AsText(PC_SetPCId(p, 20, TRUE)) t, PC_Summary(PC_SetPCId(p, 20, TRUE))::json->'compr' c
+FROM ( SELECT PC_Patch(PC_MakePoint(1, ARRAY[-1,0,4862413,1])) p ) foo;
+
+-- test PC_SetPCId
+-- from pcid 1 to 10 (non-similar schemas)
+-- pcid 1: (X,Y,Z,I), scaled, uncompressed
+-- pcid 10: (x,y,i2,i4,i8,f4,f8), unscaled, uncompressed
+SELECT
+  PC_AsText(PC_SetPCId(p, 10, TRUE)) t, PC_Summary(PC_SetPCId(p, 10, TRUE))::json->'compr' c
+FROM ( SELECT PC_Patch(PC_MakePoint(1, ARRAY[-1,0,4862413,1])) p ) foo;
 
 TRUNCATE pointcloud_formats;
