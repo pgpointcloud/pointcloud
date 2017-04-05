@@ -93,6 +93,61 @@ VALUES (1, 0, -- XYZI, scaled, uncompressed
   </pc:metadata>
 </pc:PointCloudSchema>'
 )
+,(4, 0, -- (I1,X,Y,Z,I2), scaled, uncompressed
+'<?xml version="1.0" encoding="UTF-8"?>
+<pc:PointCloudSchema xmlns:pc="http://pointcloud.org/schemas/PC/1.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <pc:dimension>
+    <pc:position>1</pc:position>
+    <pc:size>2</pc:size>
+    <pc:description>The intensity value is the integer representation of the pulse return magnitude. This value is optional and system specific. However, it should always be included if available.</pc:description>
+    <pc:name>I1</pc:name>
+    <pc:interpretation>uint16_t</pc:interpretation>
+    <pc:scale>1</pc:scale>
+  </pc:dimension>
+  <pc:dimension>
+    <pc:position>2</pc:position>
+    <pc:size>4</pc:size>
+    <pc:description>X coordinate as a long integer. You must use the scale and offset information of the header to determine the double value.</pc:description>
+    <pc:name>X</pc:name>
+    <pc:interpretation>int32_t</pc:interpretation>
+    <pc:scale>0.01</pc:scale>
+  </pc:dimension>
+  <pc:dimension>
+    <pc:position>3</pc:position>
+    <pc:size>4</pc:size>
+    <pc:description>Y coordinate as a long integer. You must use the scale and offset information of the header to determine the double value.</pc:description>
+    <pc:name>Y</pc:name>
+    <pc:interpretation>int32_t</pc:interpretation>
+    <pc:scale>0.01</pc:scale>
+  </pc:dimension>
+  <pc:dimension>
+    <pc:position>4</pc:position>
+    <pc:size>4</pc:size>
+    <pc:description>Z coordinate as a long integer. You must use the scale and offset information of the header to determine the double value.</pc:description>
+    <pc:name>Z</pc:name>
+    <pc:interpretation>int32_t</pc:interpretation>
+    <pc:scale>0.01</pc:scale>
+  </pc:dimension>
+  <pc:dimension>
+    <pc:position>5</pc:position>
+    <pc:size>2</pc:size>
+    <pc:description>The intensity value is the integer representation of the pulse return magnitude. This value is optional and system specific. However, it should always be included if available.</pc:description>
+    <pc:name>I2</pc:name>
+    <pc:interpretation>uint16_t</pc:interpretation>
+    <pc:scale>1</pc:scale>
+  </pc:dimension>
+  <pc:metadata>
+    <Metadata name="compression">none</Metadata>
+    <Metadata name="ght_xmin"></Metadata>
+    <Metadata name="ght_ymin"></Metadata>
+    <Metadata name="ght_xmax"></Metadata>
+    <Metadata name="ght_ymax"></Metadata>
+    <Metadata name="ght_keylength"></Metadata>
+    <Metadata name="ght_depth"></Metadata>
+    <Metadata name="spatialreference" type="id">4326</Metadata>
+  </pc:metadata>
+</pc:PointCloudSchema>'
+)
 ,(10, 0, -- All (signed) interpretations, uncompressed
 '<?xml version="1.0" encoding="UTF-8"?>
 <pc:PointCloudSchema xmlns:pc="http://pointcloud.org/schemas/PC/1.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
@@ -358,5 +413,36 @@ SELECT PC_BoundingDiagonalAsBinary(
 		PC_MakePoint(1, ARRAY[0.,0.,0.,10.]),
 		PC_MakePoint(1, ARRAY[1.,1.,1.,10.]),
 		PC_MakePoint(1, ARRAY[10.,10.,10.,10.])]));
+
+-- test PC_SetPCId
+-- from pcid 1 to 1 (same dimensions, same positions, same compressions)
+-- pcid 1: (X,Y,Z,I), scaled, uncompressed
+SELECT
+  PC_AsText(PC_SetPCId(p, 1)) t, PC_Summary(PC_SetPCId(p, 1))::json->'compr' c
+FROM ( SELECT PC_Patch(PC_MakePoint(1, ARRAY[-1,0,4862413,1])) p ) foo;
+
+-- test PC_SetPCId
+-- from pcid 1 to 3 (same dimensions, same positions, different compressions)
+-- pcid 1: (X,Y,Z,I), scaled, uncompressed
+-- pcid 3: (X,Y,Z,I), scaled, dimensionally compressed
+SELECT
+  PC_AsText(PC_SetPCId(p, 3)) t, PC_Summary(PC_SetPCId(p, 3))::json->'compr' c
+FROM ( SELECT PC_Patch(PC_MakePoint(1, ARRAY[-1,0,4862413,1])) p ) foo;
+
+-- test PC_SetPCId
+-- from pcid 1 to 4 (different dimensions, different positions, same compressions)
+-- pcid 1: (X,Y,Z,I), scaled, uncompressed
+-- pcid 2: (I1,X,Y,Z,I2), scaled, uncompressed
+SELECT
+  PC_AsText(PC_SetPCId(p, 4, 2.0)) t, PC_Summary(PC_SetPCId(p, 4, 2.0))::json->'compr' c
+FROM ( SELECT PC_Patch(PC_MakePoint(1, ARRAY[-1,0,4862413,1])) p ) foo;
+
+-- test PC_SetPCId
+-- from pcid 1 to 10 (incompatible dimensions because of different interpretations)
+-- pcid 1: (X,Y,Z,I), scaled, uncompressed
+-- pcid 10: (X,Y,Z), unscaled, dimensionally compressed
+SELECT
+  PC_AsText(PC_SetPCId(p, 10)) t, PC_Summary(PC_SetPCId(p, 10))::json->'compr' c
+FROM ( SELECT PC_Patch(PC_MakePoint(1, ARRAY[-1,0,4862413,1])) p ) foo;
 
 TRUNCATE pointcloud_formats;
