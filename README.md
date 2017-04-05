@@ -492,6 +492,18 @@ Now that you have created two tables, you'll see entries for them in the `pointc
 >     a3703dba5fc0ec51b81e858b46400ad7a3703dba5fc0e17a
 >     14ae4781464090c2f5285cbf5fc0e17a14ae47814640
 
+**PC_BoundingDiagonalAsBinary(p pcpatch)** returns **bytea**
+
+> Return the OGC "well-known binary" format for the bounding diagonal of the patch.
+>
+>    SELECT PC_BoundingDiagonalAsBinary(
+>        PC_Patch(ARRAY[
+>            PC_MakePoint(1, ARRAY[0.,0.,0.,10.]),
+>            PC_MakePoint(1, ARRAY[1.,1.,1.,10.]),
+>            PC_MakePoint(1, ARRAY[10.,10.,10.,10.])]));
+>
+>    \x01020000a0e610000002000000000000000000000000000000000000000000000000000000000000000000244000000000000024400000000000002440
+
 ## PostGIS Integration ##
 
 The `pointcloud_postgis` extension adds functions that allow you to use PostgreSQL Pointcloud with PostGIS, converting PcPoint and PcPatch to Geometry and doing spatial filtering on point cloud data. The `pointcloud_postgis` extension depends on both the `postgis` and `pointcloud` extensions, so they must be installed first:
@@ -547,6 +559,29 @@ The `pointcloud_postgis` extension adds functions that allow you to use PostgreS
 >
 >     POLYGON((-126.99 45.01,-126.99 45.09,-126.91 45.09,-126.91 45.01,-126.99 45.01))
 
+**PC_BoundingDiagonal(pcpatch)** returns **geometry**
+
+> Returns the bounding diagonal of a patch. This is a LineString (2D), a LineString Z or a LineString M or a LineString ZM, based on the existence of the Z and M dimensions in the patch. This function is useful for creating an index on a patch column.
+>
+>     SELECT ST_AsText(PC_BoundingDiagonal(pa)) FROM patches;
+>                       st_astext
+>    ------------------------------------------------
+>     LINESTRING Z (-126.99 45.01 1,-126.91 45.09 9)
+>     LINESTRING Z (-126 46 100,-126 46 100)
+>     LINESTRING Z (-126.2 45.8 80,-126.11 45.89 89)
+>     LINESTRING Z (-126.4 45.6 60,-126.31 45.69 69)
+>     LINESTRING Z (-126.3 45.7 70,-126.21 45.79 79)
+>     LINESTRING Z (-126.8 45.2 20,-126.71 45.29 29)
+>     LINESTRING Z (-126.5 45.5 50,-126.41 45.59 59)
+>     LINESTRING Z (-126.6 45.4 40,-126.51 45.49 49)
+>     LINESTRING Z (-126.9 45.1 10,-126.81 45.19 19)
+>     LINESTRING Z (-126.7 45.3 30,-126.61 45.39 39)
+>     LINESTRING Z (-126.1 45.9 90,-126.01 45.99 99)
+>    (11 rows)gq
+>
+> For example, this is how one may want to create an index:
+>
+>     CREATE INDEX ON patches USING GIST(PC_BoundingDiagonal(patch) gist_geometry_ops_nd);
 
 ## Compressions ##
 

@@ -106,6 +106,15 @@ int16_t wkb_get_int16(const uint8_t *wkb, int flip_endian);
 /** Read the number of points from a wkb */
 uint32_t wkb_get_npoints(const uint8_t *wkb);
 
+/** Write a double into a byte array */
+uint8_t *wkb_set_double(uint8_t *wkb, double d);
+
+/** Write a uint32 into a byte array */
+uint8_t *wkb_set_uint32(uint8_t *wkb, uint32_t i);
+
+/** Write a char into a byte array */
+uint8_t *wkb_set_char(uint8_t *wkb, char c);
+
 /** Force a byte array into the machine endianness */
 uint8_t* uncompressed_bytes_flip_endian(const uint8_t *bytebuf, const PCSCHEMA *schema, uint32_t npoints);
 

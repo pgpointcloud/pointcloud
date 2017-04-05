@@ -352,4 +352,11 @@ FROM ( SELECT
     'y',0) p
 ) foo;
 
+-- test for PC_BoundingDiagonalAsBinary
+SELECT PC_BoundingDiagonalAsBinary(
+	PC_Patch(ARRAY[
+		PC_MakePoint(1, ARRAY[0.,0.,0.,10.]),
+		PC_MakePoint(1, ARRAY[1.,1.,1.,10.]),
+		PC_MakePoint(1, ARRAY[10.,10.,10.,10.])]));
+
 TRUNCATE pointcloud_formats;

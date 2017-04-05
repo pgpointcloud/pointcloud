@@ -156,6 +156,30 @@ wkb_get_int16(const uint8_t *wkb, int flip_endian)
 		return i;
 }
 
+uint8_t *
+wkb_set_double(uint8_t *wkb, double d)
+{
+	memcpy(wkb, &d, 8);
+	wkb += 8;
+	return wkb;
+}
+
+uint8_t *
+wkb_set_uint32(uint8_t *wkb, uint32_t i)
+{
+	memcpy(wkb, &i, 4);
+	wkb += 4;
+	return wkb;
+}
+
+uint8_t *
+wkb_set_char(uint8_t *wkb, char c)
+{
+	memcpy(wkb, &c, 1);
+	wkb += 1;
+	return wkb;
+}
+
 uint32_t
 wkb_get_pcid(const uint8_t *wkb)
 {
@@ -206,6 +230,7 @@ wkb_get_npoints(const uint8_t *wkb)
 	}
 	return npoints;
 }
+
 uint8_t*
 uncompressed_bytes_flip_endian(const uint8_t *bytebuf, const PCSCHEMA *schema, uint32_t npoints)
 {
@@ -263,3 +288,132 @@ void pc_bounds_merge(PCBOUNDS *b1, const PCBOUNDS *b2)
 	if ( b2->ymax > b1->ymax ) b1->ymax = b2->ymax;
 }
 
+static uint32_t srid_mask = 0x20000000;
+static uint32_t m_mask = 0x40000000;
+static uint32_t z_mask = 0x80000000;
+
+uint8_t *
+pc_bounding_diagonal_wkb_from_bounds(
+	const PCBOUNDS *bounds, const PCSCHEMA *schema, size_t *wkbsize)
+{
+	uint8_t *wkb, *ptr;
+	uint32_t wkbtype;
+	size_t size;
+
+	wkbtype = 2; /* WKB LINESTRING */
+	size = 1 + 4 + 4 + (2 * 2 * 8); /* endian + type + npoints + 2 dbl pts */
+
+	if ( schema->srid != 0 )
+	{
+		wkbtype |= srid_mask;
+		size += 4;
+	}
+
+	wkb = pcalloc(size);
+	ptr = wkb;
+
+	ptr = wkb_set_char(ptr, machine_endian()); /* Endian flag */
+	ptr = wkb_set_uint32(ptr, wkbtype); /* Geometry type */
+
+	if ( schema->srid != 0 )
+	{
+		ptr = wkb_set_uint32(ptr, schema->srid); /* SRID */
+	}
+
+	ptr = wkb_set_uint32(ptr, 2); /* NPOINTS = 2 */
+
+	// point 1
+	ptr = wkb_set_double(ptr, bounds->xmin);
+	ptr = wkb_set_double(ptr, bounds->ymin);
+
+	// point 2
+	ptr = wkb_set_double(ptr, bounds->xmax);
+	ptr = wkb_set_double(ptr, bounds->ymax);
+
+	if ( wkbsize )
+		*wkbsize = size;
+
+	return wkb;
+}
+
+uint8_t *
+pc_bounding_diagonal_wkb_from_stats(const PCSTATS *stats, size_t *wkbsize)
+{
+	const PCSCHEMA *schema = stats->min.schema;
+	const PCPOINT *stat;
+	uint8_t *wkb, *ptr;
+	uint32_t wkbtype;
+	size_t size;
+	double val;
+
+	wkbtype = 2; /* WKB LINESTRING */
+	size = 1 + 4 + 4 + (2 * 2 * 8); /* endian + type + npoints + 2 dbl pts */
+
+	if ( schema->srid != 0 )
+	{
+		wkbtype |= srid_mask;
+		size += 4;
+	}
+	if ( schema->zdim )
+	{
+		wkbtype |= z_mask;
+		size += 2 * 8;
+	}
+	if ( schema->mdim )
+	{
+		wkbtype |= m_mask;
+		size += 2 * 8;
+	}
+
+	wkb = pcalloc(size);
+	ptr = wkb;
+
+	ptr = wkb_set_char(ptr, machine_endian()); /* Endian flag */
+	ptr = wkb_set_uint32(ptr, wkbtype); /* Geometry type */
+
+	if ( schema->srid != 0 )
+	{
+		ptr = wkb_set_uint32(ptr, schema->srid); /* SRID */
+	}
+
+	ptr = wkb_set_uint32(ptr, 2); /* NPOINTS = 2 */
+
+	// point 1
+	stat = &stats->min;
+	pc_point_get_x(stat, &val);
+	ptr = wkb_set_double(ptr, val);
+	pc_point_get_y(stat, &val);
+	ptr = wkb_set_double(ptr, val);
+	if ( schema->zdim )
+	{
+		pc_point_get_z(stat, &val);
+		ptr = wkb_set_double(ptr, val);
+	}
+	if ( schema->mdim )
+	{
+		pc_point_get_m(stat, &val);
+		ptr = wkb_set_double(ptr, val);
+	}
+
+	// point 2
+	stat = &stats->max;
+	pc_point_get_x(stat, &val);
+	ptr = wkb_set_double(ptr, val);
+	pc_point_get_y(stat, &val);
+	ptr = wkb_set_double(ptr, val);
+	if ( schema->zdim )
+	{
+		pc_point_get_z(stat, &val);
+		ptr = wkb_set_double(ptr, val);
+	}
+	if ( schema->mdim )
+	{
+		pc_point_get_m(stat, &val);
+		ptr = wkb_set_double(ptr, val);
+	}
+
+	if ( wkbsize )
+		*wkbsize = size;
+
+	return wkb;
+}

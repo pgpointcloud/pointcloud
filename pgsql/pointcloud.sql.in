@@ -313,6 +313,10 @@ CREATE OR REPLACE FUNCTION PC_Range(p pcpatch, first int4, count int4)
 	RETURNS pcpatch AS 'MODULE_PATHNAME', 'pcpatch_range'
 	LANGUAGE 'c' IMMUTABLE STRICT;
 
+CREATE OR REPLACE FUNCTION PC_BoundingDiagonalAsBinary(p pcpatch)
+	RETURNS bytea AS 'MODULE_PATHNAME', 'pcpatch_bounding_diagonal_as_bytea'
+	LANGUAGE 'c' IMMUTABLE STRICT;
+
 -------------------------------------------------------------------
 --  POINTCLOUD_COLUMNS
 -------------------------------------------------------------------

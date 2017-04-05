@@ -601,4 +601,15 @@ FROM ( SELECT
  #78   |    -1 |    -1 |     0 |     0 | 4862413 | 4862413 |     1 |     1
 (1 row)
 
+-- test for PC_BoundingDiagonalAsBinary
+SELECT PC_BoundingDiagonalAsBinary(
+	PC_Patch(ARRAY[
+		PC_MakePoint(1, ARRAY[0.,0.,0.,10.]),
+		PC_MakePoint(1, ARRAY[1.,1.,1.,10.]),
+		PC_MakePoint(1, ARRAY[10.,10.,10.,10.])]));
+                                             pc_boundingdiagonalasbinary                                              
+----------------------------------------------------------------------------------------------------------------------
+ \x010200008002000000000000000000000000000000000000000000000000000000000000000000244000000000000024400000000000002440
+(1 row)
+
 TRUNCATE pointcloud_formats;

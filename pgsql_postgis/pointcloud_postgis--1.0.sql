@@ -54,3 +54,13 @@ CREATE OR REPLACE FUNCTION PC_Intersects(geometry, pcpatch)
 		SELECT PC_Intersects($2, $1)
 	$$
 	LANGUAGE 'sql';
+
+-----------------------------------------------------------------------------
+-- Function from pcpatch to LineString
+--
+CREATE OR REPLACE FUNCTION PC_BoundingDiagonal(pcpatch)
+	RETURNS geometry AS
+	$$
+		SELECT ST_GeomFromEWKB(PC_BoundingDiagonalAsBinary($1))
+	$$
+	LANGUAGE 'sql';
