@@ -55,7 +55,7 @@ Datum pcpatch_setpcid(PG_FUNCTION_ARGS)
 		if ( ! patch )
 			PG_RETURN_NULL();
 
-		paout = pc_patch_set_pcid(patch, new_schema, defaultvalue);
+		paout = pc_patch_set_schema(patch, new_schema, defaultvalue);
 
 		if ( patch != paout )
 			pc_patch_free(patch);
