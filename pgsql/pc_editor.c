@@ -59,10 +59,11 @@ Datum pcpatch_setpcid(PG_FUNCTION_ARGS)
 
 		if ( patch != paout )
 			pc_patch_free(patch);
-	}
 
-	if ( ! paout )
-		PG_RETURN_NULL();
+		if ( ! paout )
+			PG_RETURN_NULL();
+
+	}
 
 	serpatch = pc_patch_serialize(paout, NULL);
 	pc_patch_free(paout);
