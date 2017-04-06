@@ -20,12 +20,12 @@ Datum pcpatch_setpcid(PG_FUNCTION_ARGS)
 	int32 pcid = PG_GETARG_INT32(1);
 	bool reinterpret = PG_GETARG_BOOL(2);
 	float8 defaultvalue = PG_GETARG_FLOAT8(3);
-	PCSCHEMA *schema = pc_schema_from_pcid(serpa->pcid, fcinfo);
+	PCSCHEMA *old_schema = pc_schema_from_pcid(serpa->pcid, fcinfo);
 	PCSCHEMA *new_schema = pc_schema_from_pcid(pcid, fcinfo);
 
-	if ( pc_schema_equivalent(schema, new_schema) )
+	if ( pc_schema_equivalent(old_schema, new_schema) )
 	{
-		if ( schema->compression == new_schema->compression )
+		if ( old_schema->compression == new_schema->compression )
 		{
 			// no need to deserialize the patch
 			serpatch = palloc(serpa->size);
@@ -37,7 +37,7 @@ Datum pcpatch_setpcid(PG_FUNCTION_ARGS)
 		}
 		else
 		{
-			paout = pc_patch_deserialize(serpa, schema);
+			paout = pc_patch_deserialize(serpa, old_schema);
 			if ( ! paout )
 				PG_RETURN_NULL();
 			paout->schema = new_schema;
@@ -51,7 +51,7 @@ Datum pcpatch_setpcid(PG_FUNCTION_ARGS)
 			PG_RETURN_NULL();
 		}
 
-		patch = pc_patch_deserialize(serpa, schema);
+		patch = pc_patch_deserialize(serpa, old_schema);
 		if ( ! patch )
 			PG_RETURN_NULL();
 
