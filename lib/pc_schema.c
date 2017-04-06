@@ -637,11 +637,12 @@ pc_schema_get_size(const PCSCHEMA *s)
 }
 
 /**
-* Return true if s1 and s2 have the same dimensions at the same
-* positions, otherwise return false.
+* Return true if s1 and s2 have the same dimensions (same names,
+* interpretations, scales/offsets) at the same positions,
+* otherwise return false.
 */
 uint32_t
-pc_schema_similar(const PCSCHEMA *s1, const PCSCHEMA *s2)
+pc_schema_equivalent(const PCSCHEMA *s1, const PCSCHEMA *s2)
 {
 	size_t i;
 

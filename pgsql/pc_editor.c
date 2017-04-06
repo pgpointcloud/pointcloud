@@ -23,7 +23,7 @@ Datum pcpatch_setpcid(PG_FUNCTION_ARGS)
 	PCSCHEMA *schema = pc_schema_from_pcid(serpa->pcid, fcinfo);
 	PCSCHEMA *new_schema = pc_schema_from_pcid(pcid, fcinfo);
 
-	if ( pc_schema_similar(schema, new_schema) )
+	if ( pc_schema_equivalent(schema, new_schema) )
 	{
 		if ( schema->compression == new_schema->compression )
 		{
