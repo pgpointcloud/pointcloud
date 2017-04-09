@@ -365,11 +365,11 @@ CREATE CAST (pcpoint AS pcpoint) WITH FUNCTION pcpoint(pcpoint, integer, boolean
 
 CREATE OR REPLACE FUNCTION pointcloud_abs_in(cstring)
 	RETURNS pointcloud_abs AS 'MODULE_PATHNAME'
-	LANGUAGE 'c';
+	LANGUAGE 'c' IMMUTABLE STRICT;
 
 CREATE OR REPLACE FUNCTION pointcloud_abs_out(pointcloud_abs)
 	RETURNS cstring AS 'MODULE_PATHNAME'
-	LANGUAGE 'c';
+	LANGUAGE 'c' IMMUTABLE STRICT;
 
 CREATE TYPE pointcloud_abs (
 	internallength = 8,
