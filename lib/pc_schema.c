@@ -642,7 +642,7 @@ pc_schema_get_size(const PCSCHEMA *s)
 * otherwise return false.
 */
 uint32_t
-pc_schema_equivalent(const PCSCHEMA *s1, const PCSCHEMA *s2)
+pc_schema_same_dimensions_and_positions(const PCSCHEMA *s1, const PCSCHEMA *s2)
 {
 	size_t i;
 

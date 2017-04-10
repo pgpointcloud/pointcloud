@@ -289,8 +289,8 @@ void pc_schema_set_dimension(PCSCHEMA *s, PCDIMENSION *d);
 void pc_schema_check_xyzm(PCSCHEMA *s);
 /** Get the width in bytes of a single point in the schema */
 size_t pc_schema_get_size(const PCSCHEMA *s);
-/** Check whether the schemas are equivalent */
-uint32_t pc_schema_equivalent(const PCSCHEMA *s1, const PCSCHEMA *s2);
+/** Check whether the schemas have the same dimensions at the same positions */
+uint32_t pc_schema_same_dimensions_and_positions(const PCSCHEMA *s1, const PCSCHEMA *s2);
 
 
 /**********************************************************************
