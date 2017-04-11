@@ -635,37 +635,3 @@ pc_schema_get_size(const PCSCHEMA *s)
 {
 	return s->size;
 }
-
-/**
-* Return true if s1 and s2 have the same dimensions (same names,
-* interpretations, scales/offsets) at the same positions,
-* otherwise return false.
-*/
-uint32_t
-pc_schema_same_dimensions_and_positions(const PCSCHEMA *s1, const PCSCHEMA *s2)
-{
-	size_t i;
-
-	if ( s1->ndims != s2->ndims )
-		return PC_FALSE;
-
-	for ( i = 0; i < s1->ndims; i++ )
-	{
-		PCDIMENSION *s1dim = s1->dims[i];
-		PCDIMENSION *s2dim = s2->dims[i];
-
-		if ( strcmp(s1dim->name, s2dim->name) != 0 )
-			return PC_FALSE;
-
-		if ( s1dim->interpretation != s2dim->interpretation )
-			return PC_FALSE;
-
-		if ( s1dim->scale != s2dim->scale )
-			return PC_FALSE;
-
-		if ( s1dim->offset != s2dim->offset )
-			return PC_FALSE;
-	}
-
-	return PC_TRUE;
-}

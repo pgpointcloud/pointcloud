@@ -11,6 +11,31 @@
 
 Datum pcpatch_setpcid(PG_FUNCTION_ARGS);
 
+
+static bool
+pcpatch_schema_same_dimensions(const PCSCHEMA *s1, const PCSCHEMA *s2)
+{
+	size_t i;
+
+	if ( s1->ndims != s2->ndims )
+		return false;
+
+	for ( i = 0; i < s1->ndims; i++ )
+	{
+		PCDIMENSION *s1dim = s1->dims[i];
+		PCDIMENSION *s2dim = s2->dims[i];
+
+		if ( strcmp(s1dim->name, s2dim->name) != 0 )
+			return false;
+
+		if ( s1dim->interpretation != s2dim->interpretation )
+			return false;
+	}
+
+	return true;
+}
+
+
 PG_FUNCTION_INFO_V1(pcpatch_setpcid);
 Datum pcpatch_setpcid(PG_FUNCTION_ARGS)
 {
@@ -21,7 +46,7 @@ Datum pcpatch_setpcid(PG_FUNCTION_ARGS)
 	PCSCHEMA *old_schema = pc_schema_from_pcid(serpa->pcid, fcinfo);
 	PCSCHEMA *new_schema = pc_schema_from_pcid(pcid, fcinfo);
 
-	if ( pc_schema_same_dimensions_and_positions(old_schema, new_schema) )
+	if ( pcpatch_schema_same_dimensions(old_schema, new_schema) )
 	{
 		// old_schema and new_schema have the same dimensions at the same
 		// positions, so we can take a fast path avoid the point-by-point,

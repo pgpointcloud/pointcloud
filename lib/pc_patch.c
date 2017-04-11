@@ -610,32 +610,20 @@ PCPOINT *pc_patch_pointn(const PCPATCH *patch, int n)
 }
 
 
-/**
-* Function used by pc_patch_set_schema. Copy the data of p1 in p2. Assume that
-* p1 and p2 schemas are compatible, meaning that the dimensions in p2 that are
-* also in p1 have the same interpretations. The value "defaults" is used for
-* dimensions that are not in p1.
-*/
 static void
-pc_patch_point_copy(const PCPOINT *p1, PCDIMENSION **dims,
-		double defaults, PCPOINT *p2)
+pc_patch_point_set(
+		PCPOINT *p, const uint8_t *data,
+		PCDIMENSION **dims, const uint8_t *defaults)
 {
 	size_t i;
-	for ( i = 0; i < p2->schema->ndims; i++ )
+	for ( i = 0; i < p->schema->ndims; i++ )
 	{
-		PCDIMENSION *d1 = dims[i];
-		PCDIMENSION *d2 = p2->schema->dims[i];
-
-		if ( d1 )
-		{
-			uint8_t *data2 = p2->data + d2->byteoffset;
-			uint8_t *data1 = p1->data + d1->byteoffset;
-			memcpy(data2, data1, d1->size);
-		}
-		else
-		{
-			pc_point_set_double(p2, d2, defaults);
-		}
+		const PCDIMENSION *ddim = dims[i];
+		const PCDIMENSION *pdim = p->schema->dims[i];
+		uint8_t *pdata = p->data + pdim->byteoffset;
+		const uint8_t *ddata = ddim ?
+			data + ddim->byteoffset : defaults + pdim->byteoffset;
+		memcpy(pdata, ddata, pdim->size);
 	}
 }
 
@@ -650,19 +638,31 @@ pc_patch_set_schema(PCPATCH *patch, const PCSCHEMA *new_schema, double defaults)
 	PCPATCH_UNCOMPRESSED *paout;
 	PCPOINT opt, npt;
 	PCPATCH *pain;
+	PCPOINT *dpt;
 	size_t i, j;
+
+	// create a point for storing the default values
+	dpt = pc_point_make(new_schema);
 
 	for ( j = 0; j < new_schema->ndims; j++ )
 	{
 		PCDIMENSION *ndim = new_dimensions[j];
 		PCDIMENSION *odim = pc_schema_get_dimension_by_name(
 				old_schema, ndim->name);
-		if ( odim && ndim->interpretation != odim->interpretation )
-		{
-			pcerror("dimension interpretations are not matching");
-			return NULL;
-		}
 		old_dimensions[j] = odim;
+		if ( odim )
+		{
+			if ( ndim->interpretation != odim->interpretation )
+			{
+				pcerror("dimension interpretations are not matching");
+				pc_point_free(dpt);
+				return NULL;
+			}
+		}
+		else
+		{
+			pc_point_set_double(dpt, ndim, defaults);
+		}
 	}
 
 	pain = pc_patch_uncompress(patch);
@@ -679,7 +679,7 @@ pc_patch_set_schema(PCPATCH *patch, const PCSCHEMA *new_schema, double defaults)
 
 	for ( i = 0; i < patch->npoints; i++ )
 	{
-		pc_patch_point_copy(&opt, old_dimensions, defaults, &npt);
+		pc_patch_point_set(&npt, opt.data, old_dimensions, dpt->data);
 		opt.data += old_schema->size;
 		npt.data += new_schema->size;
 	}
@@ -690,15 +690,15 @@ pc_patch_set_schema(PCPATCH *patch, const PCSCHEMA *new_schema, double defaults)
 
 		opt.data = patch->stats->min.data;
 		npt.data = paout->stats->min.data;
-		pc_patch_point_copy(&opt, old_dimensions, defaults, &npt);
+		pc_patch_point_set(&npt, opt.data, old_dimensions, dpt->data);
 
 		opt.data = patch->stats->max.data;
 		npt.data = paout->stats->max.data;
-		pc_patch_point_copy(&opt, old_dimensions, defaults, &npt);
+		pc_patch_point_set(&npt, opt.data, old_dimensions, dpt->data);
 
 		opt.data = patch->stats->avg.data;
 		npt.data = paout->stats->avg.data;
-		pc_patch_point_copy(&opt, old_dimensions, defaults, &npt);
+		pc_patch_point_set(&npt, opt.data, old_dimensions, dpt->data);
 
 		pc_point_get_x(&paout->stats->min, &paout->bounds.xmin);
 		pc_point_get_y(&paout->stats->min, &paout->bounds.ymin);
@@ -711,11 +711,14 @@ pc_patch_set_schema(PCPATCH *patch, const PCSCHEMA *new_schema, double defaults)
 		double yscale = npt.schema->ydim->scale / opt.schema->ydim->scale;
 		double xoffset = npt.schema->xdim->offset - opt.schema->xdim->offset;
 		double yoffset = npt.schema->ydim->offset - opt.schema->ydim->offset;
+
 		paout->bounds.xmin = patch->bounds.xmin * xscale + xoffset;
 		paout->bounds.xmax = patch->bounds.xmax * xscale + xoffset;
 		paout->bounds.ymin = patch->bounds.ymin * yscale + yoffset;
 		paout->bounds.xmax = patch->bounds.ymax * yscale + yoffset;
 	}
+
+	pc_point_free(dpt);
 
 	if ( pain != patch )
 		pc_patch_free(pain);
