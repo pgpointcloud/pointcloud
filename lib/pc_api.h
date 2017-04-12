@@ -482,6 +482,6 @@ uint32_t pc_patch_is_sorted(const PCPATCH *pa, const char **name, int ndims, cha
 PCPATCH* pc_patch_range(const PCPATCH *pa, int first, int count);
 
 /** assign a schema to the patch */
-PCPATCH *pc_patch_set_schema(PCPATCH *patch, const PCSCHEMA *schema, double defaultvalue);
+PCPATCH *pc_patch_set_schema(PCPATCH *patch, const PCSCHEMA *schema, double def);
 
 #endif /* _PC_API_H */
