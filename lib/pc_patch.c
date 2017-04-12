@@ -612,8 +612,7 @@ PCPOINT *pc_patch_pointn(const PCPATCH *patch, int n)
 
 static void
 pc_patch_point_set(
-		PCPOINT *p, const uint8_t *data,
-		PCDIMENSION **dims, const uint8_t *defaults)
+		PCPOINT *p, const uint8_t *data, PCDIMENSION **dims, const uint8_t *def)
 {
 	size_t i;
 	for ( i = 0; i < p->schema->ndims; i++ )
@@ -622,7 +621,7 @@ pc_patch_point_set(
 		const PCDIMENSION *pdim = p->schema->dims[i];
 		uint8_t *pdata = p->data + pdim->byteoffset;
 		const uint8_t *ddata = ddim ?
-			data + ddim->byteoffset : defaults + pdim->byteoffset;
+			data + ddim->byteoffset : def + pdim->byteoffset;
 		memcpy(pdata, ddata, pdim->size);
 	}
 }
@@ -630,7 +629,7 @@ pc_patch_point_set(
 
 /** set schema for patch */
 PCPATCH*
-pc_patch_set_schema(PCPATCH *patch, const PCSCHEMA *new_schema, double defaults)
+pc_patch_set_schema(PCPATCH *patch, const PCSCHEMA *new_schema, double def)
 {
 	PCDIMENSION** new_dimensions = new_schema->dims;
 	PCDIMENSION* old_dimensions[new_schema->ndims];
@@ -661,7 +660,7 @@ pc_patch_set_schema(PCPATCH *patch, const PCSCHEMA *new_schema, double defaults)
 		}
 		else
 		{
-			pc_point_set_double(dpt, ndim, defaults);
+			pc_point_set_double(dpt, ndim, def);
 		}
 	}
 

@@ -43,6 +43,7 @@ Datum pcpatch_setpcid(PG_FUNCTION_ARGS)
 	SERIALIZED_PATCH *serpatch;
 	SERIALIZED_PATCH *serpa = PG_GETARG_SERPATCH_P(0);
 	int32 pcid = PG_GETARG_INT32(1);
+	float8 def = PG_GETARG_FLOAT8(2);
 	PCSCHEMA *old_schema = pc_schema_from_pcid(serpa->pcid, fcinfo);
 	PCSCHEMA *new_schema = pc_schema_from_pcid(pcid, fcinfo);
 
@@ -71,13 +72,12 @@ Datum pcpatch_setpcid(PG_FUNCTION_ARGS)
 		}
 	} else {
 		PCPATCH *patch;
-		float8 defaults = PG_NARGS() == 3 ? PG_GETARG_FLOAT8(2) : 0.0;
 
 		patch = pc_patch_deserialize(serpa, old_schema);
 		if ( ! patch )
 			PG_RETURN_NULL();
 
-		paout = pc_patch_set_schema(patch, new_schema, defaults);
+		paout = pc_patch_set_schema(patch, new_schema, def);
 
 		if ( patch != paout )
 			pc_patch_free(patch);
