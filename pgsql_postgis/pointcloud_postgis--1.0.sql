@@ -23,7 +23,15 @@ CREATE OR REPLACE FUNCTION PC_Envelope(pcpatch)
 	$$
 	LANGUAGE 'sql';
 
+CREATE OR REPLACE FUNCTION geometry(pcpatch)
+	RETURNS geometry AS
+	$$
+		SELECT PC_Envelope($1)
+	$$
+	LANGUAGE 'sql';
+
 CREATE CAST (pcpatch AS geometry) WITH FUNCTION PC_Envelope(pcpatch);
+
 
 -----------------------------------------------------------------------------
 -- Cast from pcpoint to point
