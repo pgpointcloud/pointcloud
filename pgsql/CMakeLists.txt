@@ -2,6 +2,7 @@
 
 set ( PC_SOURCES
   pc_access.c 
+  pc_editor.c
   pc_inout.c      
   pc_pgsql.c       
   )

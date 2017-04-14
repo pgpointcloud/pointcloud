@@ -608,3 +608,119 @@ PCPOINT *pc_patch_pointn(const PCPATCH *patch, int n)
 	pcerror("%s: unsupported compression %d requested", __func__, patch->type);
 	return NULL;
 }
+
+
+static void
+pc_patch_point_set(
+		PCPOINT *p, const uint8_t *data, PCDIMENSION **dims, const uint8_t *def)
+{
+	size_t i;
+	for ( i = 0; i < p->schema->ndims; i++ )
+	{
+		const PCDIMENSION *ddim = dims[i];
+		const PCDIMENSION *pdim = p->schema->dims[i];
+		uint8_t *pdata = p->data + pdim->byteoffset;
+		const uint8_t *ddata = ddim ?
+			data + ddim->byteoffset : def + pdim->byteoffset;
+		memcpy(pdata, ddata, pdim->size);
+	}
+}
+
+
+/** set schema for patch */
+PCPATCH*
+pc_patch_set_schema(PCPATCH *patch, const PCSCHEMA *new_schema, double def)
+{
+	PCDIMENSION** new_dimensions = new_schema->dims;
+	PCDIMENSION* old_dimensions[new_schema->ndims];
+	const PCSCHEMA *old_schema = patch->schema;
+	PCPATCH_UNCOMPRESSED *paout;
+	PCPOINT opt, npt;
+	PCPATCH *pain;
+	PCPOINT *dpt;
+	size_t i, j;
+
+	// create a point for storing the default values
+	dpt = pc_point_make(new_schema);
+
+	for ( j = 0; j < new_schema->ndims; j++ )
+	{
+		PCDIMENSION *ndim = new_dimensions[j];
+		PCDIMENSION *odim = pc_schema_get_dimension_by_name(
+				old_schema, ndim->name);
+		old_dimensions[j] = odim;
+		if ( odim )
+		{
+			if ( ndim->interpretation != odim->interpretation )
+			{
+				pcerror("dimension interpretations are not matching");
+				pc_point_free(dpt);
+				return NULL;
+			}
+		}
+		else
+		{
+			pc_point_set_double(dpt, ndim, def);
+		}
+	}
+
+	pain = pc_patch_uncompress(patch);
+	paout = pc_patch_uncompressed_make(new_schema, patch->npoints);
+	paout->npoints = pain->npoints;
+
+	opt.schema = old_schema;
+	npt.schema = new_schema;
+	opt.readonly = PC_TRUE;
+	npt.readonly = PC_TRUE;
+
+	opt.data = ((PCPATCH_UNCOMPRESSED *) pain)->data;
+	npt.data = paout->data;
+
+	for ( i = 0; i < patch->npoints; i++ )
+	{
+		pc_patch_point_set(&npt, opt.data, old_dimensions, dpt->data);
+		opt.data += old_schema->size;
+		npt.data += new_schema->size;
+	}
+
+	if ( patch->stats )
+	{
+		paout->stats = pc_stats_new(new_schema);
+
+		opt.data = patch->stats->min.data;
+		npt.data = paout->stats->min.data;
+		pc_patch_point_set(&npt, opt.data, old_dimensions, dpt->data);
+
+		opt.data = patch->stats->max.data;
+		npt.data = paout->stats->max.data;
+		pc_patch_point_set(&npt, opt.data, old_dimensions, dpt->data);
+
+		opt.data = patch->stats->avg.data;
+		npt.data = paout->stats->avg.data;
+		pc_patch_point_set(&npt, opt.data, old_dimensions, dpt->data);
+
+		pc_point_get_x(&paout->stats->min, &paout->bounds.xmin);
+		pc_point_get_y(&paout->stats->min, &paout->bounds.ymin);
+		pc_point_get_x(&paout->stats->max, &paout->bounds.xmax);
+		pc_point_get_y(&paout->stats->max, &paout->bounds.ymax);
+	}
+	else
+	{
+		double xscale = npt.schema->xdim->scale / opt.schema->xdim->scale;
+		double yscale = npt.schema->ydim->scale / opt.schema->ydim->scale;
+		double xoffset = npt.schema->xdim->offset - opt.schema->xdim->offset;
+		double yoffset = npt.schema->ydim->offset - opt.schema->ydim->offset;
+
+		paout->bounds.xmin = patch->bounds.xmin * xscale + xoffset;
+		paout->bounds.xmax = patch->bounds.xmax * xscale + xoffset;
+		paout->bounds.ymin = patch->bounds.ymin * yscale + yoffset;
+		paout->bounds.xmax = patch->bounds.ymax * yscale + yoffset;
+	}
+
+	pc_point_free(dpt);
+
+	if ( pain != patch )
+		pc_patch_free(pain);
+
+	return (PCPATCH*) paout;
+}

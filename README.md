@@ -470,6 +470,12 @@ Now that you have created two tables, you'll see entries for them in the `pointc
 
 > Returns a patch containing *n* points. These points are selected from the *start*-th point with 1-based indexing.
 
+**PC_SetPCId(p pcpatch, pcid int4, def float8 default 0.0)** returns **pcpatch**
+
+> Sets the schema on a PcPatch, given a valid `pcid` schema number.
+>
+> For dimensions that are in the "new" schema but not in the "old" schema the value `def` is set in the points of the output patch. `def` is optional, its default value is `0.0`.
+
 ### OGC "well-known binary" Functions
 
 **PC_AsBinary(p pcpoint)** returns **bytea**
