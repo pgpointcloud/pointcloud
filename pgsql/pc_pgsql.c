@@ -1008,7 +1008,7 @@ pc_patch_wkb_set_double(uint8_t *wkb, double d)
 static uint8_t *
 pc_patch_wkb_set_int32(uint8_t *wkb, uint32_t i)
 {
-	memcpy(wkb, &i, 8);
+	memcpy(wkb, &i, 4);
 	wkb += 4;
 	return wkb;
 }
