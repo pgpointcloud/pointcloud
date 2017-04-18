@@ -59,7 +59,7 @@ stringbuffer_create_with_size(size_t size)
 	s->str_start = malloc(size);
 	s->str_end = s->str_start;
 	s->capacity = size;
-	memset(s->str_start,0,size);
+	memset(s->str_start, 0, size);
 	return s;
 }
 
@@ -69,8 +69,8 @@ stringbuffer_create_with_size(size_t size)
 void
 stringbuffer_destroy(stringbuffer_t *s)
 {
-	if ( s->str_start ) free(s->str_start);
-	if ( s ) free(s);
+	if (s->str_start) free(s->str_start);
+	if (s) free(s);
 }
 
 /**
@@ -96,10 +96,10 @@ stringbuffer_makeroom(stringbuffer_t *s, size_t size_to_add)
 	size_t capacity = s->capacity;
 	size_t required_size = current_size + size_to_add;
 
-	if ( ! capacity ) capacity = STRINGBUFFER_STARTSIZE;
+	if (! capacity) capacity = STRINGBUFFER_STARTSIZE;
 	else while (capacity < required_size) capacity *= 2;
 
-	if ( capacity > s->capacity )
+	if (capacity > s->capacity)
 	{
 		s->str_start = realloc(s->str_start, capacity);
 		s->capacity = capacity;
@@ -113,7 +113,7 @@ stringbuffer_makeroom(stringbuffer_t *s, size_t size_to_add)
 char
 stringbuffer_lastchar(stringbuffer_t *s)
 {
-	if( s->str_end == s->str_start )
+	if (s->str_end == s->str_start)
 		return 0;
 
 	return *(s->str_end - 1);
@@ -166,8 +166,8 @@ stringbuffer_getstringcopy(stringbuffer_t *s)
 {
 	size_t size = (s->str_end - s->str_start) + 1;
 	char *str = malloc(size);
-	memcpy(str, s->str_start, size-1);
-	str[size-1] = '\0';
+	memcpy(str, s->str_start, size - 1);
+	str[size - 1] = '\0';
 	return str;
 }
 
@@ -219,7 +219,7 @@ stringbuffer_avprintf(stringbuffer_t *s, const char *fmt, va_list ap)
 	va_end(ap2);
 
 	/* Propogate errors up */
-	if ( len < 0 )
+	if (len < 0)
 	{
 #if defined(__MINGW64_VERSION_MAJOR)
 		/* Assume windows flaky vsnprintf that returns -1 if */
@@ -233,7 +233,7 @@ stringbuffer_avprintf(stringbuffer_t *s, const char *fmt, va_list ap)
 	/* We didn't have enough space! */
 	/* Either Unix vsnprint returned write length larger than our buffer */
 	/* or Windows vsnprintf returned an error code. */
-	if ( len >= maxlen )
+	if (len >= maxlen)
 	{
 		stringbuffer_makeroom(s, len + 1);
 		maxlen = (s->capacity - (s->str_end - s->str_start));
@@ -242,9 +242,9 @@ stringbuffer_avprintf(stringbuffer_t *s, const char *fmt, va_list ap)
 		len = vsnprintf(s->str_end, maxlen, fmt, ap);
 
 		/* Printing error? Error! */
-		if ( len < 0 ) return len;
+		if (len < 0) return len;
 		/* Too long still? Error! */
-		if ( len >= maxlen ) return -1;
+		if (len >= maxlen) return -1;
 	}
 
 	/* Move end pointer forward and return. */
@@ -280,10 +280,10 @@ stringbuffer_trim_trailing_white(stringbuffer_t *s)
 	int dist = 0;
 
 	/* Roll backwards until we hit a non-space. */
-	while( ptr > s->str_start )
+	while (ptr > s->str_start)
 	{
 		ptr--;
-		if( (*ptr == ' ') || (*ptr == '\t') )
+		if ((*ptr == ' ') || (*ptr == '\t'))
 		{
 			continue;
 		}
@@ -316,48 +316,48 @@ stringbuffer_trim_trailing_zeroes(stringbuffer_t *s)
 	char *decimal_ptr = NULL;
 	int dist;
 
-	if ( s->str_end - s->str_start < 2)
+	if (s->str_end - s->str_start < 2)
 		return 0;
 
 	/* Roll backwards to find the decimal for this number */
-	while( ptr > s->str_start )
+	while (ptr > s->str_start)
 	{
 		ptr--;
-		if ( *ptr == '.' )
+		if (*ptr == '.')
 		{
 			decimal_ptr = ptr;
 			break;
 		}
-		if ( (*ptr >= '0') && (*ptr <= '9' ) )
+		if ((*ptr >= '0') && (*ptr <= '9'))
 			continue;
 		else
 			break;
 	}
 
 	/* No decimal? Nothing to trim! */
-	if ( ! decimal_ptr )
+	if (! decimal_ptr)
 		return 0;
 
 	ptr = s->str_end;
 
 	/* Roll backwards again, with the decimal as stop point, trimming contiguous zeroes */
-	while( ptr >= decimal_ptr )
+	while (ptr >= decimal_ptr)
 	{
 		ptr--;
-		if ( *ptr == '0' )
+		if (*ptr == '0')
 			continue;
 		else
 			break;
 	}
 
 	/* Huh, we get anywhere. Must not have trimmed anything. */
-	if ( ptr == s->str_end )
+	if (ptr == s->str_end)
 		return 0;
 
 	/* If we stopped at the decimal, we want to null that out.
 	   It we stopped on a numeral, we want to preserve that, so push the
 	   pointer forward one space. */
-	if ( *ptr != '.' )
+	if (*ptr != '.')
 		ptr++;
 
 	/* Add null terminator re-set the end of the stringbuffer. */

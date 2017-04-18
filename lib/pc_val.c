@@ -17,11 +17,11 @@
 double pc_value_unscale_unoffset(double val, const PCDIMENSION *dim)
 {
 	/* Offset value */
-	if ( dim->offset )
+	if (dim->offset)
 		val -= dim->offset;
 
 	/* Scale value */
-	if ( dim->scale != 1 )
+	if (dim->scale != 1)
 		val /= dim->scale;
 
 	return val;
@@ -31,11 +31,11 @@ double pc_value_unscale_unoffset(double val, const PCDIMENSION *dim)
 double pc_value_scale_offset(double val, const PCDIMENSION *dim)
 {
 	/* Scale value */
-	if ( dim->scale != 1 )
+	if (dim->scale != 1)
 		val *= dim->scale;
 
 	/* Offset value */
-	if ( dim->offset )
+	if (dim->offset)
 		val += dim->offset;
 
 	return val;
@@ -51,7 +51,7 @@ pc_value_from_ptr(const uint8_t *ptr, const PCDIMENSION *dim)
 double
 pc_double_from_ptr(const uint8_t *ptr, uint32_t interpretation)
 {
-	switch( interpretation )
+	switch (interpretation)
 	{
 	case PC_UINT8:
 	{
@@ -134,12 +134,12 @@ pc_double_from_ptr(const uint8_t *ptr, uint32_t interpretation)
 int
 pc_double_to_ptr(uint8_t *ptr, uint32_t interpretation, double val)
 {
-	switch( interpretation )
+	switch (interpretation)
 	{
 	case PC_UINT8:
 	{
 		uint8_t v;
-		CLAMP(val, 0, UINT8_MAX, "uint8_t","%u");
+		CLAMP(val, 0, UINT8_MAX, "uint8_t", "%u");
 		v = (uint8_t)lround(val);
 		memcpy(ptr, &(v), sizeof(uint8_t));
 		break;
@@ -147,7 +147,7 @@ pc_double_to_ptr(uint8_t *ptr, uint32_t interpretation, double val)
 	case PC_UINT16:
 	{
 		uint16_t v;
-		CLAMP(val, 0, UINT16_MAX, "uint16_t","%u");
+		CLAMP(val, 0, UINT16_MAX, "uint16_t", "%u");
 		v = (uint16_t)lround(val);
 		memcpy(ptr, &(v), sizeof(uint16_t));
 		break;
@@ -155,7 +155,7 @@ pc_double_to_ptr(uint8_t *ptr, uint32_t interpretation, double val)
 	case PC_UINT32:
 	{
 		uint32_t v;
-		CLAMP(val, 0, UINT32_MAX, "uint32","%u");
+		CLAMP(val, 0, UINT32_MAX, "uint32", "%u");
 		v = (uint32_t)lround(val);
 		memcpy(ptr, &(v), sizeof(uint32_t));
 		break;
@@ -163,7 +163,7 @@ pc_double_to_ptr(uint8_t *ptr, uint32_t interpretation, double val)
 	case PC_UINT64:
 	{
 		uint64_t v;
-		CLAMP(val, 0, UINT64_MAX, "uint64","%u");
+		CLAMP(val, 0, UINT64_MAX, "uint64", "%u");
 		v = (uint64_t)lround(val);
 		memcpy(ptr, &(v), sizeof(uint64_t));
 		break;
@@ -171,7 +171,7 @@ pc_double_to_ptr(uint8_t *ptr, uint32_t interpretation, double val)
 	case PC_INT8:
 	{
 		int8_t v;
-		CLAMP(val, INT8_MIN, INT8_MAX, "int8","%d");
+		CLAMP(val, INT8_MIN, INT8_MAX, "int8", "%d");
 		v = (int8_t)lround(val);
 		memcpy(ptr, &(v), sizeof(int8_t));
 		break;
@@ -179,7 +179,7 @@ pc_double_to_ptr(uint8_t *ptr, uint32_t interpretation, double val)
 	case PC_INT16:
 	{
 		int16_t v;
-		CLAMP(val, INT16_MIN, INT16_MAX, "int16","%d");
+		CLAMP(val, INT16_MIN, INT16_MAX, "int16", "%d");
 		v = (int16_t)lround(val);
 		memcpy(ptr, &(v), sizeof(int16_t));
 		break;
@@ -187,7 +187,7 @@ pc_double_to_ptr(uint8_t *ptr, uint32_t interpretation, double val)
 	case PC_INT32:
 	{
 		int32_t v;
-		CLAMP(val, INT32_MIN, INT32_MAX, "int32","%d");
+		CLAMP(val, INT32_MIN, INT32_MAX, "int32", "%d");
 		v = (int32_t)lround(val);
 		memcpy(ptr, &(v), sizeof(int32_t));
 		break;
@@ -195,7 +195,7 @@ pc_double_to_ptr(uint8_t *ptr, uint32_t interpretation, double val)
 	case PC_INT64:
 	{
 		int64_t v;
-		CLAMP(val, INT64_MIN, INT64_MAX, "int64","%d");
+		CLAMP(val, INT64_MIN, INT64_MAX, "int64", "%d");
 		v = (int64_t)lround(val);
 		memcpy(ptr, &(v), sizeof(int64_t));
 		break;

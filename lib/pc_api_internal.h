@@ -252,7 +252,7 @@ uint32_t pc_bytes_run_count(const PCBYTES *pcb);
 /** How many bits are shared by all elements of this array? */
 uint32_t pc_bytes_sigbits_count(const PCBYTES *pcb);
 /** Using an 8-bit word, what is the common word and number of bits in common? */
-uint8_t  pc_bytes_sigbits_count_8 (const PCBYTES *pcb, uint32_t *nsigbits);
+uint8_t  pc_bytes_sigbits_count_8(const PCBYTES *pcb, uint32_t *nsigbits);
 /** Using an 16-bit word, what is the common word and number of bits in common? */
 uint16_t pc_bytes_sigbits_count_16(const PCBYTES *pcb, uint32_t *nsigbits);
 /** Using an 32-bit word, what is the common word and number of bits in common? */

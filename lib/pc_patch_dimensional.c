@@ -45,7 +45,7 @@ pc_patch_dimensional_serialized_size(const PCPATCH_DIMENSIONAL *patch)
 	PCPATCH_DIMENSIONAL *p = (PCPATCH_DIMENSIONAL*)patch;
 	int i;
 	size_t size = 0;
-	for ( i = 0; i < p->schema->ndims; i++ )
+	for (i = 0; i < p->schema->ndims; i++)
 	{
 		size += pc_bytes_serialized_size(&(p->bytes[i]));
 	}
@@ -75,7 +75,7 @@ pc_patch_dimensional_from_uncompressed(const PCPATCH_UNCOMPRESSED *pa)
 	ndims = schema->ndims;
 
 	/* Cannot handle empty patches */
-	if ( npoints == 0 ) return NULL;
+	if (npoints == 0) return NULL;
 
 	/* Initialize dimensional */
 	pdl = pcalloc(sizeof(PCPATCH_DIMENSIONAL));
@@ -87,11 +87,11 @@ pc_patch_dimensional_from_uncompressed(const PCPATCH_UNCOMPRESSED *pa)
 	pdl->stats = pc_stats_clone(pa->stats);
 	pdl->bytes = pcalloc(ndims * sizeof(PCBYTES));
 
-	for ( i = 0; i < ndims; i++ )
+	for (i = 0; i < ndims; i++)
 	{
 		PCDIMENSION *dim = pc_schema_get_dimension(schema, i);
 		pdl->bytes[i] = pc_bytes_make(dim, npoints);
-		for ( j = 0; j < npoints; j++ )
+		for (j = 0; j < npoints; j++)
 		{
 			uint8_t *to = pdl->bytes[i].bytes + dim->size * j;
 			uint8_t *from = pa->data + schema->size * j + dim->byteoffset;
@@ -112,25 +112,25 @@ pc_patch_dimensional_compress(const PCPATCH_DIMENSIONAL *pdl, PCDIMSTATS *pds_in
 	assert(pdl);
 	assert(pdl->schema);
 
-	if ( ! pds )
+	if (! pds)
 		pds = pc_dimstats_make(pdl->schema);
 
 	/* Still sampling, update stats */
-	if ( pds->total_points < PCDIMSTATS_MIN_SAMPLE )
+	if (pds->total_points < PCDIMSTATS_MIN_SAMPLE)
 		pc_dimstats_update(pds, pdl);
 
 	pdl_compressed = pcalloc(sizeof(PCPATCH_DIMENSIONAL));
 	memcpy(pdl_compressed, pdl, sizeof(PCPATCH_DIMENSIONAL));
-	pdl_compressed->bytes = pcalloc(ndims*sizeof(PCBYTES));
+	pdl_compressed->bytes = pcalloc(ndims * sizeof(PCBYTES));
 	pdl_compressed->stats = pc_stats_clone(pdl->stats);
 
 	/* Compress each dimension as dictated by stats */
-	for ( i = 0; i < ndims; i++ )
+	for (i = 0; i < ndims; i++)
 	{
 		pdl_compressed->bytes[i] = pc_bytes_encode(pdl->bytes[i], pds->stats[i].recommended_compression);
 	}
 
-	if ( pds != pds_in ) pc_dimstats_free(pds);
+	if (pds != pds_in) pc_dimstats_free(pds);
 
 	return pdl_compressed;
 }
@@ -147,10 +147,10 @@ pc_patch_dimensional_decompress(const PCPATCH_DIMENSIONAL *pdl)
 
 	pdl_decompressed = pcalloc(sizeof(PCPATCH_DIMENSIONAL));
 	memcpy(pdl_decompressed, pdl, sizeof(PCPATCH_DIMENSIONAL));
-	pdl_decompressed->bytes = pcalloc(ndims*sizeof(PCBYTES));
+	pdl_decompressed->bytes = pcalloc(ndims * sizeof(PCBYTES));
 
 	/* Compress each dimension as dictated by stats */
-	for ( i = 0; i < ndims; i++ )
+	for (i = 0; i < ndims; i++)
 	{
 		pdl_decompressed->bytes[i] = pc_bytes_decode(pdl->bytes[i]);
 	}
@@ -165,9 +165,9 @@ pc_patch_dimensional_free(PCPATCH_DIMENSIONAL *pdl)
 	assert(pdl);
 	assert(pdl->schema);
 
-	if ( pdl->bytes )
+	if (pdl->bytes)
 	{
-		for ( i = 0; i < pdl->schema->ndims; i++ )
+		for (i = 0; i < pdl->schema->ndims; i++)
 			pc_bytes_free(pdl->bytes[i]);
 
 		pcfree(pdl->bytes);
@@ -191,7 +191,7 @@ pc_patch_dimensional_compute_extent(PCPATCH_DIMENSIONAL *pdl)
 	/* Get x extremes */
 	pcb = &(pdl->bytes[pdl->schema->xdim->position]);
 	rv = pc_bytes_minmax(pcb, &xmin, &xmax, &xavg);
-	if ( PC_FAILURE == rv ) return PC_FAILURE;
+	if (PC_FAILURE == rv) return PC_FAILURE;
 	xmin = pc_value_scale_offset(xmin, pdl->schema->xdim);
 	xmax = pc_value_scale_offset(xmax, pdl->schema->xdim);
 	pdl->bounds.xmin = xmin;
@@ -200,7 +200,7 @@ pc_patch_dimensional_compute_extent(PCPATCH_DIMENSIONAL *pdl)
 	/* Get y extremes */
 	pcb = &(pdl->bytes[pdl->schema->ydim->position]);
 	rv = pc_bytes_minmax(pcb, &ymin, &ymax, &yavg);
-	if ( PC_FAILURE == rv ) return PC_FAILURE;
+	if (PC_FAILURE == rv) return PC_FAILURE;
 	ymin = pc_value_scale_offset(ymin, pdl->schema->ydim);
 	ymax = pc_value_scale_offset(ymax, pdl->schema->ydim);
 	pdl->bounds.ymin = ymin;
@@ -235,7 +235,7 @@ pc_patch_dimensional_to_wkb(const PCPATCH_DIMENSIONAL *patch, size_t *wkbsize)
 	memcpy(wkb + 9, &npoints,     4); /* Write npoints */
 
 	buf = wkb + 13;
-	for ( i = 0; i < ndims; i++ )
+	for (i = 0; i < ndims; i++)
 	{
 		size_t bsz;
 		PCBYTES *pcb = &(patch->bytes[i]);
@@ -245,7 +245,7 @@ pc_patch_dimensional_to_wkb(const PCPATCH_DIMENSIONAL *patch, size_t *wkbsize)
 		buf += bsz;
 	}
 
-	if ( wkbsize ) *wkbsize = size;
+	if (wkbsize) *wkbsize = size;
 	return wkb;
 }
 
@@ -260,14 +260,14 @@ pc_patch_dimensional_from_wkb(const PCSCHEMA *schema, const uint8_t *wkb, size_t
 	uint32:   npoints
 	dimensions[]:  dims (interpret relative to pcid and compressions)
 	*/
-	static size_t hdrsz = 1+4+4+4; /* endian + pcid + compression + npoints */
+	static size_t hdrsz = 1 + 4 + 4 + 4; /* endian + pcid + compression + npoints */
 	PCPATCH_DIMENSIONAL *patch;
 	uint8_t swap_endian = (wkb[0] != machine_endian());
 	uint32_t npoints, ndims;
 	const uint8_t *buf;
 	int i;
 
-	if ( wkb_get_compression(wkb) != PC_DIMENSIONAL )
+	if (wkb_get_compression(wkb) != PC_DIMENSIONAL)
 	{
 		pcerror("%s: call with wkb that is not dimensionally compressed", __func__);
 		return NULL;
@@ -281,10 +281,10 @@ pc_patch_dimensional_from_wkb(const PCSCHEMA *schema, const uint8_t *wkb, size_t
 	patch->readonly = PC_FALSE;
 	patch->schema = schema;
 	patch->npoints = npoints;
-	patch->bytes = pcalloc(ndims*sizeof(PCBYTES));
+	patch->bytes = pcalloc(ndims * sizeof(PCBYTES));
 
-	buf = wkb+hdrsz;
-	for ( i = 0; i < ndims; i++ )
+	buf = wkb + hdrsz;
+	for (i = 0; i < ndims; i++)
 	{
 		PCBYTES *pcb = &(patch->bytes[i]);
 		PCDIMENSION *dim = schema->dims[i];
@@ -300,7 +300,7 @@ PCPATCH_DIMENSIONAL *
 pc_patch_dimensional_from_pointlist(const PCPOINTLIST *pdl)
 {
 	PCPATCH_UNCOMPRESSED *patch = pc_patch_uncompressed_from_pointlist(pdl);
-	if ( ! patch ) return NULL;
+	if (! patch) return NULL;
 	PCPATCH_DIMENSIONAL *dimpatch = pc_patch_dimensional_from_uncompressed(patch);
 	pc_patch_free((PCPATCH*)patch);
 	return dimpatch;
@@ -315,10 +315,10 @@ PCPOINT *pc_patch_dimensional_pointn(const PCPATCH_DIMENSIONAL *pdl, int n)
 	int ndims = pdl->schema->ndims;
 	PCPOINT *pt = pc_point_make(pdl->schema);
 	uint8_t *buf = pt->data;
-	for ( i = 0; i < ndims; i++ )
+	for (i = 0; i < ndims; i++)
 	{
 		PCDIMENSION *dim = pc_schema_get_dimension(pdl->schema, i);
-		pc_bytes_to_ptr(buf+dim->byteoffset,pdl->bytes[i], n);
+		pc_bytes_to_ptr(buf + dim->byteoffset, pdl->bytes[i], n);
 	}
 
 	return pt;

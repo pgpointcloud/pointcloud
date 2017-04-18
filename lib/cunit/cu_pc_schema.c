@@ -137,11 +137,11 @@ test_dimension_byteoffsets()
 	int prev_size;
 	int pc_size;
 
-	for ( i = 0; i < schema->ndims; i++ )
+	for (i = 0; i < schema->ndims; i++)
 	{
 		d = pc_schema_get_dimension(schema, i);
 		// printf("d=%d name='%s' size=%d byteoffset=%d\n", i, d->name, d->size, d->byteoffset);
-		if ( i > 0 )
+		if (i > 0)
 		{
 			CU_ASSERT_EQUAL(prev_size, pc_size);
 			CU_ASSERT_EQUAL(prev_size, d->byteoffset - prev_byteoffset);
@@ -221,7 +221,8 @@ test_schema_clone(void)
 	CU_ASSERT_EQUAL(chash->hashfn, hash->hashfn);
 	CU_ASSERT_EQUAL(chash->eqfn, hash->eqfn);
 	CU_ASSERT(chash->table != hash->table); /* deep clone */
-	for (i=0; i<schema->ndims; ++i) {
+	for (i = 0; i < schema->ndims; ++i)
+	{
 		PCDIMENSION *dim = schema->dims[i];
 		PCDIMENSION *cdim = clone->dims[i];
 		CU_ASSERT(dim != cdim); /* deep clone */
@@ -235,7 +236,7 @@ test_schema_clone(void)
 		CU_ASSERT_EQUAL(cdim->offset, dim->offset);
 		CU_ASSERT_EQUAL(cdim->active, dim->active);
 		/* hash table is correctly setup */
-		CU_ASSERT_EQUAL(cdim, hashtable_search(clone->namehash, dim->name) );
+		CU_ASSERT_EQUAL(cdim, hashtable_search(clone->namehash, dim->name));
 	}
 
 	pc_schema_free(clone);
@@ -306,7 +307,8 @@ test_schema_clone_empty_name(void)
 
 /* REGISTER ***********************************************************/
 
-CU_TestInfo schema_tests[] = {
+CU_TestInfo schema_tests[] =
+{
 	PC_TEST(test_schema_from_xml),
 	PC_TEST(test_schema_from_xml_with_empty_description),
 	PC_TEST(test_schema_from_xml_with_empty_name),
@@ -325,7 +327,8 @@ CU_TestInfo schema_tests[] = {
 	CU_TEST_INFO_NULL
 };
 
-CU_SuiteInfo schema_suite = {
+CU_SuiteInfo schema_suite =
+{
 	.pName = "schema",
 	.pInitFunc = init_suite,
 	.pCleanupFunc = clean_suite,

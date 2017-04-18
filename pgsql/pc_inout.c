@@ -38,12 +38,12 @@ Datum pcpatch_bounding_diagonal_as_bytea(PG_FUNCTION_ARGS);
 static void
 pcid_consistent(const uint32 pcid, const uint32 column_pcid)
 {
-	if ( column_pcid && pcid != column_pcid )
+	if (column_pcid && pcid != column_pcid)
 	{
 		ereport(ERROR, (
-			errcode(ERRCODE_DATATYPE_MISMATCH),
-			errmsg("point/patch pcid (%u) does not match column pcid (%d)", pcid, column_pcid)
-		));
+					errcode(ERRCODE_DATATYPE_MISMATCH),
+					errmsg("point/patch pcid (%u) does not match column pcid (%d)", pcid, column_pcid)
+				));
 	}
 }
 
@@ -58,20 +58,20 @@ Datum pcpoint_in(PG_FUNCTION_ARGS)
 	PCPOINT *pt;
 	SERIALIZED_POINT *serpt = NULL;
 
-	if ( (PG_NARGS()>2) && (!PG_ARGISNULL(2)) )
+	if ((PG_NARGS() > 2) && (!PG_ARGISNULL(2)))
 	{
 		typmod = PG_GETARG_INT32(2);
 		pcid = pcid_from_typmod(typmod);
 	}
 
 	/* Empty string. */
-	if ( str[0] == '\0' )
+	if (str[0] == '\0')
 	{
-		ereport(ERROR,(errmsg("pcpoint parse error - empty string")));
+		ereport(ERROR, (errmsg("pcpoint parse error - empty string")));
 	}
 
 	/* Binary or text form? Let's find out. */
-	if ( str[0] == '0' )
+	if (str[0] == '0')
 	{
 		/* Hex-encoded binary */
 		pt = pc_point_from_hexwkb(str, strlen(str), fcinfo);
@@ -81,10 +81,10 @@ Datum pcpoint_in(PG_FUNCTION_ARGS)
 	}
 	else
 	{
-		ereport(ERROR,(errmsg("parse error - support for text format not yet implemented")));
+		ereport(ERROR, (errmsg("parse error - support for text format not yet implemented")));
 	}
 
-	if ( serpt ) PG_RETURN_POINTER(serpt);
+	if (serpt) PG_RETURN_POINTER(serpt);
 	else PG_RETURN_NULL();
 }
 
@@ -114,20 +114,20 @@ Datum pcpatch_in(PG_FUNCTION_ARGS)
 	PCPATCH *patch;
 	SERIALIZED_PATCH *serpatch = NULL;
 
-	if ( (PG_NARGS()>2) && (!PG_ARGISNULL(2)) )
+	if ((PG_NARGS() > 2) && (!PG_ARGISNULL(2)))
 	{
 		typmod = PG_GETARG_INT32(2);
 		pcid = pcid_from_typmod(typmod);
 	}
 
 	/* Empty string. */
-	if ( str[0] == '\0' )
+	if (str[0] == '\0')
 	{
-		ereport(ERROR,(errmsg("pcpatch parse error - empty string")));
+		ereport(ERROR, (errmsg("pcpatch parse error - empty string")));
 	}
 
 	/* Binary or text form? Let's find out. */
-	if ( str[0] == '0' )
+	if (str[0] == '0')
 	{
 		/* Hex-encoded binary */
 		patch = pc_patch_from_hexwkb(str, strlen(str), fcinfo);
@@ -137,10 +137,10 @@ Datum pcpatch_in(PG_FUNCTION_ARGS)
 	}
 	else
 	{
-		ereport(ERROR,(errmsg("parse error - support for text format not yet implemented")));
+		ereport(ERROR, (errmsg("parse error - support for text format not yet implemented")));
 	}
 
-	if ( serpatch ) PG_RETURN_POINTER(serpatch);
+	if (serpatch) PG_RETURN_POINTER(serpatch);
 	else PG_RETURN_NULL();
 }
 
@@ -169,7 +169,7 @@ Datum pcschema_is_valid(PG_FUNCTION_ARGS)
 	PCSCHEMA *schema = pc_schema_from_xml(xmlstr);
 	pfree(xmlstr);
 
-	if ( !schema )
+	if (!schema)
 	{
 		PG_RETURN_BOOL(FALSE);
 	}
@@ -186,7 +186,7 @@ Datum pcschema_get_ndims(PG_FUNCTION_ARGS)
 	uint32 pcid = PG_GETARG_INT32(0);
 	PCSCHEMA *schema = pc_schema_from_pcid(pcid, fcinfo);
 
-	if ( ! schema )
+	if (! schema)
 		elog(ERROR, "unable to load schema for pcid = %d", pcid);
 
 	ndims = schema->ndims;
@@ -207,20 +207,20 @@ Datum pcpoint_from_double_array(PG_FUNCTION_ARGS)
 	PCSCHEMA *schema = pc_schema_from_pcid(pcid, fcinfo);
 	SERIALIZED_POINT *serpt;
 
-	if ( ! schema )
+	if (! schema)
 		elog(ERROR, "unable to load schema for pcid = %d", pcid);
 
-	if ( ARR_ELEMTYPE(arrptr) != FLOAT8OID )
+	if (ARR_ELEMTYPE(arrptr) != FLOAT8OID)
 		elog(ERROR, "array must be of float8[]");
 
-	if ( ARR_NDIM(arrptr) != 1 )
+	if (ARR_NDIM(arrptr) != 1)
 		elog(ERROR, "float8[] must have only one dimension");
 
-	if ( ARR_HASNULL(arrptr) )
+	if (ARR_HASNULL(arrptr))
 		elog(ERROR, "float8[] must not have null elements");
 
 	nelems = ARR_DIMS(arrptr)[0];
-	if ( nelems != schema->ndims || ARR_LBOUND(arrptr)[0] > 1 )
+	if (nelems != schema->ndims || ARR_LBOUND(arrptr)[0] > 1)
 		elog(ERROR, "array dimensions do not match schema dimensions of pcid = %d", pcid);
 
 	vals = (float8*) ARR_DATA_PTR(arrptr);
@@ -239,7 +239,7 @@ Datum pcpoint_as_text(PG_FUNCTION_ARGS)
 	char *str;
 	PCSCHEMA *schema = pc_schema_from_pcid(serpt->pcid, fcinfo);
 	PCPOINT *pt = pc_point_deserialize(serpt, schema);
-	if ( ! pt )
+	if (! pt)
 		PG_RETURN_NULL();
 
 	str = pc_point_to_string(pt);
@@ -257,7 +257,7 @@ Datum pcpatch_as_text(PG_FUNCTION_ARGS)
 	char *str;
 	PCSCHEMA *schema = pc_schema_from_pcid(serpatch->pcid, fcinfo);
 	PCPATCH *patch = pc_patch_deserialize(serpatch, schema);
-	if ( ! patch )
+	if (! patch)
 		PG_RETURN_NULL();
 
 	str = pc_patch_to_string(patch);
@@ -278,7 +278,7 @@ Datum pcpoint_as_bytea(PG_FUNCTION_ARGS)
 	PCSCHEMA *schema = pc_schema_from_pcid(serpt->pcid, fcinfo);
 	PCPOINT *pt = pc_point_deserialize(serpt, schema);
 
-	if ( ! pt )
+	if (! pt)
 		PG_RETURN_NULL();
 
 	bytes = pc_point_to_geometry_wkb(pt, &bytes_size);
@@ -329,13 +329,13 @@ Datum pcpatch_bounding_diagonal_as_bytea(PG_FUNCTION_ARGS)
 	serpatch = PG_GETHEADERX_SERPATCH_P(0, stats_size_guess);
 	schema = pc_schema_from_pcid(serpatch->pcid, fcinfo);
 
-	if ( schema->zdim || schema->mdim )
+	if (schema->zdim || schema->mdim)
 	{
-		if ( stats_size_guess < pc_stats_size(schema) )
+		if (stats_size_guess < pc_stats_size(schema))
 			serpatch = PG_GETHEADERX_SERPATCH_P(0, pc_stats_size(schema));
 
 		stats = pc_patch_stats_deserialize(schema, serpatch->data);
-		if ( !stats )
+		if (!stats)
 			PG_RETURN_NULL();
 
 		bytes = pc_bounding_diagonal_wkb_from_stats(stats, &bytes_size);
@@ -345,7 +345,7 @@ Datum pcpatch_bounding_diagonal_as_bytea(PG_FUNCTION_ARGS)
 	else
 	{
 		bytes = pc_bounding_diagonal_wkb_from_bounds(
-			&serpatch->bounds, schema, &bytes_size);
+					&serpatch->bounds, schema, &bytes_size);
 	}
 
 	wkb_size = VARHDRSZ + bytes_size;
@@ -369,31 +369,31 @@ Datum pc_typmod_in(PG_FUNCTION_ARGS)
 
 	if (ARR_ELEMTYPE(arr) != CSTRINGOID)
 		ereport(ERROR,
-			(errcode(ERRCODE_ARRAY_ELEMENT_ERROR),
-			errmsg("typmod array must be type cstring[]")));
+				(errcode(ERRCODE_ARRAY_ELEMENT_ERROR),
+				 errmsg("typmod array must be type cstring[]")));
 
 	if (ARR_NDIM(arr) != 1)
 		ereport(ERROR,
-			(errcode(ERRCODE_ARRAY_SUBSCRIPT_ERROR),
-			errmsg("typmod array must be one-dimensional")));
+				(errcode(ERRCODE_ARRAY_SUBSCRIPT_ERROR),
+				 errmsg("typmod array must be one-dimensional")));
 
 	if (ARR_HASNULL(arr))
 		ereport(ERROR,
-			(errcode(ERRCODE_NULL_VALUE_NOT_ALLOWED),
-			errmsg("typmod array must not contain nulls")));
+				(errcode(ERRCODE_NULL_VALUE_NOT_ALLOWED),
+				 errmsg("typmod array must not contain nulls")));
 
 	if (ArrayGetNItems(ARR_NDIM(arr), ARR_DIMS(arr)) > 1)
 		ereport(ERROR,
-			(errcode(ERRCODE_ARRAY_SUBSCRIPT_ERROR),
-			errmsg("typmod array must have one element")));
+				(errcode(ERRCODE_ARRAY_SUBSCRIPT_ERROR),
+				 errmsg("typmod array must have one element")));
 
 	deconstruct_array(arr,
-		CSTRINGOID, -2, false, 'c', /* hardwire cstring representation details */
-		&elem_values, NULL, &n);
+					  CSTRINGOID, -2, false, 'c', /* hardwire cstring representation details */
+					  &elem_values, NULL, &n);
 
 	for (i = 0; i < n; i++)
 	{
-		if ( i == 0 ) /* PCID */
+		if (i == 0)   /* PCID */
 		{
 			char *s = DatumGetCString(elem_values[i]);
 			typmod = pg_atoi(s, sizeof(int32), '\0');
@@ -412,7 +412,7 @@ Datum pc_typmod_out(PG_FUNCTION_ARGS)
 
 
 	/* No PCID value? Then no typmod at all. Return empty string. */
-	if ( ! pcid )
+	if (! pcid)
 	{
 		str[0] = '\0';
 		PG_RETURN_CSTRING(str);
@@ -430,7 +430,7 @@ Datum pc_typmod_pcid(PG_FUNCTION_ARGS)
 {
 	uint32 typmod = PG_GETARG_INT32(0);
 	uint32 pcid = pcid_from_typmod(typmod);
-	if ( ! pcid )
+	if (! pcid)
 		PG_RETURN_NULL();
 	else
 		PG_RETURN_INT32(pcid);
@@ -447,7 +447,7 @@ Datum pcpatch_enforce_typmod(PG_FUNCTION_ARGS)
 	/* bool isExplicit = PG_GETARG_BOOL(2); */
 
 	/* Check if column typmod is consistent with the object */
-	if ( pcid != arg->pcid )
+	if (pcid != arg->pcid)
 		elog(ERROR, "column pcid (%d) and patch pcid (%d) are not consistent", pcid, arg->pcid);
 
 	PG_RETURN_POINTER(arg);
@@ -463,7 +463,7 @@ Datum pcpoint_enforce_typmod(PG_FUNCTION_ARGS)
 	/* bool isExplicit = PG_GETARG_BOOL(2); */
 
 	/* Check if column typmod is consistent with the object */
-	if ( pcid != arg->pcid )
+	if (pcid != arg->pcid)
 		elog(ERROR, "column pcid (%d) and point pcid (%d) are not consistent", pcid, arg->pcid);
 
 	PG_RETURN_POINTER(arg);

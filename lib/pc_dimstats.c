@@ -37,7 +37,7 @@ pc_dimstats_make(const PCSCHEMA *schema)
 void
 pc_dimstats_free(PCDIMSTATS *pds)
 {
-	if ( pds->stats )
+	if (pds->stats)
 		pcfree(pds->stats);
 	pcfree(pds);
 }
@@ -66,21 +66,21 @@ pc_dimstats_to_string(const PCDIMSTATS *pds)
 	char *str;
 
 	stringbuffer_aprintf(sb,
-		"{\"ndims\":%d,\"total_points\":%d,\"total_patches\":%d,\"dims\":[",
-		pds->ndims,
-		pds->total_points,
-		pds->total_patches
-	);
+						 "{\"ndims\":%d,\"total_points\":%d,\"total_patches\":%d,\"dims\":[",
+						 pds->ndims,
+						 pds->total_points,
+						 pds->total_patches
+						);
 
-	for ( i = 0; i < pds->ndims; i++ )
+	for (i = 0; i < pds->ndims; i++)
 	{
-		if ( i ) stringbuffer_append(sb, ",");
+		if (i) stringbuffer_append(sb, ",");
 		stringbuffer_aprintf(sb,
-			"{\"total_runs\":%d,\"total_commonbits\":%d,\"recommended_compression\":%d}",
-			pds->stats[i].total_runs,
-			pds->stats[i].total_commonbits,
-			pds->stats[i].recommended_compression
-		);
+							 "{\"total_runs\":%d,\"total_commonbits\":%d,\"recommended_compression\":%d}",
+							 pds->stats[i].total_runs,
+							 pds->stats[i].total_commonbits,
+							 pds->stats[i].recommended_compression
+							);
 	}
 	stringbuffer_append(sb, "]}");
 
@@ -100,7 +100,7 @@ pc_dimstats_update(PCDIMSTATS *pds, const PCPATCH_DIMENSIONAL *pdl)
 	pds->total_patches += 1;
 
 	/* Update dimensional stats */
-	for ( i = 0; i < pds->ndims; i++ )
+	for (i = 0; i < pds->ndims; i++)
 	{
 		PCBYTES pcb = pdl->bytes[i];
 		pds->stats[i].total_runs += pc_bytes_run_count(&pcb);
@@ -108,7 +108,7 @@ pc_dimstats_update(PCDIMSTATS *pds, const PCPATCH_DIMENSIONAL *pdl)
 	}
 
 	/* Update recommended compression schema */
-	for ( i = 0; i < pds->ndims; i++ )
+	for (i = 0; i < pds->ndims; i++)
 	{
 		PCDIMENSION *dim = pc_schema_get_dimension(schema, i);
 		/* Uncompressed size, foreach point, one value entry */
@@ -117,21 +117,21 @@ pc_dimstats_update(PCDIMSTATS *pds, const PCPATCH_DIMENSIONAL *pdl)
 		double rle_size = pds->stats[i].total_runs * (dim->size + 1);
 		/* Sigbits size, for each patch, one header and n bits for each entry */
 		double avg_commonbits_per_patch = pds->stats[i].total_commonbits / pds->total_patches;
-		double avg_uniquebits_per_patch = 8*dim->size - avg_commonbits_per_patch;
+		double avg_uniquebits_per_patch = 8 * dim->size - avg_commonbits_per_patch;
 		double sigbits_size = pds->total_patches * 2 * dim->size + pds->total_points * avg_uniquebits_per_patch / 8;
 		/* Default to ZLib */
 		pds->stats[i].recommended_compression = PC_DIM_ZLIB;
 		/* Only use rle and sigbits compression on integer values */
 		/* If we can do better than 4:1 we might beat zlib */
-		if ( dim->interpretation != PC_DOUBLE )
+		if (dim->interpretation != PC_DOUBLE)
 		{
 			/* If sigbits is better than 4:1, use that */
-			if ( raw_size/sigbits_size > 1.6 )
+			if (raw_size / sigbits_size > 1.6)
 			{
 				pds->stats[i].recommended_compression = PC_DIM_SIGBITS;
 			}
 			/* If RLE size is even better, use that. */
-			if ( raw_size/rle_size > 4.0 )
+			if (raw_size / rle_size > 4.0)
 			{
 				pds->stats[i].recommended_compression = PC_DIM_RLE;
 			}

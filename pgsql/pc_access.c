@@ -72,11 +72,11 @@ Datum pcpoint_get_value(PG_FUNCTION_ARGS)
 
 	PCSCHEMA *schema = pc_schema_from_pcid(serpt->pcid, fcinfo);
 	PCPOINT *pt = pc_point_deserialize(serpt, schema);
-	if ( ! pt )
+	if (! pt)
 		PG_RETURN_NULL();
 
 	dim_str = text_to_cstring(dim_name);
-	if ( ! pc_point_get_double_by_name(pt, dim_str, &double_result) )
+	if (! pc_point_get_double_by_name(pt, dim_str, &double_result))
 	{
 		pc_point_free(pt);
 		elog(ERROR, "dimension \"%s\" does not exist in schema", dim_str);
@@ -104,15 +104,15 @@ Datum pcpoint_get_values(PG_FUNCTION_ARGS)
 	serpt = PG_GETARG_SERPOINT_P(0);
 	schema = pc_schema_from_pcid(serpt->pcid, fcinfo);
 	pt = pc_point_deserialize(serpt, schema);
-	if ( ! pt ) PG_RETURN_NULL();
+	if (! pt) PG_RETURN_NULL();
 
-	elems = (Datum * )palloc(schema->ndims * sizeof(Datum) );
+	elems = (Datum *)palloc(schema->ndims * sizeof(Datum));
 	vals = pc_point_to_double_array(pt);
 	i = schema->ndims;
 	while (i--) elems[i] = Float8GetDatum(vals[i]);
 	pcfree(vals);
 	result = construct_array(elems, schema->ndims, FLOAT8OID,
-		sizeof(float8), FLOAT8PASSBYVAL, 'd');
+							 sizeof(float8), FLOAT8PASSBYVAL, 'd');
 
 	pc_point_free(pt);
 	PG_RETURN_ARRAYTYPE_P(result);
@@ -152,7 +152,7 @@ pcpatch_from_point_array(ArrayType *array, FunctionCallInfoData *fcinfo)
 	bitmap = ARR_NULLBITMAP(array);
 
 	/* Empty array? Null return */
-	if ( nelems == 0 )
+	if (nelems == 0)
 		return NULL;
 
 	/* Make our holder */
@@ -160,30 +160,30 @@ pcpatch_from_point_array(ArrayType *array, FunctionCallInfoData *fcinfo)
 
 	offset = 0;
 	bitmap = ARR_NULLBITMAP(array);
-	for ( i = 0; i < nelems; i++ )
+	for (i = 0; i < nelems; i++)
 	{
 		/* Only work on non-NULL entries in the array */
-		if ( ! array_get_isnull(bitmap, i) )
+		if (! array_get_isnull(bitmap, i))
 		{
-			SERIALIZED_POINT *serpt = (SERIALIZED_POINT *)(ARR_DATA_PTR(array)+offset);
+			SERIALIZED_POINT *serpt = (SERIALIZED_POINT *)(ARR_DATA_PTR(array) + offset);
 			PCPOINT *pt;
 
-			if ( ! schema )
+			if (! schema)
 			{
 				schema = pc_schema_from_pcid(serpt->pcid, fcinfo);
 			}
 
-			if ( ! pcid )
+			if (! pcid)
 			{
 				pcid = serpt->pcid;
 			}
-			else if ( pcid != serpt->pcid )
+			else if (pcid != serpt->pcid)
 			{
 				elog(ERROR, "pcpatch_from_point_array: pcid mismatch (%d != %d)", serpt->pcid, pcid);
 			}
 
 			pt = pc_point_deserialize(serpt, schema);
-			if ( ! pt )
+			if (! pt)
 			{
 				elog(ERROR, "pcpatch_from_point_array: point deserialization failed");
 			}
@@ -195,7 +195,7 @@ pcpatch_from_point_array(ArrayType *array, FunctionCallInfoData *fcinfo)
 
 	}
 
-	if ( pl->npoints == 0 )
+	if (pl->npoints == 0)
 		return NULL;
 
 	pa = pc_patch_from_pointlist(pl);
@@ -224,38 +224,38 @@ pcpatch_from_patch_array(ArrayType *array, FunctionCallInfoData *fcinfo)
 	bitmap = ARR_NULLBITMAP(array);
 
 	/* Empty array? Null return */
-	if ( nelems == 0 )
+	if (nelems == 0)
 		return NULL;
 
 	/* Make our temporary list of patches */
-	palist = pcalloc(nelems*sizeof(PCPATCH*));
+	palist = pcalloc(nelems * sizeof(PCPATCH*));
 
 	/* Read the patches out of the array and deserialize */
 	offset = 0;
 	bitmap = ARR_NULLBITMAP(array);
-	for ( i = 0; i < nelems; i++ )
+	for (i = 0; i < nelems; i++)
 	{
 		/* Only work on non-NULL entries in the array */
-		if ( ! array_get_isnull(bitmap, i) )
+		if (! array_get_isnull(bitmap, i))
 		{
-			SERIALIZED_PATCH *serpatch = (SERIALIZED_PATCH *)(ARR_DATA_PTR(array)+offset);
+			SERIALIZED_PATCH *serpatch = (SERIALIZED_PATCH *)(ARR_DATA_PTR(array) + offset);
 
-			if ( ! schema )
+			if (! schema)
 			{
 				schema = pc_schema_from_pcid(serpatch->pcid, fcinfo);
 			}
 
-			if ( ! pcid )
+			if (! pcid)
 			{
 				pcid = serpatch->pcid;
 			}
-			else if ( pcid != serpatch->pcid )
+			else if (pcid != serpatch->pcid)
 			{
 				elog(ERROR, "pcpatch_from_patch_array: pcid mismatch (%d != %d)", serpatch->pcid, pcid);
 			}
 
 			pa = pc_patch_deserialize(serpatch, schema);
-			if ( ! pa )
+			if (! pa)
 			{
 				elog(ERROR, "pcpatch_from_patch_array: patch deserialization failed");
 			}
@@ -268,14 +268,14 @@ pcpatch_from_patch_array(ArrayType *array, FunctionCallInfoData *fcinfo)
 	}
 
 	/* Can't do anything w/ NULL */
-	if ( numpatches == 0 )
+	if (numpatches == 0)
 		return NULL;
 
 	/* Pass to the lib to build the output patch from the list */
 	pa = pc_patch_from_patchlist(palist, numpatches);
 
 	/* Free the temporary patch list */
-	for ( i = 0; i < numpatches; i++ )
+	for (i = 0; i < numpatches; i++)
 	{
 		pc_patch_free(palist[i]);
 	}
@@ -292,12 +292,12 @@ Datum pcpatch_from_pcpatch_array(PG_FUNCTION_ARGS)
 	PCPATCH *pa;
 	SERIALIZED_PATCH *serpa;
 
-	if ( PG_ARGISNULL(0) )
+	if (PG_ARGISNULL(0))
 		PG_RETURN_NULL();
 
 	array = DatumGetArrayTypeP(PG_GETARG_DATUM(0));
 	pa = pcpatch_from_patch_array(array, fcinfo);
-	if ( ! pa )
+	if (! pa)
 		PG_RETURN_NULL();
 
 	serpa = pc_patch_serialize(pa, NULL);
@@ -312,12 +312,12 @@ Datum pcpatch_from_pcpoint_array(PG_FUNCTION_ARGS)
 	PCPATCH *pa;
 	SERIALIZED_PATCH *serpa;
 
-	if ( PG_ARGISNULL(0) )
+	if (PG_ARGISNULL(0))
 		PG_RETURN_NULL();
 
 	array = DatumGetArrayTypeP(PG_GETARG_DATUM(0));
 	pa = pcpatch_from_point_array(array, fcinfo);
-	if ( ! pa )
+	if (! pa)
 		PG_RETURN_NULL();
 
 	serpa = pc_patch_serialize(pa, NULL);
@@ -333,16 +333,16 @@ typedef struct
 PG_FUNCTION_INFO_V1(pointcloud_abs_in);
 Datum pointcloud_abs_in(PG_FUNCTION_ARGS)
 {
-	ereport(ERROR,(errcode(ERRCODE_FEATURE_NOT_SUPPORTED),
-		errmsg("function pointcloud_abs_in not implemented")));
+	ereport(ERROR, (errcode(ERRCODE_FEATURE_NOT_SUPPORTED),
+					errmsg("function pointcloud_abs_in not implemented")));
 	PG_RETURN_POINTER(NULL);
 }
 
 PG_FUNCTION_INFO_V1(pointcloud_abs_out);
 Datum pointcloud_abs_out(PG_FUNCTION_ARGS)
 {
-	ereport(ERROR,(errcode(ERRCODE_FEATURE_NOT_SUPPORTED),
-		errmsg("function pointcloud_abs_out not implemented")));
+	ereport(ERROR, (errcode(ERRCODE_FEATURE_NOT_SUPPORTED),
+					errmsg("function pointcloud_abs_out not implemented")));
 	PG_RETURN_POINTER(NULL);
 }
 
@@ -358,17 +358,17 @@ Datum pointcloud_agg_transfn(PG_FUNCTION_ARGS)
 
 	if (arg1_typeid == InvalidOid)
 		ereport(ERROR,
-			(errcode(ERRCODE_INVALID_PARAMETER_VALUE),
-			errmsg("could not determine input data type")));
+				(errcode(ERRCODE_INVALID_PARAMETER_VALUE),
+				 errmsg("could not determine input data type")));
 
-	if ( ! AggCheckCallContext(fcinfo, &aggcontext) )
+	if (! AggCheckCallContext(fcinfo, &aggcontext))
 	{
 		/* cannot be called directly because of dummy-type argument */
 		elog(ERROR, "pointcloud_agg_transfn called in non-aggregate context");
 		aggcontext = NULL;  /* keep compiler quiet */
 	}
 
-	if ( PG_ARGISNULL(0) )
+	if (PG_ARGISNULL(0))
 	{
 		a = (abs_trans*) palloc(sizeof(abs_trans));
 		a->s = NULL;
@@ -380,10 +380,10 @@ Datum pointcloud_agg_transfn(PG_FUNCTION_ARGS)
 	state = a->s;
 	elem = PG_ARGISNULL(1) ? (Datum) 0 : PG_GETARG_DATUM(1);
 	state = accumArrayResult(state,
-		elem,
-		PG_ARGISNULL(1),
-		arg1_typeid,
-		aggcontext);
+							 elem,
+							 PG_ARGISNULL(1),
+							 arg1_typeid,
+							 aggcontext);
 	a->s = state;
 
 	PG_RETURN_POINTER(a);
@@ -451,7 +451,7 @@ Datum pcpoint_agg_final_pcpatch(PG_FUNCTION_ARGS)
 
 	array = DatumGetArrayTypeP(pointcloud_agg_final(a, CurrentMemoryContext, fcinfo));
 	pa = pcpatch_from_point_array(array, fcinfo);
-	if ( ! pa )
+	if (! pa)
 		PG_RETURN_NULL();
 
 	serpa = pc_patch_serialize(pa, NULL);
@@ -475,7 +475,7 @@ Datum pcpatch_agg_final_pcpatch(PG_FUNCTION_ARGS)
 
 	array = DatumGetArrayTypeP(pointcloud_agg_final(a, CurrentMemoryContext, fcinfo));
 	pa = pcpatch_from_patch_array(array, fcinfo);
-	if ( ! pa )
+	if (! pa)
 		PG_RETURN_NULL();
 
 	serpa = pc_patch_serialize(pa, NULL);
@@ -582,69 +582,83 @@ Datum pcpatch_compress(PG_FUNCTION_ARGS)
 	int i;
 
 	/* Uncompress first */
-	if ( patch_in->type != PC_NONE ) {
-	pa = pc_patch_uncompress(patch_in);
+	if (patch_in->type != PC_NONE)
+	{
+		pa = pc_patch_uncompress(patch_in);
 	}
 
 	schema = pc_schema_clone(schema); /* we're going to modify it */
 
 	/* Set compression scheme */
-	if ( *compr_in == '\0' || strcasecmp(compr_in, "auto") == 0 ) {
+	if (*compr_in == '\0' || strcasecmp(compr_in, "auto") == 0)
+	{
 		/* keep schema defined compression */
 	}
-	else if ( strcmp(compr_in, "dimensional") == 0 ) {{
-		char *ptr = config_in;
-		PCPATCH_DIMENSIONAL *pdl = pc_patch_dimensional_from_uncompressed((PCPATCH_UNCOMPRESSED*)pa);
-		schema->compression = PC_DIMENSIONAL;
-		stats = pc_dimstats_make(schema);
-		pc_dimstats_update(stats, pdl);
-		/* make sure to avoid stat updates (not sure if needed) */
-		stats->total_points = PCDIMSTATS_MIN_SAMPLE+1;
+	else if (strcmp(compr_in, "dimensional") == 0)
+	{
+		{
+			char *ptr = config_in;
+			PCPATCH_DIMENSIONAL *pdl = pc_patch_dimensional_from_uncompressed((PCPATCH_UNCOMPRESSED*)pa);
+			schema->compression = PC_DIMENSIONAL;
+			stats = pc_dimstats_make(schema);
+			pc_dimstats_update(stats, pdl);
+			/* make sure to avoid stat updates (not sure if needed) */
+			stats->total_points = PCDIMSTATS_MIN_SAMPLE + 1;
 
 
-		/* Fill in per-dimension compression */
-		if ( *ptr )
-		for (i=0; i<stats->ndims; ++i) {
-			PCDIMSTAT *stat = &(stats->stats[i]);
-			/*pcinfo("ptr: %s", ptr);*/
-			if ( *ptr == ',' || strncmp(ptr, "auto", strlen("auto")) == 0 ) {
-				/* leave auto-determined compression */
-			}
-			else if ( strncmp(ptr, "rle", strlen("rle")) == 0 ) {
-				stat->recommended_compression = PC_DIM_RLE;
-			}
-			else if ( strncmp(ptr, "sigbits", strlen("sigbits")) == 0 ) {
-				stat->recommended_compression = PC_DIM_SIGBITS;
-			}
-			else if ( strncmp(ptr, "zlib", strlen("zlib")) == 0 ) {
-				stat->recommended_compression = PC_DIM_ZLIB;
-			}
-			else {
-				elog(ERROR, "Unrecognized dimensional compression '%s'. Please specify 'auto', 'rle', 'sigbits' or 'zlib'", ptr);
-			}
-			while (*ptr && *ptr != ',') ++ptr;
-			if ( ! *ptr ) break;
-			else ++ptr;
+			/* Fill in per-dimension compression */
+			if (*ptr)
+				for (i = 0; i < stats->ndims; ++i)
+				{
+					PCDIMSTAT *stat = &(stats->stats[i]);
+					/*pcinfo("ptr: %s", ptr);*/
+					if (*ptr == ',' || strncmp(ptr, "auto", strlen("auto")) == 0)
+					{
+						/* leave auto-determined compression */
+					}
+					else if (strncmp(ptr, "rle", strlen("rle")) == 0)
+					{
+						stat->recommended_compression = PC_DIM_RLE;
+					}
+					else if (strncmp(ptr, "sigbits", strlen("sigbits")) == 0)
+					{
+						stat->recommended_compression = PC_DIM_SIGBITS;
+					}
+					else if (strncmp(ptr, "zlib", strlen("zlib")) == 0)
+					{
+						stat->recommended_compression = PC_DIM_ZLIB;
+					}
+					else
+					{
+						elog(ERROR, "Unrecognized dimensional compression '%s'. Please specify 'auto', 'rle', 'sigbits' or 'zlib'", ptr);
+					}
+					while (*ptr && *ptr != ',') ++ptr;
+					if (! *ptr) break;
+					else ++ptr;
+				}
+
+			if (pa != patch_in) pc_patch_free(pa);
+			pa = (PCPATCH*)pc_patch_dimensional_compress(pdl, stats);
+			pc_patch_dimensional_free(pdl);
 		}
-
-		if ( pa != patch_in ) pc_patch_free(pa);
-		pa = (PCPATCH*)pc_patch_dimensional_compress(pdl, stats);
-		pc_patch_dimensional_free(pdl);
-	}}
-	else if ( strcmp(compr_in, "ght") == 0 ) {
+	}
+	else if (strcmp(compr_in, "ght") == 0)
+	{
 		schema->compression = PC_GHT;
 	}
-	else if ( strcmp(compr_in, "laz") == 0 ) {
+	else if (strcmp(compr_in, "laz") == 0)
+	{
 		schema->compression = PC_LAZPERF;
 	}
-	else {
+	else
+	{
 		elog(ERROR, "Unrecognized compression '%s'. Please specify 'auto','dimensional' or 'ght'", compr_in);
 	}
 
 	pa->schema = schema; /* install overridden schema */
 	serpa_out = pc_patch_serialize(pa, stats);
 
-	if ( pa != patch_in )
+	if (pa != patch_in)
 		pc_patch_free(pa);
 	pc_patch_free(patch_in);
 	pc_schema_free(schema);
@@ -668,11 +682,12 @@ Datum pcpatch_pointn(PG_FUNCTION_ARGS)
 	PCSCHEMA *schema = pc_schema_from_pcid(serpa->pcid, fcinfo);
 	PCPATCH *patch = pc_patch_deserialize(serpa, schema);
 	PCPOINT *pt = NULL;
-	if(patch) {
-		pt = pc_patch_pointn(patch,n);
+	if (patch)
+	{
+		pt = pc_patch_pointn(patch, n);
 		pc_patch_free(patch);
 	}
-	if(!pt) PG_RETURN_NULL();
+	if (!pt) PG_RETURN_NULL();
 	serpt = pc_point_serialize(pt);
 	pc_point_free(pt);
 	PG_RETURN_POINTER(serpt);
@@ -688,13 +703,13 @@ Datum pcpatch_range(PG_FUNCTION_ARGS)
 	PCSCHEMA *schema = pc_schema_from_pcid(serpa->pcid, fcinfo);
 	PCPATCH *patch = pc_patch_deserialize(serpa, schema);
 	PCPATCH *patchout = NULL;
-	if ( patch )
+	if (patch)
 	{
 		patchout = pc_patch_range(patch, first, count);
-		if ( patchout != patch )
+		if (patchout != patch)
 			pc_patch_free(patch);
 	}
-	if ( !patchout )
+	if (!patchout)
 		PG_RETURN_NULL();
 	serpaout = pc_patch_serialize(patchout, NULL);
 	pc_patch_free(patchout);
@@ -723,7 +738,7 @@ Datum pcpatch_summary(PG_FUNCTION_ARGS)
 
 	serpa = PG_GETHEADERX_SERPATCH_P(0, stats_size_guess);
 	schema = pc_schema_from_pcid(serpa->pcid, fcinfo);
-	if ( serpa->compression == PC_DIMENSIONAL )
+	if (serpa->compression == PC_DIMENSIONAL)
 	{
 		/* need full data to inspect per-dimension compression */
 		/* NOTE: memory usage could be optimized to only fetch slices
@@ -733,7 +748,7 @@ Datum pcpatch_summary(PG_FUNCTION_ARGS)
 		serpa = PG_GETARG_SERPATCH_P(0);
 		patch = pc_patch_deserialize(serpa, schema);
 	}
-	else if ( stats_size_guess < pc_stats_size(schema) )
+	else if (stats_size_guess < pc_stats_size(schema))
 	{
 		/* only need stats here */
 		serpa = PG_GETHEADERX_SERPATCH_P(0, pc_stats_size(schema));
@@ -745,55 +760,55 @@ Datum pcpatch_summary(PG_FUNCTION_ARGS)
 	appendStringInfoSpaces(&strdata, VARHDRSZ);
 
 	appendStringInfo(&strdata, "{"
-		"\"pcid\":%d, \"npts\":%d, \"srid\":%d, "
-		"\"compr\":\"%s\",\"dims\":[",
-		serpa->pcid, serpa->npoints, schema->srid,
-		pc_compression_name(serpa->compression));
+					 "\"pcid\":%d, \"npts\":%d, \"srid\":%d, "
+					 "\"compr\":\"%s\",\"dims\":[",
+					 serpa->pcid, serpa->npoints, schema->srid,
+					 pc_compression_name(serpa->compression));
 
-	for (i=0; i<schema->ndims; ++i)
+	for (i = 0; i < schema->ndims; ++i)
 	{
 		PCDIMENSION *dim = schema->dims[i];
 		PCBYTES bytes;
 		double val;
 		appendStringInfo(&strdata,
-			"%s{\"pos\":%d,\"name\":\"%s\",\"size\":%d"
-			",\"type\":\"%s\"",
-			comma, dim->position, dim->name, dim->size,
-			pc_interpretation_string(dim->interpretation));
+						 "%s{\"pos\":%d,\"name\":\"%s\",\"size\":%d"
+						 ",\"type\":\"%s\"",
+						 comma, dim->position, dim->name, dim->size,
+						 pc_interpretation_string(dim->interpretation));
 
 		/* Print per-dimension compression (if dimensional) */
-		if ( serpa->compression == PC_DIMENSIONAL )
+		if (serpa->compression == PC_DIMENSIONAL)
 		{
 			bytes = ((PCPATCH_DIMENSIONAL*)patch)->bytes[i];
-			switch ( bytes.compression )
+			switch (bytes.compression)
 			{
 			case PC_DIM_RLE:
-				appendStringInfoString(&strdata,",\"compr\":\"rle\"");
+				appendStringInfoString(&strdata, ",\"compr\":\"rle\"");
 				break;
 			case PC_DIM_SIGBITS:
-				appendStringInfoString(&strdata,",\"compr\":\"sigbits\"");
+				appendStringInfoString(&strdata, ",\"compr\":\"sigbits\"");
 				break;
 			case PC_DIM_ZLIB:
-				appendStringInfoString(&strdata,",\"compr\":\"zlib\"");
+				appendStringInfoString(&strdata, ",\"compr\":\"zlib\"");
 				break;
 			case PC_DIM_NONE:
-				appendStringInfoString(&strdata,",\"compr\":\"none\"");
+				appendStringInfoString(&strdata, ",\"compr\":\"none\"");
 				break;
 			default:
-				appendStringInfo(&strdata,",\"compr\":\"unknown(%d)\"",
-				bytes.compression);
+				appendStringInfo(&strdata, ",\"compr\":\"unknown(%d)\"",
+								 bytes.compression);
 				break;
 			}
 		}
 
-		if ( stats )
+		if (stats)
 		{
 			pc_point_get_double_by_name(&(stats->min), dim->name, &val);
-			appendStringInfo(&strdata,",\"stats\":{\"min\":%g", val);
+			appendStringInfo(&strdata, ",\"stats\":{\"min\":%g", val);
 			pc_point_get_double_by_name(&(stats->max), dim->name, &val);
-			appendStringInfo(&strdata,",\"max\":%g", val);
+			appendStringInfo(&strdata, ",\"max\":%g", val);
 			pc_point_get_double_by_name(&(stats->avg), dim->name, &val);
-			appendStringInfo(&strdata,",\"avg\":%g}", val);
+			appendStringInfo(&strdata, ",\"avg\":%g}", val);
 		}
 		appendStringInfoString(&strdata, "}");
 		comma = ",";
@@ -819,10 +834,10 @@ Datum pcpatch_intersects(PG_FUNCTION_ARGS)
 	SERIALIZED_PATCH *serpa1 = PG_GETHEADER_SERPATCH_P(0);
 	SERIALIZED_PATCH *serpa2 = PG_GETHEADER_SERPATCH_P(1);
 
-	if ( serpa1->pcid != serpa2->pcid )
+	if (serpa1->pcid != serpa2->pcid)
 		elog(ERROR, "%s: pcid mismatch (%d != %d)", __func__, serpa1->pcid, serpa2->pcid);
 
-	if ( pc_bounds_intersects(&(serpa1->bounds), &(serpa2->bounds)) )
+	if (pc_bounds_intersects(&(serpa1->bounds), &(serpa2->bounds)))
 	{
 		PG_RETURN_BOOL(TRUE);
 	}
@@ -884,36 +899,37 @@ Datum pcpatch_get_stat(PG_FUNCTION_ARGS)
 	int rv = 1;
 
 
-	if ( PG_NARGS() > 2 ) {
+	if (PG_NARGS() > 2)
+	{
 		/* TODO: only get small slice ? */
 		dim_str = text_to_cstring(PG_GETARG_TEXT_P(2));
 	}
 
-	if ( stats_size_guess < pc_stats_size(schema) )
+	if (stats_size_guess < pc_stats_size(schema))
 	{
-		serpa = PG_GETHEADERX_SERPATCH_P(0, pc_stats_size(schema) );
+		serpa = PG_GETHEADERX_SERPATCH_P(0, pc_stats_size(schema));
 	}
 
 	stats = pc_patch_stats_deserialize(schema, serpa->data);
 
-	if ( ! stats )
+	if (! stats)
 		PG_RETURN_NULL();
 
 	/* Min */
-	if ( 0 == statno )
+	if (0 == statno)
 		pt = &(stats->min);
 	/* Max */
-	else if ( 1 == statno )
+	else if (1 == statno)
 		pt = &(stats->max);
 	/* Avg */
-	else if ( 2 == statno )
+	else if (2 == statno)
 		pt = &(stats->avg);
 	/* Unsupported */
 	else
 		elog(ERROR, "stat number \"%d\" is not supported", statno);
 
 	/* empty dim string means we want the whole point */
-	if ( ! dim_str )
+	if (! dim_str)
 	{
 		serpt = pc_point_serialize(pt);
 		pc_stats_free(stats);
@@ -923,7 +939,7 @@ Datum pcpatch_get_stat(PG_FUNCTION_ARGS)
 	{
 		rv = pc_point_get_double_by_name(pt, dim_str, &double_result);
 		pc_stats_free(stats);
-		if ( ! rv )
+		if (! rv)
 		{
 			elog(ERROR, "dimension \"%s\" does not exist in schema", dim_str);
 			PG_RETURN_NULL();
@@ -953,13 +969,13 @@ Datum pcpatch_filter(PG_FUNCTION_ARGS)
 	SERIALIZED_PATCH *serpatch_filtered;
 
 	patch = pc_patch_deserialize(serpatch, schema);
-	if ( ! patch )
+	if (! patch)
 	{
 		elog(ERROR, "failed to deserialize patch");
 		PG_RETURN_NULL();
 	}
 
-	switch ( mode )
+	switch (mode)
 	{
 	case 0:
 		patch_filtered = pc_patch_filter_lt_by_name(patch, dim_name, value1);
@@ -980,14 +996,14 @@ Datum pcpatch_filter(PG_FUNCTION_ARGS)
 	pc_patch_free(patch);
 	PG_FREE_IF_COPY(serpatch, 0);
 
-	if ( ! patch_filtered )
+	if (! patch_filtered)
 	{
 		elog(ERROR, "dimension \"%s\" does not exist", dim_name);
 	}
 	pfree(dim_name);
 
 	/* Always treat zero-point patches as SQL NULL */
-	if ( patch_filtered->npoints <= 0 )
+	if (patch_filtered->npoints <= 0)
 	{
 		pc_patch_free(patch_filtered);
 		PG_RETURN_NULL();
@@ -1005,24 +1021,24 @@ const char **array_to_cstring_array(ArrayType *array, int *size)
 	int nelems = ArrayGetNItems(ARR_NDIM(array), ARR_DIMS(array));
 	const char **cstring = nelems ? pcalloc(nelems * sizeof(char*)) : NULL;
 	bits8 *bitmap = ARR_NULLBITMAP(array);
-	for(i=j=0; i<nelems; ++i)
+	for (i = j = 0; i < nelems; ++i)
 	{
 		text *array_text;
-		if(array_get_isnull(bitmap,i)) continue;
+		if (array_get_isnull(bitmap, i)) continue;
 
-		array_text = (text *)(ARR_DATA_PTR(array)+offset);
+		array_text = (text *)(ARR_DATA_PTR(array) + offset);
 		cstring[j++] = text_to_cstring(array_text);
 		offset += INTALIGN(VARSIZE(array_text));
 	}
-	if(size) *size = j;
+	if (size) *size = j;
 	return cstring;
 }
 
 void pc_cstring_array_free(const char **array, int nelems)
 {
 	int i;
-	if(!array) return;
-	for(i=0;i<nelems;++i) pfree((void *)array[i]);
+	if (!array) return;
+	for (i = 0; i < nelems; ++i) pfree((void *)array[i]);
 	pcfree((void *)array);
 }
 
@@ -1040,25 +1056,25 @@ Datum pcpatch_sort(PG_FUNCTION_ARGS)
 	SERIALIZED_PATCH *serpatch_sorted = NULL;
 
 	int ndims;
-	const char **dim_name = array_to_cstring_array(array,&ndims);
-	if(!ndims)
+	const char **dim_name = array_to_cstring_array(array, &ndims);
+	if (!ndims)
 	{
-		pc_cstring_array_free(dim_name,ndims);
+		pc_cstring_array_free(dim_name, ndims);
 		PG_RETURN_POINTER(serpatch);
 	}
 
 	schema = pc_schema_from_pcid(serpatch->pcid, fcinfo);
 
 	patch = pc_patch_deserialize(serpatch, schema);
-	if(patch) patch_sorted = pc_patch_sort(patch,dim_name,ndims);
+	if (patch) patch_sorted = pc_patch_sort(patch, dim_name, ndims);
 
-	pc_cstring_array_free(dim_name,ndims);
-	if(patch) pc_patch_free(patch);
+	pc_cstring_array_free(dim_name, ndims);
+	if (patch) pc_patch_free(patch);
 	PG_FREE_IF_COPY(serpatch, 0);
 
-	if(!patch_sorted) PG_RETURN_NULL();
+	if (!patch_sorted) PG_RETURN_NULL();
 
-	serpatch_sorted = pc_patch_serialize(patch_sorted,NULL);
+	serpatch_sorted = pc_patch_serialize(patch_sorted, NULL);
 	pc_patch_free(patch_sorted);
 	PG_RETURN_POINTER(serpatch_sorted);
 }
@@ -1074,22 +1090,22 @@ Datum pcpatch_is_sorted(PG_FUNCTION_ARGS)
 	PCPATCH *patch = NULL;
 	int ndims;
 	uint32_t res;
-	const char **dim_name = array_to_cstring_array(array,&ndims);
-	if(!ndims)
+	const char **dim_name = array_to_cstring_array(array, &ndims);
+	if (!ndims)
 	{
-		pc_cstring_array_free(dim_name,ndims);
+		pc_cstring_array_free(dim_name, ndims);
 		PG_RETURN_BOOL(PC_TRUE);
 	}
 	serpatch = PG_GETARG_SERPATCH_P(0);
 	schema = pc_schema_from_pcid(serpatch->pcid, fcinfo);
 	patch = pc_patch_deserialize(serpatch, schema);
 
-	res = pc_patch_is_sorted(patch,dim_name,ndims,strict);
+	res = pc_patch_is_sorted(patch, dim_name, ndims, strict);
 
-	pc_cstring_array_free(dim_name,ndims);
+	pc_cstring_array_free(dim_name, ndims);
 	pc_patch_free(patch);
 
-	if(res == PC_FAILURE-1)
+	if (res == PC_FAILURE - 1)
 		elog(ERROR, "PC_IsSorted failed");
 
 	PG_RETURN_BOOL(res);

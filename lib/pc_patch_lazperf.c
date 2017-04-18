@@ -186,7 +186,7 @@ pc_patch_lazperf_from_wkb(const PCSCHEMA *schema, const uint8_t *wkb, size_t wkb
 	uint32:	 lazperfsize
 	uint8[]:	lazerperfbuffer
 	*/
-	static size_t hdrsz = 1+4+4+4; /* endian + pcid + compression + npoints */
+	static size_t hdrsz = 1 + 4 + 4 + 4; /* endian + pcid + compression + npoints */
 	PCPATCH_LAZPERF *patch;
 	uint8_t swap_endian = (wkb[0] != machine_endian());
 	uint32_t npoints;
@@ -208,7 +208,7 @@ pc_patch_lazperf_from_wkb(const PCSCHEMA *schema, const uint8_t *wkb, size_t wkb
 	patch->npoints = npoints;
 
 	/* Start on the LAZPERF */
-	buf = wkb+hdrsz;
+	buf = wkb + hdrsz;
 	lazperfsize = wkb_get_int32(buf, swap_endian);
 	buf += 4;
 
