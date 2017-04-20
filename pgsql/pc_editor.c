@@ -25,7 +25,7 @@ pcpatch_schema_same_dimensions(const PCSCHEMA *s1, const PCSCHEMA *s2)
 		PCDIMENSION *s1dim = s1->dims[i];
 		PCDIMENSION *s2dim = s2->dims[i];
 
-		if ( strcmp(s1dim->name, s2dim->name) != 0 )
+		if ( strcasecmp(s1dim->name, s2dim->name) != 0 )
 			return false;
 
 		if ( s1dim->interpretation != s2dim->interpretation )
