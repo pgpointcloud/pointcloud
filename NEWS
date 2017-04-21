@@ -13,6 +13,7 @@
  - PC_Range(pcpatch, int, int) returns pcpatch (#152)
  - PC_BoundingDiagonalAsBinary(pcpatch) and PC_BoundingDiagonal(pcpach) (#158)
  - PC_SetPCId(pcpatch, int, float8 default 0.0) (#163)
+ - PC_Transform(pcpatch, int, float8 default 0.0) (#165)
 - Enhancements
  - Support sigbits encoding for 64bit integers (#61)
  - Warn about truncated values (#68)

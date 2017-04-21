@@ -476,6 +476,14 @@ Now that you have created two tables, you'll see entries for them in the `pointc
 >
 > For dimensions that are in the "new" schema but not in the "old" schema the value `def` is set in the points of the output patch. `def` is optional, its default value is `0.0`.
 
+**PC_Transform(p pcpatch, pcid int4, def float8 default 0.0)** returns **pcpatch**
+
+> Returns a new patch with its data transformed based on the schema whose identifier is `pcid`.
+>
+> For dimensions that are in the "new" schema but not in the "old" schema the value `def` is set in the points of the output patch. `def` is optional, its default value is `0.0`.
+>
+> Contrary to `PC_SetPCId`, `PC_Transform` may change (transform) the patch data if dimension interpretations, scales or offsets are different in the new schema.
+
 ### OGC "well-known binary" Functions
 
 **PC_AsBinary(p pcpoint)** returns **bytea**

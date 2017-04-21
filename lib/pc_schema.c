@@ -635,3 +635,69 @@ pc_schema_get_size(const PCSCHEMA *s)
 {
 	return s->size;
 }
+
+
+/**
+* Return true if the schemas have the same dimensions with the same
+* interpretations and at the same locations. The scales and offsets
+* may be different though. Otherwise return false.
+*/
+uint32_t
+pc_schema_same_dimensions(const PCSCHEMA *s1, const PCSCHEMA *s2)
+{
+	size_t i;
+
+	if ( s1->ndims != s2->ndims )
+		return PC_FALSE;
+
+	for ( i = 0; i < s1->ndims; i++ )
+	{
+		PCDIMENSION *s1dim = s1->dims[i];
+		PCDIMENSION *s2dim = s2->dims[i];
+
+		if ( strcasecmp(s1dim->name, s2dim->name) != 0 )
+			return PC_FALSE;
+
+		if ( s1dim->interpretation != s2dim->interpretation )
+			return PC_FALSE;
+	}
+
+	return PC_TRUE;
+}
+
+
+/**
+* Return false if s1 and s2 don't have the same srids, or if there are dimensions
+* in s2 that are also in s1 but don't have the same interpretations, scales or
+* offsets. Otherwise return true. The function is used to determine if
+* re-interpretating the patch data is required when changing from one schema
+* (s1) to another (s2).
+*/
+uint32_t
+pc_schema_same_interpretations(const PCSCHEMA *s1, const PCSCHEMA *s2)
+{
+	size_t i;
+
+	if ( s1->srid != s2->srid )
+		return PC_FALSE;
+
+	for ( i = 0; i < s2->ndims; i++ )
+	{
+		PCDIMENSION *s2dim = s2->dims[i];
+		PCDIMENSION *s1dim = pc_schema_get_dimension_by_name(s1, s2dim->name);
+
+		if ( s1dim )
+		{
+			if ( s1dim->interpretation != s2dim->interpretation )
+				return PC_FALSE;
+
+			if ( s1dim->scale != s2dim->scale )
+				return PC_FALSE;
+
+			if ( s1dim->offset != s2dim->offset )
+				return PC_FALSE;
+		}
+	}
+
+	return PC_TRUE;
+}

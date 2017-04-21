@@ -724,3 +724,86 @@ pc_patch_set_schema(PCPATCH *patch, const PCSCHEMA *new_schema, double def)
 
 	return (PCPATCH*) paout;
 }
+
+
+/**
+* Read all the points from "patch", and transform them based on "new_schema".
+* Return a new patch with the transformed points.
+*/
+PCPATCH*
+pc_patch_transform(const PCPATCH *patch, const PCSCHEMA *new_schema, double def)
+{
+	PCDIMENSION** new_dimensions = new_schema->dims;
+	PCDIMENSION* old_dimensions[new_schema->ndims];
+	const PCSCHEMA *old_schema = patch->schema;
+	PCPATCH_UNCOMPRESSED *paout;
+	PCPOINT opt, npt;
+	PCPATCH *pain;
+	size_t i, j;
+
+	if ( old_schema->srid != new_schema->srid )
+	{
+		pcwarn("old and new schemas have different srids, and data "
+			   "reprojection is not yet supported");
+		return NULL;
+	}
+
+	for ( j = 0; j < new_schema->ndims; j++ )
+	{
+		PCDIMENSION *ndim = new_dimensions[j];
+		PCDIMENSION *odim = pc_schema_get_dimension_by_name(
+				old_schema, ndim->name);
+		old_dimensions[j] = odim;
+	}
+
+	pain = pc_patch_uncompress(patch);
+
+	paout = pc_patch_uncompressed_make(new_schema, patch->npoints);
+	paout->npoints = pain->npoints;
+
+	opt.schema = old_schema;
+	npt.schema = new_schema;
+	opt.readonly = PC_TRUE;
+	npt.readonly = PC_TRUE;
+
+	opt.data = ((PCPATCH_UNCOMPRESSED *) pain)->data;
+	npt.data = paout->data;
+
+	// reinterpret the data and fill the output patch
+	//
+	// TODO: for the case where the old and new dimension sets don't intersect (all
+	// the values in old_dimensions are NULL) a faster path could probably be used
+	for ( i = 0; i <patch->npoints; i++ )
+	{
+		for ( j = 0; j < new_schema->ndims; j++ )
+		{
+			// pc_point_get_double returns immediately w/o changing val if the
+			// dimension it is passed is NULL
+			double val = def;
+			pc_point_get_double(&opt, old_dimensions[j], &val);
+			pc_point_set_double(&npt, new_dimensions[j], val);
+		}
+
+		opt.data += old_schema->size;
+		npt.data += new_schema->size;
+	}
+
+	if ( pain != patch )
+		pc_patch_free(pain);
+
+	if ( PC_FAILURE == pc_patch_uncompressed_compute_extent(paout) )
+	{
+		pcerror("%s: failed to compute patch extent", __func__);
+		pc_patch_free((PCPATCH *)paout);
+		return NULL;
+	}
+
+	if ( PC_FAILURE == pc_patch_uncompressed_compute_stats(paout) )
+	{
+		pcerror("%s: failed to compute patch stats", __func__);
+		pc_patch_free((PCPATCH *)paout);
+		return NULL;
+	}
+
+	return (PCPATCH*) paout;
+}
