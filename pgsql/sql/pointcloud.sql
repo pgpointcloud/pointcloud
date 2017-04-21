@@ -284,6 +284,7 @@ SELECT PC_Uncompress(pa) FROM pa_test LIMIT 1;
 
 SELECT PC_AsText(pa) FROM pa_test;
 SELECT PC_EnvelopeAsBinary(pa) from pa_test;
+SELECT PC_Envelope(pa) from pa_test;
 SELECT PC_AsText(PC_Union(pa)) FROM pa_test;
 SELECT sum(PC_NumPoints(pa)) FROM pa_test;
 
