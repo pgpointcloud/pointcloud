@@ -23,7 +23,7 @@ init_suite(void)
 	char *xmlstr = file_to_str(xmlfile);
 	schema = pc_schema_from_xml(xmlstr);
 	pcfree(xmlstr);
-	if ( !schema ) return 1;
+	if (!schema) return 1;
 
 	return 0;
 }
@@ -95,13 +95,15 @@ test_bounding_diagonal_wkb_from_stats()
 
 /* REGISTER ***********************************************************/
 
-CU_TestInfo util_tests[] = {
+CU_TestInfo util_tests[] =
+{
 	PC_TEST(test_bounding_diagonal_wkb_from_bounds),
 	PC_TEST(test_bounding_diagonal_wkb_from_stats),
 	CU_TEST_INFO_NULL
 };
 
-CU_SuiteInfo util_suite = {
+CU_SuiteInfo util_suite =
+{
 	.pName = "util",
 	.pInitFunc = init_suite,
 	.pCleanupFunc = clean_suite,

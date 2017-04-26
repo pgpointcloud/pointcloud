@@ -22,7 +22,7 @@ init_suite(void)
 	char *xmlstr = file_to_str(xmlfile);
 	schema = pc_schema_from_xml(xmlstr);
 	pcfree(xmlstr);
-	if ( !schema ) return 1;
+	if (!schema) return 1;
 
 	return 0;
 }
@@ -62,16 +62,16 @@ test_run_length_encoding()
 	int nr;
 	PCBYTES pcb, epcb, pcb2;
 
-/*
-typedef struct
-{
-	size_t size;
-	uint32_t npoints;
-	uint32_t interpretation;
-	uint32_t compression;
-	uint8_t *bytes;
-} PCBYTES;
-*/
+	/*
+	typedef struct
+	{
+		size_t size;
+		uint32_t npoints;
+		uint32_t interpretation;
+		uint32_t compression;
+		uint8_t *bytes;
+	} PCBYTES;
+	*/
 
 	bytes = "aaaabbbbccdde";
 	pcb = initbytes((uint8_t *)bytes, strlen(bytes), PC_UINT8);
@@ -131,7 +131,10 @@ typedef struct
 	pc_bytes_free(epcb);
 	pc_bytes_free(pcb2);
 
-	bytes = (char *)((uint32_t[]){ 10, 10, 10, 20, 20, 30, 20, 20 });
+	bytes = (char *)((uint32_t[])
+	{
+		10, 10, 10, 20, 20, 30, 20, 20
+	});
 	pcb = initbytes((uint8_t *)bytes, 8, PC_UINT32);
 	epcb = pc_bytes_run_length_encode(pcb);
 	pcb2 = pc_bytes_run_length_decode(epcb);
@@ -141,7 +144,10 @@ typedef struct
 	pc_bytes_free(epcb);
 	pc_bytes_free(pcb2);
 
-	bytes = (char*)((uint16_t[]){ 10, 10, 10, 20, 20, 30, 20, 20 });
+	bytes = (char*)((uint16_t[])
+	{
+		10, 10, 10, 20, 20, 30, 20, 20
+	});
 	pcb = initbytes((uint8_t *)bytes, 8, PC_UINT16);
 	epcb = pc_bytes_run_length_encode(pcb);
 	pcb2 = pc_bytes_run_length_decode(epcb);
@@ -248,17 +254,18 @@ test_sigbits_encoding()
 
 	/* Test the 16 bit implementation path */
 	nelems = 6;
-	bytes16 = (uint16_t[]){
+	bytes16 = (uint16_t[])
+	{
 		24929, /* 0110000101100001 */
 		24930, /* 0110000101100010 */
 		24931, /* 0110000101100011 */
 		24932, /* 0110000101100100 */
 		24933, /* 0110000101100101 */
 		24934  /* 0110000101100110 */
-		};
+	};
 	/* encoded 0110000101100 001 010 011 100 101 110 */
 	bytes = (uint8_t*)bytes16;
-	pcb = initbytes(bytes, nelems*2, PC_INT16);
+	pcb = initbytes(bytes, nelems * 2, PC_INT16);
 
 	/* Test the 16 bit implementation path */
 	common16 = pc_bytes_sigbits_count_16(&pcb, &count);
@@ -286,16 +293,17 @@ test_sigbits_encoding()
 	/* Test the 32 bit implementation path */
 	nelems = 6;
 
-	bytes32 = (uint32_t[]){
+	bytes32 = (uint32_t[])
+	{
 		103241, /* 0000000000000001 1001 0011 0100 1001 */
 		103251, /* 0000000000000001 1001 0011 0101 0011 */
 		103261, /* 0000000000000001 1001 0011 0101 1101 */
 		103271, /* 0000000000000001 1001 0011 0110 0111 */
 		103281, /* 0000000000000001 1001 0011 0111 0001 */
 		103291  /* 0000000000000001 1001 0011 0111 1011 */
-		};
+	};
 	bytes = (uint8_t*)bytes32;
-	pcb = initbytes(bytes, nelems*4, PC_INT32);
+	pcb = initbytes(bytes, nelems * 4, PC_INT32);
 
 	common32 = pc_bytes_sigbits_count_32(&pcb, &count);
 	CU_ASSERT_EQUAL(count, 26); /* common bits count */
@@ -320,16 +328,17 @@ test_sigbits_encoding()
 
 	/* What if all the words are the same? */
 	nelems = 6;
-	bytes16 = (uint16_t[]){
+	bytes16 = (uint16_t[])
+	{
 		24929, /* 0000000000000001 1001 0011 0100 1001 */
 		24929, /* 0000000000000001 1001 0011 0101 0011 */
 		24929, /* 0000000000000001 1001 0011 0101 1101 */
 		24929, /* 0000000000000001 1001 0011 0110 0111 */
 		24929, /* 0000000000000001 1001 0011 0111 0001 */
 		24929  /* 0000000000000001 1001 0011 0111 1011 */
-		};
+	};
 	bytes = (uint8_t*)bytes16;
-	pcb = initbytes(bytes, nelems*2, PC_INT16);
+	pcb = initbytes(bytes, nelems * 2, PC_INT16);
 	epcb = pc_bytes_sigbits_encode(pcb);
 	pcb2 = pc_bytes_sigbits_decode(epcb);
 	pc_bytes_free(epcb);
@@ -339,16 +348,17 @@ test_sigbits_encoding()
 
 	nelems = 6;
 
-	bytes64 = (uint64_t[]){
+	bytes64 = (uint64_t[])
+	{
 		103241, /* 32x0 0000000000000001 1001 0011 0100 1001 */
 		103251, /* 32x0 0000000000000001 1001 0011 0101 0011 */
 		103261, /* 32x0 0000000000000001 1001 0011 0101 1101 */
 		103271, /* 32x0 0000000000000001 1001 0011 0110 0111 */
 		103281, /* 32x0 0000000000000001 1001 0011 0111 0001 */
 		103291  /* 32x0 0000000000000001 1001 0011 0111 1011 */
-		};
+	};
 	bytes = (uint8_t*)bytes64;
-	pcb = initbytes(bytes, nelems*8, PC_INT64);
+	pcb = initbytes(bytes, nelems * 8, PC_INT64);
 
 	common64 = pc_bytes_sigbits_count_64(&pcb, &count);
 	CU_ASSERT_EQUAL(count, 58);     /* common bits count */
@@ -451,8 +461,11 @@ test_rle_filter()
 	pc_bitmap_free(map2);
 	pc_bytes_free(epcb);
 
-	bytes = (char *)((uint32_t[]){ 10, 10, 10, 20, 20, 30, 20, 20 });
-	pcb = initbytes((uint8_t *)bytes, 8*4, PC_UINT32);
+	bytes = (char *)((uint32_t[])
+	{
+		10, 10, 10, 20, 20, 30, 20, 20
+	});
+	pcb = initbytes((uint8_t *)bytes, 8 * 4, PC_UINT32);
 	epcb = pc_bytes_run_length_encode(pcb);
 	map1 = pc_bytes_bitmap(&epcb, PC_LT, 25, 25); /* strip out the 30 */
 	CU_ASSERT_EQUAL(map1->nset, 7);
@@ -463,8 +476,11 @@ test_rle_filter()
 	pc_bytes_free(pcb);
 	pc_bitmap_free(map1);
 
-	bytes = (char *)((uint16_t[]){ 1, 2, 3, 4, 5, 6, 7, 8 });
-	pcb = initbytes((uint8_t *)bytes, 8*2, PC_UINT16);
+	bytes = (char *)((uint16_t[])
+	{
+		1, 2, 3, 4, 5, 6, 7, 8
+	});
+	pcb = initbytes((uint8_t *)bytes, 8 * 2, PC_UINT16);
 	map1 = pc_bytes_bitmap(&pcb, PC_BETWEEN, 2.5, 4.5); /* everything except entries 3 and 4 */
 	CU_ASSERT_EQUAL(map1->nset, 2);
 	fpcb = pc_bytes_filter(&epcb, map1, NULL); /* Should have only two entry, 10, 20 */
@@ -472,9 +488,9 @@ test_rle_filter()
 	CU_ASSERT_EQUAL(fpcb.npoints, 2);
 	CU_ASSERT_EQUAL(fpcb.bytes[0], 1);
 	CU_ASSERT_EQUAL(fpcb.bytes[5], 1);
-	memcpy(&i, fpcb.bytes+1, 4);
+	memcpy(&i, fpcb.bytes + 1, 4);
 	CU_ASSERT_EQUAL(i, 10);
-	memcpy(&i, fpcb.bytes+6, 4);
+	memcpy(&i, fpcb.bytes + 6, 4);
 	CU_ASSERT_EQUAL(i, 20);
 
 	pc_bytes_free(fpcb);
@@ -524,7 +540,8 @@ test_uncompressed_filter()
 
 /* REGISTER ***********************************************************/
 
-CU_TestInfo bytes_tests[] = {
+CU_TestInfo bytes_tests[] =
+{
 	PC_TEST(test_run_length_encoding),
 	PC_TEST(test_sigbits_encoding),
 	PC_TEST(test_zlib_encoding),
@@ -533,7 +550,8 @@ CU_TestInfo bytes_tests[] = {
 	CU_TEST_INFO_NULL
 };
 
-CU_SuiteInfo bytes_suite = {
+CU_SuiteInfo bytes_suite =
+{
 	.pName = "bytes",
 	.pInitFunc = init_suite,
 	.pCleanupFunc = clean_suite,

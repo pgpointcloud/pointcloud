@@ -28,11 +28,11 @@ void
 pc_pointlist_free(PCPOINTLIST *pl)
 {
 	int i;
-	for ( i = 0; i < pl->npoints; i++ )
+	for (i = 0; i < pl->npoints; i++)
 	{
 		pc_point_free(pl->points[i]);
 	}
-	if ( pl->mem )
+	if (pl->mem)
 		pcfree(pl->mem);
 	pcfree(pl->points);
 	pcfree(pl);
@@ -42,9 +42,9 @@ pc_pointlist_free(PCPOINTLIST *pl)
 void
 pc_pointlist_add_point(PCPOINTLIST *pl, PCPOINT *pt)
 {
-	if ( pl->npoints >= pl->maxpoints )
+	if (pl->npoints >= pl->maxpoints)
 	{
-		if ( pl->maxpoints < 1 ) pl->maxpoints = 1;
+		if (pl->maxpoints < 1) pl->maxpoints = 1;
 		pl->maxpoints *= 2;
 		pl->points = pcrealloc(pl->points, pl->maxpoints * sizeof(PCPOINT*));
 	}
@@ -77,10 +77,10 @@ pc_pointlist_from_dimensional(const PCPATCH_DIMENSIONAL *pdl)
 	pl = pc_pointlist_make(npoints);
 	pl->mem = data = pcalloc(npoints * schema->size);
 
-	for ( i = 0; i < npoints; i++ )
+	for (i = 0; i < npoints; i++)
 	{
-		PCPOINT *pt = pc_point_from_data(schema,data);
-		for ( j = 0; j < ndims; j++ )
+		PCPOINT *pt = pc_point_from_data(schema, data);
+		for (j = 0; j < ndims; j++)
 		{
 			PCDIMENSION *dim = pc_schema_get_dimension(schema, j);
 
@@ -105,9 +105,9 @@ pc_pointlist_from_uncompressed(const PCPATCH_UNCOMPRESSED *patch)
 	uint32_t npoints = patch->npoints;
 
 	pl = pc_pointlist_make(npoints);
-	for ( i = 0; i < npoints; i++ )
+	for (i = 0; i < npoints; i++)
 	{
-		pc_pointlist_add_point(pl, pc_point_from_data(patch->schema, patch->data + i*pt_size));
+		pc_pointlist_add_point(pl, pc_point_from_data(patch->schema, patch->data + i * pt_size));
 	}
 	return pl;
 }
@@ -115,7 +115,7 @@ pc_pointlist_from_uncompressed(const PCPATCH_UNCOMPRESSED *patch)
 PCPOINTLIST *
 pc_pointlist_from_patch(const PCPATCH *patch)
 {
-	switch ( patch->type )
+	switch (patch->type)
 	{
 	case PC_NONE:
 	{

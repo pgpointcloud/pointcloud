@@ -93,8 +93,8 @@ void pc_install_default_handlers(void)
 
 #ifdef HAVE_LIBGHT
 	ght_set_handlers(
-		(void *)default_allocator,    (void *)default_reallocator,
-		(void *)default_freeor,       (void *)default_error_handler,
+		(void *)default_allocator, (void *)default_reallocator,
+		(void *)default_freeor, (void *)default_error_handler,
 		(void *)default_info_handler, (void *)default_warn_handler
 	);
 #endif
@@ -106,12 +106,12 @@ void pc_set_handlers(
 	pc_deallocator deallocator, pc_message_handler error_handler,
 	pc_message_handler info_handler, pc_message_handler warn_handler)
 {
-	if ( ! allocator ) allocator = pc_context.alloc;
-	if ( ! reallocator ) reallocator = pc_context.realloc;
-	if ( ! deallocator ) deallocator = pc_context.free;
-	if ( ! error_handler ) error_handler = pc_context.err;
-	if ( ! warn_handler ) warn_handler = pc_context.warn;
-	if ( ! info_handler ) info_handler = pc_context.info;
+	if (! allocator) allocator = pc_context.alloc;
+	if (! reallocator) reallocator = pc_context.realloc;
+	if (! deallocator) deallocator = pc_context.free;
+	if (! error_handler) error_handler = pc_context.err;
+	if (! warn_handler) warn_handler = pc_context.warn;
+	if (! info_handler) info_handler = pc_context.info;
 
 	pc_context.alloc = allocator;
 	pc_context.realloc = reallocator;
@@ -122,8 +122,8 @@ void pc_set_handlers(
 
 #ifdef HAVE_LIBGHT
 	ght_set_handlers(
-		(void *)allocator,    (void *)reallocator,
-		(void *)deallocator,  (void *)error_handler,
+		(void *)allocator, (void *)reallocator,
+		(void *)deallocator, (void *)error_handler,
 		(void *)info_handler, (void *)warn_handler
 	);
 #endif
@@ -137,7 +137,7 @@ void *
 pcalloc(size_t size)
 {
 	void *mem;
-	if ( ! size ) return NULL;
+	if (! size) return NULL;
 	mem = pc_context.alloc(size);
 	memset(mem, 0, size); /* Always clean memory */
 	return mem;

@@ -30,12 +30,13 @@ extern CU_SuiteInfo util_suite;
 */
 static void cu_error_reporter(const char *fmt, va_list ap)
 {
-	vsnprintf(cu_error_msg, MAX_CUNIT_MSG_LENGTH-1, fmt, ap);
-	cu_error_msg[MAX_CUNIT_MSG_LENGTH-1] = '\0';
-	va_end (ap);
+	vsnprintf(cu_error_msg, MAX_CUNIT_MSG_LENGTH - 1, fmt, ap);
+	cu_error_msg[MAX_CUNIT_MSG_LENGTH - 1] = '\0';
+	va_end(ap);
 }
 
-void cu_error_msg_reset() {
+void cu_error_msg_reset()
+{
 	memset(cu_error_msg, '\0', MAX_CUNIT_MSG_LENGTH);
 }
 
@@ -202,14 +203,14 @@ file_to_str(const char *fname)
 	char buf[MAXLINELEN];
 
 	snprintf(fullpath, 512, "%s/lib/cunit/%s", PROJECT_SOURCE_DIR, fname);
-	fr = fopen (fullpath, "rt");
+	fr = fopen(fullpath, "rt");
 
 	while (fr && fgets(buf, MAXLINELEN, fr) != NULL)
 	{
 		if (buf[0] == '\0')
 			continue;
 		lnsz = strlen(buf);
-		if ( ptr - str + lnsz > sz )
+		if (ptr - str + lnsz > sz)
 		{
 			size_t bsz = ptr - str;
 			sz *= 2;

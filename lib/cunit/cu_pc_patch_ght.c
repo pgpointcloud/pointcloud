@@ -22,7 +22,7 @@ init_suite(void)
 	char *xmlstr = file_to_str(simplexmlfile);
 	simpleschema = pc_schema_from_xml(xmlstr);
 	pcfree(xmlstr);
-	if ( !simpleschema ) return 1;
+	if (!simpleschema) return 1;
 
 	return 0;
 }
@@ -50,12 +50,12 @@ test_patch_ght()
 
 	pl = pc_pointlist_make(npts);
 
-	for ( i = 0; i < npts; i++ )
+	for (i = 0; i < npts; i++)
 	{
 		pt = pc_point_make(simpleschema);
-		pc_point_set_double_by_name(pt, "x", 45 + i*0.000004);
-		pc_point_set_double_by_name(pt, "y", 45 + i*0.000001666);
-		pc_point_set_double_by_name(pt, "Z", 10 + i*0.34);
+		pc_point_set_double_by_name(pt, "x", 45 + i * 0.000004);
+		pc_point_set_double_by_name(pt, "y", 45 + i * 0.000001666);
+		pc_point_set_double_by_name(pt, "Z", 10 + i * 0.34);
 		pc_point_set_double_by_name(pt, "intensity", 10);
 		pc_pointlist_add_point(pl, pt);
 	}
@@ -99,12 +99,12 @@ test_patch_ght_filtering()
 
 	pl = pc_pointlist_make(npts);
 
-	for ( i = 0; i < npts; i++ )
+	for (i = 0; i < npts; i++)
 	{
 		pt = pc_point_make(simpleschema);
-		pc_point_set_double_by_name(pt, "x", 45 + i*0.000004);
-		pc_point_set_double_by_name(pt, "y", 45 + i*0.000001666);
-		pc_point_set_double_by_name(pt, "Z", 10 + i*0.34);
+		pc_point_set_double_by_name(pt, "x", 45 + i * 0.000004);
+		pc_point_set_double_by_name(pt, "y", 45 + i * 0.000001666);
+		pc_point_set_double_by_name(pt, "Z", 10 + i * 0.34);
 		pc_point_set_double_by_name(pt, "intensity", 10);
 		pc_pointlist_add_point(pl, pt);
 	}
@@ -136,7 +136,8 @@ test_patch_ght_filtering()
 
 /* REGISTER ***********************************************************/
 
-CU_TestInfo ght_tests[] = {
+CU_TestInfo ght_tests[] =
+{
 #ifdef HAVE_LIBGHT
 	PC_TEST(test_patch_ght),
 	PC_TEST(test_patch_ght_filtering),
@@ -144,7 +145,8 @@ CU_TestInfo ght_tests[] = {
 	CU_TEST_INFO_NULL
 };
 
-CU_SuiteInfo ght_suite = {
+CU_SuiteInfo ght_suite =
+{
 	.pName = "ght",
 	.pInitFunc = init_suite,
 	.pCleanupFunc = clean_suite,

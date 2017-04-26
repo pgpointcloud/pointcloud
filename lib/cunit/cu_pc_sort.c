@@ -27,7 +27,7 @@ init_suite(void)
 	char *xmlstr = file_to_str(xmlfile);
 	schema = pc_schema_from_xml(xmlstr);
 	pcfree(xmlstr);
-	if ( !schema ) return 1;
+	if (!schema) return 1;
 	return 0;
 }
 
@@ -59,7 +59,7 @@ test_sort_simple()
 	size_t hexsize = strlen(hexbuf);
 
 	uint8_t *wkb = bytes_from_hexbytes(hexbuf, hexsize);
-	PCPATCH *pa = pc_patch_from_wkb(schema, wkb, hexsize/2);
+	PCPATCH *pa = pc_patch_from_wkb(schema, wkb, hexsize / 2);
 	PCPOINTLIST *li = pc_pointlist_from_patch(pa);
 	const char *X[] = {"X"};
 
@@ -105,7 +105,7 @@ test_sort_consistency()
 	char *hexbuf = "0000000000000000000000000200000008000000030000000500060000000200000001000000040008";
 	size_t hexsize = strlen(hexbuf);
 	uint8_t *wkb = bytes_from_hexbytes(hexbuf, hexsize);
-	PCPATCH *pa = pc_patch_from_wkb(schema, wkb, hexsize/2);
+	PCPATCH *pa = pc_patch_from_wkb(schema, wkb, hexsize / 2);
 	PCPOINTLIST *li = pc_pointlist_from_patch(pa);
 	const char *X[] = {"X"};
 
@@ -150,7 +150,7 @@ test_sort_one_point()
 	char *hexbuf = "000000000000000000000000010000000200000003000000050006";
 	size_t hexsize = strlen(hexbuf);
 	uint8_t *wkb = bytes_from_hexbytes(hexbuf, hexsize);
-	PCPATCH *pa = pc_patch_from_wkb(schema, wkb, hexsize/2);
+	PCPATCH *pa = pc_patch_from_wkb(schema, wkb, hexsize / 2);
 	PCPOINTLIST *li = pc_pointlist_from_patch(pa);
 	const char *X[] = {"X"};
 
@@ -193,7 +193,7 @@ test_sort_stable()
 	char *hexbuf = "00000000000000000000000003000000080000000300000005000600000002000000030000000400080000000200000003000000040009";
 	size_t hexsize = strlen(hexbuf);
 	uint8_t *wkb = bytes_from_hexbytes(hexbuf, hexsize);
-	PCPATCH *pa = pc_patch_from_wkb(schema, wkb, hexsize/2);
+	PCPATCH *pa = pc_patch_from_wkb(schema, wkb, hexsize / 2);
 	PCPOINTLIST *li = pc_pointlist_from_patch(pa);
 	const char *dims[] = {"Y"};
 
@@ -230,7 +230,7 @@ test_sort_patch_is_sorted_no_compression()
 	char *hexbuf = "00000000000000000000000003000000080000000300000005000600000002000000030000000400080000000200000003000000040009";
 	size_t hexsize = strlen(hexbuf);
 	uint8_t *wkb = bytes_from_hexbytes(hexbuf, hexsize);
-	PCPATCH *pa = pc_patch_from_wkb(schema, wkb, hexsize/2);
+	PCPATCH *pa = pc_patch_from_wkb(schema, wkb, hexsize / 2);
 	PCPOINTLIST *li = pc_pointlist_from_patch(pa);
 	const char *X[] = {"X"};
 
@@ -257,13 +257,13 @@ test_sort_patch_is_sorted_compression_dimensional(enum DIMCOMPRESSIONS dimcomp)
 	PCPOINTLIST *pl;
 	int i;
 	int ndims = 1;
-	int npts = PCDIMSTATS_MIN_SAMPLE+1; // force to keep custom compression
+	int npts = PCDIMSTATS_MIN_SAMPLE + 1; // force to keep custom compression
 	const char *X[] = {"X"};
 
 	// build a dimensional patch
 	pl = pc_pointlist_make(npts);
 
-	for ( i = npts; i >= 0; i-- )
+	for (i = npts; i >= 0; i--)
 	{
 		pt = pc_point_make(schema);
 		pc_point_set_double_by_name(pt, "x", i);
@@ -278,7 +278,7 @@ test_sort_patch_is_sorted_compression_dimensional(enum DIMCOMPRESSIONS dimcomp)
 	// set dimensional compression for each dimension
 	PCDIMSTATS *stats = pc_dimstats_make(schema);
 	pc_dimstats_update(stats, padim1);
-	for ( i = 0; i<padim1->schema->ndims; i++ )
+	for (i = 0; i < padim1->schema->ndims; i++)
 		stats->stats[i].recommended_compression = dimcomp;
 
 	// compress patch
@@ -342,7 +342,7 @@ test_sort_patch_ndims()
 	char *hexbuf = "00000000000000000000000003000000080000000400000005000600000002000000030000000400080000000200000002000000040009";
 	size_t hexsize = strlen(hexbuf);
 	uint8_t *wkb = bytes_from_hexbytes(hexbuf, hexsize);
-	PCPATCH *pa = pc_patch_from_wkb(schema, wkb, hexsize/2);
+	PCPATCH *pa = pc_patch_from_wkb(schema, wkb, hexsize / 2);
 	const char *X[] = {"X"};
 	const char *Y[] = {"Y"};
 	const char *X_Y[] = {"X", "Y"};
@@ -373,7 +373,8 @@ test_sort_patch_ndims()
 
 /* REGISTER ***********************************************************/
 
-CU_TestInfo sort_tests[] = {
+CU_TestInfo sort_tests[] =
+{
 	PC_TEST(test_sort_simple),
 	PC_TEST(test_sort_consistency),
 	PC_TEST(test_sort_one_point),
@@ -387,7 +388,8 @@ CU_TestInfo sort_tests[] = {
 	CU_TEST_INFO_NULL
 };
 
-CU_SuiteInfo sort_suite = {
+CU_SuiteInfo sort_suite =
+{
 	.pName = "sort",
 	.pInitFunc = init_suite,
 	.pCleanupFunc = clean_suite,

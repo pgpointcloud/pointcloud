@@ -19,8 +19,8 @@ pc_dstats_new(int ndims)
 {
 	int i;
 	PCDOUBLESTATS *stats = pcalloc(sizeof(PCDOUBLESTATS));
-	stats->dims = pcalloc(sizeof(PCDOUBLESTAT)*ndims);
-	for ( i = 0; i < ndims; i++ )
+	stats->dims = pcalloc(sizeof(PCDOUBLESTAT) * ndims);
+	for (i = 0; i < ndims; i++)
 	{
 		stats->dims[i].min = DBL_MAX;
 		stats->dims[i].max = -1 * DBL_MAX;
@@ -33,8 +33,8 @@ pc_dstats_new(int ndims)
 static void
 pc_dstats_free(PCDOUBLESTATS *stats)
 {
-	if ( ! stats) return;
-	if ( stats->dims ) pcfree(stats->dims);
+	if (! stats) return;
+	if (stats->dims) pcfree(stats->dims);
 	pcfree(stats);
 	return;
 }
@@ -45,13 +45,13 @@ pc_dstats_free(PCDOUBLESTATS *stats)
 void
 pc_stats_free(PCSTATS *stats)
 {
-	if ( stats->min.readonly != PC_TRUE )
+	if (stats->min.readonly != PC_TRUE)
 		pcfree(stats->min.data);
 
-	if ( stats->max.readonly != PC_TRUE )
+	if (stats->max.readonly != PC_TRUE)
 		pcfree(stats->max.data);
 
-	if ( stats->avg.readonly != PC_TRUE )
+	if (stats->avg.readonly != PC_TRUE)
 		pcfree(stats->avg.data);
 
 	pcfree(stats);
@@ -116,7 +116,7 @@ pc_stats_new_from_dstats(const PCSCHEMA *schema, const PCDOUBLESTATS *dstats)
 	int i;
 	PCSTATS *stats = pc_stats_new(schema);
 
-	for ( i = 0; i < schema->ndims; i++ )
+	for (i = 0; i < schema->ndims; i++)
 	{
 		pc_point_set_double(&(stats->min), schema->dims[i], dstats->dims[i].min);
 		pc_point_set_double(&(stats->max), schema->dims[i], dstats->dims[i].max);
@@ -129,7 +129,7 @@ PCSTATS *
 pc_stats_clone(const PCSTATS *stats)
 {
 	PCSTATS *s;
-	if ( ! stats ) return NULL;
+	if (! stats) return NULL;
 	s = pcalloc(sizeof(PCSTATS));
 	s->min.readonly = s->max.readonly = s->avg.readonly = PC_FALSE;
 	s->min.schema = stats->min.schema;
@@ -152,7 +152,7 @@ pc_patch_uncompressed_compute_stats(PCPATCH_UNCOMPRESSED *pa)
 	double val;
 	PCDOUBLESTATS *dstats = pc_dstats_new(pa->schema->ndims);
 
-	if ( pa->stats )
+	if (pa->stats)
 		pc_stats_free(pa->stats);
 
 	/* Point on stack for fast access to values in patch */
@@ -164,16 +164,16 @@ pc_patch_uncompressed_compute_stats(PCPATCH_UNCOMPRESSED *pa)
 	/* We know npoints right away */
 	dstats->npoints = pa->npoints;
 
-	for ( i = 0; i < pa->npoints; i++ )
+	for (i = 0; i < pa->npoints; i++)
 	{
-		for ( j = 0; j < schema->ndims; j++ )
+		for (j = 0; j < schema->ndims; j++)
 		{
 			pc_point_get_double(&pt, schema->dims[j], &val);
 			/* Check minimum */
-			if ( val < dstats->dims[j].min )
+			if (val < dstats->dims[j].min)
 				dstats->dims[j].min = val;
 			/* Check maximum */
-			if ( val > dstats->dims[j].max )
+			if (val > dstats->dims[j].max)
 				dstats->dims[j].max = val;
 			/* Add to sum */
 			dstats->dims[j].sum += val;
@@ -190,7 +190,7 @@ pc_patch_uncompressed_compute_stats(PCPATCH_UNCOMPRESSED *pa)
 size_t
 pc_stats_size(const PCSCHEMA *schema)
 {
-	return 3*schema->size;
+	return 3 * schema->size;
 }
 
 

@@ -38,27 +38,27 @@ init_suite(void)
 	xmlstr = file_to_str(xmlfile);
 	schema = pc_schema_from_xml(xmlstr);
 	pcfree(xmlstr);
-	if ( !schema ) return 1;
+	if (!schema) return 1;
 
 	xmlstr = file_to_str(xmlfile_xy);
 	schema_xy = pc_schema_from_xml(xmlstr);
 	pcfree(xmlstr);
-	if ( !schema_xy ) return 1;
+	if (!schema_xy) return 1;
 
 	xmlstr = file_to_str(xmlfile_xyz);
 	schema_xyz = pc_schema_from_xml(xmlstr);
 	pcfree(xmlstr);
-	if ( !schema_xyz ) return 1;
+	if (!schema_xyz) return 1;
 
 	xmlstr = file_to_str(xmlfile_xym);
 	schema_xym = pc_schema_from_xml(xmlstr);
 	pcfree(xmlstr);
-	if ( !schema_xym ) return 1;
+	if (!schema_xym) return 1;
 
 	xmlstr = file_to_str(xmlfile_xyzm);
 	schema_xyzm = pc_schema_from_xml(xmlstr);
 	pcfree(xmlstr);
-	if ( !schema_xyzm ) return 1;
+	if (!schema_xyzm) return 1;
 	return 0;
 }
 
@@ -87,7 +87,7 @@ test_point_hex_inout()
 	char *hexbuf = "00000000010000000100000002000000030004";
 	size_t hexsize = strlen(hexbuf);
 	uint8_t *wkb = bytes_from_hexbytes(hexbuf, hexsize);
-	PCPOINT *pt = pc_point_from_wkb(schema, wkb, hexsize/2);
+	PCPOINT *pt = pc_point_from_wkb(schema, wkb, hexsize / 2);
 	CU_ASSERT_SUCCESS(pc_point_get_double_by_name(pt, "X", &d));
 	CU_ASSERT_DOUBLE_EQUAL(d, 0.01, 0.000001);
 	CU_ASSERT_SUCCESS(pc_point_get_double_by_name(pt, "Y", &d));
@@ -103,7 +103,7 @@ test_point_hex_inout()
 	hexbuf = "01010000000100000002000000030000000500";
 	hexsize = strlen(hexbuf);
 	wkb = bytes_from_hexbytes(hexbuf, hexsize);
-	pt = pc_point_from_wkb(schema, wkb, hexsize/2);
+	pt = pc_point_from_wkb(schema, wkb, hexsize / 2);
 	CU_ASSERT_SUCCESS(pc_point_get_double_by_name(pt, "X", &d));
 	CU_ASSERT_DOUBLE_EQUAL(d, 0.01, 0.000001);
 	CU_ASSERT_SUCCESS(pc_point_get_double_by_name(pt, "Y", &d));
@@ -127,7 +127,7 @@ test_point_access()
 	double *allvals;
 
 	pt = pc_point_make(schema);
-	CU_ASSERT_PTR_NOT_NULL( pt );
+	CU_ASSERT_PTR_NOT_NULL(pt);
 
 	/* One at a time */
 	idx = 0;
@@ -198,7 +198,7 @@ test_point_xyzm()
 	double d;
 
 	pt = pc_point_make(schema_xyz);
-	CU_ASSERT_PTR_NOT_NULL( pt );
+	CU_ASSERT_PTR_NOT_NULL(pt);
 
 	CU_ASSERT_SUCCESS(pc_point_set_x(pt, x));
 	CU_ASSERT_SUCCESS(pc_point_get_double_by_name(pt, "X", &d));
@@ -225,7 +225,7 @@ test_point_xyzm()
 	pc_point_free(pt);
 
 	pt = pc_point_make(schema_xyzm);
-	CU_ASSERT_PTR_NOT_NULL( pt );
+	CU_ASSERT_PTR_NOT_NULL(pt);
 
 	CU_ASSERT_SUCCESS(pc_point_set_x(pt, x));
 	CU_ASSERT_SUCCESS(pc_point_get_double_by_name(pt, "X", &d));
@@ -255,7 +255,7 @@ test_point_xyzm()
 }
 
 void test_point_geometry_bytes(const PCSCHEMA *s, size_t expectedgeomwkbsize,
-	const char *pthexbytes, const char *expectedgeomhexbytes)
+							   const char *pthexbytes, const char *expectedgeomhexbytes)
 {
 	/* point
 	byte:     endianness (1 = NDR, 0 = XDR)
@@ -276,11 +276,11 @@ void test_point_geometry_bytes(const PCSCHEMA *s, size_t expectedgeomwkbsize,
 
 	pthexsize = strlen(pthexbytes);
 	ptwkb = bytes_from_hexbytes(pthexbytes, pthexsize);
-	pt = pc_point_from_wkb(s, ptwkb, pthexsize/2);
+	pt = pc_point_from_wkb(s, ptwkb, pthexsize / 2);
 	CU_ASSERT_PTR_NOT_NULL(pt);
 	geomwkb = pc_point_to_geometry_wkb(pt, &geomwkbsize);
-	CU_ASSERT_EQUAL(geomwkbsize,expectedgeomwkbsize);
-	geomhexbytes = hexbytes_from_bytes(geomwkb,geomwkbsize);
+	CU_ASSERT_EQUAL(geomwkbsize, expectedgeomwkbsize);
+	geomhexbytes = hexbytes_from_bytes(geomwkb, geomwkbsize);
 	CU_ASSERT_STRING_EQUAL(geomhexbytes, expectedgeomhexbytes);
 
 	pcfree(geomhexbytes);
@@ -294,34 +294,35 @@ static void
 test_point_geometry()
 {
 	// pt XYI = 1 2 3, scale = 1 2 1, geom XY = 1 4
-	test_point_geometry_bytes(schema_xy, 5+2*8,
-		"000000000100000001000000020003",
-		"0101000000000000000000F03F0000000000001040"
-	);
+	test_point_geometry_bytes(schema_xy, 5 + 2 * 8,
+							  "000000000100000001000000020003",
+							  "0101000000000000000000F03F0000000000001040"
+							 );
 
 	// pt XYZI = 1 2 3 4, scale = 1 2 4 1, geom XYZ = 1 2 3
-	test_point_geometry_bytes(schema_xyz, 5+3*8,
-		"00000000010000000100000002000000030004",
-		"0101000080000000000000F03F00000000000010400000000000002840"
-	);
+	test_point_geometry_bytes(schema_xyz, 5 + 3 * 8,
+							  "00000000010000000100000002000000030004",
+							  "0101000080000000000000F03F00000000000010400000000000002840"
+							 );
 
 	// pt XYMI = 1 2 3 4, scale = 1 2 4 1, geom XYM = 1 4 12
-	test_point_geometry_bytes(schema_xym, 5+3*8,
-		"00000000010000000100000002000000030004",
-		"0101000040000000000000F03F00000000000010400000000000002840"
-	);
+	test_point_geometry_bytes(schema_xym, 5 + 3 * 8,
+							  "00000000010000000100000002000000030004",
+							  "0101000040000000000000F03F00000000000010400000000000002840"
+							 );
 
 	// pt XYZMI = 1 2 3 4 5, scale = 1 2 4 8 1, geom XYZM = 1 4 12 32
-	test_point_geometry_bytes(schema_xyzm, 5+4*8,
-		"0000000001000000010000000200000003000000040005",
-		"01010000C0000000000000F03F000000000000104000000000000028400000000000004040"
-	);
+	test_point_geometry_bytes(schema_xyzm, 5 + 4 * 8,
+							  "0000000001000000010000000200000003000000040005",
+							  "01010000C0000000000000F03F000000000000104000000000000028400000000000004040"
+							 );
 
 }
 
 /* REGISTER ***********************************************************/
 
-CU_TestInfo point_tests[] = {
+CU_TestInfo point_tests[] =
+{
 	PC_TEST(test_point_hex_inout),
 	PC_TEST(test_point_access),
 	PC_TEST(test_point_xyzm),
@@ -329,7 +330,8 @@ CU_TestInfo point_tests[] = {
 	CU_TEST_INFO_NULL
 };
 
-CU_SuiteInfo point_suite = {
+CU_SuiteInfo point_suite =
+{
 	.pName = "point",
 	.pInitFunc = init_suite,
 	.pCleanupFunc = clean_suite,

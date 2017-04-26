@@ -16,7 +16,7 @@ PCBITMAP *
 pc_bitmap_new(uint32_t npoints)
 {
 	PCBITMAP *map = pcalloc(sizeof(PCBITMAP));
-	map->map = pcalloc(sizeof(uint8_t)*npoints);
+	map->map = pcalloc(sizeof(uint8_t) * npoints);
 	map->npoints = npoints;
 	map->nset = 0;
 	return map;
@@ -33,18 +33,18 @@ static inline void
 pc_bitmap_set(PCBITMAP *map, int i, int val)
 {
 	uint8_t curval = map->map[i];
-	if ( val && (!curval) )
+	if (val && (!curval))
 		map->nset++;
-	if ( (!val) && curval )
+	if ((!val) && curval)
 		map->nset--;
 
-	map->map[i] = (val!=0);
+	map->map[i] = (val != 0);
 }
 
 void
 pc_bitmap_filter(PCBITMAP *map, PC_FILTERTYPE filter, int i, double d, double val1, double val2)
 {
-	switch ( filter )
+	switch (filter)
 	{
 	case PC_GT:
 		pc_bitmap_set(map, i, (d > val1 ? 1 : 0));
@@ -74,7 +74,7 @@ pc_patch_uncompressed_bitmap(const PCPATCH_UNCOMPRESSED *pa, uint32_t dimnum, PC
 	pt.readonly = PC_TRUE;
 	pt.schema = pa->schema;
 
-	while ( i < pa->npoints )
+	while (i < pa->npoints)
 	{
 		pt.data = buf;
 		pc_point_get_double(&pt, pa->schema->dims[dimnum], &d);
@@ -100,9 +100,9 @@ pc_patch_uncompressed_filter(const PCPATCH_UNCOMPRESSED *pu, const PCBITMAP *map
 
 	assert(map->npoints == pu->npoints);
 
-	while ( i < pu->npoints )
+	while (i < pu->npoints)
 	{
-		if ( pc_bitmap_get(map, i) )
+		if (pc_bitmap_get(map, i))
 		{
 			memcpy(fbuf, buf, sz);
 			fbuf += sz;
@@ -113,13 +113,13 @@ pc_patch_uncompressed_filter(const PCPATCH_UNCOMPRESSED *pu, const PCBITMAP *map
 
 	fpu->maxpoints = fpu->npoints = map->nset;
 
-	if ( PC_FAILURE == pc_patch_uncompressed_compute_extent(fpu) )
+	if (PC_FAILURE == pc_patch_uncompressed_compute_extent(fpu))
 	{
 		pcerror("%s: failed to compute patch extent", __func__);
 		return NULL;
 	}
 
-	if ( PC_FAILURE == pc_patch_uncompressed_compute_stats(fpu) )
+	if (PC_FAILURE == pc_patch_uncompressed_compute_stats(fpu))
 	{
 		pcerror("%s: failed to compute patch stats", __func__);
 		return NULL;
@@ -149,12 +149,12 @@ pc_patch_dimensional_filter(const PCPATCH_DIMENSIONAL *pdl, const PCBITMAP *map)
 	fpdl->stats = pc_stats_clone(pdl->stats);
 	fpdl->npoints = map->nset;
 
-	for ( i = 0; i < pdl->schema->ndims; i++ )
+	for (i = 0; i < pdl->schema->ndims; i++)
 	{
 		PCDIMENSION *dim;
 		PCDOUBLESTAT stats;
 		stats.min = FLT_MAX;
-		stats.max = -1*FLT_MAX;
+		stats.max = -1 * FLT_MAX;
 		stats.sum = 0;
 		fpdl->bytes[i] = pc_bytes_filter(&(pdl->bytes[i]), map, &stats);
 
@@ -166,12 +166,12 @@ pc_patch_dimensional_filter(const PCPATCH_DIMENSIONAL *pdl, const PCBITMAP *map)
 		stats.sum = pc_value_scale_offset(stats.sum, dim);
 
 		/* Save the X/Y stats for use in bounds later */
-		if ( dim == pdl->schema->xdim )
+		if (dim == pdl->schema->xdim)
 		{
 			fpdl->bounds.xmin = stats.min;
 			fpdl->bounds.xmax = stats.max;
 		}
-		else if ( dim == pdl->schema->ydim )
+		else if (dim == pdl->schema->ydim)
 		{
 			fpdl->bounds.ymin = stats.min;
 			fpdl->bounds.ymax = stats.max;
@@ -179,7 +179,7 @@ pc_patch_dimensional_filter(const PCPATCH_DIMENSIONAL *pdl, const PCBITMAP *map)
 
 		pc_point_set_double_by_index(&(fpdl->stats->min), i, stats.min);
 		pc_point_set_double_by_index(&(fpdl->stats->max), i, stats.max);
-		pc_point_set_double_by_index(&(fpdl->stats->avg), i, stats.sum/fpdl->npoints);
+		pc_point_set_double_by_index(&(fpdl->stats->avg), i, stats.sum / fpdl->npoints);
 	}
 
 	return fpdl;
@@ -192,28 +192,28 @@ pc_patch_filter_has_results(const PCSTATS *stats, uint32_t dimnum, PC_FILTERTYPE
 	double min, max;
 	pc_point_get_double_by_index(&(stats->min), dimnum, &min);
 	pc_point_get_double_by_index(&(stats->max), dimnum, &max);
-	switch ( filter )
+	switch (filter)
 	{
-		case PC_GT:
-		{
-			if ( max < val1 ) return PC_FALSE;
-			break;
-		}
-		case PC_LT:
-		{
-			if ( min > val1 ) return PC_FALSE;
-			break;
-		}
-		case PC_EQUAL:
-		{
-			if ( min > val1 || max < val1 ) return PC_FALSE;
-			break;
-		}
-		case PC_BETWEEN:
-		{
-			if ( min > val2 || max < val1 ) return PC_FALSE;
-			break;
-		}
+	case PC_GT:
+	{
+		if (max < val1) return PC_FALSE;
+		break;
+	}
+	case PC_LT:
+	{
+		if (min > val1) return PC_FALSE;
+		break;
+	}
+	case PC_EQUAL:
+	{
+		if (min > val1 || max < val1) return PC_FALSE;
+		break;
+	}
+	case PC_BETWEEN:
+	{
+		if (min > val2 || max < val1) return PC_FALSE;
+		break;
+	}
 	}
 	return PC_TRUE;
 }
@@ -222,24 +222,24 @@ pc_patch_filter_has_results(const PCSTATS *stats, uint32_t dimnum, PC_FILTERTYPE
 PCPATCH *
 pc_patch_filter(const PCPATCH *pa, uint32_t dimnum, PC_FILTERTYPE filter, double val1, double val2)
 {
-	if ( ! pa ) return NULL;
+	if (! pa) return NULL;
 	PCPATCH *paout;
 
 	/* If the stats say this filter returns an empty result, do that */
-	if ( pa->stats && ! pc_patch_filter_has_results(pa->stats, dimnum, filter, val1, val2) )
+	if (pa->stats && ! pc_patch_filter_has_results(pa->stats, dimnum, filter, val1, val2))
 	{
 		/* Empty uncompressed patch to return */
 		paout = (PCPATCH*)pc_patch_uncompressed_make(pa->schema, 0);
 		return paout;
 	}
 
-	switch ( pa->type )
+	switch (pa->type)
 	{
 	case PC_NONE:
 	{
 		PCBITMAP *map = pc_patch_uncompressed_bitmap((PCPATCH_UNCOMPRESSED*)pa, dimnum, filter, val1, val2);
 		PCPATCH_UNCOMPRESSED *pu;
-		if ( map->nset == 0 )
+		if (map->nset == 0)
 		{
 			pc_bitmap_free(map);
 			return (PCPATCH*)pc_patch_uncompressed_make(pa->schema, 0);
@@ -264,7 +264,7 @@ pc_patch_filter(const PCPATCH *pa, uint32_t dimnum, PC_FILTERTYPE filter, double
 	{
 		PCBITMAP *map = pc_patch_dimensional_bitmap((PCPATCH_DIMENSIONAL*)pa, dimnum, filter, val1, val2);
 		PCPATCH_DIMENSIONAL *pdl;
-		if ( map->nset == 0 )
+		if (map->nset == 0)
 		{
 			pc_bitmap_free(map);
 			return (PCPATCH*)pc_patch_uncompressed_make(pa->schema, 0);
@@ -281,9 +281,9 @@ pc_patch_filter(const PCPATCH *pa, uint32_t dimnum, PC_FILTERTYPE filter, double
 		PCPATCH_UNCOMPRESSED *pu;
 		PCPATCH_UNCOMPRESSED *pau;
 
-		pau = pc_patch_uncompressed_from_lazperf( (PCPATCH_LAZPERF*) pa );
+		pau = pc_patch_uncompressed_from_lazperf((PCPATCH_LAZPERF*) pa);
 		map = pc_patch_uncompressed_bitmap(pau, dimnum, filter, val1, val2);
-		if ( map->nset == 0 )
+		if (map->nset == 0)
 		{
 			pc_bitmap_free(map);
 			pc_patch_free((PCPATCH*) pau);
@@ -312,7 +312,7 @@ pc_patch_filter_lt_by_name(const PCPATCH *pa, const char *name, double val)
 {
 	/* Error out if we can't find the name */
 	PCDIMENSION *d = pc_schema_get_dimension_by_name(pa->schema, name);
-	if ( ! d ) return NULL;
+	if (! d) return NULL;
 
 	return pc_patch_filter(pa, d->position, PC_LT, val, val);
 }
@@ -322,7 +322,7 @@ pc_patch_filter_gt_by_name(const PCPATCH *pa, const char *name, double val)
 {
 	/* Error out if we can't find the name */
 	PCDIMENSION *d = pc_schema_get_dimension_by_name(pa->schema, name);
-	if ( ! d ) return NULL;
+	if (! d) return NULL;
 
 	return pc_patch_filter(pa, d->position, PC_GT, val, val);
 }
@@ -332,7 +332,7 @@ pc_patch_filter_equal_by_name(const PCPATCH *pa, const char *name, double val)
 {
 	/* Error out if we can't find the name */
 	PCDIMENSION *d = pc_schema_get_dimension_by_name(pa->schema, name);
-	if ( ! d ) return NULL;
+	if (! d) return NULL;
 
 	return pc_patch_filter(pa, d->position, PC_EQUAL, val, val);
 }
@@ -341,7 +341,7 @@ PCPATCH *
 pc_patch_filter_between_by_name(const PCPATCH *pa, const char *name, double val1, double val2)
 {
 	/* Ensure val1 < val2 always */
-	if ( val1 > val2 )
+	if (val1 > val2)
 	{
 		double tmp = val1;
 		val1 = val2;
@@ -349,7 +349,7 @@ pc_patch_filter_between_by_name(const PCPATCH *pa, const char *name, double val1
 	}
 	/* Error out if we can't find the name */
 	PCDIMENSION *d = pc_schema_get_dimension_by_name(pa->schema, name);
-	if ( ! d ) return NULL;
+	if (! d) return NULL;
 
 	return pc_patch_filter(pa, d->position, PC_BETWEEN, val1, val2);
 }

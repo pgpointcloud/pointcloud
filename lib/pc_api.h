@@ -214,9 +214,9 @@ typedef struct
 /* Global function signatures for memory/logging handlers. */
 typedef void* (*pc_allocator)(size_t size);
 typedef void* (*pc_reallocator)(void *mem, size_t size);
-typedef void  (*pc_deallocator)(void *mem);
-typedef void  (*pc_message_handler)(const char *string, va_list ap)
-	__attribute__ (( format (printf, 1, 0) ));
+typedef void (*pc_deallocator)(void *mem);
+typedef void (*pc_message_handler)(const char *string, va_list ap)
+__attribute__((format(printf, 1, 0)));
 
 
 

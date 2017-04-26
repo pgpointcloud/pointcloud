@@ -21,7 +21,7 @@
 static GhtType
 ght_type_from_pc_type(const int pctype)
 {
-	switch(pctype)
+	switch (pctype)
 	{
 	case PC_UNKNOWN:
 		return GHT_UNKNOWN;
@@ -68,7 +68,7 @@ ght_schema_from_pc_schema(const PCSCHEMA *pcschema)
 
 	ght_schema_new(&schema);
 
-	for ( i = 0; i < pcschema->ndims; i++ )
+	for (i = 0; i < pcschema->ndims; i++)
 	{
 		GhtDimensionPtr dim = ght_dimension_from_pc_dimension(pcschema->dims[i]);
 		ght_schema_add_dimension(schema, dim);
@@ -85,13 +85,13 @@ ght_tree_from_pc_patch(const PCPATCH_GHT *paght)
 	GhtSchemaPtr ghtschema;
 
 	ghtschema = ght_schema_from_pc_schema(paght->schema);
-	if ( ! ghtschema )
+	if (! ghtschema)
 		return NULL;
 
-	if ( GHT_OK != ght_reader_new_mem(paght->ght, paght->ghtsize, ghtschema, &reader) )
+	if (GHT_OK != ght_reader_new_mem(paght->ght, paght->ghtsize, ghtschema, &reader))
 		return NULL;
 
-	if ( GHT_OK != ght_tree_read(reader, &tree) )
+	if (GHT_OK != ght_tree_read(reader, &tree))
 		return NULL;
 
 	return tree;
@@ -127,7 +127,7 @@ pc_patch_ght_from_uncompressed(const PCPATCH_UNCOMPRESSED *pa)
 	size_t pt_size = pa->schema->size;
 
 	/* Cannot handle empty patches */
-	if ( ! pa || ! pa->npoints ) return NULL;
+	if (! pa || ! pa->npoints) return NULL;
 
 	pt.schema = pa->schema;
 	pt.readonly = PC_TRUE;
@@ -136,13 +136,14 @@ pc_patch_ght_from_uncompressed(const PCPATCH_UNCOMPRESSED *pa)
 	ydim = pa->schema->dims[pa->schema->y_position];
 
 	schema = ght_schema_from_pc_schema(pa->schema);
-	if ( ght_tree_new(schema, &tree) != GHT_OK ) {
+	if (ght_tree_new(schema, &tree) != GHT_OK)
+	{
 		pcerror("ght_tree_new failed");
 		return NULL;
 	}
 
 	/* Build up the tree from the points. */
-	for ( i = 0; i < pa->npoints; i++ )
+	for (i = 0; i < pa->npoints; i++)
 	{
 		pt.data = pa->data + pt_size * i;
 		pc_point_get_double(&pt, xdim, &(coord.x));
@@ -150,12 +151,12 @@ pc_patch_ght_from_uncompressed(const PCPATCH_UNCOMPRESSED *pa)
 
 		/* Build a node from the x/y information */
 		/* TODO, make resolution configurable from the schema */
-		if ( ght_node_new_from_coordinate(&coord, GHT_MAX_HASH_LENGTH, &node) == GHT_OK )
+		if (ght_node_new_from_coordinate(&coord, GHT_MAX_HASH_LENGTH, &node) == GHT_OK)
 		{
 			unsigned int num_dims;
 			ght_schema_get_num_dimensions(schema, &num_dims);
 			/* Add attributes to the node */
-			for ( j = 0; j < num_dims; j++ )
+			for (j = 0; j < num_dims; j++)
 			{
 				PCDIMENSION *dim;
 				GhtDimensionPtr ghtdim;
@@ -163,7 +164,7 @@ pc_patch_ght_from_uncompressed(const PCPATCH_UNCOMPRESSED *pa)
 				double val;
 
 				/* Don't add X or Y as attributes, they are already embodied in the hash */
-				if ( j == pa->schema->x_position || j == pa->schema->y_position )
+				if (j == pa->schema->x_position || j == pa->schema->y_position)
 					continue;
 
 				dim = pc_schema_get_dimension(pa->schema, j);
@@ -176,7 +177,7 @@ pc_patch_ght_from_uncompressed(const PCPATCH_UNCOMPRESSED *pa)
 
 			/* Add the node to the tree */
 			/* TODO, make duplicate handling configurable from the schema */
-			if ( ght_tree_insert_node(tree, node) == GHT_OK )
+			if (ght_tree_insert_node(tree, node) == GHT_OK)
 			{
 				pointcount++;
 			}
@@ -196,7 +197,7 @@ pc_patch_ght_from_uncompressed(const PCPATCH_UNCOMPRESSED *pa)
 	}
 
 	/* Compact the tree */
-	if ( ght_tree_compact_attributes(tree) == GHT_OK )
+	if (ght_tree_compact_attributes(tree) == GHT_OK)
 	{
 		GhtWriterPtr writer;
 		paght = pcalloc(sizeof(PCPATCH_GHT));
@@ -234,9 +235,9 @@ pc_patch_ght_free(PCPATCH_GHT *paght)
 
 	/* A readonly tree won't own it's ght buffer, */
 	/* so only free a readwrite tree */
-	if ( ! paght->readonly )
+	if (! paght->readonly)
 	{
-		if ( paght->ght )
+		if (paght->ght)
 			pcfree(paght->ght);
 	}
 
@@ -264,9 +265,9 @@ pc_patch_uncompressed_from_ght(const PCPATCH_GHT *paght)
 	GhtAttributePtr attr;
 
 	/* Build a structured tree from the tree serialization */
-	if ( ! paght || ! paght->ght ) return NULL;
+	if (! paght || ! paght->ght) return NULL;
 	tree = ght_tree_from_pc_patch(paght);
-	if ( ! tree ) return NULL;
+	if (! tree) return NULL;
 
 	/* Convert tree to nodelist */
 	ght_nodelist_new(paght->npoints, &nodelist);
@@ -292,7 +293,7 @@ pc_patch_uncompressed_from_ght(const PCPATCH_GHT *paght)
 	point.data = patch->data;
 
 	/* Process each point... */
-	for ( i = 0; i < npoints; i++ )
+	for (i = 0; i < npoints; i++)
 	{
 		double val;
 
@@ -304,7 +305,7 @@ pc_patch_uncompressed_from_ght(const PCPATCH_GHT *paght)
 
 		/* Read and set all the attributes */
 		ght_node_get_attributes(node, &attr);
-		while ( attr )
+		while (attr)
 		{
 			GhtDimensionPtr dim;
 			const char *name;
@@ -342,14 +343,14 @@ pc_patch_ght_from_wkb(const PCSCHEMA *schema, const uint8_t *wkb, size_t wkbsize
 	uint32:   ghtsize
 	uint8[]:  ghtbuffer
 	*/
-	static size_t hdrsz = 1+4+4+4; /* endian + pcid + compression + npoints */
+	static size_t hdrsz = 1 + 4 + 4 + 4; /* endian + pcid + compression + npoints */
 	PCPATCH_GHT *patch;
 	uint8_t swap_endian = (wkb[0] != machine_endian());
 	uint32_t npoints;
 	size_t ghtsize;
 	const uint8_t *buf;
 
-	if ( wkb_get_compression(wkb) != PC_GHT )
+	if (wkb_get_compression(wkb) != PC_GHT)
 	{
 		pcerror("%s: call with wkb that is not GHT compressed", __func__);
 		return NULL;
@@ -364,7 +365,7 @@ pc_patch_ght_from_wkb(const PCSCHEMA *schema, const uint8_t *wkb, size_t wkbsize
 	patch->npoints = npoints;
 
 	/* Start on the GHT */
-	buf = wkb+hdrsz;
+	buf = wkb + hdrsz;
 	ghtsize = wkb_get_int32(buf, swap_endian);
 	buf += 4; /* Move to start of GHT buffer */
 
@@ -391,10 +392,10 @@ pc_patch_ght_compute_extent(PCPATCH_GHT *patch)
 
 	/* Get a tree */
 	tree = ght_tree_from_pc_patch(patch);
-	if ( ! tree ) return PC_FAILURE;
+	if (! tree) return PC_FAILURE;
 
 	/* Calculate bounds and save */
-	if ( GHT_OK != ght_tree_get_extent(tree, &area) )
+	if (GHT_OK != ght_tree_get_extent(tree, &area))
 		return PC_FAILURE;
 
 	patch->bounds.xmin = area.x.min;
@@ -456,7 +457,7 @@ pc_patch_ght_to_wkb(const PCPATCH_GHT *patch, size_t *wkbsize)
 
 	buf = wkb + 17;
 	memcpy(buf, patch->ght, patch->ghtsize);
-	if ( wkbsize ) *wkbsize = size;
+	if (wkbsize) *wkbsize = size;
 	return wkb;
 #endif
 }
@@ -488,39 +489,39 @@ pc_patch_ght_filter(const PCPATCH_GHT *patch, uint32_t dimnum, PC_FILTERTYPE fil
 	int npoints;
 
 	/* Echo null back */
-	if ( ! patch ) return NULL;
+	if (! patch) return NULL;
 
 	/* Get a tree */
 	tree = ght_tree_from_pc_patch(patch);
-	if ( ! tree ) pcerror("%s: call to ght_tree_from_pc_patch failed", __func__);
+	if (! tree) pcerror("%s: call to ght_tree_from_pc_patch failed", __func__);
 
 	/* Get dimname */
 	dim = pc_schema_get_dimension(patch->schema, dimnum);
-	if ( ! dim ) pcerror("%s: invalid dimension number (%d)", __func__, dimnum);
+	if (! dim) pcerror("%s: invalid dimension number (%d)", __func__, dimnum);
 	dimname = dim->name;
 
-	switch ( filter )
+	switch (filter)
 	{
-		case PC_GT:
-			err = ght_tree_filter_greater_than(tree, dimname, val1 > val2 ? val1 : val2, &tree_filtered);
-			break;
-		case PC_LT:
-			err = ght_tree_filter_less_than(tree, dimname, val1 < val2 ? val1 : val2, &tree_filtered);
-			break;
-		case PC_EQUAL:
-			err = ght_tree_filter_equal(tree, dimname, val1, &tree_filtered);
-			break;
-		case PC_BETWEEN:
-			err = ght_tree_filter_between(tree, dimname, val1, val2, &tree_filtered);
-			break;
-		default:
-			pcerror("%s: invalid filter type (%d)", __func__, filter);
-			return NULL;
+	case PC_GT:
+		err = ght_tree_filter_greater_than(tree, dimname, val1 > val2 ? val1 : val2, &tree_filtered);
+		break;
+	case PC_LT:
+		err = ght_tree_filter_less_than(tree, dimname, val1 < val2 ? val1 : val2, &tree_filtered);
+		break;
+	case PC_EQUAL:
+		err = ght_tree_filter_equal(tree, dimname, val1, &tree_filtered);
+		break;
+	case PC_BETWEEN:
+		err = ght_tree_filter_between(tree, dimname, val1, val2, &tree_filtered);
+		break;
+	default:
+		pcerror("%s: invalid filter type (%d)", __func__, filter);
+		return NULL;
 	}
 
 	/* ght_tree_filter_* returns a tree with NULL tree element and npoints == 0 */
 	/* for empty filter results (everything got filtered away) */
-	if ( err != GHT_OK || ! tree_filtered )
+	if (err != GHT_OK || ! tree_filtered)
 		pcerror("%s: ght_tree_filter failed", __func__);
 
 	/* Read numpoints left in patch */
@@ -534,7 +535,7 @@ pc_patch_ght_filter(const PCPATCH_GHT *patch, uint32_t dimnum, PC_FILTERTYPE fil
 	paght->npoints = npoints;
 
 	/* No points, not much to do... */
-	if ( ! npoints )
+	if (! npoints)
 	{
 		paght->ghtsize = 0;
 		paght->ght = NULL;
@@ -542,7 +543,7 @@ pc_patch_ght_filter(const PCPATCH_GHT *patch, uint32_t dimnum, PC_FILTERTYPE fil
 	else
 	{
 		/* Calculate bounds and save */
-		if ( GHT_OK != ght_tree_get_extent(tree_filtered, &area) )
+		if (GHT_OK != ght_tree_get_extent(tree_filtered, &area))
 			pcerror("%s: ght_tree_get_extent failed", __func__);
 
 		paght->bounds.xmin = area.x.min;
@@ -588,7 +589,7 @@ pc_patch_ght_pointn(const PCPATCH_GHT *patch, int n)
 {
 	PCPATCH_UNCOMPRESSED *pu;
 	pu = pc_patch_uncompressed_from_ght(patch);
-	PCPOINT *pt = pc_patch_uncompressed_pointn(pu,n);
+	PCPOINT *pt = pc_patch_uncompressed_pointn(pu, n);
 	pc_patch_free((PCPATCH *)pu);
 	return pt;
 }

@@ -17,8 +17,8 @@
 int
 pc_patch_compute_extent(PCPATCH *pa)
 {
-	if ( ! pa ) return PC_FAILURE;
-	switch ( pa->type )
+	if (! pa) return PC_FAILURE;
+	switch (pa->type)
 	{
 	case PC_NONE:
 		return pc_patch_uncompressed_compute_extent((PCPATCH_UNCOMPRESSED*)pa);
@@ -38,9 +38,9 @@ pc_patch_compute_extent(PCPATCH *pa)
 int
 pc_patch_compute_stats(PCPATCH *pa)
 {
-	if ( ! pa ) return PC_FAILURE;
+	if (! pa) return PC_FAILURE;
 
-	switch ( pa->type )
+	switch (pa->type)
 	{
 	case PC_NONE:
 		return pc_patch_uncompressed_compute_stats((PCPATCH_UNCOMPRESSED*)pa);
@@ -49,7 +49,8 @@ pc_patch_compute_stats(PCPATCH *pa)
 	{
 		PCPATCH_UNCOMPRESSED *pu = pc_patch_uncompressed_from_dimensional((PCPATCH_DIMENSIONAL*)pa);
 		pc_patch_uncompressed_compute_stats(pu);
-		pa->stats = pu->stats; pu->stats = NULL;
+		pa->stats = pu->stats;
+		pu->stats = NULL;
 		pc_patch_uncompressed_free(pu);
 		return PC_SUCCESS;
 	}
@@ -82,13 +83,13 @@ pc_patch_compute_stats(PCPATCH *pa)
 void
 pc_patch_free(PCPATCH *patch)
 {
-	if ( patch->stats )
+	if (patch->stats)
 	{
-		pc_stats_free( patch->stats );
+		pc_stats_free(patch->stats);
 		patch->stats = NULL;
 	}
 
-	switch( patch->type )
+	switch (patch->type)
 	{
 	case PC_NONE:
 	{
@@ -132,11 +133,11 @@ pc_patch_compress(const PCPATCH *patch, void *userdata)
 	uint32_t schema_compression = patch->schema->compression;
 	uint32_t patch_compression = patch->type;
 
-	switch ( schema_compression )
+	switch (schema_compression)
 	{
 	case PC_DIMENSIONAL:
 	{
-		if ( patch_compression == PC_NONE )
+		if (patch_compression == PC_NONE)
 		{
 			/* Dimensionalize, dimensionally compress, return */
 			PCPATCH_DIMENSIONAL *pcdu = pc_patch_dimensional_from_uncompressed((PCPATCH_UNCOMPRESSED*)patch);
@@ -144,12 +145,12 @@ pc_patch_compress(const PCPATCH *patch, void *userdata)
 			pc_patch_dimensional_free(pcdu);
 			return (PCPATCH*)pcdd;
 		}
-		else if ( patch_compression == PC_DIMENSIONAL )
+		else if (patch_compression == PC_DIMENSIONAL)
 		{
 			/* Make sure it's compressed, return */
 			return (PCPATCH*)pc_patch_dimensional_compress((PCPATCH_DIMENSIONAL*)patch, (PCDIMSTATS*)userdata);
 		}
-		else if ( patch_compression == PC_GHT )
+		else if (patch_compression == PC_GHT)
 		{
 			/* Uncompress, dimensionalize, dimensionally compress, return */
 			PCPATCH_UNCOMPRESSED *pcu = pc_patch_uncompressed_from_ght((PCPATCH_GHT*)patch);
@@ -158,11 +159,11 @@ pc_patch_compress(const PCPATCH *patch, void *userdata)
 			pc_patch_dimensional_free(pcdu);
 			return (PCPATCH*)pcdc;
 		}
-		else if ( patch_compression == PC_LAZPERF )
+		else if (patch_compression == PC_LAZPERF)
 		{
-			PCPATCH_UNCOMPRESSED *pcu = pc_patch_uncompressed_from_lazperf( (PCPATCH_LAZPERF*) patch );
-			PCPATCH_DIMENSIONAL *pal = pc_patch_dimensional_from_uncompressed( pcu );
-			PCPATCH_DIMENSIONAL *palc = pc_patch_dimensional_compress( pal, NULL );
+			PCPATCH_UNCOMPRESSED *pcu = pc_patch_uncompressed_from_lazperf((PCPATCH_LAZPERF*) patch);
+			PCPATCH_DIMENSIONAL *pal = pc_patch_dimensional_from_uncompressed(pcu);
+			PCPATCH_DIMENSIONAL *palc = pc_patch_dimensional_compress(pal, NULL);
 			pc_patch_dimensional_free(pal);
 			return (PCPATCH*) palc;
 		}
@@ -173,24 +174,24 @@ pc_patch_compress(const PCPATCH *patch, void *userdata)
 	}
 	case PC_NONE:
 	{
-		if ( patch_compression == PC_NONE )
+		if (patch_compression == PC_NONE)
 		{
 			return (PCPATCH*)patch;
 		}
-		else if ( patch_compression == PC_DIMENSIONAL )
+		else if (patch_compression == PC_DIMENSIONAL)
 		{
 			PCPATCH_UNCOMPRESSED *pcu = pc_patch_uncompressed_from_dimensional((PCPATCH_DIMENSIONAL*)patch);
 			return (PCPATCH*)pcu;
 
 		}
-		else if ( patch_compression == PC_GHT )
+		else if (patch_compression == PC_GHT)
 		{
 			PCPATCH_UNCOMPRESSED *pcu = pc_patch_uncompressed_from_ght((PCPATCH_GHT*)patch);
 			return (PCPATCH*)pcu;
 		}
-		else if ( patch_compression == PC_LAZPERF )
+		else if (patch_compression == PC_LAZPERF)
 		{
-			PCPATCH_UNCOMPRESSED *pcu = pc_patch_uncompressed_from_lazperf( (PCPATCH_LAZPERF*)patch );
+			PCPATCH_UNCOMPRESSED *pcu = pc_patch_uncompressed_from_lazperf((PCPATCH_LAZPERF*)patch);
 			return (PCPATCH*)pcu;
 		}
 		else
@@ -200,24 +201,24 @@ pc_patch_compress(const PCPATCH *patch, void *userdata)
 	}
 	case PC_GHT:
 	{
-		if ( patch_compression == PC_NONE )
+		if (patch_compression == PC_NONE)
 		{
 			PCPATCH_GHT *pgc = pc_patch_ght_from_uncompressed((PCPATCH_UNCOMPRESSED*)patch);
-			if ( ! pgc ) pcerror("%s: ght compression failed", __func__);
+			if (! pgc) pcerror("%s: ght compression failed", __func__);
 			return (PCPATCH*)pgc;
 		}
-		else if ( patch_compression == PC_DIMENSIONAL )
+		else if (patch_compression == PC_DIMENSIONAL)
 		{
 			PCPATCH_UNCOMPRESSED *pcu = pc_patch_uncompressed_from_dimensional((PCPATCH_DIMENSIONAL*)patch);
 			PCPATCH_GHT *pgc = pc_patch_ght_from_uncompressed((PCPATCH_UNCOMPRESSED*)patch);
 			pc_patch_uncompressed_free(pcu);
 			return (PCPATCH*)pgc;
 		}
-		else if ( patch_compression == PC_GHT )
+		else if (patch_compression == PC_GHT)
 		{
 			return (PCPATCH*)patch;
 		}
-		else if ( patch_compression == PC_LAZPERF )
+		else if (patch_compression == PC_LAZPERF)
 		{
 			PCPATCH_LAZPERF *pal = pc_patch_lazperf_from_uncompressed((PCPATCH_UNCOMPRESSED*)patch);
 			return (PCPATCH*)pal;
@@ -229,27 +230,27 @@ pc_patch_compress(const PCPATCH *patch, void *userdata)
 	}
 	case PC_LAZPERF:
 	{
-		if ( patch_compression == PC_NONE )
+		if (patch_compression == PC_NONE)
 		{
 			PCPATCH_LAZPERF *pgc = pc_patch_lazperf_from_uncompressed((PCPATCH_UNCOMPRESSED*)patch);
-			if ( ! pgc ) pcerror("%s: lazperf compression failed", __func__);
+			if (! pgc) pcerror("%s: lazperf compression failed", __func__);
 			return (PCPATCH*)pgc;
 		}
-		else if ( patch_compression == PC_DIMENSIONAL )
+		else if (patch_compression == PC_DIMENSIONAL)
 		{
 			PCPATCH_UNCOMPRESSED *pad = pc_patch_uncompressed_from_dimensional((PCPATCH_DIMENSIONAL*)patch);
-			PCPATCH_LAZPERF *pal = pc_patch_lazperf_from_uncompressed( (PCPATCH_UNCOMPRESSED*) pad );
-			pc_patch_uncompressed_free( pad );
+			PCPATCH_LAZPERF *pal = pc_patch_lazperf_from_uncompressed((PCPATCH_UNCOMPRESSED*) pad);
+			pc_patch_uncompressed_free(pad);
 			return (PCPATCH*)pal;
 		}
-		else if ( patch_compression == PC_GHT )
+		else if (patch_compression == PC_GHT)
 		{
 			PCPATCH_UNCOMPRESSED *pcu = pc_patch_uncompressed_from_ght((PCPATCH_GHT*)patch);
 			PCPATCH_LAZPERF *pal = pc_patch_lazperf_from_uncompressed((PCPATCH_UNCOMPRESSED*)pcu);
 			pc_patch_uncompressed_free(pcu);
 			return (PCPATCH*)pal;
 		}
-		else if ( patch_compression == PC_LAZPERF )
+		else if (patch_compression == PC_LAZPERF)
 		{
 			return (PCPATCH*)patch;
 		}
@@ -274,26 +275,26 @@ pc_patch_uncompress(const PCPATCH *patch)
 {
 	uint32_t patch_compression = patch->type;
 
-	if ( patch_compression == PC_DIMENSIONAL )
+	if (patch_compression == PC_DIMENSIONAL)
 	{
 		PCPATCH_UNCOMPRESSED *pu = pc_patch_uncompressed_from_dimensional((PCPATCH_DIMENSIONAL*)patch);
 		return (PCPATCH*)pu;
 	}
 
-	if ( patch_compression == PC_NONE )
+	if (patch_compression == PC_NONE)
 	{
 		return (PCPATCH*)patch;
 	}
 
-	if ( patch_compression == PC_GHT )
+	if (patch_compression == PC_GHT)
 	{
 		PCPATCH_UNCOMPRESSED *pu = pc_patch_uncompressed_from_ght((PCPATCH_GHT*)patch);
 		return (PCPATCH*)pu;
 	}
 
-	if ( patch_compression == PC_LAZPERF )
+	if (patch_compression == PC_LAZPERF)
 	{
-		PCPATCH_UNCOMPRESSED *pu = pc_patch_uncompressed_from_lazperf( (PCPATCH_LAZPERF*)patch );
+		PCPATCH_UNCOMPRESSED *pu = pc_patch_uncompressed_from_lazperf((PCPATCH_LAZPERF*)patch);
 		return (PCPATCH*) pu;
 	}
 
@@ -314,7 +315,7 @@ pc_patch_from_wkb(const PCSCHEMA *s, uint8_t *wkb, size_t wkbsize)
 	uint32_t compression, pcid;
 	PCPATCH *patch;
 
-	if ( ! wkbsize )
+	if (! wkbsize)
 	{
 		pcerror("%s: zero length wkb", __func__);
 	}
@@ -327,12 +328,12 @@ pc_patch_from_wkb(const PCSCHEMA *s, uint8_t *wkb, size_t wkbsize)
 	pcid = wkb_get_pcid(wkb);
 	compression = wkb_get_compression(wkb);
 
-	if ( pcid != s->pcid )
+	if (pcid != s->pcid)
 	{
 		pcerror("%s: wkb pcid (%d) not consistent with schema pcid (%d)", __func__, pcid, s->pcid);
 	}
 
-	switch ( compression )
+	switch (compression)
 	{
 	case PC_NONE:
 	{
@@ -362,10 +363,10 @@ pc_patch_from_wkb(const PCSCHEMA *s, uint8_t *wkb, size_t wkbsize)
 	}
 	}
 
-	if ( PC_FAILURE == pc_patch_compute_extent(patch) )
+	if (PC_FAILURE == pc_patch_compute_extent(patch))
 		pcerror("%s: pc_patch_compute_extent failed", __func__);
 
-	if ( PC_FAILURE == pc_patch_compute_stats(patch) )
+	if (PC_FAILURE == pc_patch_compute_stats(patch))
 		pcerror("%s: pc_patch_compute_stats failed", __func__);
 
 	return patch;
@@ -383,7 +384,7 @@ pc_patch_to_wkb(const PCPATCH *patch, size_t *wkbsize)
 	uint32:   compression (0 = no compression, 1 = dimensional, 2 = GHT)
 	uchar[]:  data (interpret relative to pcid and compression)
 	*/
-	switch ( patch->type )
+	switch (patch->type)
 	{
 	case PC_NONE:
 	{
@@ -409,7 +410,7 @@ pc_patch_to_wkb(const PCPATCH *patch, size_t *wkbsize)
 char *
 pc_patch_to_string(const PCPATCH *patch)
 {
-	switch( patch->type )
+	switch (patch->type)
 	{
 	case PC_NONE:
 		return pc_patch_uncompressed_to_string((PCPATCH_UNCOMPRESSED*)patch);
@@ -418,7 +419,7 @@ pc_patch_to_string(const PCPATCH *patch)
 	case PC_GHT:
 		return pc_patch_ght_to_string((PCPATCH_GHT*)patch);
 	case PC_LAZPERF:
-		return pc_patch_lazperf_to_string( (PCPATCH_LAZPERF*)patch );
+		return pc_patch_lazperf_to_string((PCPATCH_LAZPERF*)patch);
 	}
 	pcerror("%s: unsupported compression %d requested", __func__, patch->type);
 	return NULL;
@@ -444,9 +445,9 @@ pc_patch_from_patchlist(PCPATCH **palist, int numpatches)
 	schema = palist[0]->schema;
 
 	/* How many points will this output have? */
-	for ( i = 0; i < numpatches; i++ )
+	for (i = 0; i < numpatches; i++)
 	{
-		if ( schema->pcid != palist[i]->schema->pcid )
+		if (schema->pcid != palist[i]->schema->pcid)
 		{
 			pcerror("%s: inconsistent schemas in input", __func__);
 			return NULL;
@@ -459,14 +460,14 @@ pc_patch_from_patchlist(PCPATCH **palist, int numpatches)
 	buf = paout->data;
 
 	/* Uncompress dimensionals, copy uncompressed */
-	for ( i = 0; i < numpatches; i++ )
+	for (i = 0; i < numpatches; i++)
 	{
 		const PCPATCH *pa = palist[i];
 
 		/* Update bounds */
 		pc_bounds_merge(&(paout->bounds), &(pa->bounds));
 
-		switch ( pa->type )
+		switch (pa->type)
 		{
 		case PC_DIMENSIONAL:
 		{
@@ -513,7 +514,7 @@ pc_patch_from_patchlist(PCPATCH **palist, int numpatches)
 
 	paout->npoints = totalpoints;
 
-	if ( PC_FAILURE == pc_patch_uncompressed_compute_stats(paout) )
+	if (PC_FAILURE == pc_patch_uncompressed_compute_stats(paout))
 	{
 		pcerror("%s: stats computation failed", __func__);
 		return NULL;
@@ -538,22 +539,22 @@ pc_patch_range(const PCPATCH *pa, int first, int count)
 	first--;
 	countmax = pa->npoints - first;
 
-	if ( count > countmax )
+	if (count > countmax)
 		count = countmax;
 
-	if ( first < 0 || count <= 0 )
+	if (first < 0 || count <= 0)
 		return NULL;
 
-	if ( count == pa->npoints )
+	if (count == pa->npoints)
 		return (PCPATCH *) pa;
 
 	paout = pc_patch_uncompressed_make(pa->schema, count);
-	if ( !paout )
+	if (!paout)
 		return NULL;
 	paout->npoints = count;
 
 	pu = (PCPATCH_UNCOMPRESSED *) pc_patch_uncompress(pa);
-	if ( !pu )
+	if (!pu)
 	{
 		pc_patch_free((PCPATCH *) paout);
 		return NULL;
@@ -565,16 +566,16 @@ pc_patch_range(const PCPATCH *pa, int first, int count)
 
 	memcpy(buf, pu->data + start, size);
 
-	if ( ((PCPATCH *) pu) != pa )
+	if (((PCPATCH *) pu) != pa)
 		pc_patch_free((PCPATCH *) pu);
 
-	if ( PC_FAILURE == pc_patch_uncompressed_compute_extent(paout) )
+	if (PC_FAILURE == pc_patch_uncompressed_compute_extent(paout))
 	{
 		pcerror("%s: extent computation failed", __func__);
 		pc_patch_free((PCPATCH *) paout);
 		return NULL;
 	}
-	if ( PC_FAILURE == pc_patch_uncompressed_compute_stats(paout) )
+	if (PC_FAILURE == pc_patch_uncompressed_compute_stats(paout))
 	{
 		pcerror("%s: stats computation failed", __func__);
 		pc_patch_free((PCPATCH *) paout);
@@ -589,19 +590,19 @@ pc_patch_range(const PCPATCH *pa, int first, int count)
 /** negative 1-based: -1=last  point, -npoints=first point */
 PCPOINT *pc_patch_pointn(const PCPATCH *patch, int n)
 {
-	if(!patch) return NULL;
-	if(n<0) n = patch->npoints+n; // negative indices count a backward
+	if (!patch) return NULL;
+	if (n < 0) n = patch->npoints + n; // negative indices count a backward
 	else --n; // 1-based => 0-based indexing
-	if(n<0 || n>= patch->npoints) return NULL;
+	if (n < 0 || n >= patch->npoints) return NULL;
 
-	switch( patch->type )
+	switch (patch->type)
 	{
 	case PC_NONE:
-		return pc_patch_uncompressed_pointn((PCPATCH_UNCOMPRESSED*)patch,n);
+		return pc_patch_uncompressed_pointn((PCPATCH_UNCOMPRESSED*)patch, n);
 	case PC_DIMENSIONAL:
-		return pc_patch_dimensional_pointn((PCPATCH_DIMENSIONAL*)patch,n);
+		return pc_patch_dimensional_pointn((PCPATCH_DIMENSIONAL*)patch, n);
 	case PC_GHT:
-		return pc_patch_ght_pointn((PCPATCH_GHT*)patch,n);
+		return pc_patch_ght_pointn((PCPATCH_GHT*)patch, n);
 	case PC_LAZPERF:
 		return pc_patch_lazperf_pointn((PCPATCH_LAZPERF*)patch, n);
 	}
@@ -612,16 +613,16 @@ PCPOINT *pc_patch_pointn(const PCPATCH *patch, int n)
 
 static void
 pc_patch_point_set(
-		PCPOINT *p, const uint8_t *data, PCDIMENSION **dims, const uint8_t *def)
+	PCPOINT *p, const uint8_t *data, PCDIMENSION **dims, const uint8_t *def)
 {
 	size_t i;
-	for ( i = 0; i < p->schema->ndims; i++ )
+	for (i = 0; i < p->schema->ndims; i++)
 	{
 		const PCDIMENSION *ddim = dims[i];
 		const PCDIMENSION *pdim = p->schema->dims[i];
 		uint8_t *pdata = p->data + pdim->byteoffset;
 		const uint8_t *ddata = ddim ?
-			data + ddim->byteoffset : def + pdim->byteoffset;
+							   data + ddim->byteoffset : def + pdim->byteoffset;
 		memcpy(pdata, ddata, pdim->size);
 	}
 }
@@ -643,15 +644,15 @@ pc_patch_set_schema(PCPATCH *patch, const PCSCHEMA *new_schema, double def)
 	// create a point for storing the default values
 	dpt = pc_point_make(new_schema);
 
-	for ( j = 0; j < new_schema->ndims; j++ )
+	for (j = 0; j < new_schema->ndims; j++)
 	{
 		PCDIMENSION *ndim = new_dimensions[j];
 		PCDIMENSION *odim = pc_schema_get_dimension_by_name(
-				old_schema, ndim->name);
+								old_schema, ndim->name);
 		old_dimensions[j] = odim;
-		if ( odim )
+		if (odim)
 		{
-			if ( ndim->interpretation != odim->interpretation )
+			if (ndim->interpretation != odim->interpretation)
 			{
 				pcerror("dimension interpretations are not matching");
 				pc_point_free(dpt);
@@ -676,14 +677,14 @@ pc_patch_set_schema(PCPATCH *patch, const PCSCHEMA *new_schema, double def)
 	opt.data = ((PCPATCH_UNCOMPRESSED *) pain)->data;
 	npt.data = paout->data;
 
-	for ( i = 0; i < patch->npoints; i++ )
+	for (i = 0; i < patch->npoints; i++)
 	{
 		pc_patch_point_set(&npt, opt.data, old_dimensions, dpt->data);
 		opt.data += old_schema->size;
 		npt.data += new_schema->size;
 	}
 
-	if ( patch->stats )
+	if (patch->stats)
 	{
 		paout->stats = pc_stats_new(new_schema);
 
@@ -719,7 +720,7 @@ pc_patch_set_schema(PCPATCH *patch, const PCSCHEMA *new_schema, double def)
 
 	pc_point_free(dpt);
 
-	if ( pain != patch )
+	if (pain != patch)
 		pc_patch_free(pain);
 
 	return (PCPATCH*) paout;
