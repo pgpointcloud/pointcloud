@@ -445,4 +445,9 @@ SELECT
   PC_AsText(PC_SetPCId(p, 10)) t, PC_Summary(PC_SetPCId(p, 10))::json->'compr' c
 FROM ( SELECT PC_Patch(PC_MakePoint(1, ARRAY[-1,0,4862413,1])) p ) foo;
 
+-- test PC_Transform
+SELECT
+  PC_AsText(PC_Transform(p, 10, 1.0)) t, PC_Summary(PC_Transform(p, 10, 1.0))::json->'compr' c
+FROM ( SELECT PC_Patch(PC_MakePoint(1, ARRAY[-1,0,4862413,1])) p ) foo;
+
 TRUNCATE pointcloud_formats;

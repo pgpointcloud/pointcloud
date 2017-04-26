@@ -304,6 +304,135 @@ test_schema_clone_empty_name(void)
 	pcfree(xmlstr);
 }
 
+static void
+test_schema_same_dimensions(void)
+{
+	PCSCHEMA *s1, *s2;
+	PCDIMENSION *tmp;
+	PCDIMENSION dim;
+
+	char *xmlfile = "data/simple-schema.xml";
+	char *xmlstr = file_to_str(xmlfile);
+
+	s1 = pc_schema_from_xml(xmlstr);
+	pcfree(xmlstr);
+
+	s2 = pc_schema_clone(s1);
+
+	// same schemas
+	CU_ASSERT_EQUAL(pc_schema_same_dimensions(s1, s2), PC_TRUE);
+
+	// different number of dimensions
+	s2->ndims = 1;
+	CU_ASSERT_EQUAL(pc_schema_same_dimensions(s1, s2), PC_FALSE);
+	s2->ndims = s1->ndims;
+
+	// different dimension positions
+	tmp = s2->dims[0];
+	s2->dims[0] = s2->dims[1];
+	s2->dims[1] = tmp;
+	CU_ASSERT_EQUAL(pc_schema_same_dimensions(s1, s2), PC_FALSE);
+	s2->dims[1] = s2->dims[0];
+	s2->dims[0] = tmp;
+
+	// different dimension name
+	tmp = s2->dims[0];
+	dim.name = pcstrdup("foo");
+	dim.interpretation = tmp->interpretation;
+	s2->dims[0] = &dim;
+	CU_ASSERT_EQUAL(pc_schema_same_dimensions(s1, s2), PC_FALSE);
+	s2->dims[0] = tmp;
+	pcfree(dim.name);
+
+	// different interpretations
+	tmp = s2->dims[0];
+	dim.name = tmp->name;
+	dim.interpretation = PC_FLOAT;
+	s2->dims[0] = &dim;
+	CU_ASSERT_EQUAL(pc_schema_same_dimensions(s1, s2), PC_FALSE);
+	s2->dims[0] = tmp;
+
+	pc_schema_free(s1);
+	pc_schema_free(s2);
+}
+
+static void
+test_schema_same_interpretations(void)
+{
+	PCSCHEMA *s1, *s2;
+	PCDIMENSION *tmp;
+	PCDIMENSION dim;
+
+	char *xmlfile = "data/simple-schema.xml";
+	char *xmlstr = file_to_str(xmlfile);
+
+	s1 = pc_schema_from_xml(xmlstr);
+	pcfree(xmlstr);
+
+	s2 = pc_schema_clone(s1);
+
+	// same schemas
+	CU_ASSERT_EQUAL(pc_schema_same_interpretations(s1, s2), PC_TRUE);
+
+	// different srid
+	s2->srid = 100;
+	CU_ASSERT_EQUAL(pc_schema_same_interpretations(s1, s2), PC_FALSE);
+	s2->srid = s1->srid;
+
+	// different dimension positions
+	tmp = s2->dims[0];
+	s2->dims[0] = s2->dims[1];
+	s2->dims[1] = tmp;
+	CU_ASSERT_EQUAL(pc_schema_same_interpretations(s1, s2), PC_TRUE);
+	s2->dims[1] = s2->dims[0];
+	s2->dims[0] = tmp;
+
+	// first dimension in s1 doesn't exist in s2, and first dimension
+	// in s2 does not exist in s1
+	tmp = s2->dims[0];
+	dim.name = pcstrdup("foo");
+	dim.interpretation = tmp->interpretation;
+	dim.scale = tmp->scale;
+	dim.offset = tmp->offset;
+	s2->dims[0] = &dim;
+	CU_ASSERT_EQUAL(pc_schema_same_interpretations(s1, s2), PC_TRUE);
+	s2->dims[0] = tmp;
+	pcfree(dim.name);
+
+	// different interpretations for a dimension
+	tmp = s2->dims[0];
+	dim.name = tmp->name;
+	dim.interpretation = PC_FLOAT;
+	dim.scale = tmp->scale;
+	dim.offset = tmp->offset;
+	s2->dims[0] = &dim;
+	CU_ASSERT_EQUAL(pc_schema_same_interpretations(s1, s2), PC_FALSE);
+	s2->dims[0] = tmp;
+
+	// different scales for a dimension
+	tmp = s2->dims[0];
+	dim.name = tmp->name;
+	dim.interpretation = tmp->interpretation;
+	dim.scale = 0.08;
+	dim.offset = tmp->offset;
+	s2->dims[0] = &dim;
+	CU_ASSERT_EQUAL(pc_schema_same_interpretations(s1, s2), PC_FALSE);
+	s2->dims[0] = tmp;
+
+	// different offsets for a dimension
+	tmp = s2->dims[0];
+	dim.name = tmp->name;
+	dim.interpretation = tmp->interpretation;
+	dim.scale = tmp->scale;
+	dim.offset = 80;
+	s2->dims[0] = &dim;
+	CU_ASSERT_EQUAL(pc_schema_same_interpretations(s1, s2), PC_FALSE);
+	s2->dims[0] = tmp;
+
+	pc_schema_free(s1);
+	pc_schema_free(s2);
+}
+
 /* REGISTER ***********************************************************/
 
 CU_TestInfo schema_tests[] = {
@@ -322,6 +451,8 @@ CU_TestInfo schema_tests[] = {
 	PC_TEST(test_schema_clone_empty_description),
 	PC_TEST(test_schema_clone_no_name),
 	PC_TEST(test_schema_clone_empty_name),
+	PC_TEST(test_schema_same_dimensions),
+	PC_TEST(test_schema_same_interpretations),
 	CU_TEST_INFO_NULL
 };
 

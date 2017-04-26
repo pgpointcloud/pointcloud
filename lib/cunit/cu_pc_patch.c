@@ -1290,6 +1290,101 @@ test_patch_set_schema_dimensional_compression_rle()
 	test_patch_set_schema_dimensional_compression(PC_DIM_RLE);
 }
 
+static void
+test_patch_transform_compression_none()
+{
+	// init data
+	PCPATCH_UNCOMPRESSED *pau;
+	PCSCHEMA *nschema;
+	PCPOINTLIST *pl;
+	PCPATCH *pa;
+	PCPOINT *pt;
+	char *str;
+	int i;
+	int npts = 5;
+	uint8_t *wkb;
+	size_t wkbsize;
+
+	// build a patch
+	pl = pc_pointlist_make(npts);
+	for ( i = (npts - 1); i >= 0; i-- )
+	{
+		pt = pc_point_make(simpleschema);
+		pc_point_set_double_by_name(pt, "X", i * 0.1);
+		pc_point_set_double_by_name(pt, "Y", i * 0.2);
+		pc_point_set_double_by_name(pt, "Z", i * 0.3);
+		pc_point_set_double_by_name(pt, "Intensity", 10);
+		pc_pointlist_add_point(pl, pt);
+	}
+	pau = pc_patch_uncompressed_from_pointlist(pl);
+
+	// create a new schema, and use 0.02 scale values for x, y and z
+	nschema = pc_schema_clone(simpleschema);
+	nschema->xdim->scale = 0.02;
+	nschema->ydim->scale = 0.02;
+	nschema->zdim->scale = 0.02;
+
+	// transform the patch
+	pa = pc_patch_transform((PCPATCH*) pau, nschema, 0.0);
+	CU_ASSERT(pa != NULL);
+
+	// check point 1
+	// expected: x=hex(20)=0x14, y=hex(40)=0x28, z=hex(60)=0x3C, I=hex(10)=0x0A
+	pt = pc_patch_pointn(pa, 1);
+	wkb = pc_point_to_wkb(pt, &wkbsize);
+	str = hexbytes_from_bytes(wkb, wkbsize);
+	CU_ASSERT_STRING_EQUAL(str, "010000000014000000280000003C0000000A00");
+	pcfree(str);
+	pcfree(wkb);
+	pc_point_free(pt);
+
+	// check point 2
+	// expected: x=hex(15)=0x0F, y=hex(30)=0x1E, z=hex(45)=0x2D, I=hex(10)=0x0A
+	pt = pc_patch_pointn(pa, 2);
+	wkb = pc_point_to_wkb(pt, &wkbsize);
+	str = hexbytes_from_bytes(wkb, wkbsize);
+	CU_ASSERT_STRING_EQUAL(str, "01000000000F0000001E0000002D0000000A00");
+	pcfree(str);
+	pcfree(wkb);
+	pc_point_free(pt);
+
+	// check point 3
+	// expected: x=hex(10)=0x0A, y=hex(20)=0x14, z=hex(30)=0x1E, I=hex(10)=0x0A
+	pt = pc_patch_pointn(pa, 3);
+	wkb = pc_point_to_wkb(pt, &wkbsize);
+	str = hexbytes_from_bytes(wkb, wkbsize);
+	CU_ASSERT_STRING_EQUAL(str, "01000000000A000000140000001E0000000A00");
+	pcfree(str);
+	pcfree(wkb);
+	pc_point_free(pt);
+
+	// check point 4
+	// expected: x=hex(5)=0x05, y=hex(10)=0x0A, z=hex(15)=0x0F, I=hex(10)=0x0A
+	pt = pc_patch_pointn(pa, 4);
+	wkb = pc_point_to_wkb(pt, &wkbsize);
+	str = hexbytes_from_bytes(wkb, wkbsize);
+	CU_ASSERT_STRING_EQUAL(str, "0100000000050000000A0000000F0000000A00");
+	pcfree(str);
+	pcfree(wkb);
+	pc_point_free(pt);
+
+	// check point 5
+	// expected: x=hex(0)=0x00, y=hex(0)=0x00, z=hex(0)=0x00, I=hex(10)=0x0A
+	pt = pc_patch_pointn(pa, 5);
+	wkb = pc_point_to_wkb(pt, &wkbsize);
+	str = hexbytes_from_bytes(wkb, wkbsize);
+	CU_ASSERT_STRING_EQUAL(str, "01000000000000000000000000000000000A00");
+	pcfree(str);
+	pcfree(wkb);
+	pc_point_free(pt);
+
+	pc_patch_free(pa);
+	pc_schema_free(nschema);
+	pc_patch_free((PCPATCH*) pau);
+	pc_pointlist_free(pl);
+}
+
+
 /* REGISTER ***********************************************************/
 
 CU_TestInfo patch_tests[] = {
@@ -1340,6 +1435,7 @@ CU_TestInfo patch_tests[] = {
 #ifdef HAVE_LAZPERF
 	PC_TEST(test_patch_set_schema_compression_lazperf),
 #endif
+	PC_TEST(test_patch_transform_compression_none),
 	CU_TEST_INFO_NULL
 };
 
