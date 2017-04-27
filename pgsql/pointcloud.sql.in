@@ -198,6 +198,12 @@ CREATE OR REPLACE FUNCTION PC_EnvelopeAsBinary(p pcpatch)
 	RETURNS bytea AS 'MODULE_PATHNAME', 'pcpatch_envelope_as_bytea'
 	LANGUAGE 'c' IMMUTABLE STRICT;
 
+-- PC_Envelope is an alias to PC_EnvelopeAsBinary, it is kept for
+-- backward-compatibility
+CREATE OR REPLACE FUNCTION PC_Envelope(p pcpatch)
+	RETURNS bytea AS 'MODULE_PATHNAME', 'pcpatch_envelope_as_bytea'
+	LANGUAGE 'c' IMMUTABLE STRICT;
+
 CREATE OR REPLACE FUNCTION PC_Uncompress(p pcpatch)
 	RETURNS pcpatch AS 'MODULE_PATHNAME', 'pcpatch_uncompress'
 	LANGUAGE 'c' IMMUTABLE STRICT;

@@ -31,7 +31,7 @@ Datum pcpoint_from_double_array(PG_FUNCTION_ARGS);
 Datum pcpoint_as_text(PG_FUNCTION_ARGS);
 Datum pcpatch_as_text(PG_FUNCTION_ARGS);
 Datum pcpoint_as_bytea(PG_FUNCTION_ARGS);
-Datum pcpatch_bytea_envelope(PG_FUNCTION_ARGS);
+Datum pcpatch_envelope_as_bytea(PG_FUNCTION_ARGS);
 Datum pcpatch_bounding_diagonal_as_bytea(PG_FUNCTION_ARGS);
 
 

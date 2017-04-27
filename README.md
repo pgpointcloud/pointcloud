@@ -505,6 +505,8 @@ Now that you have created two tables, you'll see entries for them in the `pointc
 >     14ae4781464090c2f5285cbf5fc0ec51b81e858b46400ad7
 >     a3703dba5fc0ec51b81e858b46400ad7a3703dba5fc0e17a
 >     14ae4781464090c2f5285cbf5fc0e17a14ae47814640
+>
+> **PC_Envelope** is an alias to **PC_EnvelopeBinary**. But **PC_Envelope** is deprecated and will be removed in a future version (2.0) of the extension. **PC_EnvelopeAsBinary** is to be used instead.
 
 **PC_BoundingDiagonalAsBinary(p pcpatch)** returns **bytea**
 
@@ -564,20 +566,20 @@ The `pointcloud_postgis` extension adds functions that allow you to use PostgreS
 > 
 >     POINT Z (-127 45 124)
 
-**PC_Envelope(pcpatch)** returns **geometry**
+**PC_EnvelopeGeometry(pcpatch)** returns **geometry**
 
 > Returns the 2D *bounds* of the patch as a PostGIS Polygon 2D.
 > Useful for performing 2D intersection tests with PostGIS geometries.
 >
->     SELECT ST_AsText(PC_Envelope(pa)) FROM patches LIMIT 1;
+>     SELECT ST_AsText(PC_EnvelopeGeometry(pa)) FROM patches LIMIT 1;
 >
 >     POLYGON((-126.99 45.01,-126.99 45.09,-126.91 45.09,-126.91 45.01,-126.99 45.01))
 
-**PC_BoundingDiagonal(pcpatch)** returns **geometry**
+**PC_BoundingDiagonalGeometry(pcpatch)** returns **geometry**
 
 > Returns the bounding diagonal of a patch. This is a LineString (2D), a LineString Z or a LineString M or a LineString ZM, based on the existence of the Z and M dimensions in the patch. This function is useful for creating an index on a patch column.
 >
->     SELECT ST_AsText(PC_BoundingDiagonal(pa)) FROM patches;
+>     SELECT ST_AsText(PC_BoundingDiagonalGeometry(pa)) FROM patches;
 >                       st_astext
 >    ------------------------------------------------
 >     LINESTRING Z (-126.99 45.01 1,-126.91 45.09 9)
