@@ -9,6 +9,12 @@ A PostgreSQL extension for storing point cloud (LIDAR) data.
 
 ## Build/Install ##
 
+WARNING: for users ending up on this webpage and seeking to install pointcloud ready to use, beware that pointcloud is already shipped by default in PostGIS and just has to be actived as an extension with the folowing command:
+
+CREATE EXTENSION pointcloud;
+
+If this doesn't work, most of the time it'll be because your PostGIS is an older version, download the latest version and re-install.
+
 ### Requirements ###
 
 - PostgreSQL and PostgreSQL development packages must be installed (pg_config and server headers). For Red Hat and Ubuntu, the package names are usually "postgresql-dev" or "postgresql-devel"
