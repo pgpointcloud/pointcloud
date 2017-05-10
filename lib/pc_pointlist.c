@@ -107,7 +107,9 @@ pc_pointlist_from_uncompressed(const PCPATCH_UNCOMPRESSED *patch)
 	pl = pc_pointlist_make(npoints);
 	for ( i = 0; i < npoints; i++ )
 	{
-		pc_pointlist_add_point(pl, pc_point_from_data(patch->schema, patch->data + i*pt_size));
+		PCPOINT *pt = pc_point_make(patch->schema);
+		pc_point_copy_data(pt, patch->data + i * pt_size);
+		pc_pointlist_add_point(pl, pt);
 	}
 	return pl;
 }
