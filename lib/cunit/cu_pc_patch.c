@@ -1200,7 +1200,7 @@ test_patch_set_schema_compression_ght()
 	pcfree(str);
 
 	// assign a schema with unknown dimension to the patch
-	pat1 = pc_patch_set_schema(pat0, simpleschema, 1, 0.0);
+	pat1 = pc_patch_set_schema(pat0, simpleschema, 0.0);
 	CU_ASSERT(pat1 != NULL);
 	str = pc_patch_to_string(pat1);
 	CU_ASSERT_STRING_EQUAL(str, "{\"pcid\":0,\"pts\":[[0.4,0.8,1.2,0],[0.3,0.6,0.9,0],[0.2,0.4,0.6,0],[0.1,0.2,0.3,0],[0,0,0,0]]}");
