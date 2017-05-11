@@ -132,8 +132,8 @@ pc_patch_ght_from_uncompressed(const PCPATCH_UNCOMPRESSED *pa)
 	pt.schema = pa->schema;
 	pt.readonly = PC_TRUE;
 
-	xdim = pa->schema->dims[pa->schema->x_position];
-	ydim = pa->schema->dims[pa->schema->y_position];
+	xdim = pa->schema->xdim;
+	ydim = pa->schema->ydim;
 
 	schema = ght_schema_from_pc_schema(pa->schema);
 	if ( ght_tree_new(schema, &tree) != GHT_OK ) {
@@ -162,11 +162,12 @@ pc_patch_ght_from_uncompressed(const PCPATCH_UNCOMPRESSED *pa)
 				GhtAttributePtr attr;
 				double val;
 
+				dim = pc_schema_get_dimension(pa->schema, j);
+
 				/* Don't add X or Y as attributes, they are already embodied in the hash */
-				if ( j == pa->schema->x_position || j == pa->schema->y_position )
+				if ( dim == pa->schema->xdim || dim == pa->schema->ydim )
 					continue;
 
-				dim = pc_schema_get_dimension(pa->schema, j);
 				pc_point_get_double(&pt, dim, &val);
 
 				ght_schema_get_dimension_by_index(schema, j, &ghtdim);
