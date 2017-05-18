@@ -790,10 +790,10 @@ Here is a simple example pipeline that reads a LAS file and writes into a Postgr
     {
       "type":"filters.chipper",
       "capacity":400
-    }
+    },
     {
       "type":"writers.pgpointcloud",
-      "connection":"host='localhost' dbname='pc' user='lidar'",
+      "connection":"host='localhost' dbname='pc' user='lidar' password='lidar' port='5432'",
       "table":"sthsm",
       "compression":"dimensional",
       "srid":"26910"
@@ -811,7 +811,7 @@ Similarly, reading data from a PostgreSQL Pointcloud uses a Pointcloud reader an
   "pipeline":[
     {
       "type":"readers.pgpointcloud",
-      "connection":"host=localhost dbname='pc' user='lidar'",
+      "connection":"host='localhost' dbname='pc' user='lidar' password='lidar' port='5432'",
       "table":"sthsm",
       "column":"pa",
       "spatialreference":"EPSG:26910"
@@ -833,7 +833,7 @@ You can use the "where" option to restrict a read to just an envelope, allowing 
   "pipeline":[
     {
       "type":"readers.pgpointcloud",
-      "connection":"host=localhost dbname='pc' user='lidar'",
+      "connection":"host='localhost' dbname='pc' user='lidar' password='lidar' port='5432'",
       "table":"sthsm",
       "column":"pa",
       "spatialreference":"EPSG:26910",
