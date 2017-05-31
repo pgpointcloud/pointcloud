@@ -581,7 +581,7 @@ The `pointcloud_postgis` extension adds functions that allow you to use PostgreS
 >
 >     SELECT ST_AsText(PC_BoundingDiagonalGeometry(pa)) FROM patches;
 >                       st_astext
->    ------------------------------------------------
+>     ------------------------------------------------
 >     LINESTRING Z (-126.99 45.01 1,-126.91 45.09 9)
 >     LINESTRING Z (-126 46 100,-126 46 100)
 >     LINESTRING Z (-126.2 45.8 80,-126.11 45.89 89)
@@ -593,11 +593,10 @@ The `pointcloud_postgis` extension adds functions that allow you to use PostgreS
 >     LINESTRING Z (-126.9 45.1 10,-126.81 45.19 19)
 >     LINESTRING Z (-126.7 45.3 30,-126.61 45.39 39)
 >     LINESTRING Z (-126.1 45.9 90,-126.01 45.99 99)
->    (11 rows)gq
 >
 > For example, this is how one may want to create an index:
 >
->     CREATE INDEX ON patches USING GIST(PC_BoundingDiagonal(patch) gist_geometry_ops_nd);
+>     CREATE INDEX ON patches USING GIST(PC_BoundingDiagonalGeometry(patch) gist_geometry_ops_nd);
 
 ## Compressions ##
 
