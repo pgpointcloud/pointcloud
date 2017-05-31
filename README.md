@@ -597,7 +597,7 @@ The `pointcloud_postgis` extension adds functions that allow you to use PostgreS
 >
 > For example, this is how one may want to create an index:
 >
->     CREATE INDEX ON patches USING GIST(PC_BoundingDiagonal(patch) gist_geometry_ops_nd);
+>     CREATE INDEX ON patches USING GIST(PC_BoundingDiagonalGeometry(patch) gist_geometry_ops_nd);
 
 ## Compressions ##
 

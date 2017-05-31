@@ -11,7 +11,7 @@
  - PC_Sort(pcpatch,text[]) (#106)
  - PC_IsSorted(pcpatch,text[],boolean) (#106)
  - PC_Range(pcpatch, int, int) returns pcpatch (#152)
- - PC_BoundingDiagonalAsBinary(pcpatch) and PC_BoundingDiagonal(pcpach) (#158)
+ - PC_BoundingDiagonalAsBinary(pcpatch) and PC_BoundingDiagonalGeometry(pcpach) (#158)
  - PC_SetPCId(pcpatch, int, float8 default 0.0) (#163)
  - PC_Transform(pcpatch, int, float8 default 0.0) (#165)
 - Enhancements
