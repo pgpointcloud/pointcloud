@@ -73,22 +73,21 @@ bytes_from_hexbytes(const char *hexbuf, size_t hexsize)
 	return buf;
 }
 
+static char *hexchr = "0123456789ABCDEF";
+
 char*
 hexbytes_from_bytes(const uint8_t *bytebuf, size_t bytesize)
 {
 	char *buf = pcalloc(2*bytesize + 1); /* 2 chars per byte + null terminator */
 	int i;
-	char *ptr = buf;
 
+	buf[2*bytesize] = '\0';
 	for ( i = 0; i < bytesize; i++ )
 	{
-		int incr = snprintf(ptr, 3, "%02X", bytebuf[i]);
-		if ( incr < 0 )
-		{
-			pcerror("write failure in hexbytes_from_bytes");
-			return NULL;
-		}
-		ptr += incr;
+		/* Top four bits to 0-F */
+		buf[2*i] = hexchr[bytebuf[i] >> 4];
+		/* Bottom four bits to 0-F */
+		buf[2*i+1] = hexchr[bytebuf[i] & 0x0F];
 	}
 
 	return buf;
