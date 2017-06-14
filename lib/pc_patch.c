@@ -324,7 +324,7 @@ pc_patch_from_wkb(const PCSCHEMA *s, uint8_t *wkb, size_t wkbsize)
 	* schema compression at this point. The schema compression is only
 	* forced at serialization time.
 	*/
-	pcid = wkb_get_pcid(wkb);
+	pcid = pc_wkb_get_pcid(wkb);
 	compression = wkb_get_compression(wkb);
 
 	if ( pcid != s->pcid )

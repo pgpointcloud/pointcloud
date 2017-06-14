@@ -253,11 +253,11 @@ void pc_install_default_handlers(void);
 */
 
 /** Convert binary to hex */
-uint8_t* bytes_from_hexbytes(const char *hexbuf, size_t hexsize);
+uint8_t* pc_bytes_from_hexbytes(const char *hexbuf, size_t hexsize);
 /** Convert hex to binary */
-char* hexbytes_from_bytes(const uint8_t *bytebuf, size_t bytesize);
+char* pc_hexbytes_from_bytes(const uint8_t *bytebuf, size_t bytesize);
 /** Read the the PCID from WKB form of a POINT/PATCH */
-uint32_t wkb_get_pcid(const uint8_t *wkb);
+uint32_t pc_wkb_get_pcid(const uint8_t *wkb);
 /** Build an empty #PCDIMSTATS based on the schema */
 PCDIMSTATS* pc_dimstats_make(const PCSCHEMA *schema);
 /** Get compression name from enum */

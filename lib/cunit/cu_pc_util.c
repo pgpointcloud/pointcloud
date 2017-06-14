@@ -55,7 +55,7 @@ test_bounding_diagonal_wkb_from_bounds()
 	CU_ASSERT(wkb != NULL);
 	CU_ASSERT(wkbsize == 41);
 
-	wkbhex = hexbytes_from_bytes(wkb, wkbsize);
+	wkbhex = pc_hexbytes_from_bytes(wkb, wkbsize);
 	CU_ASSERT(wkbhex != NULL);
 	CU_ASSERT_STRING_EQUAL(wkbhex, "01020000000200000000000000000024C000000000000024C000000000000024400000000000002440");
 
@@ -84,7 +84,7 @@ test_bounding_diagonal_wkb_from_stats()
 	CU_ASSERT(wkb != NULL);
 	CU_ASSERT(wkbsize == 73);
 
-	wkbhex = hexbytes_from_bytes(wkb, wkbsize);
+	wkbhex = pc_hexbytes_from_bytes(wkb, wkbsize);
 	CU_ASSERT(wkbhex != NULL);
 	CU_ASSERT_STRING_EQUAL(wkbhex, "01020000C00200000000000000000024C000000000000024C000000000000024C000000000000000000000000000002440000000000000244000000000000024400000000000000000");
 

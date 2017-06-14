@@ -86,7 +86,7 @@ test_point_hex_inout()
 	double d;
 	char *hexbuf = "00000000010000000100000002000000030004";
 	size_t hexsize = strlen(hexbuf);
-	uint8_t *wkb = bytes_from_hexbytes(hexbuf, hexsize);
+	uint8_t *wkb = pc_bytes_from_hexbytes(hexbuf, hexsize);
 	PCPOINT *pt = pc_point_from_wkb(schema, wkb, hexsize/2);
 	CU_ASSERT_SUCCESS(pc_point_get_double_by_name(pt, "X", &d));
 	CU_ASSERT_DOUBLE_EQUAL(d, 0.01, 0.000001);
@@ -102,7 +102,7 @@ test_point_hex_inout()
 
 	hexbuf = "01010000000100000002000000030000000500";
 	hexsize = strlen(hexbuf);
-	wkb = bytes_from_hexbytes(hexbuf, hexsize);
+	wkb = pc_bytes_from_hexbytes(hexbuf, hexsize);
 	pt = pc_point_from_wkb(schema, wkb, hexsize/2);
 	CU_ASSERT_SUCCESS(pc_point_get_double_by_name(pt, "X", &d));
 	CU_ASSERT_DOUBLE_EQUAL(d, 0.01, 0.000001);
@@ -275,12 +275,12 @@ void test_point_geometry_bytes(const PCSCHEMA *s, size_t expectedgeomwkbsize,
 	size_t pthexsize, geomwkbsize;
 
 	pthexsize = strlen(pthexbytes);
-	ptwkb = bytes_from_hexbytes(pthexbytes, pthexsize);
+	ptwkb = pc_bytes_from_hexbytes(pthexbytes, pthexsize);
 	pt = pc_point_from_wkb(s, ptwkb, pthexsize/2);
 	CU_ASSERT_PTR_NOT_NULL(pt);
 	geomwkb = pc_point_to_geometry_wkb(pt, &geomwkbsize);
 	CU_ASSERT_EQUAL(geomwkbsize,expectedgeomwkbsize);
-	geomhexbytes = hexbytes_from_bytes(geomwkb,geomwkbsize);
+	geomhexbytes = pc_hexbytes_from_bytes(geomwkb,geomwkbsize);
 	CU_ASSERT_STRING_EQUAL(geomhexbytes, expectedgeomhexbytes);
 
 	pcfree(geomhexbytes);
