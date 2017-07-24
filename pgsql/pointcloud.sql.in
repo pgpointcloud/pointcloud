@@ -275,15 +275,15 @@ CREATE OR REPLACE FUNCTION _PC_PatchStat(p pcpatch, statno int, attr text)
 	RETURNS numeric AS 'MODULE_PATHNAME', 'pcpatch_get_stat'
 	LANGUAGE 'c' IMMUTABLE STRICT;
 
-CREATE OR REPLACE FUNCTION PC_PatchMin(p pcpatch, attr text, stat text default 'min')
+CREATE OR REPLACE FUNCTION PC_PatchMin(p pcpatch, attr text)
 	RETURNS numeric AS $$ SELECT _PC_PatchStat(p, 0, attr) $$
 	LANGUAGE 'sql' IMMUTABLE STRICT;
 
-CREATE OR REPLACE FUNCTION PC_PatchMax(p pcpatch, attr text, stat text default 'max')
+CREATE OR REPLACE FUNCTION PC_PatchMax(p pcpatch, attr text)
 	RETURNS numeric AS $$ SELECT _PC_PatchStat(p, 1, attr) $$
 	LANGUAGE 'sql' IMMUTABLE STRICT;
 
-CREATE OR REPLACE FUNCTION PC_PatchAvg(p pcpatch, attr text, stat text default 'avg')
+CREATE OR REPLACE FUNCTION PC_PatchAvg(p pcpatch, attr text)
 	RETURNS numeric AS $$ SELECT _PC_PatchStat(p, 2, attr) $$
 	LANGUAGE 'sql' IMMUTABLE STRICT;
 
