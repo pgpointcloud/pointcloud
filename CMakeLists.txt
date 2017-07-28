@@ -89,16 +89,12 @@ exec_program(${PG_CONFIG} ARGS --libs OUTPUT_VARIABLE PGSQL_LIBS)
 # libxml2
 
 find_package (LibXml2 REQUIRED)
-mark_as_advanced (CLEAR LIBXML2_INCLUDE_DIR)
-mark_as_advanced (CLEAR LIBXML2_LIBRARIES)
-include_directories (${LIBXML2_INCLUDE_DIR})
 
 
 #------------------------------------------------------------------------------
 # zlib
 
 find_package (ZLIB REQUIRED)
-include_directories (${ZLIB_INCLUDE_DIR})
 
 
 #------------------------------------------------------------------------------
