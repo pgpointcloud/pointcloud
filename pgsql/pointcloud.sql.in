@@ -56,6 +56,26 @@ CREATE OR REPLACE FUNCTION pc_lib_version()
 	RETURNS text AS 'MODULE_PATHNAME', 'pc_version'
 	LANGUAGE 'c' IMMUTABLE STRICT;
 
+-- Return the pgsql version number
+CREATE OR REPLACE FUNCTION pc_pgsql_version()
+	RETURNS text AS 'MODULE_PATHNAME', 'pc_pgsql_version'
+	LANGUAGE 'c' IMMUTABLE STRICT;
+
+-- Return the libxml2 version number
+CREATE OR REPLACE FUNCTION pc_libxml2_version()
+	RETURNS text AS 'MODULE_PATHNAME', 'pc_libxml2_version'
+	LANGUAGE 'c' IMMUTABLE STRICT;
+
+-- Return whether libght is enabled
+CREATE OR REPLACE FUNCTION pc_libght_enabled()
+	RETURNS boolean AS 'MODULE_PATHNAME', 'pc_libght_enabled'
+	LANGUAGE 'c' IMMUTABLE STRICT;
+
+-- Return whether lazperf is enabled
+CREATE OR REPLACE FUNCTION pc_lazperf_enabled()
+	RETURNS boolean AS 'MODULE_PATHNAME', 'pc_lazperf_enabled'
+	LANGUAGE 'c' IMMUTABLE STRICT;
+
 -- Return the extension version number and check sanity
 CREATE OR REPLACE FUNCTION pc_version()
 	RETURNS text AS
@@ -71,6 +91,27 @@ BEGIN
 			libver, scrver;
 	END IF;
 	RETURN libver;
+END;
+$$
+LANGUAGE 'plpgsql' IMMUTABLE STRICT;
+
+CREATE OR REPLACE FUNCTION pc_full_version()
+	RETURNS text AS
+$$
+DECLARE
+	pcver TEXT;
+	pgsqlver TEXT;
+	libxml2ver TEXT;
+	libghtenabled BOOLEAN;
+	lazperfenabled BOOLEAN;
+BEGIN
+	pcver := pc_version();
+	pgsqlver := pc_pgsql_version();
+	libxml2ver := pc_libxml2_version();
+	libghtenabled := pc_libght_enabled();
+	lazperfenabled := pc_lazperf_enabled();
+	RETURN 'POINTCLOUD="' || pcver || '" PGSQL="' || pgsqlver || '" LIBXML2="' || libxml2ver ||
+		'" LIBGHT enabled=' || libghtenabled || ' LAZPERF enabled=' || lazperfenabled;
 END;
 $$
 LANGUAGE 'plpgsql' IMMUTABLE STRICT;
