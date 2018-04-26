@@ -300,12 +300,6 @@ pc_schema_from_pcid_uncached(uint32 pcid)
 }
 
 
-typedef struct
-{
-	int type;
-	char data[1];
-} GenericCache;
-
 /**
 * Hold the schema references in a list.
 * We'll just search them linearly, because
@@ -315,7 +309,6 @@ typedef struct
 
 typedef struct
 {
-	int type;
 	int next_slot;
 	int pcids[SchemaCacheSize];
 	PCSCHEMA* schemas[SchemaCacheSize];
@@ -323,57 +316,20 @@ typedef struct
 
 
 /**
-* PostGIS uses this kind of structure for its
-* cache objects, and we expect to be used in
-* concert with PostGIS, so here we not only ape
-* the container, but avoid the first 10 slots,
-* so as to miss any existing cached PostGIS objects.
-*/
-typedef struct
-{
-	GenericCache *entry[16];
-} GenericCacheCollection;
-
-#define PC_SCHEMA_CACHE 10
-#define PC_STATS_CACHE  11
-
-/**
-* Get the generic collection off the statement, allocate a
-* new one if we don't have one already.
-*/
-static GenericCacheCollection *
-GetGenericCacheCollection(FunctionCallInfoData *fcinfo)
-{
-	GenericCacheCollection *cache = fcinfo->flinfo->fn_extra;
-
-	if ( ! cache )
-	{
-		cache = MemoryContextAlloc(fcinfo->flinfo->fn_mcxt, sizeof(GenericCacheCollection));
-		memset(cache, 0, sizeof(GenericCacheCollection));
-		fcinfo->flinfo->fn_extra = cache;
-	}
-	return cache;
-}
-
-/**
-* Get the Proj4 entry from the generic cache if one exists.
-* If it doesn't exist, make a new empty one and return it.
+* Get the schema entry from the schema cache if one exists.
+* If it doesn't exist, make a new empty one, cache it, and
+* return it.
 */
 static SchemaCache *
 GetSchemaCache(FunctionCallInfoData* fcinfo)
 {
-	GenericCacheCollection *generic_cache = GetGenericCacheCollection(fcinfo);
-	SchemaCache* cache = (SchemaCache*)(generic_cache->entry[PC_SCHEMA_CACHE]);
-
+	SchemaCache *cache = fcinfo->flinfo->fn_extra;
 	if ( ! cache )
 	{
-		/* Allocate in the upper context */
 		cache = MemoryContextAlloc(fcinfo->flinfo->fn_mcxt, sizeof(SchemaCache));
 		memset(cache, 0, sizeof(SchemaCache));
-		cache->type = PC_SCHEMA_CACHE;
+		fcinfo->flinfo->fn_extra = cache;
 	}
-
-	generic_cache->entry[PC_SCHEMA_CACHE] = (GenericCache*)cache;
 	return cache;
 }
 
@@ -402,6 +358,8 @@ pc_schema_from_pcid(uint32 pcid, FunctionCallInfoData *fcinfo)
 			return schema_cache->schemas[i];
 		}
 	}
+
+	elog(DEBUG1, "schema cache miss, use pc_schema_from_pcid_uncached");
 
 	/* Not in there, load one the old-fashioned way. */
 	oldcontext = MemoryContextSwitchTo(fcinfo->flinfo->fn_mcxt);
