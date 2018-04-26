@@ -76,41 +76,61 @@ CREATE OR REPLACE FUNCTION pc_lazperf_enabled()
 	RETURNS boolean AS 'MODULE_PATHNAME', 'pc_lazperf_enabled'
 	LANGUAGE 'c' IMMUTABLE STRICT;
 
--- Return the extension version number and check sanity
+-- Return the extension version number with the commit hash trimmed, and check sanity
+CREATE OR REPLACE FUNCTION _pc_version_no_commit(libver text, scrver text)
+	RETURNS text AS
+$$
+DECLARE
+	libver_no_commit TEXT;
+BEGIN
+	libver_no_commit := split_part(libver, ' ', 1);
+	IF scrver != libver_no_commit THEN
+		RAISE WARNING 'Library (%) and script (%) version mismatch',
+			libver_no_commit, scrver;
+	END IF;
+	RETURN libver_no_commit;
+END;
+$$
+LANGUAGE 'plpgsql' IMMUTABLE STRICT;
+
+-- Return the extension version number, and check sanity
 CREATE OR REPLACE FUNCTION pc_version()
 	RETURNS text AS
 $$
 DECLARE
 	libver TEXT;
 	scrver TEXT;
+	version TEXT;
 BEGIN
-	scrver := pc_script_version();
 	libver := pc_lib_version();
-	IF scrver != libver THEN
-		RAISE WARNING 'Library (%) and script (%) version mismatch',
-			libver, scrver;
-	END IF;
-	RETURN libver;
+	scrver := pc_script_version();
+	version := _pc_version_no_commit(libver, scrver);
+	RETURN version;
 END;
 $$
 LANGUAGE 'plpgsql' IMMUTABLE STRICT;
 
+-- Return the full version string
 CREATE OR REPLACE FUNCTION pc_full_version()
 	RETURNS text AS
 $$
 DECLARE
 	pcver TEXT;
+	pclibver TEXT;
+	pcscrver TEXT;
 	pgsqlver TEXT;
 	libxml2ver TEXT;
 	libghtenabled BOOLEAN;
 	lazperfenabled BOOLEAN;
 BEGIN
-	pcver := pc_version();
+	pclibver := pc_lib_version();
+	pcscrver := pc_script_version();
+	pcver := _pc_version_no_commit(pclibver, pcscrver);
 	pgsqlver := pc_pgsql_version();
 	libxml2ver := pc_libxml2_version();
 	libghtenabled := pc_libght_enabled();
 	lazperfenabled := pc_lazperf_enabled();
-	RETURN 'POINTCLOUD="' || pcver || '" PGSQL="' || pgsqlver || '" LIBXML2="' || libxml2ver ||
+	RETURN 'POINTCLOUD="' || pclibver || '" PGSQL="' || pgsqlver || '" LIBXML2="' || libxml2ver ||
 		'" LIBGHT enabled=' || libghtenabled || ' LAZPERF enabled=' || lazperfenabled;
 END;
 $$
