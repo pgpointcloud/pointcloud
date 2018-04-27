@@ -4,8 +4,12 @@ include ../config.mk
 
 #MODULE_big = pointcloud_postgis
 #OBJS =
+SED = sed
 EXTENSION = pointcloud_postgis
-DATA = $(EXTENSION)--1.0.sql
+EXTVERSION=$(shell cat ../Version.config)
+DATA_built = \
+  $(EXTENSION).control \
+  $(EXTENSION)--$(EXTVERSION).sql
 
 #REGRESS = pointcloud
 
@@ -15,3 +19,9 @@ DATA = $(EXTENSION)--1.0.sql
 
 # We are going to use PGXS for sure
 include $(PGXS)
+
+$(EXTENSION).control: $(EXTENSION).control.in Makefile
+	$(SED) -e 's/@POINTCLOUD_VERSION@/$(EXTVERSION)/' $< > $@
+
+$(EXTENSION)--$(EXTVERSION).sql: $(EXTENSION).sql.in Makefile
+	$(SED) -e 's/@POINTCLOUD_VERSION@/$(EXTVERSION)/' $< > $@

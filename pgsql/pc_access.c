@@ -41,6 +41,10 @@ Datum pcpatch_size(PG_FUNCTION_ARGS);
 Datum pcpoint_size(PG_FUNCTION_ARGS);
 Datum pcpoint_pcid(PG_FUNCTION_ARGS);
 Datum pc_version(PG_FUNCTION_ARGS);
+Datum pc_pgsql_version(PG_FUNCTION_ARGS);
+Datum pc_libxml2_version(PG_FUNCTION_ARGS);
+Datum pc_libght_enable(PG_FUNCTION_ARGS);
+Datum pc_lazperf_enable(PG_FUNCTION_ARGS);
 
 /* Generic aggregation functions */
 Datum pointcloud_agg_transfn(PG_FUNCTION_ARGS);
@@ -858,6 +862,46 @@ Datum pc_version(PG_FUNCTION_ARGS)
 	snprintf(version, 64, "%s", POINTCLOUD_VERSION);
 	version_text = cstring_to_text(version);
 	PG_RETURN_TEXT_P(version_text);
+}
+
+PG_FUNCTION_INFO_V1(pc_pgsql_version);
+Datum pc_pgsql_version(PG_FUNCTION_ARGS)
+{
+	text *version_text;
+	char version[12];
+	snprintf(version, 12, "%d", PGSQL_VERSION);
+	version_text = cstring_to_text(version);
+	PG_RETURN_TEXT_P(version_text);
+}
+
+PG_FUNCTION_INFO_V1(pc_libxml2_version);
+Datum pc_libxml2_version(PG_FUNCTION_ARGS)
+{
+	text *version_text;
+	char version[64];
+	snprintf(version, 64, "%s", LIBXML2_VERSION);
+	version_text = cstring_to_text(version);
+	PG_RETURN_TEXT_P(version_text);
+}
+
+PG_FUNCTION_INFO_V1(pc_libght_enabled);
+Datum pc_libght_enabled(PG_FUNCTION_ARGS)
+{
+#ifdef HAVE_LIBGHT
+	PG_RETURN_BOOL(TRUE);
+#else
+	PG_RETURN_BOOL(FALSE);
+#endif
+}
+
+PG_FUNCTION_INFO_V1(pc_lazperf_enabled);
+Datum pc_lazperf_enabled(PG_FUNCTION_ARGS)
+{
+#ifdef HAVE_LAZPERF
+	PG_RETURN_BOOL(TRUE);
+#else
+	PG_RETURN_BOOL(FALSE);
+#endif
 }
 
 /**

@@ -72,3 +72,10 @@ CREATE OR REPLACE FUNCTION PC_BoundingDiagonalGeometry(pcpatch)
 		SELECT ST_GeomFromEWKB(PC_BoundingDiagonalAsBinary($1))
 	$$
 	LANGUAGE 'sql';
+
+-----------------------------------------------------------------------------
+-- Function returning the version number
+--
+CREATE OR REPLACE FUNCTION PC_PostGIS_Version()
+	RETURNS text AS $$ SELECT '@POINTCLOUD_VERSION@'::text $$
+	LANGUAGE 'sql' IMMUTABLE STRICT;

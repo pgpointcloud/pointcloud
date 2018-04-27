@@ -34,10 +34,17 @@ dnl AC_SUBST([LEX])
 dnl AC_SUBST([YACC])
 
 dnl ===========================================================================
-dnl Version Information imported from Version.config
+dnl Version Information imported from Version.config and Git
 dnl ===========================================================================
 
-POINTCLOUD_VERSION=`cat Version.config`
+AC_CHECK_PROG([GITCMD], [git —version], [yes], [no])
+AC_CHECK_FILE([.git], [DOTGITDIR=yes], [DOTGITDIR=no])
+if test "x${GITCMD}" = "xyes" -a "x${DOTGITDIR}" = "xyes"; then
+    GIT_COMMIT_HASH=" $(git rev-parse --short HEAD)"
+else
+    GIT_COMMIT_HASH=
+fi
+POINTCLOUD_VERSION="$(cat Version.config)$GIT_COMMIT_HASH"
 AC_SUBST([POINTCLOUD_VERSION])
 AC_DEFINE_UNQUOTED([POINTCLOUD_VERSION], ["$POINTCLOUD_VERSION"], [Pointcloud version])
 
