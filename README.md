@@ -17,28 +17,9 @@ A PostgreSQL extension for storing point cloud (LIDAR) data.
 - [Optional] GHT library may be installed for GHT compression support, [built from source](http://github.com/pramsey/libght/ "LibGHT")
 - [Optional] LAZPERF library may be installed for LAZ compression support, [built from source](http://github.com/hobu/laz-perf "LAZPERF")
 
-Tests can be disabled by passing ``WITH_TESTS=FALSE`` to cmake, e.g. ``cmake .. -DWITH_TESTS=FALSE``.
-This removes the CUnit dependency.
-
 ### Build ###
 
-#### CMake ####
-
-Make a build directory, and run ``cmake`` from there. Use ``ccmake`` to browse and set the options on your build.
-
-- ``mkdir build``
-- ``cd build``
-- ``cmake ../``
-- ``make``
-- ``sudo make install``
-
-Run unit tests:
-
-- ``make check``
-
-#### Autotools ####
-
-After generating the configure script with ``autogen``,  ``./configure --help`` to get a complete listing of configuration options.
+After generating the configure script with ``autogen.sh``,  ``./configure --help`` to get a complete listing of configuration options.
 
 - ``./autogen.sh``
 - ``./configure``
