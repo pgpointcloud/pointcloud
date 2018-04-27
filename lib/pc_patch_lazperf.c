@@ -16,6 +16,7 @@ void
 pc_patch_lazperf_free(PCPATCH_LAZPERF *pal)
 {
 	assert(pal);
+	pc_patch_common_free((PCPATCH*) pal);
 	pcfree(pal->lazperf);
 	pcfree(pal);
 }
@@ -206,6 +207,7 @@ pc_patch_lazperf_from_wkb(const PCSCHEMA *schema, const uint8_t *wkb, size_t wkb
 	patch->readonly = PC_FALSE;
 	patch->schema = schema;
 	patch->npoints = npoints;
+	patch->stats = NULL;
 
 	/* Start on the LAZPERF */
 	buf = wkb+hdrsz;

@@ -140,6 +140,7 @@ pc_patch_uncompressed_from_wkb(const PCSCHEMA *s, const uint8_t *wkb, size_t wkb
 	patch->maxpoints = npoints;
 	patch->datasize = (wkbsize - hdrsz);
 	patch->data = data;
+	patch->stats = NULL;
 
 	return (PCPATCH*)patch;
 }
@@ -215,6 +216,8 @@ pc_patch_uncompressed_compute_extent(PCPATCH_UNCOMPRESSED *patch)
 void
 pc_patch_uncompressed_free(PCPATCH_UNCOMPRESSED *patch)
 {
+	pc_patch_common_free((PCPATCH*) patch);
+	
 	if ( patch->data && ! patch->readonly )
 	{
 		pcfree(patch->data);
@@ -279,6 +282,7 @@ pc_patch_uncompressed_from_pointlist(const PCPOINTLIST *pl)
 	pch = pcalloc(sizeof(PCPATCH_UNCOMPRESSED));
 	pch->datasize = s->size * numpts;
 	pch->data = pcalloc(pch->datasize);
+	pch->stats = NULL;
 	ptr = pch->data;
 
 	/* Initialize bounds */
