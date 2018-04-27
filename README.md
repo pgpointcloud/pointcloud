@@ -491,7 +491,7 @@ Now that you have created two tables, you'll see entries for them in the `pointc
 >     a3703dba5fc0ec51b81e858b46400ad7a3703dba5fc0e17a
 >     14ae4781464090c2f5285cbf5fc0e17a14ae47814640
 >
-> **PC_Envelope** is an alias to **PC_EnvelopeBinary**. But **PC_Envelope** is deprecated and will be removed in a future version (2.0) of the extension. **PC_EnvelopeAsBinary** is to be used instead.
+> **PC_Envelope** is an alias to **PC_EnvelopeAsBinary**. But **PC_Envelope** is deprecated and will be removed in a future version (2.0) of the extension. **PC_EnvelopeAsBinary** is to be used instead.
 
 **PC_BoundingDiagonalAsBinary(p pcpatch)** returns **bytea**
 
