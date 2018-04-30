@@ -82,7 +82,7 @@ pc_patch_compute_stats(PCPATCH *pa)
 void
 pc_patch_free_stats(PCPATCH *patch)
 {
-	if ( patch && patch->stats )
+	if ( patch->stats )
 	{
 		pc_stats_free( patch->stats );
 		patch->stats = NULL;
