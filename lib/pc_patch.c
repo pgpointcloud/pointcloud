@@ -86,7 +86,7 @@ pc_patch_common_free(PCPATCH *patch)
 	{
 		pc_stats_free( patch->stats );
 		patch->stats = NULL;
-	}	
+	}
 }
 
 void
