@@ -233,6 +233,8 @@ pc_patch_ght_free(PCPATCH_GHT *paght)
 	assert(paght);
 	assert(paght->schema);
 
+	pc_patch_free_stats((PCPATCH*) paght);
+
 	/* A readonly tree won't own it's ght buffer, */
 	/* so only free a readwrite tree */
 	if ( ! paght->readonly )
@@ -363,6 +365,7 @@ pc_patch_ght_from_wkb(const PCSCHEMA *schema, const uint8_t *wkb, size_t wkbsize
 	patch->readonly = PC_FALSE;
 	patch->schema = schema;
 	patch->npoints = npoints;
+	patch->stats = NULL;
 
 	/* Start on the GHT */
 	buf = wkb+hdrsz;
@@ -533,6 +536,7 @@ pc_patch_ght_filter(const PCPATCH_GHT *patch, uint32_t dimnum, PC_FILTERTYPE fil
 	paght->readonly = PC_FALSE;
 	paght->schema = patch->schema;
 	paght->npoints = npoints;
+	paght->stats = NULL;
 
 	/* No points, not much to do... */
 	if ( ! npoints )
