@@ -43,8 +43,8 @@ Datum pcpoint_pcid(PG_FUNCTION_ARGS);
 Datum pc_version(PG_FUNCTION_ARGS);
 Datum pc_pgsql_version(PG_FUNCTION_ARGS);
 Datum pc_libxml2_version(PG_FUNCTION_ARGS);
-Datum pc_libght_enable(PG_FUNCTION_ARGS);
-Datum pc_lazperf_enable(PG_FUNCTION_ARGS);
+Datum pc_libght_enabled(PG_FUNCTION_ARGS);
+Datum pc_lazperf_enabled(PG_FUNCTION_ARGS);
 
 /* Generic aggregation functions */
 Datum pointcloud_agg_transfn(PG_FUNCTION_ARGS);
