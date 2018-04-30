@@ -233,7 +233,7 @@ pc_patch_ght_free(PCPATCH_GHT *paght)
 	assert(paght);
 	assert(paght->schema);
 
-	pc_patch_common_free((PCPATCH*) paght);
+	pc_patch_free_stats((PCPATCH*) paght);
 
 	/* A readonly tree won't own it's ght buffer, */
 	/* so only free a readwrite tree */

@@ -80,7 +80,7 @@ pc_patch_compute_stats(PCPATCH *pa)
 }
 
 void
-pc_patch_common_free(PCPATCH *patch)
+pc_patch_free_stats(PCPATCH *patch)
 {
 	if ( patch && patch->stats )
 	{

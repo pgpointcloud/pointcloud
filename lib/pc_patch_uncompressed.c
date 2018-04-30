@@ -216,7 +216,7 @@ pc_patch_uncompressed_compute_extent(PCPATCH_UNCOMPRESSED *patch)
 void
 pc_patch_uncompressed_free(PCPATCH_UNCOMPRESSED *patch)
 {
-	pc_patch_common_free((PCPATCH*) patch);
+	pc_patch_free_stats((PCPATCH*) patch);
 
 	if ( patch->data && ! patch->readonly )
 	{

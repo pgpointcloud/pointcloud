@@ -16,7 +16,7 @@ void
 pc_patch_lazperf_free(PCPATCH_LAZPERF *pal)
 {
 	assert(pal);
-	pc_patch_common_free((PCPATCH*) pal);
+	pc_patch_free_stats((PCPATCH*) pal);
 	pcfree(pal->lazperf);
 	pcfree(pal);
 }

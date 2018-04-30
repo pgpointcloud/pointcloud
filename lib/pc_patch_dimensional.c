@@ -166,7 +166,7 @@ pc_patch_dimensional_free(PCPATCH_DIMENSIONAL *pdl)
 	assert(pdl);
 	assert(pdl->schema);
 
-	pc_patch_common_free((PCPATCH*) pdl);
+	pc_patch_free_stats((PCPATCH*) pdl);
 
 	if ( pdl->bytes )
 	{
