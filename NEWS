@@ -1,4 +1,4 @@
-1.1.0, YYYY-MM-DD
+1.1.0, 2018-04-30
 -----------------
 
 - New functions
@@ -14,6 +14,8 @@
  - PC_BoundingDiagonalAsBinary(pcpatch) and PC_BoundingDiagonalGeometry(pcpach) (#158)
  - PC_SetPCId(pcpatch, int, float8 default 0.0) (#163)
  - PC_Transform(pcpatch, int, float8 default 0.0) (#165)
+ - PC_Full_Version() (#201)
+
 - Enhancements
  - Support sigbits encoding for 64bit integers (#61)
  - Warn about truncated values (#68)
