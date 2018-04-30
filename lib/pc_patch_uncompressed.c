@@ -10,6 +10,7 @@
 *
 ***********************************************************************/
 
+#include <assert.h>
 #include "pc_api_internal.h"
 #include "stringbuffer.h"
 
@@ -216,6 +217,9 @@ pc_patch_uncompressed_compute_extent(PCPATCH_UNCOMPRESSED *patch)
 void
 pc_patch_uncompressed_free(PCPATCH_UNCOMPRESSED *patch)
 {
+	assert(patch);
+	assert(patch->schema);
+
 	pc_patch_free_stats((PCPATCH*) patch);
 
 	if ( patch->data && ! patch->readonly )
