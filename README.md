@@ -559,6 +559,10 @@ The `pointcloud_postgis` extension adds functions that allow you to use PostgreS
 >     SELECT ST_AsText(PC_EnvelopeGeometry(pa)) FROM patches LIMIT 1;
 >
 >     POLYGON((-126.99 45.01,-126.99 45.09,-126.91 45.09,-126.91 45.01,-126.99 45.01))
+>
+> For example, this is how one may want to create an index:
+>
+>     CREATE INDEX ON patches USING GIST(PC_EnvelopeGeometry(patch));
 
 **PC_BoundingDiagonalGeometry(pcpatch)** returns **geometry**
 
