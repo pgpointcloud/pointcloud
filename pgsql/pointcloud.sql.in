@@ -186,12 +186,6 @@ CREATE OR REPLACE FUNCTION pcpoint_in(cstring)
 	RETURNS pcpoint AS 'MODULE_PATHNAME', 'pcpoint_in'
 	LANGUAGE 'c' IMMUTABLE STRICT;
 
-
-CREATE OR REPLACE FUNCTION pcpoint_in(internal)
-	RETURNS pcpoint AS 'MODULE_PATHNAME', 'pcpoint_in_bytea'
-	LANGUAGE 'c' IMMUTABLE STRICT;
-
-
 CREATE OR REPLACE FUNCTION pcpoint_in(bytea)
 	RETURNS pcpoint AS 'MODULE_PATHNAME', 'pcpoint_in_bytea'
 	LANGUAGE 'c' IMMUTABLE STRICT;
