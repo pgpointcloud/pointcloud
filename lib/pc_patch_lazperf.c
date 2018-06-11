@@ -97,6 +97,7 @@ pc_patch_uncompressed_from_lazperf(const PCPATCH_LAZPERF *palaz)
 
 	if (size != -1)
 	{
+		size_t datasize;
 		pcu = pcalloc(sizeof(PCPATCH_UNCOMPRESSED));
 		pcu->type = PC_NONE;
 		pcu->readonly = PC_FALSE;
@@ -107,10 +108,12 @@ pc_patch_uncompressed_from_lazperf(const PCPATCH_LAZPERF *palaz)
 
 		// not optimal but we have to pass by the context manager otherwise
 		// a segfault happenned (sometimes) during a pcfree of lazperf field
-		pcu->data = (uint8_t*) pcalloc(palaz->schema->size * palaz->npoints);
-		memcpy(pcu->data, decompressed, palaz->schema->size * palaz->npoints);
+		datasize = palaz->schema->size * palaz->npoints;
+		pcu->data = (uint8_t*) pcalloc(datasize);
+		memcpy(pcu->data, decompressed, datasize);
 		free(decompressed);
 
+		pcu->datasize = datasize;
 		pcu->maxpoints = palaz->npoints;
 	}
 	else
