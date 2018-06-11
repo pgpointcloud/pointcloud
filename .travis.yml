@@ -3,7 +3,7 @@ dist: trusty
 
 before_install:
   - sudo apt-get update
-  - sudo apt-get install -q postgresql-server-dev-9.3 libcunit1-dev valgrind
+  - sudo apt-get install -q postgresql-server-dev-9.6 libcunit1-dev valgrind
   - sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
   - sudo apt-get update -qq
 
@@ -15,10 +15,10 @@ install:
   - npm install -g eclint@1.1.5
 
 addons:
-  postgresql: "9.3" # for "installcheck"
+  postgresql: "9.6" # for "installcheck"
   apt:
     packages:
-      - postgresql-9.3-postgis-2.3
+      - postgresql-9.6-postgis-2.4
 
 # Note: Valgrind currently reports many problems when libght is enabled. So for
 # now, and until the problems are fixed, we just run the unit tests with libght
