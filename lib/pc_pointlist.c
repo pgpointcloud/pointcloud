@@ -121,10 +121,6 @@ pc_pointlist_from_patch(const PCPATCH *patch)
 	{
 		return pc_pointlist_from_uncompressed((PCPATCH_UNCOMPRESSED*)patch);
 	}
-	case PC_GHT:
-	{
-		return pc_pointlist_from_ght((PCPATCH_GHT*)patch);
-	}
 	case PC_DIMENSIONAL:
 	{
 		return pc_pointlist_from_dimensional((PCPATCH_DIMENSIONAL*)patch);

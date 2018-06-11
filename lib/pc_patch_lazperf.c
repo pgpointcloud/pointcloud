@@ -186,7 +186,7 @@ pc_patch_lazperf_from_wkb(const PCSCHEMA *schema, const uint8_t *wkb, size_t wkb
 	/*
 	byte:		 endianness (1 = NDR, 0 = XDR)
 	uint32:	 pcid (key to POINTCLOUD_SCHEMAS)
-	uint32:	 compression (0 = no compression, 1 = dimensional, 2 = GHT)
+	uint32:	 compression (0 = no compression, 1 = dimensional, 2 = lazperf)
 	uint32:	 npoints
 	uint32:	 lazperfsize
 	uint8[]:	lazerperfbuffer

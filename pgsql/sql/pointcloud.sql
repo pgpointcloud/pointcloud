@@ -42,12 +42,6 @@ VALUES (1, 0, -- XYZI, scaled, uncompressed
   </pc:dimension>
   <pc:metadata>
     <Metadata name="compression">none</Metadata>
-    <Metadata name="ght_xmin"></Metadata>
-    <Metadata name="ght_ymin"></Metadata>
-    <Metadata name="ght_xmax"></Metadata>
-    <Metadata name="ght_ymax"></Metadata>
-    <Metadata name="ght_keylength"></Metadata>
-    <Metadata name="ght_depth"></Metadata>
     <Metadata name="spatialreference" type="id">4326</Metadata>
   </pc:metadata>
 </pc:PointCloudSchema>'
@@ -138,12 +132,6 @@ VALUES (1, 0, -- XYZI, scaled, uncompressed
   </pc:dimension>
   <pc:metadata>
     <Metadata name="compression">none</Metadata>
-    <Metadata name="ght_xmin"></Metadata>
-    <Metadata name="ght_ymin"></Metadata>
-    <Metadata name="ght_xmax"></Metadata>
-    <Metadata name="ght_ymax"></Metadata>
-    <Metadata name="ght_keylength"></Metadata>
-    <Metadata name="ght_depth"></Metadata>
     <Metadata name="spatialreference" type="id">4326</Metadata>
   </pc:metadata>
 </pc:PointCloudSchema>'
@@ -378,7 +366,6 @@ FROM p1, ( values
   ('dimensional','sigbits'),
   ('dimensional','auto'),
   ('laz','null')
-  -- ,('ght',null) -- fails due to https://github.com/pgpointcloud/pointcloud/issues/35
 ) dimcompr(compr,sc)
 ORDER BY compr,sc,v;
 

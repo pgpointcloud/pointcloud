@@ -197,19 +197,6 @@ PCPATCH_UNCOMPRESSED* pc_patch_uncompressed_from_dimensional(const PCPATCH_DIMEN
 int pc_patch_uncompressed_add_point(PCPATCH_UNCOMPRESSED *c, const PCPOINT *p);
 PCPOINT *pc_patch_uncompressed_pointn(const PCPATCH_UNCOMPRESSED *patch, int n);
 
-/* GHT PATCHES */
-char* pc_patch_ght_to_string(const PCPATCH_GHT *patch);
-PCPATCH_GHT* pc_patch_ght_from_uncompressed(const PCPATCH_UNCOMPRESSED *pa);
-PCPATCH_GHT* pc_patch_ght_from_pointlist(const PCPOINTLIST *pdl);
-PCPATCH_UNCOMPRESSED* pc_patch_uncompressed_from_ght(const PCPATCH_GHT *pght);
-void pc_patch_ght_free(PCPATCH_GHT *paght);
-int pc_patch_ght_compute_extent(PCPATCH_GHT *patch);
-uint8_t* pc_patch_ght_to_wkb(const PCPATCH_GHT *patch, size_t *wkbsize);
-PCPATCH* pc_patch_ght_from_wkb(const PCSCHEMA *schema, const uint8_t *wkb, size_t wkbsize);
-PCPOINTLIST* pc_pointlist_from_ght(const PCPATCH_GHT *pag);
-PCPATCH_GHT* pc_patch_ght_filter(const PCPATCH_GHT *patch, uint32_t dimnum, PC_FILTERTYPE filter, double val1, double val2);
-PCPOINT *pc_patch_ght_pointn(const PCPATCH_GHT *patch, int n);
-
 /* LAZPERF PATCHES */
 PCPATCH_LAZPERF* pc_patch_lazperf_from_pointlist(const PCPOINTLIST *pl);
 PCPATCH_LAZPERF* pc_patch_lazperf_from_uncompressed(const PCPATCH_UNCOMPRESSED *pa);

@@ -14,7 +14,6 @@ A PostgreSQL extension for storing point cloud (LIDAR) data.
 - PostgreSQL and PostgreSQL development packages must be installed (pg_config and server headers). For Red Hat and Ubuntu, the package names are usually "postgresql-dev" or "postgresql-devel"
 - LibXML2 development packages must be installed, usually "libxml2-dev" or "libxml2-devel".
 - CUnit packages must be installed, or [source built and installed](http://sourceforge.net/projects/cunit/ "CUnit").
-- [Optional] GHT library may be installed for GHT compression support, [built from source](http://github.com/pramsey/libght/ "LibGHT")
 - [Optional] LAZPERF library may be installed for LAZ compression support, [built from source](http://github.com/hobu/laz-perf "LAZPERF")
 
 ### Build ###
@@ -33,10 +32,6 @@ Note: you can use ``--with-pgconfig`` on the ``./configure`` command line if you
 Run unit tests:
 
 - ``make check``
-
-Note that if you configured PointCloud using a non-standard LibGHT location, you may need to add its location to the ``LD_LIBRARY_PATH`` environment variable. For example:
-
-- ``LD_LIBRARY_PATH=$HOME/local/lib make check``
 
 ### SQL Tests ###
 
@@ -57,23 +52,23 @@ This command will create a database named `contrib_regression` and will execute 
 
 ## Schemas ##
 
-LIDAR sensors quickly produce millions of points with large numbers of variables measured on each point. The challenge for a point cloud database extension is efficiently storing this data while allowing high fidelity access to the many variables stored. 
+LIDAR sensors quickly produce millions of points with large numbers of variables measured on each point. The challenge for a point cloud database extension is efficiently storing this data while allowing high fidelity access to the many variables stored.
 
-Much of the complexity in handling LIDAR comes from the need to deal with multiple variables per point. The variables captured by LIDAR sensors varies by sensor and capture process. Some data sets might contain only X/Y/Z values. Others will contain dozens of variables: X, Y, Z; intensity and return number; red, green, and blue values; return times; and many more. There is no consistency in how variables are stored: intensity might be stored in a 4-byte integer, or in a single byte; X/Y/Z might be doubles, or they might be scaled 4-byte integers. 
+Much of the complexity in handling LIDAR comes from the need to deal with multiple variables per point. The variables captured by LIDAR sensors varies by sensor and capture process. Some data sets might contain only X/Y/Z values. Others will contain dozens of variables: X, Y, Z; intensity and return number; red, green, and blue values; return times; and many more. There is no consistency in how variables are stored: intensity might be stored in a 4-byte integer, or in a single byte; X/Y/Z might be doubles, or they might be scaled 4-byte integers.
 
 PostgreSQL Pointcloud deals with all this variability by using a "schema document" to describe the contents of any particular LIDAR point. Each point contains a number of dimensions, and each dimension can be of any data type, with scaling and/or offsets applied to move between the actual value and the value stored in the database. The schema document format used by PostgreSQL Pointcloud is the same one used by the [PDAL](http://pointcloud.org) library.
 
 Here is a simple 4-dimensional schema document you can insert into `pointcloud_formats` to work with the examples below:
 
-    INSERT INTO pointcloud_formats (pcid, srid, schema) VALUES (1, 4326, 
+    INSERT INTO pointcloud_formats (pcid, srid, schema) VALUES (1, 4326,
     '<?xml version="1.0" encoding="UTF-8"?>
-    <pc:PointCloudSchema xmlns:pc="http://pointcloud.org/schemas/PC/1.1" 
+    <pc:PointCloudSchema xmlns:pc="http://pointcloud.org/schemas/PC/1.1"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
       <pc:dimension>
         <pc:position>1</pc:position>
         <pc:size>4</pc:size>
-        <pc:description>X coordinate as a long integer. You must use the 
-                        scale and offset information of the header to 
+        <pc:description>X coordinate as a long integer. You must use the
+                        scale and offset information of the header to
                         determine the double value.</pc:description>
         <pc:name>X</pc:name>
         <pc:interpretation>int32_t</pc:interpretation>
@@ -82,8 +77,8 @@ Here is a simple 4-dimensional schema document you can insert into `pointcloud_f
       <pc:dimension>
         <pc:position>2</pc:position>
         <pc:size>4</pc:size>
-        <pc:description>Y coordinate as a long integer. You must use the 
-                        scale and offset information of the header to 
+        <pc:description>Y coordinate as a long integer. You must use the
+                        scale and offset information of the header to
                         determine the double value.</pc:description>
         <pc:name>Y</pc:name>
         <pc:interpretation>int32_t</pc:interpretation>
@@ -92,8 +87,8 @@ Here is a simple 4-dimensional schema document you can insert into `pointcloud_f
       <pc:dimension>
         <pc:position>3</pc:position>
         <pc:size>4</pc:size>
-        <pc:description>Z coordinate as a long integer. You must use the 
-                        scale and offset information of the header to 
+        <pc:description>Z coordinate as a long integer. You must use the
+                        scale and offset information of the header to
                         determine the double value.</pc:description>
         <pc:name>Z</pc:name>
         <pc:interpretation>int32_t</pc:interpretation>
@@ -102,9 +97,9 @@ Here is a simple 4-dimensional schema document you can insert into `pointcloud_f
       <pc:dimension>
         <pc:position>4</pc:position>
         <pc:size>2</pc:size>
-        <pc:description>The intensity value is the integer representation 
-                        of the pulse return magnitude. This value is optional 
-                        and system specific. However, it should always be 
+        <pc:description>The intensity value is the integer representation
+                        of the pulse return magnitude. This value is optional
+                        and system specific. However, it should always be
                         included if available.</pc:description>
         <pc:name>Intensity</pc:name>
         <pc:interpretation>uint16_t</pc:interpretation>
@@ -124,7 +119,7 @@ The central role of the schema document in interpreting the contents of a point 
 
 ### PcPoint ###
 
-The basic point cloud type is a `PcPoint`. Every point has a (large?) number of dimensions, but at a minimum an X and Y coordinate that place it in space. 
+The basic point cloud type is a `PcPoint`. Every point has a (large?) number of dimensions, but at a minimum an X and Y coordinate that place it in space.
 
 Points can be rendered in a human-readable JSON form using the `PC_AsText(pcpoint)` function. The "pcid" is the foreign key reference to the `pointcloud_formats` table, where the meaning of each dimension in the "pt" array of doubles is explained. The underlying storage of the data might not be double, but by the time it has been extracted, scaled and offset, it is representable as doubles.
 
@@ -136,9 +131,9 @@ Points can be rendered in a human-readable JSON form using the `PC_AsText(pcpoin
 
 ### PcPatch ###
 
-The structure of database storage is such that storing billions of points as individual records in a table is not an efficient use of resources. Instead, we collect a group of `PcPoint` into a `PcPatch`. Each patch should hopefully contain points that are near together. 
+The structure of database storage is such that storing billions of points as individual records in a table is not an efficient use of resources. Instead, we collect a group of `PcPoint` into a `PcPatch`. Each patch should hopefully contain points that are near together.
 
-Instead of a table of billions of single `PcPoint` records, a collection of LIDAR data can be represented in the database as a much smaller collection (10s of millions) of `PcPatch` records. 
+Instead of a table of billions of single `PcPoint` records, a collection of LIDAR data can be represented in the database as a much smaller collection (10s of millions) of `PcPatch` records.
 
 Patches can be rendered into a human-readable JSON form using the `PC_AsText(pcpatch)` function.  The "pcid" is the foreign key reference to the `pointcloud_formats` table.
 
@@ -152,9 +147,9 @@ Patches can be rendered into a human-readable JSON form using the `PC_AsText(pcp
 
 ## Tables ##
 
-Usually you will only be creating tables for storing `PcPatch` objects, and using `PcPoint` objects as transitional objects for filtering, but it is possible to create tables of both types. `PcPatch` and `PcPoint` columns both require an argument that indicate the `pcid` that will be used to interpret the column. 
+Usually you will only be creating tables for storing `PcPatch` objects, and using `PcPoint` objects as transitional objects for filtering, but it is possible to create tables of both types. `PcPatch` and `PcPoint` columns both require an argument that indicate the `pcid` that will be used to interpret the column.
 
-    -- This example requires the schema entry from the previous 
+    -- This example requires the schema entry from the previous
     -- section to be loaded so that pcid==1 exists.
 
     -- A table of points
@@ -178,7 +173,7 @@ Now that you have created two tables, you'll see entries for them in the `pointc
 
     SELECT * FROM pointcloud_columns;
 
-     schema |    table    | column | pcid | srid |  type   
+     schema |    table    | column | pcid | srid |  type
     --------+-------------+--------+------+------+---------
      public | points      | pt     |    1 | 4326 | pcpoint
      public | patches     | pa     |    1 | 4326 | pcpatch
@@ -191,7 +186,7 @@ Now that you have created two tables, you'll see entries for them in the `pointc
 **PC_MakePoint(pcid integer, vals float8[])** returns **pcpoint**
 
 > Given a valid `pcid` schema number and an array of doubles that matches the schema, construct a new `pcpoint`.
-> 
+>
 >     SELECT PC_MakePoint(1, ARRAY[-127, 45, 124.0, 4.0]);
 >
 >     010100000064CEFFFF94110000703000000400
@@ -201,8 +196,8 @@ Now that you have created two tables, you'll see entries for them in the `pointc
 >     INSERT INTO points (pt)
 >     SELECT PC_MakePoint(1, ARRAY[x,y,z,intensity])
 >     FROM (
->       SELECT  
->       -127+a/100.0 AS x, 
+>       SELECT
+>       -127+a/100.0 AS x,
 >         45+a/100.0 AS y,
 >              1.0*a AS z,
 >               a/10 AS intensity
@@ -210,7 +205,7 @@ Now that you have created two tables, you'll see entries for them in the `pointc
 >     ) AS values;
 
 **PC_AsText(p pcpoint)** returns **text**
-    
+
 > Return a JSON version of the data in that point.
 >
 >     SELECT PC_AsText('010100000064CEFFFF94110000703000000400'::pcpoint);
@@ -222,8 +217,8 @@ Now that you have created two tables, you'll see entries for them in the `pointc
 > Return the `pcid` schema number of this point.
 >
 >     SELECT PC_PCId('010100000064CEFFFF94110000703000000400'::pcpoint);
-> 
->     1     
+>
+>     1
 
 **PC_Get(pt pcpoint, dimname text)** returns **numeric**
 
@@ -268,21 +263,21 @@ Now that you have created two tables, you'll see entries for them in the `pointc
 > Return the number of points in this patch.
 >
 >     SELECT PC_NumPoints(pa) FROM patches LIMIT 1;
-> 
->     9     
+>
+>     9
 
 **PC_PCId(p pcpatch)** returns **integer** (from 1.1.0)
 
 > Return the `pcid` schema number of points in this patch.
 >
 >     SELECT PC_PCId(pa) FROM patches LIMIT 1;
-> 
->     1     
+>
+>     1
 
 **PC_AsText(p pcpatch)** returns **text**
 
 > Return a JSON version of the data in that patch.
-> 
+>
 >     SELECT PC_AsText(pa) FROM patches LIMIT 1;
 >
 >     {"pcid":1,"pts":[
@@ -303,14 +298,14 @@ Now that you have created two tables, you'll see entries for them in the `pointc
 
 > Returns an uncompressed version of the patch (compression type 'none').
 > In order to return an uncompressed patch on the wire, this must be the
-> outer function with return type `pcpatch` in your SQL query. All 
+> outer function with return type `pcpatch` in your SQL query. All
 > other functions that return `pcpatch` will compress output to the
 > schema-specified compression before returning.
 >
->     SELECT PC_Uncompress(pa) FROM patches 
+>     SELECT PC_Uncompress(pa) FROM patches
 >        WHERE PC_NumPoints(pa) = 1;
 >
->     01010000000000000001000000C8CEFFFFF8110000102700000A00 
+>     01010000000000000001000000C8CEFFFFF8110000102700000A00
 
 **PC_Union(p pcpatch[])** returns **pcpatch**
 
@@ -320,7 +315,7 @@ Now that you have created two tables, you'll see entries for them in the `pointc
 >     SELECT PC_NumPoints(PC_Union(pa)) FROM patches;
 >     SELECT Sum(PC_NumPoints(pa)) FROM patches;
 >
->     100 
+>     100
 
 **PC_Intersects(p1 pcpatch, p2 pcpatch)** returns **boolean**
 
@@ -336,11 +331,11 @@ Now that you have created two tables, you'll see entries for them in the `pointc
 **PC_Explode(p pcpatch)** returns **SetOf[pcpoint]**
 
 > Set-returning function, converts patch into result set of one point record for each point in the patch.
->     
->     SELECT PC_AsText(PC_Explode(pa)), id 
+>
+>     SELECT PC_AsText(PC_Explode(pa)), id
 >     FROM patches WHERE id = 7;
 >
->                   pc_astext               | id 
+>                   pc_astext               | id
 >     --------------------------------------+----
 >      {"pcid":1,"pt":[-126.5,45.5,50,5]}   |  7
 >      {"pcid":1,"pt":[-126.49,45.51,51,5]} |  7
@@ -355,30 +350,30 @@ Now that you have created two tables, you'll see entries for them in the `pointc
 
 **PC_PatchAvg(p pcpatch, dimname text)** returns **numeric**
 
-> Reads the values of the requested dimension for all points in the patch 
+> Reads the values of the requested dimension for all points in the patch
 > and returns the *average* of those values. Dimension name must exist in the schema.
 >
->     SELECT PC_PatchAvg(pa, 'intensity') 
+>     SELECT PC_PatchAvg(pa, 'intensity')
 >     FROM patches WHERE id = 7;
 >
 >     5.0000000000000000
 
 **PC_PatchMax(p pcpatch, dimname text)** returns **numeric**
 
-> Reads the values of the requested dimension for all points in the patch 
+> Reads the values of the requested dimension for all points in the patch
 > and returns the *maximum* of those values. Dimension name must exist in the schema.
 >
->     SELECT PC_PatchMax(pa, 'x') 
+>     SELECT PC_PatchMax(pa, 'x')
 >     FROM patches WHERE id = 7;
 >
 >     -126.41
 
 **PC_PatchMin(p pcpatch, dimname text)** returns **numeric**
 
-> Reads the values of the requested dimension for all points in the patch 
+> Reads the values of the requested dimension for all points in the patch
 > and returns the *minimum* of those values. Dimension name must exist in the schema.
 >
->     SELECT PC_PatchMin(pa, 'y') 
+>     SELECT PC_PatchMin(pa, 'y')
 >     FROM patches WHERE id = 7;
 >
 >     45.5
@@ -415,7 +410,7 @@ Now that you have created two tables, you'll see entries for them in the `pointc
 > Returns a patch with only points whose values are greater than the supplied value
 > for the requested dimension.
 >
->     SELECT PC_AsText(PC_FilterGreaterThan(pa, 'y', 45.57)) 
+>     SELECT PC_AsText(PC_FilterGreaterThan(pa, 'y', 45.57))
 >     FROM patches WHERE id = 7;
 >
 >      {"pcid":1,"pts":[[-126.42,45.58,58,5],[-126.41,45.59,59,5]]}
@@ -441,7 +436,6 @@ Now that you have created two tables, you'll see entries for them in the `pointc
 > The compression_config semantic depends on the global compression scheme.
 > Allowed global compression schemes are:
 >  - auto -- determined by pcid
->  - ght  -- no compression config supported
 >  - laz -- no compression config supported
 >  - dimensional
 >      configuration is a comma-separated list of per-dimension
@@ -453,7 +447,7 @@ Now that you have created two tables, you'll see entries for them in the `pointc
 
 **PC_PointN(p pcpatch, n int4)** returns **pcpoint**
 
-> Returns the n-th point of the patch with 1-based indexing. Negative n counts point from the end. 
+> Returns the n-th point of the patch with 1-based indexing. Negative n counts point from the end.
 
 **PC_IsSorted(p pcpatch, dimnames text[], strict boolean default true)** returns **boolean**
 
@@ -524,7 +518,7 @@ The `pointcloud_postgis` extension adds functions that allow you to use PostgreS
     CREATE EXTENSION postgis;
     CREATE EXTENSION pointcloud;
     CREATE EXTENSION pointcloud_postgis;
-    
+
 **PC_Intersects(p pcpatch, g geometry)** returns **boolean**<br/>
 **PC_Intersects(g geometry, p pcpatch)** returns **boolean**
 
@@ -537,16 +531,16 @@ The `pointcloud_postgis` extension adds functions that allow you to use PostgreS
 
 **PC_Intersection(pcpatch, geometry)** returns **pcpatch**
 
-> Returns a PcPatch which only contains points that intersected the 
+> Returns a PcPatch which only contains points that intersected the
 > geometry.
 >
 >     SELECT PC_AsText(PC_Explode(PC_Intersection(
->           pa, 
+>           pa,
 >           'SRID=4326;POLYGON((-126.451 45.552, -126.42 47.55, -126.40 45.552, -126.451 45.552))'::geometry
 >     )))
 >     FROM patches WHERE id = 7;
 >
->                  pc_astext               
+>                  pc_astext
 >     --------------------------------------
 >      {"pcid":1,"pt":[-126.44,45.56,56,5]}
 >      {"pcid":1,"pt":[-126.43,45.57,57,5]}
@@ -558,9 +552,9 @@ The `pointcloud_postgis` extension adds functions that allow you to use PostgreS
 
 > Casts PcPoint to the PostGIS geometry equivalent, placing the x/y/z/m of the
 > PcPoint into the x/y/z/m of the PostGIS point.
-> 
+>
 >     SELECT ST_AsText(PC_MakePoint(1, ARRAY[-127, 45, 124.0, 4.0])::geometry);
-> 
+>
 >     POINT Z (-127 45 124)
 
 **PC_EnvelopeGeometry(pcpatch)** returns **geometry**
@@ -611,7 +605,6 @@ There are currently four supported compressions:
 
 - **None**, which stores points and patches as byte arrays using the type and formats described in the schema document.
 - **Dimensional**, which stores points the same as 'none' but stores patches as collections of dimensional data arrays, with an "appropriate" compression applied. Dimensional compression makes the most sense for smaller patch sizes, since small patches will tend to have more homogeneous dimensions.
-- **GHT** or "GeoHash Tree", which stores the points in a tree where each node stores the common values shared by all nodes below. For larger patch sizes, GHT should provide effective compression and performance for patch-wise operations. You must build Pointcloud with libght support to make use of the GHT compression.
 - **LAZ** or "LASZip". You must build Pointcloud with LAZPERF support to make use of the LAZ compression.
 
 If no compression is declared in `<pc:metadata>`, then a compression of "none" is assumed.
@@ -647,7 +640,7 @@ For LIDAR data organized into patches of points that sample similar areas, the d
 
 ## Binary Formats ##
 
-In order to preserve some compactness in dump files and network transmissions, the binary formats need to retain their native compression.  All binary formats are hex-encoded before output. 
+In order to preserve some compactness in dump files and network transmissions, the binary formats need to retain their native compression.  All binary formats are hex-encoded before output.
 
 The point and patch binary formats start with a common header, which provides:
 
@@ -697,7 +690,7 @@ There are four possible compression types used in dimensional compression:
 - significant bits removal = 2,
 - deflate = 3
 
-    
+
 #### No dimension compress ####
 
 For dimensional compression 0 (no compression) the values just appear in order. The length of words in this dimension must be determined from the schema document.
@@ -726,27 +719,16 @@ Significant bits removal starts with two words. The first word just gives the nu
 
 Where simple compression schemes fail, general purpose compression is applied to the dimension using zlib. The data area is a raw zlib buffer suitable for passing directly to the inflate() function. The size of the input buffer is given in the common dimension header. The size of the output buffer can be derived from the patch metadata by multiplying the dimension word size by the number of points in the patch.
 
-### Patch Binary (GHT) ####
-
-    byte:          endianness (1 = NDR, 0 = XDR)
-    uint32:        pcid (key to POINTCLOUD_SCHEMAS)
-    uint32:        1 = GHT compression
-    uint32:        npoints
-    uint32:        GHT data size
-    uint8:         GHT data
-
-GHT patches are much like dimensional patches, except their internal structure is more opaque. Use LibGHT to read the GHT data buffer out into a GHT tree in memory.
-
 ### Patch Binary (LAZ) ####
 
     byte:          endianness (1 = NDR, 0 = XDR)
     uint32:        pcid (key to POINTCLOUD_SCHEMAS)
-    uint32:        3 = LAZ compression
+    uint32:        2 = LAZ compression
     uint32:        npoints
     uint32:        LAZ data size
     data[]:        LAZ data
 
-LAZ patches are much like GHT patches. Use LAZPERF library to read the LAZ data buffer out into a LAZ buffer.
+Use LAZPERF library to read the LAZ data buffer out into a LAZ buffer.
 
 ## Loading Data ##
 
@@ -861,12 +843,12 @@ The PDAL [writers.pgpointcloud](http://www.pdal.io/stages/writers.pgpointcloud.h
 - **pcid**: An existing PCID to use for the point cloud schema [Optional]
 - **pre_sql**: Before the pipeline runs, read and execute this SQL file or command [Optional]
 - **post_sql**: After the pipeline runs, read and execute this SQL file or command [Optional]
- 
+
 The PDAL [readers.pgpointcloud](http://www.pdal.io/stages/readers.pgpointcloud.html) for PostgreSQL Pointcloud takes the following options:
 
 - **connection**: The PostgreSQL database connection string. E.g. `host=localhost user=username password=pw db=dbname port=5432`
 - **table**: The database table to read the patches from.
-- **schema**: The schema to read the table from. [Optional] 
+- **schema**: The schema to read the table from. [Optional]
 - **column**: The column name in the patch table to read from. [Optional: "pa"]
 - **where**: SQL where clause to constrain the query [Optional]
 - **spatialreference**: Overrides the database declared SRID [Optional]

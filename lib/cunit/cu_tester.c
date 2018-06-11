@@ -16,7 +16,6 @@
 extern CU_SuiteInfo schema_suite;
 extern CU_SuiteInfo patch_suite;
 extern CU_SuiteInfo point_suite;
-extern CU_SuiteInfo ght_suite;
 extern CU_SuiteInfo bytes_suite;
 extern CU_SuiteInfo lazperf_suite;
 extern CU_SuiteInfo sort_suite;
@@ -53,7 +52,6 @@ int main(int argc, char *argv[])
 		schema_suite,
 		patch_suite,
 		point_suite,
-		ght_suite,
 		bytes_suite,
 		lazperf_suite,
 		sort_suite,
