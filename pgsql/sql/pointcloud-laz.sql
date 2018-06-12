@@ -61,6 +61,8 @@ SELECT Sum(PC_MemSize(pa)) FROM pa_test_laz;
 SELECT Sum(PC_PatchMax(pa,'x')) FROM pa_test_laz;
 SELECT Sum(PC_PatchMin(pa,'x')) FROM pa_test_laz;
 
+SELECT PC_Uncompress(pa) FROM pa_test_laz WHERE id=1;
+
 DELETE FROM pa_test_laz;
 INSERT INTO pa_test_laz (pa)
 SELECT PC_Patch(PC_MakePoint(5, ARRAY[x,y,z,intensity]))
