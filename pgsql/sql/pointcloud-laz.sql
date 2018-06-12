@@ -42,6 +42,7 @@ VALUES (5, 0,
 
 
 CREATE TABLE IF NOT EXISTS pa_test_laz (
+	id SERIAL,
     pa PCPATCH(5)
 );
 \d pa_test_laz
