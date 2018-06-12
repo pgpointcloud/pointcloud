@@ -187,8 +187,8 @@ test_patch_hex_out()
 	double d0[4] = { 0.02, 0.03, 0.05, 6 };
 	double d1[4] = { 0.02, 0.03, 0.05, 8 };
 
-	PCPOINT *pt0 = pc_point_from_double_array(simpleschema, d0, 4);
-	PCPOINT *pt1 = pc_point_from_double_array(simpleschema, d1, 4);
+	PCPOINT *pt0 = pc_point_from_double_array(simpleschema, d0, 0, 4);
+	PCPOINT *pt1 = pc_point_from_double_array(simpleschema, d1, 0, 4);
 
 	PCPATCH_UNCOMPRESSED *pa;
 	uint8_t *wkb;

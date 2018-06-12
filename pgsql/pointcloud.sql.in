@@ -461,6 +461,10 @@ CREATE OR REPLACE FUNCTION PC_Patch(pcpoint[])
 	RETURNS pcpatch AS 'MODULE_PATHNAME', 'pcpatch_from_pcpoint_array'
 	LANGUAGE 'c' IMMUTABLE STRICT;
 
+CREATE OR REPLACE FUNCTION PC_Patch(pcid integer, vals float8[])
+    RETURNS pcpatch AS 'MODULE_PATHNAME', 'pcpatch_from_float_array'
+    LANGUAGE 'c' IMMUTABLE STRICT;
+
 CREATE OR REPLACE FUNCTION pcpoint_agg_transfn (pointcloud_abs, pcpoint)
 	RETURNS pointcloud_abs AS 'MODULE_PATHNAME', 'pointcloud_agg_transfn'
 	LANGUAGE 'c';
