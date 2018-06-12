@@ -1,3 +1,14 @@
+1.1.1, 2018-06-12
+-----------------
+
+- Bug fixes
+ - Fix bug in pc_patch_uncompressed_from_lazperf (#215)
+
+- Enhancements
+ - Document creating a PC_EnvelopeGeometry-based index (#208)
+ - Use PostgreSQL 9.6 with PostGIS 2.4 on Travis (#210)
+ - Add missing description in AC_DEFINE (#213)
+
 1.1.0, 2018-04-30
 -----------------
 
