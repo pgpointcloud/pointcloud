@@ -107,6 +107,9 @@ test_patch_lazperf()
 	CU_ASSERT_EQUAL(pauref->readonly, paul->readonly);
 	CU_ASSERT_EQUAL(pauref->readonly, pal->readonly);
 
+	// test datasize
+	CU_ASSERT_EQUAL(paul->datasize, pauref->datasize);
+
 	// free
 	pc_pointlist_free(pl);
 	pc_patch_free( (PCPATCH*) pal );
