@@ -25,7 +25,6 @@ addons:
 
 script:
   - eclint check * */* */cunit/*
-  - ./tools/build-install.sh --with-lazperf=/usr/local && make check
-  - ./tools/build-install.sh --with-lazperf=/usr/local && ./tools/valgrind.sh
+  - ./tools/build-install.sh --with-lazperf=/usr/local && make check && ./tools/valgrind.sh
   - make installcheck || { cat pgsql/regression.diffs && false; }
   - (cd tools/benchmark_compression && sh compression_benchmark.sh)
