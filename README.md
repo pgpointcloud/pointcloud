@@ -415,7 +415,7 @@ Now that you have created two tables, you'll see entries for them in the `pointc
 
 **PC_FilterBetween(p pcpatch, dimname text, float8 value1, float8 value2)** returns **pcpatch**
 
-> Returns a patch with only points whose values are between the supplied values
+> Returns a patch with only points whose values are between (excluding) the supplied values
 > for the requested dimension.
 
 **PC_FilterEquals(p pcpatch, dimname text, float8 value)** returns **pcpatch**
