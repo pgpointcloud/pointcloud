@@ -42,6 +42,7 @@ VALUES (5, 0,
 
 
 CREATE TABLE IF NOT EXISTS pa_test_laz (
+	id SERIAL,
     pa PCPATCH(5)
 );
 \d pa_test_laz
@@ -59,6 +60,8 @@ SELECT Sum(PC_NumPoints(pa)) FROM pa_test_laz;
 SELECT Sum(PC_MemSize(pa)) FROM pa_test_laz;
 SELECT Sum(PC_PatchMax(pa,'x')) FROM pa_test_laz;
 SELECT Sum(PC_PatchMin(pa,'x')) FROM pa_test_laz;
+
+SELECT PC_Uncompress(pa) FROM pa_test_laz WHERE id=1;
 
 DELETE FROM pa_test_laz;
 INSERT INTO pa_test_laz (pa)

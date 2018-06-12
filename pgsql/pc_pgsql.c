@@ -796,7 +796,7 @@ pc_patch_uncompressed_deserialize(const SERIALIZED_PATCH *serpatch, const PCSCHE
 	/* Calculate the point data buffer size */
 	patch->datasize = VARSIZE(serpatch) - sizeof(SERIALIZED_PATCH) + 1 - stats_size;
 	if ( patch->datasize != patch->npoints * schema->size )
-		pcerror("%s: calucated patch data sizes don't match (%d != %d)", __func__, patch->datasize, patch->npoints * schema->size);
+		pcerror("%s: calculated patch data sizes don't match (%d != %d)", __func__, patch->datasize, patch->npoints * schema->size);
 
 	return (PCPATCH*)patch;
 }
