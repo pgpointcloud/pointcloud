@@ -728,4 +728,14 @@ FROM ( SELECT PC_Patch(PC_MakePoint(1, ARRAY[-1,0,4862413,1])) p ) foo;
  {"pcid":10,"pts":[[-1,0,1,1,1,1,1]]} | "none"
 (1 row)
 
+
+-- test PC_Patch from float8 array
+SELECT pc_astext(pc_patch(1, ARRAY[-1,0,5,1, -1,0,6,1, -1,0,7,1]));
+
+                     pc_astext
+------------------------------------------
+ {"pcid":1,"pts":[[-1,0,5,1],[-1,0,6,1],[-1,0,7,1]]}
+(1 row)
+
+
 TRUNCATE pointcloud_formats;
