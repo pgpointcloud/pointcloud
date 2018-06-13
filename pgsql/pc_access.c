@@ -334,11 +334,11 @@ Datum pcpatch_from_pcpoint_array(PG_FUNCTION_ARGS)
 PG_FUNCTION_INFO_V1(pcpatch_from_float_array);
 Datum pcpatch_from_float_array(PG_FUNCTION_ARGS)
 {
-    uint32 pcid = PG_GETARG_INT32(0);
-    ArrayType *arrptr = PG_GETARG_ARRAYTYPE_P(1);
-    int nelems;
-    float8 *vals;
-    PCPATCH *pa;
+	uint32 pcid = PG_GETARG_INT32(0);
+	ArrayType *arrptr = PG_GETARG_ARRAYTYPE_P(1);
+	int nelems;
+	float8 *vals;
+	PCPATCH *pa;
 	PCPOINTLIST *pl;
 	SERIALIZED_PATCH *serpa;
 	int ndims;
@@ -346,26 +346,26 @@ Datum pcpatch_from_float_array(PG_FUNCTION_ARGS)
 
 	PCSCHEMA *schema = pc_schema_from_pcid(pcid, fcinfo);
 
-    if ( ! schema )
-        elog(ERROR, "unable to load schema for pcid = %d", pcid);
+	if ( ! schema )
+		elog(ERROR, "unable to load schema for pcid = %d", pcid);
 
-    if ( ARR_ELEMTYPE(arrptr) != FLOAT8OID )
-        elog(ERROR, "array must be of float8[]");
+	if ( ARR_ELEMTYPE(arrptr) != FLOAT8OID )
+		elog(ERROR, "array must be of float8[]");
 
-    if ( ARR_NDIM(arrptr) != 1 )
-        elog(ERROR, "float8[] must have one dimension");
+	if ( ARR_NDIM(arrptr) != 1 )
+		elog(ERROR, "float8[] must have one dimension");
 
-    if ( ARR_HASNULL(arrptr) )
-        elog(ERROR, "float8[] must not have null elements");
+	if ( ARR_HASNULL(arrptr) )
+		elog(ERROR, "float8[] must not have null elements");
 
-    ndims = schema->ndims;
+	ndims = schema->ndims;
 	nelems = ARR_DIMS(arrptr)[0];
-    int numpoints = nelems / ndims;
-    if ( nelems % ndims != 0 ) {
+	int numpoints = nelems / ndims;
+	if ( nelems % ndims != 0 ) {
 		elog(ERROR, "array dimensions do not match schema dimensions of pcid = %d", pcid);
 	}
 
-    vals = (float8*) ARR_DATA_PTR(arrptr);
+	vals = (float8*) ARR_DATA_PTR(arrptr);
 	pl = pc_pointlist_make(nelems);
 
 	for(i = 0; i < numpoints; ++i) {
