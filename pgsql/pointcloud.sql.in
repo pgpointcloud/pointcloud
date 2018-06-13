@@ -231,8 +231,8 @@ CREATE OR REPLACE FUNCTION PC_AsBinary(p pcpoint)
 
 
 CREATE OR REPLACE FUNCTION PC_MakePatch(pcid integer, vals float8[])
-    RETURNS pcpatch AS 'MODULE_PATHNAME', 'pcpatch_from_float_array'
-    LANGUAGE 'c' IMMUTABLE STRICT;
+	RETURNS pcpatch AS 'MODULE_PATHNAME', 'pcpatch_from_float_array'
+	LANGUAGE 'c' IMMUTABLE STRICT;
 
 CREATE OR REPLACE FUNCTION pcpatch_in(cstring)
 	RETURNS pcpatch AS 'MODULE_PATHNAME', 'pcpatch_in'
