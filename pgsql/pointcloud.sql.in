@@ -461,7 +461,7 @@ CREATE OR REPLACE FUNCTION PC_Patch(pcpoint[])
 	RETURNS pcpatch AS 'MODULE_PATHNAME', 'pcpatch_from_pcpoint_array'
 	LANGUAGE 'c' IMMUTABLE STRICT;
 
-CREATE OR REPLACE FUNCTION PC_Patch(pcid integer, vals float8[])
+CREATE OR REPLACE FUNCTION PC_MakePatch(pcid integer, vals float8[])
     RETURNS pcpatch AS 'MODULE_PATHNAME', 'pcpatch_from_float_array'
     LANGUAGE 'c' IMMUTABLE STRICT;
 
