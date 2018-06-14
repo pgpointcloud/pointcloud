@@ -23,6 +23,7 @@ void pc_cstring_array_free(const char **array, int nelems);
 Datum pcpoint_get_value(PG_FUNCTION_ARGS);
 Datum pcpoint_get_values(PG_FUNCTION_ARGS);
 Datum pcpatch_from_pcpoint_array(PG_FUNCTION_ARGS);
+Datum pcpatch_from_float_array(PG_FUNCTION_ARGS);
 Datum pcpatch_from_pcpatch_array(PG_FUNCTION_ARGS);
 Datum pcpatch_uncompress(PG_FUNCTION_ARGS);
 Datum pcpatch_compress(PG_FUNCTION_ARGS);
@@ -325,6 +326,60 @@ Datum pcpatch_from_pcpoint_array(PG_FUNCTION_ARGS)
 		PG_RETURN_NULL();
 
 	serpa = pc_patch_serialize(pa, NULL);
+	pc_patch_free(pa);
+	PG_RETURN_POINTER(serpa);
+}
+
+
+PG_FUNCTION_INFO_V1(pcpatch_from_float_array);
+Datum pcpatch_from_float_array(PG_FUNCTION_ARGS)
+{
+	int i, ndims, nelems, npoints;
+	float8 *vals;
+	PCPATCH *pa;
+	PCPOINTLIST *pl;
+	SERIALIZED_PATCH *serpa;
+	uint32 pcid = PG_GETARG_INT32(0);
+	ArrayType *arrptr = PG_GETARG_ARRAYTYPE_P(1);
+	PCSCHEMA *schema = pc_schema_from_pcid(pcid, fcinfo);
+
+	if ( ! schema )
+		elog(ERROR, "unable to load schema for pcid = %d", pcid);
+
+	if ( ARR_ELEMTYPE(arrptr) != FLOAT8OID )
+		elog(ERROR, "array must be of float8[]");
+
+	if ( ARR_NDIM(arrptr) != 1 )
+		elog(ERROR, "float8[] must have one dimension");
+
+	if ( ARR_HASNULL(arrptr) )
+		elog(ERROR, "float8[] must not have null elements");
+
+	ndims = schema->ndims;
+	nelems = ARR_DIMS(arrptr)[0];
+
+	if ( nelems % ndims != 0 ) {
+		elog(ERROR, "array dimensions do not match schema dimensions of pcid = %d", pcid);
+	}
+
+	npoints = nelems / ndims;
+
+	vals = (float8*) ARR_DATA_PTR(arrptr);
+	pl = pc_pointlist_make(nelems);
+
+	for ( i = 0; i < npoints; ++i ) {
+
+		PCPOINT* pt = pc_point_from_double_array(schema, vals, i * ndims, ndims);
+		pc_pointlist_add_point(pl, pt);
+	}
+
+	pa = pc_patch_from_pointlist(pl);
+	pc_pointlist_free(pl);
+	if ( ! pa )
+		PG_RETURN_NULL();
+
+	serpa = pc_patch_serialize(pa, NULL);
+
 	pc_patch_free(pa);
 	PG_RETURN_POINTER(serpa);
 }
