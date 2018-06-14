@@ -252,12 +252,12 @@ Now that you have created two tables, you'll see entries for them in the `pointc
 >     SELECT PC_Patch(pt) FROM points GROUP BY id/10;
 
 
-**PC_Patch(pcid integer, vals float8[])** returns **pcpatch**
+**PC_MakePatch(pcid integer, vals float8[])** returns **pcpatch**
 
 > Given a valid `pcid` schema number and an array of doubles that matches the schema, construct a new `pcpatch`.
 > Array size must be a multiple of the dimensions of the schema.
 >
->     SELECT PC_AsText(PC_Patch(1, ARRAY[-126.99,45.01,1,0, -126.98,45.02,2,0, -126.97,45.03,3,0]));
+>     SELECT PC_AsText(PC_MakePatch(1, ARRAY[-126.99,45.01,1,0, -126.98,45.02,2,0, -126.97,45.03,3,0]));
 
 >     {"pcid":1,"pts":[
 >      [-126.99,45.01,1,0],[-126.98,45.02,2,0],[-126.97,45.03,3,0]
