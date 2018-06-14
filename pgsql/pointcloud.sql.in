@@ -461,28 +461,28 @@ CREATE OR REPLACE FUNCTION PC_Patch(pcpoint[])
 
 CREATE OR REPLACE FUNCTION pcpoint_agg_transfn (pointcloud_abs, pcpoint)
 	RETURNS pointcloud_abs AS 'MODULE_PATHNAME', 'pointcloud_agg_transfn'
-	LANGUAGE 'c';
+	LANGUAGE 'c' PARALLEL SAFE;
 
 CREATE OR REPLACE FUNCTION pcpoint_agg_final_array (pointcloud_abs)
 	RETURNS pcpoint[] AS 'MODULE_PATHNAME', 'pcpoint_agg_final_array'
-	LANGUAGE 'c';
+	LANGUAGE 'c' PARALLEL SAFE;
 
 CREATE OR REPLACE FUNCTION pcpoint_agg_final_pcpatch (pointcloud_abs)
 	RETURNS pcpatch AS 'MODULE_PATHNAME', 'pcpoint_agg_final_pcpatch'
-	LANGUAGE 'c';
+	LANGUAGE 'c' PARALLEL SAFE;
 
-CREATE AGGREGATE PC_Patch (
-	BASETYPE = pcpoint,
+CREATE AGGREGATE PC_Patch(pcpoint) (
 	SFUNC = pcpoint_agg_transfn,
 	STYPE = pointcloud_abs,
-	FINALFUNC = pcpoint_agg_final_pcpatch
+	FINALFUNC = pcpoint_agg_final_pcpatch,
+	PARALLEL = safe
 );
 
-CREATE AGGREGATE PC_Point_Agg (
-	BASETYPE = pcpoint,
+CREATE AGGREGATE PC_Point_Agg(pcpoint) (
 	SFUNC = pcpoint_agg_transfn,
 	STYPE = pointcloud_abs,
-	FINALFUNC = pcpoint_agg_final_array
+	FINALFUNC = pcpoint_agg_final_array,
+	PARALLEL = safe
 );
 
 -------------------------------------------------------------------
@@ -501,18 +501,18 @@ CREATE OR REPLACE FUNCTION pcpatch_agg_transfn (pointcloud_abs, pcpatch)
 	RETURNS pointcloud_abs AS 'MODULE_PATHNAME', 'pointcloud_agg_transfn'
 	LANGUAGE 'c';
 
-CREATE AGGREGATE PC_Patch_Agg (
-	BASETYPE = pcpatch,
+CREATE AGGREGATE PC_Patch_Agg(pcpatch) (
 	SFUNC = pcpatch_agg_transfn,
 	STYPE = pointcloud_abs,
-	FINALFUNC = pcpatch_agg_final_array
+	FINALFUNC = pcpatch_agg_final_array,
+	PARALLEL = safe
 );
 
-CREATE AGGREGATE PC_Union (
-	BASETYPE = pcpatch,
+CREATE AGGREGATE PC_Union(pcpatch) (
 	SFUNC = pcpatch_agg_transfn,
 	STYPE = pointcloud_abs,
-	FINALFUNC = pcpatch_agg_final_pcpatch
+	FINALFUNC = pcpatch_agg_final_pcpatch,
+	PARALLEL = safe
 );
 
 CREATE OR REPLACE FUNCTION PC_Explode(p pcpatch)
