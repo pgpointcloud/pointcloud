@@ -373,7 +373,7 @@ Datum pcpatch_from_float_array(PG_FUNCTION_ARGS)
 		PCPOINT* pt = pc_point_from_double_array(schema, vals, i * ndims, ndims);
 		pc_pointlist_add_point(pl, pt);
 	}
-	
+
 	pa = pc_patch_from_pointlist(pl);
 	pc_pointlist_free(pl);
 	if ( ! pa )
