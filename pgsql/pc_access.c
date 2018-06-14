@@ -368,13 +368,12 @@ Datum pcpatch_from_float_array(PG_FUNCTION_ARGS)
 	vals = (float8*) ARR_DATA_PTR(arrptr);
 	pl = pc_pointlist_make(nelems);
 
-	for(i = 0; i < numpoints; ++i) {
+	for ( i = 0; i < numpoints; ++i ) {
 
 		PCPOINT* pt = pc_point_from_double_array(schema, vals, i * ndims, ndims);
 		pc_pointlist_add_point(pl, pt);
 	}
-
-
+	
 	pa = pc_patch_from_pointlist(pl);
 	pc_pointlist_free(pl);
 	if ( ! pa )

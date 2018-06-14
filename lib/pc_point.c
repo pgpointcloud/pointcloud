@@ -219,7 +219,7 @@ pc_point_to_string(const PCPOINT *pt)
 
 
 PCPOINT *
-pc_point_from_double_array(const PCSCHEMA *s, double *array, uint32_t offset, uint32_t nelems)
+pc_point_from_double_array(const PCSCHEMA *s, double *array, uint32_t offset, uint32_t stride)
 {
 	int i;
 	int ndims;
@@ -232,7 +232,7 @@ pc_point_from_double_array(const PCSCHEMA *s, double *array, uint32_t offset, ui
 	}
 
 	ndims = s->ndims;
-	if ( nelems % ndims != 0 )
+	if ( stride % ndims != 0 )
 	{
 		pcerror("number of elements in schema and array do not match in pc_point_from_double_array");
 		return NULL;
