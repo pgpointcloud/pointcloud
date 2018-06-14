@@ -44,7 +44,7 @@ if test "x${GITCMD}" = "xyes" -a "x${DOTGITDIR}" = "xyes"; then
 else
     GIT_COMMIT_HASH=
 fi
-POINTCLOUD_VERSION="$(cat Version.config)$GIT_COMMIT_HASH"
+POINTCLOUD_VERSION="$(cat Version.config)"
 AC_SUBST([POINTCLOUD_VERSION])
 AC_DEFINE_UNQUOTED([POINTCLOUD_VERSION], ["$POINTCLOUD_VERSION"], [Pointcloud version])
 
@@ -181,9 +181,9 @@ AC_SUBST([PGXS])
 
 dnl Extract the version information from pg_config
 dnl Note: we extract the major & minor separately, ensure they are numeric, and then combine to give
-dnl the final version. This is to guard against user error...
-PGSQL_MAJOR_VERSION=`$PG_CONFIG --version | sed 's/[[A-Za-z ]]*//' | cut -d. -f1 | sed 's/[[^0-9]]//g'`
-PGSQL_MINOR_VERSION=`$PG_CONFIG --version | sed 's/[[A-Za-z ]]*//' | cut -d. -f2 | sed 's/[[^0-9]]//g'`
+dnl the final version. This is to guard against user error... 
+PGSQL_MAJOR_VERSION=`$PG_CONFIG --version | sed 's/[[A-Za-z ]]*//' | cut -d. -f1 | sed 's/[[^0-9]]//g'`	
+PGSQL_MINOR_VERSION=`$PG_CONFIG --version | sed 's/[[A-Za-z ]]*//' | cut -d. -f2 | sed 's/[[^0-9]]//g'`	
 PGSQL_FULL_VERSION=`$PG_CONFIG --version`
 PGSQL_VERSION="$PGSQL_MAJOR_VERSION$PGSQL_MINOR_VERSION"
 
@@ -325,6 +325,42 @@ fi
 AC_SUBST([LAZPERF_STATUS])
 AC_SUBST([LAZPERF_CPPFLAGS])
 
+
+dnl ===========================================================================
+dnl Figure out if we are postgres >= 9.6 and support PARALLEL
+
+
+dnl Extract the version information from pg_config
+dnl Note: we extract the major & minor separately, ensure they are numeric, and then combine to give
+dnl the final version. This is to guard against user error...
+PGSQL_FULL_VERSION=`"$PG_CONFIG" --version`
+
+PGSQL_MAJOR_VERSION=`echo $PGSQL_FULL_VERSION | sed 's/[[^0-9]]*\([[0-9]]*\).*/\1/'`
+PGSQL_MINOR_VERSION=`$PG_CONFIG --version | sed 's/[[^0-9]]*\([[0-9]]\)\.\([[0-9]]\).*/\2/'`
+
+if test $PGSQL_MAJOR_VERSION -gt 9; then
+dnl ==================================================================
+dnl Starting with PostgreSQL 10, major is the new minor
+dnl This is to prevent things like 10.31 ranking higher than 11.0
+dnl===================================================================
+PGSQL_MINOR_VERSION=0
+fi
+
+
+AC_MSG_RESULT([checking PostgreSQL version... $PGSQL_FULL_VERSION])
+
+POSTGIS_PGSQL_VERSION="$PGSQL_MAJOR_VERSION$PGSQL_MINOR_VERSION"
+
+HAVE_PARALLEL=
+HAVE_PARALLEL_AGG=
+if test $POSTGIS_PGSQL_VERSION -ge 96; then
+HAVE_PARALLEL="PARALLEL SAFE"
+HAVE_PARALLEL_AGG=", PARALLEL = safe"
+fi
+AC_SUBST([HAVE_PARALLEL])
+AC_SUBST([HAVE_PARALLEL_AGG])
+
+
 dnl ===========================================================================
 dnl Figure out where this script is running
 
@@ -335,6 +371,9 @@ AC_DEFINE_UNQUOTED([PROJECT_SOURCE_DIR], ["$PROJECT_SOURCE_DIR"], [Project sourc
 dnl ===========================================================================
 dnl Output the relevant files
 dnl ===========================================================================
+
+AC_CONFIG_FILES(pgsql/pointcloud.sql)
+
 
 AC_OUTPUT([
    config.mk
