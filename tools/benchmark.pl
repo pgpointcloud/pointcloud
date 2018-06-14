@@ -259,8 +259,8 @@ avg(pc_memsize(\"${col}\"))/avg(pc_numpoints(\"${col}\")), -- 4
 avg(pc_memsize(\"${col}\")), -- 5
 array_to_string(array_agg(distinct
   CASE WHEN PC_Compression(\"${col}\") = 0 THEN 'NONE'
-       WHEN PC_Compression(\"${col}\") = 1 THEN 'GHT'
-       WHEN PC_Compression(\"${col}\") = 2 THEN 'DIMENSIONAL'
+       WHEN PC_Compression(\"${col}\") = 1 THEN 'DIMENSIONAL'
+       WHEN PC_Compression(\"${col}\") = 2 THEN 'LAZPERF'
        ELSE                                     'UNKNOWN'
   END
 ), ','),

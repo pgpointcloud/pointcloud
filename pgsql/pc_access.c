@@ -44,7 +44,6 @@ Datum pcpoint_pcid(PG_FUNCTION_ARGS);
 Datum pc_version(PG_FUNCTION_ARGS);
 Datum pc_pgsql_version(PG_FUNCTION_ARGS);
 Datum pc_libxml2_version(PG_FUNCTION_ARGS);
-Datum pc_libght_enabled(PG_FUNCTION_ARGS);
 Datum pc_lazperf_enabled(PG_FUNCTION_ARGS);
 
 /* Generic aggregation functions */
@@ -690,14 +689,11 @@ Datum pcpatch_compress(PG_FUNCTION_ARGS)
 		pa = (PCPATCH*)pc_patch_dimensional_compress(pdl, stats);
 		pc_patch_dimensional_free(pdl);
 	}}
-	else if ( strcmp(compr_in, "ght") == 0 ) {
-		schema->compression = PC_GHT;
-	}
 	else if ( strcmp(compr_in, "laz") == 0 ) {
 		schema->compression = PC_LAZPERF;
 	}
 	else {
-		elog(ERROR, "Unrecognized compression '%s'. Please specify 'auto','dimensional' or 'ght'", compr_in);
+		elog(ERROR, "Unrecognized compression '%s'. Please specify 'auto','dimensional' or 'laz'", compr_in);
 	}
 
 	pa->schema = schema; /* install overridden schema */
@@ -937,16 +933,6 @@ Datum pc_libxml2_version(PG_FUNCTION_ARGS)
 	snprintf(version, 64, "%s", LIBXML2_VERSION);
 	version_text = cstring_to_text(version);
 	PG_RETURN_TEXT_P(version_text);
-}
-
-PG_FUNCTION_INFO_V1(pc_libght_enabled);
-Datum pc_libght_enabled(PG_FUNCTION_ARGS)
-{
-#ifdef HAVE_LIBGHT
-	PG_RETURN_BOOL(TRUE);
-#else
-	PG_RETURN_BOOL(FALSE);
-#endif
 }
 
 PG_FUNCTION_INFO_V1(pc_lazperf_enabled);

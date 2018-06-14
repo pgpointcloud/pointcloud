@@ -21,10 +21,6 @@
 #include "pc_config.h"
 #include "hashtable.h"
 
-#ifdef HAVE_LIBGHT
-#include "ght.h"
-#endif
-
 #ifndef __GNUC__
 #define __attribute__ (x)
 #endif
@@ -39,9 +35,8 @@
 enum COMPRESSIONS
 {
 	PC_NONE = 0,
-	PC_GHT = 1,
-	PC_DIMENSIONAL = 2,
-	PC_LAZPERF = 3
+	PC_DIMENSIONAL = 1,
+	PC_LAZPERF = 2
 };
 
 /**
@@ -195,13 +190,6 @@ typedef struct
 	PCPATCH_COMMON
 	PCBYTES *bytes;
 } PCPATCH_DIMENSIONAL;
-
-typedef struct
-{
-	PCPATCH_COMMON
-	size_t ghtsize;
-	uint8_t *ght;
-} PCPATCH_GHT;
 
 typedef struct
 {

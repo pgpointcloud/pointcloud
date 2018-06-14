@@ -41,12 +41,6 @@
   </pc:dimension>
   <pc:metadata>
     <Metadata name="compression">dimensional</Metadata>
-    <Metadata name="ght_xmin"></Metadata>
-    <Metadata name="ght_ymin"></Metadata>
-    <Metadata name="ght_xmax"></Metadata>
-    <Metadata name="ght_ymax"></Metadata>
-    <Metadata name="ght_keylength"></Metadata>
-    <Metadata name="ght_depth"></Metadata>
     <Metadata name="spatialreference" type="id">4326</Metadata>
   </pc:metadata>
 </pc:PointCloudSchema>

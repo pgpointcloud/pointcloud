@@ -11,7 +11,6 @@ install:
   - sudo apt-get install -qq g++-4.8
   - export CXX="g++-4.8"
   - sh .install-lazperf.sh
-  - sh .install-libght.sh
   - npm install -g eclint@1.1.5
 
 addons:
@@ -26,7 +25,6 @@ addons:
 
 script:
   - eclint check * */* */cunit/*
-  - ./tools/build-install.sh --with-lazperf=/usr/local --with-libght=/usr/local && make check
-  - ./tools/build-install.sh --with-lazperf=/usr/local --without-libght && ./tools/valgrind.sh
+  - ./tools/build-install.sh --with-lazperf=/usr/local && make check && ./tools/valgrind.sh
   - make installcheck || { cat pgsql/regression.diffs && false; }
   - (cd tools/benchmark_compression && sh compression_benchmark.sh)

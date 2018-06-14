@@ -251,15 +251,6 @@ pc_patch_filter(const PCPATCH *pa, uint32_t dimnum, PC_FILTERTYPE filter, double
 		paout = (PCPATCH*)pu;
 		break;
 	}
-	case PC_GHT:
-	{
-		PCPATCH_GHT *pgh = pc_patch_ght_filter((PCPATCH_GHT*)pa, dimnum, filter, val1, val2);
-		/* pc_patch_ght_filter computes the bounds itself */
-		/* TODO: add stats computation to pc_patch_ght_filter */
-		/* pc_patch_ght_filter is just re-using the input stats, which is wrong */
-		paout = (PCPATCH*)pgh;
-		break;
-	}
 	case PC_DIMENSIONAL:
 	{
 		PCBITMAP *map = pc_patch_dimensional_bitmap((PCPATCH_DIMENSIONAL*)pa, dimnum, filter, val1, val2);

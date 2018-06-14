@@ -73,7 +73,7 @@ pc_patch_uncompressed_to_wkb(const PCPATCH_UNCOMPRESSED *patch, size_t *wkbsize)
 	/*
 	byte:     endianness (1 = NDR, 0 = XDR)
 	uint32:   pcid (key to POINTCLOUD_SCHEMAS)
-	uint32:   compression (0 = no compression, 1 = dimensional, 2 = GHT)
+	uint32:   compression (0 = no compression, 1 = dimensional, 2 = lazperf)
 	uint32:   npoints
 	uchar[]:  data (interpret relative to pcid)
 	*/
@@ -100,7 +100,7 @@ pc_patch_uncompressed_from_wkb(const PCSCHEMA *s, const uint8_t *wkb, size_t wkb
 	/*
 	byte:     endianness (1 = NDR, 0 = XDR)
 	uint32:   pcid (key to POINTCLOUD_SCHEMAS)
-	uint32:   compression (0 = no compression, 1 = dimensional, 2 = GHT)
+	uint32:   compression (0 = no compression, 1 = dimensional, 2 = lazperf)
 	uint32:   npoints
 	pcpoint[]:  data (interpret relative to pcid)
 	*/
