@@ -322,8 +322,8 @@ PCPOINT* pc_point_make(const PCSCHEMA *s);
 /** Create a new readonly PCPOINT on top of a data buffer */
 PCPOINT* pc_point_from_data(const PCSCHEMA *s, const uint8_t *data);
 
-/** Create a new read/write PCPOINT from a double array */
-PCPOINT* pc_point_from_double_array(const PCSCHEMA *s, double *array, uint32_t nelems);
+/** Create a new read/write PCPOINT from a double array  with an offset */
+PCPOINT* pc_point_from_double_array(const PCSCHEMA *s, double *array, uint32_t offset, uint32_t nelems);
 
 /**
 * Return an allocated double array of doubles representing point values

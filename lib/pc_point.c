@@ -217,10 +217,12 @@ pc_point_to_string(const PCPOINT *pt)
 	return str;
 }
 
+
 PCPOINT *
-pc_point_from_double_array(const PCSCHEMA *s, double *array, uint32_t nelems)
+pc_point_from_double_array(const PCSCHEMA *s, double *array, uint32_t offset, uint32_t stride)
 {
 	int i;
+	int ndims;
 	PCPOINT *pt;
 
 	if ( ! s )
@@ -229,9 +231,10 @@ pc_point_from_double_array(const PCSCHEMA *s, double *array, uint32_t nelems)
 		return NULL;
 	}
 
-	if ( s->ndims != nelems )
+	ndims = s->ndims;
+	if ( stride % ndims != 0 )
 	{
-		pcerror("number of elements in schema and array differ in pc_point_from_double_array");
+		pcerror("number of elements in schema and array do not match in pc_point_from_double_array");
 		return NULL;
 	}
 
@@ -241,9 +244,9 @@ pc_point_from_double_array(const PCSCHEMA *s, double *array, uint32_t nelems)
 	pt->schema = s;
 	pt->readonly = PC_FALSE;
 
-	for ( i = 0; i < nelems; i++ )
+	for ( i = 0; i < ndims; i++ )
 	{
-		if ( PC_FAILURE == pc_point_set_double_by_index(pt, i, array[i]) )
+		if ( PC_FAILURE == pc_point_set_double_by_index(pt, i, array[offset + i]) )
 		{
 			pcerror("failed to write value into dimension %d in pc_point_from_double_array", i);
 			return NULL;
