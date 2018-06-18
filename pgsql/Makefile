@@ -30,7 +30,7 @@ DATA_built = \
 
 REGRESS = pointcloud pointcloud_columns schema
 
-ifneq ($(LAZPERF_STATUS), "disabled")
+ifneq ("$(LAZPERF_STATUS)", "disabled")
 REGRESS += pointcloud-laz
 endif
 
