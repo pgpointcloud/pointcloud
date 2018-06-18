@@ -11,6 +11,6 @@ Create a PR with these changes. When the PR is merged create a tag for the new 
 it to GitHub:
 
 ```bash
-$ git tag -a x.y.z -m 'version x.y.z'
-$ git push origin x.y.z
+$ git tag -a vx.y.z -m 'version x.y.z'
+$ git push origin vx.y.z
 ```
