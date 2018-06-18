@@ -3,7 +3,7 @@ CREATE EXTENSION pointcloud;
 SELECT PC_Version();
  pc_version 
 ------------
- 1.1.0
+ 1.1.1
 (1 row)
 
 INSERT INTO pointcloud_formats (pcid, srid, schema)
