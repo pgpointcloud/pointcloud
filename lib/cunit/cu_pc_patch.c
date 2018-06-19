@@ -913,6 +913,7 @@ test_patch_range_compression_none_with_out_of_bounds_first()
 	test_patch_range_compression_none_with_bad_arguments(21, 1);
 }
 
+#ifdef HAVE_LAZPERF
 static void
 test_patch_range_compression_lazperf()
 {
@@ -947,6 +948,7 @@ test_patch_range_compression_lazperf()
 	pc_patch_free(pa);
 	pc_pointlist_free(pl);
 }
+#endif	/* HAVE_LAZPERF */
 
 static void
 test_patch_range_compression_dimensional(enum DIMCOMPRESSIONS dimcomp)
