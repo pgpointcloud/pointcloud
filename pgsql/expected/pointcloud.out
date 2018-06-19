@@ -531,8 +531,7 @@ FROM p1, ( values
   ('dimensional','rle'),
   ('dimensional','zlib'),
   ('dimensional','sigbits'),
-  ('dimensional','auto'),
-  ('laz','null')
+  ('dimensional','auto')
 ) dimcompr(compr,sc)
 ORDER BY compr,sc,v;
  test  | v  |    compr    |   sc    | ok 
@@ -597,22 +596,7 @@ ORDER BY compr,sc,v;
  compr |  5 | dimensional | zlib    | t
  compr |  6 | dimensional | zlib    | t
  compr |  7 | dimensional | zlib    | t
- compr | -7 | laz         | null    | t
- compr | -6 | laz         | null    | t
- compr | -5 | laz         | null    | t
- compr | -4 | laz         | null    | t
- compr | -3 | laz         | null    | t
- compr | -2 | laz         | null    | t
- compr | -1 | laz         | null    | t
- compr |  0 | laz         | null    | t
- compr |  1 | laz         | null    | t
- compr |  2 | laz         | null    | t
- compr |  3 | laz         | null    | t
- compr |  4 | laz         | null    | t
- compr |  5 | laz         | null    | t
- compr |  6 | laz         | null    | t
- compr |  7 | laz         | null    | t
-(75 rows)
+(60 rows)
 
 SELECT PC_Summary(PC_Compress(PC_Patch(PC_MakePoint(10,ARRAY[1,1,1,1,1,1,1])),
   'dimensional'))::json->'compr';
