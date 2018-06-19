@@ -38,8 +38,40 @@ VALUES (5, 0,
     <Metadata name="compression">laz</Metadata>
   </pc:metadata>
 </pc:PointCloudSchema>'
+)
+,(10, 0, -- All (signed) interpretations, uncompressed
+'<?xml version="1.0" encoding="UTF-8"?>
+<pc:PointCloudSchema xmlns:pc="http://pointcloud.org/schemas/PC/1.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <pc:dimension> <pc:position>1</pc:position> <pc:name>x</pc:name>
+    <pc:size>1</pc:size> <pc:interpretation>int8_t</pc:interpretation>
+    <pc:scale>0.01</pc:scale>
+  </pc:dimension>
+  <pc:dimension> <pc:position>2</pc:position> <pc:name>y</pc:name>
+    <pc:size>2</pc:size> <pc:interpretation>int8_t</pc:interpretation>
+    <pc:scale>0.01</pc:scale>
+  </pc:dimension>
+  <pc:dimension> <pc:position>3</pc:position> <pc:name>i2</pc:name>
+    <pc:size>2</pc:size> <pc:interpretation>int16_t</pc:interpretation>
+    <pc:scale>0.01</pc:scale>
+  </pc:dimension>
+  <pc:dimension> <pc:position>4</pc:position> <pc:name>i4</pc:name>
+    <pc:size>4</pc:size> <pc:interpretation>int32_t</pc:interpretation>
+    <pc:scale>0.01</pc:scale>
+  </pc:dimension>
+  <pc:dimension> <pc:position>5</pc:position> <pc:name>i8</pc:name>
+    <pc:size>8</pc:size> <pc:interpretation>int64_t</pc:interpretation>
+    <pc:scale>0.01</pc:scale>
+  </pc:dimension>
+  <pc:dimension> <pc:position>6</pc:position> <pc:name>f4</pc:name>
+    <pc:size>4</pc:size> <pc:interpretation>float</pc:interpretation>
+    <pc:scale>0.01</pc:scale>
+  </pc:dimension>
+  <pc:dimension> <pc:position>7</pc:position> <pc:name>f8</pc:name>
+    <pc:size>8</pc:size> <pc:interpretation>double</pc:interpretation>
+    <pc:scale>0.01</pc:scale>
+  </pc:dimension>
+</pc:PointCloudSchema>'
 );
-
 
 CREATE TABLE IF NOT EXISTS pa_test_laz (
 	id SERIAL,
@@ -160,5 +192,38 @@ FROM (
 SELECT pc_astext(pc_explode(pa)) FROM pa_test_laz_multiple_dim LIMIT 20;
 
 SELECT pc_astext(PC_PointN(pa, 2)) FROM pa_test_laz;
+
+WITH points AS (
+  SELECT ARRAY[
+    (2^08/256.0*v)*0.01,  -- int8_t
+   -(2^08/256.0*v)*0.01,  -- int8_t
+    (2^16/256.0*v)*0.01,  -- int16_t
+    (2^32/256.0*v)*0.01,  -- int32_t
+    (2^64/256.0*v)*0.01,  -- int64_t
+    (2^32/256.0*v)*0.01,  -- float
+    (2^64/256.0*v)*0.01   -- double
+  ] a, v/16 v
+  FROM generate_series(-127,127,4) v
+), p1 AS (
+  SELECT v, PC_Patch(PC_MakePoint(10, a)) p from points -- uncompressed
+  GROUP BY v
+)
+SELECT 'compr' test,
+  p1.v, compr, sc,
+  PC_AsText(p1.p) =
+  PC_AsText(PC_Compress(p1.p, compr,
+      array_to_string(
+        array_fill(sc,ARRAY[7]),
+        ','
+      )
+    )) ok
+FROM p1, ( values
+  ('dimensional','rle'),
+  ('dimensional','zlib'),
+  ('dimensional','sigbits'),
+  ('dimensional','auto'),
+  ('laz', 'null')
+) dimcompr(compr,sc)
+ORDER BY compr,sc,v;
 
 TRUNCATE pointcloud_formats;
