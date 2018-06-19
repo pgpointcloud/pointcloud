@@ -364,8 +364,7 @@ FROM p1, ( values
   ('dimensional','rle'),
   ('dimensional','zlib'),
   ('dimensional','sigbits'),
-  ('dimensional','auto'),
-  ('laz','null')
+  ('dimensional','auto')
 ) dimcompr(compr,sc)
 ORDER BY compr,sc,v;
 
