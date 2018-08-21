@@ -11,13 +11,33 @@ dnl ***********************************************************************/
 
 AC_INIT()
 AC_CONFIG_MACRO_DIR([macros])
-AC_CONFIG_HEADERS([lib/pc_config.h])
+AC_CONFIG_HEADERS([lib/pc_config.h pgsql/sqldefines.h])
 AC_LANG([C++])
 
 dnl
 dnl Compilers
 dnl
 AC_PROG_CC
+
+dnl
+dnl SQL Preprocessor
+dnl
+AC_PATH_PROG([CPPBIN], [cpp], [])
+if test "x$CPPBIN" != "x"; then
+  SQLPP="${CPPBIN} -traditional-cpp -w -P"
+else
+  AC_PATH_PROG([GPP], [gpp_], [])
+  if test "x$GPP" != "x"; then
+    SQLPP="${GPP} -C -s \'" dnl Use better string support
+  else
+    if test "x${CPP}" != "x"; then
+      SQLPP="${CPP} -traditional-cpp"
+    else
+	  AC_MSG_ERROR([Required "cpp" command not found])
+    fi
+  fi
+fi
+AC_SUBST([SQLPP])
 
 dnl
 dnl Define executable suffix to use for utility programs
@@ -182,9 +202,9 @@ AC_SUBST([PGXS])
 dnl Extract the version information from pg_config
 dnl Note: we extract the major & minor separately, ensure they are numeric, and then combine to give
 dnl the final version. This is to guard against user error...
-PGSQL_MAJOR_VERSION=`$PG_CONFIG --version | sed 's/[[A-Za-z ]]*//' | cut -d. -f1 | sed 's/[[^0-9]]//g'`
-PGSQL_MINOR_VERSION=`$PG_CONFIG --version | sed 's/[[A-Za-z ]]*//' | cut -d. -f2 | sed 's/[[^0-9]]//g'`
 PGSQL_FULL_VERSION=`$PG_CONFIG --version`
+PGSQL_MAJOR_VERSION=`echo $PGSQL_FULL_VERSION | sed 's/[[^0-9]]*\([[0-9]]*\).*/\1/'`
+PGSQL_MINOR_VERSION=`echo $PGSQL_FULL_VERSION | sed 's/[[^0-9]]*\([[0-9]]*\)\.\([[0-9]]*\).*/\2/'`
 PGSQL_VERSION="$PGSQL_MAJOR_VERSION$PGSQL_MINOR_VERSION"
 
 PGSQL_PKGLIBDIR=`$PG_CONFIG --pkglibdir`
@@ -338,6 +358,7 @@ dnl ===========================================================================
 
 AC_OUTPUT([
    config.mk
+   pgsql/Makefile
 ])
 
 dnl ===========================================================================
@@ -349,10 +370,11 @@ AC_MSG_RESULT([  PointCloud is now configured for ${host}])
 AC_MSG_RESULT()
 AC_MSG_RESULT([ -------------- Compiler Info ------------- ])
 AC_MSG_RESULT([  C compiler:           ${CC} ${CFLAGS}])
+AC_MSG_RESULT([  SQL preprocessor:     ${SQLPP}])
 AC_MSG_RESULT()
 AC_MSG_RESULT([ -------------- Dependencies -------------- ])
 AC_MSG_RESULT([  PostgreSQL config:    ${PG_CONFIG}])
-AC_MSG_RESULT([  PostgreSQL version:   ${PGSQL_FULL_VERSION}])
+AC_MSG_RESULT([  PostgreSQL version:   ${PGSQL_FULL_VERSION} (${PGSQL_VERSION})])
 AC_MSG_RESULT([  Libxml2 config:       ${XML2CONFIG}])
 AC_MSG_RESULT([  Libxml2 version:      ${LIBXML2_VERSION}])
 AC_MSG_RESULT([  LazPerf status:       ${LAZPERF_STATUS}])
