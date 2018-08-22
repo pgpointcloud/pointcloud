@@ -1,3 +1,21 @@
+1.2.0, 2018-08-22
+-----------------
+
+- New features
+ - Add PC_MakePatch(pcid integer, values float8[]) #220
+ - Mark functions as PARALLEL SAFE #227
+
+- Bug fixes
+ - patch fails to compress as GHT #35
+ - libght breaks schema parsing #196
+ - Fix memcpy size in pc_patch_wkb_set_int32 #226
+
+- Enhancements
+ - Improve doc for PC_FilterBetween #217
+ - Remove GHT support #214
+ - Fix installcheck when lazperf is disabled #222
+ - Fix compilation and installcheck when lazperf is disabled #224
+
 1.1.1, 2018-06-12
 -----------------
 
