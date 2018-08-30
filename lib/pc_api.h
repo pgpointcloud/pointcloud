@@ -441,6 +441,9 @@ int pc_patch_compute_extent(PCPATCH *patch);
 /** True/false if bounds intersect */
 int pc_bounds_intersects(const PCBOUNDS *b1, const PCBOUNDS *b2);
 
+/** Return the bounds as an OGC WKB geometry */
+uint8_t *pc_bounds_to_geometry_wkb(const PCBOUNDS *bounds, uint32_t srid, size_t *wkbsize);
+
 /** Returns OGC WKB of the bounding diagonal of XY bounds */
 uint8_t* pc_bounding_diagonal_wkb_from_bounds(const PCBOUNDS *bounds, const PCSCHEMA *schema, size_t *wkbsize);
 

@@ -513,8 +513,12 @@ test_patch_wkb()
 	PCPOINTLIST *pl1;
 	PCPATCH_UNCOMPRESSED *pu1, *pu2;
 	PCPATCH *pa1, *pa2, *pa3, *pa4;
-	size_t z1, z2;
-	uint8_t *wkb1, *wkb2;
+	size_t z1, z2, z3;
+	uint8_t *wkb1, *wkb2, *wkb3;
+	char *hexwkb;
+
+	static char *hexresult_ndr = "01030000000100000005000000000000000000000000000000000000000000000000000000CDCCCCCCCC8C4B40EC51B81E852B4440CDCCCCCCCC8C4B40EC51B81E852B4440000000000000000000000000000000000000000000000000";
+	static char *hexresult_xdr = "00000000030000000100000005000000000000000000000000000000000000000000000000404B8CCCCCCCCCCD40442B851EB851EC404B8CCCCCCCCCCD40442B851EB851EC000000000000000000000000000000000000000000000000";
 
 	pl1 = pc_pointlist_make(npts);
 
@@ -533,6 +537,7 @@ test_patch_wkb()
 	// str = pc_hexbytes_from_bytes(wkb1, z1);
 	// printf("str\n%s\n",str);
 	pa2 = pc_patch_from_wkb(simpleschema, wkb1, z1);
+	pcfree(wkb1);
 
 	// printf("pa2\n%s\n",pc_patch_to_string(pa2));
 
@@ -556,6 +561,18 @@ test_patch_wkb()
 	CU_ASSERT_EQUAL(pu1->npoints, pu2->npoints);
 	CU_ASSERT(memcmp(pu1->data, pu2->data, pu1->datasize) == 0);
 
+	wkb3 = pc_bounds_to_geometry_wkb(&pa1->bounds, simpleschema->srid, &z3);
+	hexwkb = pc_hexbytes_from_bytes(wkb3, z3);
+	if ( machine_endian() == PC_NDR )
+	{
+		CU_ASSERT_STRING_EQUAL(hexwkb, hexresult_ndr);
+	}
+	else
+	{
+		CU_ASSERT_STRING_EQUAL(hexwkb, hexresult_xdr);
+	}
+	pcfree(hexwkb);
+	pcfree(wkb3);
 
 	pc_pointlist_free(pl1);
 	pc_patch_free(pa1);
@@ -564,7 +581,6 @@ test_patch_wkb()
 	pc_patch_free(pa4);
 	pc_patch_free((PCPATCH*)pu1);
 	pc_patch_free((PCPATCH*)pu2);
-	pcfree(wkb1);
 }
 
 

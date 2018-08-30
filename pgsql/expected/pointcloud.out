@@ -337,7 +337,7 @@ SELECT PC_AsText(pa) FROM pa_test;
 SELECT PC_EnvelopeAsBinary(pa) from pa_test;
                                                                                      pc_envelopeasbinary                                                                                      
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
- \x010300000001000000050000007b14ae47e17a943fb81e85eb51b89e3f7b14ae47e17a943fb81e85eb51b89e3f7b14ae47e17a943fb81e85eb51b89e3f7b14ae47e17a943fb81e85eb51b89e3f7b14ae47e17a943fb81e85eb51b89e3f
+ \x01010000007b14ae47e17a943fb81e85eb51b89e3f
  \x01030000000100000005000000b81e85eb51b8ae3fec51b81e85ebb13fb81e85eb51b8ae3f9a9999999999b93f0ad7a3703d0ab73f9a9999999999b93f0ad7a3703d0ab73fec51b81e85ebb13fb81e85eb51b8ae3fec51b81e85ebb13f
  \x01030000000100000005000000b81e85eb51b8ae3fec51b81e85ebb13fb81e85eb51b8ae3f9a9999999999b93f0ad7a3703d0ab73f9a9999999999b93f0ad7a3703d0ab73fec51b81e85ebb13fb81e85eb51b8ae3fec51b81e85ebb13f
  \x01030000000100000005000000b81e85eb51b8ae3fec51b81e85ebb13fb81e85eb51b8ae3f9a9999999999b93f0ad7a3703d0ab73f9a9999999999b93f0ad7a3703d0ab73fec51b81e85ebb13fb81e85eb51b8ae3fec51b81e85ebb13f
@@ -346,7 +346,7 @@ SELECT PC_EnvelopeAsBinary(pa) from pa_test;
 SELECT PC_Envelope(pa) from pa_test;
                                                                                          pc_envelope                                                                                          
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
- \x010300000001000000050000007b14ae47e17a943fb81e85eb51b89e3f7b14ae47e17a943fb81e85eb51b89e3f7b14ae47e17a943fb81e85eb51b89e3f7b14ae47e17a943fb81e85eb51b89e3f7b14ae47e17a943fb81e85eb51b89e3f
+ \x01010000007b14ae47e17a943fb81e85eb51b89e3f
  \x01030000000100000005000000b81e85eb51b8ae3fec51b81e85ebb13fb81e85eb51b8ae3f9a9999999999b93f0ad7a3703d0ab73f9a9999999999b93f0ad7a3703d0ab73fec51b81e85ebb13fb81e85eb51b8ae3fec51b81e85ebb13f
  \x01030000000100000005000000b81e85eb51b8ae3fec51b81e85ebb13fb81e85eb51b8ae3f9a9999999999b93f0ad7a3703d0ab73f9a9999999999b93f0ad7a3703d0ab73fec51b81e85ebb13fb81e85eb51b8ae3fec51b81e85ebb13f
  \x01030000000100000005000000b81e85eb51b8ae3fec51b81e85ebb13fb81e85eb51b8ae3f9a9999999999b93f0ad7a3703d0ab73f9a9999999999b93f0ad7a3703d0ab73fec51b81e85ebb13fb81e85eb51b8ae3fec51b81e85ebb13f
