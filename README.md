@@ -237,6 +237,14 @@ Now that you have created two tables, you'll see entries for them in the `pointc
 >
 >     {-127,45,124,4}
 
+**PC_MemSize(pt pcpoint)** returns **int4**
+
+> Return the memory size of a `pcpoint`.
+>
+>     SELECT PC_MemSize(PC_MakePoint(1, ARRAY[-127, 45, 124.0, 4.0]));
+>
+>     25
+
 ### PcPatch Functions
 
 **PC_Patch(pts pcpoint[])** returns **pcpatch**
@@ -474,6 +482,14 @@ Now that you have created two tables, you'll see entries for them in the `pointc
 > For dimensions that are in the "new" schema but not in the "old" schema the value `def` is set in the points of the output patch. `def` is optional, its default value is `0.0`.
 >
 > Contrary to `PC_SetPCId`, `PC_Transform` may change (transform) the patch data if dimension interpretations, scales or offsets are different in the new schema.
+
+**PC_MemSize(p pcpatch)** returns **int4**
+
+> Return the memory size of a `pcpatch`.
+>
+>     SELECT PC_MemSize(PC_Patch(PC_MakePoint(1, ARRAY[-127, 45, 124.0, 4.0])));
+>
+>     161
 
 ### OGC "well-known binary" Functions
 
@@ -852,4 +868,3 @@ The PDAL [readers.pgpointcloud](http://www.pdal.io/stages/readers.pgpointcloud.h
 - **column**: The column name in the patch table to read from. [Optional: "pa"]
 - **where**: SQL where clause to constrain the query [Optional]
 - **spatialreference**: Overrides the database declared SRID [Optional]
-
