@@ -171,7 +171,7 @@ Datum pcschema_is_valid(PG_FUNCTION_ARGS)
 
 	if ( !schema )
 	{
-		PG_RETURN_BOOL(FALSE);
+		PG_RETURN_BOOL(false);
 	}
 
 	valid = pc_schema_is_valid(schema);
