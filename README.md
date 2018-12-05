@@ -752,7 +752,7 @@ The examples above show how to form patches from array of doubles, and well-know
 
 ### From WKB ###
 
-If you are writing your own loading system and want to write into Pointcloud types, create well-known binary inputs, in uncompressed format. If you schema indicates that your patch storage is compressed, Pointcloud will automatically compress your patch before storing it, so you can create patches in uncompressed WKB without worrying about the nuances of particular internal compression schemes.
+If you are writing your own loading system and want to write into Pointcloud types, create well-known binary inputs, in uncompressed format. If your schema indicates that your patch storage is compressed, Pointcloud will automatically compress your patch before storing it, so you can create patches in uncompressed WKB without worrying about the nuances of particular internal compression schemes.
 
 The only issues to watch when creating WKB patches are: ensuring the data you write is sized according to the schema (use the specified dimension type); ensuring that the endianness of the data matches the declared endianness of the patch.
 
