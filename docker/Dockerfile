@@ -23,7 +23,7 @@ RUN apt-get update \
     && git clone https://github.com/pgpointcloud/pointcloud \
     && cd pointcloud \
     && ./autogen.sh \
-    && ./configure CFLAGS="-Wall -Werror -O2 -g" \
+    && ./configure --with-pgconfig=/usr/lib/postgresql/${POSTGRES_VERSION}/bin/pg_config CFLAGS="-Wall -Werror -O2 -g" \
     && make \
     && make install \
     && apt-get purge -y --auto-remove \
