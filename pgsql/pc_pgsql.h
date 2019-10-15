@@ -78,7 +78,11 @@ SERIALIZED_PATCH;
 uint32 pcid_from_typmod(const int32 typmod);
 
 /** Look-up the PCID in the POINTCLOUD_FORMATS table, and construct a PC_SCHEMA from the XML therein */
+#if PGSQL_VERSION < 120
 PCSCHEMA* pc_schema_from_pcid(uint32_t pcid, FunctionCallInfoData *fcinfo);
+#else
+PCSCHEMA* pc_schema_from_pcid(uint32_t pcid, FunctionCallInfo fcinfo);
+#endif
 
 /** Look-up the PCID in the POINTCLOUD_FORMATS table, and construct a PC_SCHEMA from the XML therein */
 PCSCHEMA* pc_schema_from_pcid_uncached(uint32 pcid);
@@ -90,8 +94,11 @@ SERIALIZED_POINT* pc_point_serialize(const PCPOINT *pcpt);
 PCPOINT* pc_point_deserialize(const SERIALIZED_POINT *serpt, const PCSCHEMA *schema);
 
 /** Create a new readwrite PCPOINT from a hex string */
+#if PGSQL_VERSION < 120
 PCPOINT* pc_point_from_hexwkb(const char *hexwkb, size_t hexlen, FunctionCallInfoData *fcinfo);
-
+#else
+PCPOINT* pc_point_from_hexwkb(const char *hexwkb, size_t hexlen, FunctionCallInfo fcinfo);
+#endif
 /** Create a hex representation of a PCPOINT */
 char* pc_point_to_hexwkb(const PCPOINT *pt);
 
@@ -108,7 +115,11 @@ SERIALIZED_PATCH* pc_patch_serialize_to_uncompressed(const PCPATCH *patch);
 PCPATCH* pc_patch_deserialize(const SERIALIZED_PATCH *serpatch, const PCSCHEMA *schema);
 
 /** Create a new readwrite PCPATCH from a hex string */
+#if PGSQL_VERSION < 120
 PCPATCH* pc_patch_from_hexwkb(const char *hexwkb, size_t hexlen, FunctionCallInfoData *fcinfo);
+#else
+PCPATCH* pc_patch_from_hexwkb(const char *hexwkb, size_t hexlen, FunctionCallInfo fcinfo);
+#endif
 
 /** Create a hex representation of a PCPOINT */
 char* pc_patch_to_hexwkb(const PCPATCH *patch);
