@@ -143,7 +143,11 @@ uint32 pcid_from_typmod(const int32 typmod)
 */
 
 PCPOINT *
+#if PGSQL_VERSION < 120
 pc_point_from_hexwkb(const char *hexwkb, size_t hexlen, FunctionCallInfoData *fcinfo)
+#else
+pc_point_from_hexwkb(const char *hexwkb, size_t hexlen, FunctionCallInfo fcinfo)
+#endif
 {
 	PCPOINT *pt;
 	PCSCHEMA *schema;
@@ -176,7 +180,11 @@ pc_point_to_hexwkb(const PCPOINT *pt)
 */
 
 PCPATCH *
+#if PGSQL_VERSION < 120
 pc_patch_from_hexwkb(const char *hexwkb, size_t hexlen, FunctionCallInfoData *fcinfo)
+#else
+pc_patch_from_hexwkb(const char *hexwkb, size_t hexlen, FunctionCallInfo fcinfo)
+#endif
 {
 	PCPATCH *patch;
 	PCSCHEMA *schema;
@@ -321,7 +329,11 @@ typedef struct
 * return it.
 */
 static SchemaCache *
+#if PGSQL_VERSION < 120
 GetSchemaCache(FunctionCallInfoData* fcinfo)
+#else
+GetSchemaCache(FunctionCallInfo fcinfo)
+#endif
 {
 	SchemaCache *cache = fcinfo->flinfo->fn_extra;
 	if ( ! cache )
@@ -335,7 +347,11 @@ GetSchemaCache(FunctionCallInfoData* fcinfo)
 
 
 PCSCHEMA *
+#if PGSQL_VERSION < 120
 pc_schema_from_pcid(uint32 pcid, FunctionCallInfoData *fcinfo)
+#else
+pc_schema_from_pcid(uint32 pcid, FunctionCallInfo fcinfo)
+#endif
 {
 	SchemaCache *schema_cache = GetSchemaCache(fcinfo);
 	int i;

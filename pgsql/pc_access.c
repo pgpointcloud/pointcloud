@@ -138,7 +138,11 @@ array_get_isnull(const bits8 *nullbitmap, int offset)
 }
 
 static PCPATCH *
+#if PGSQL_VERSION < 120
 pcpatch_from_point_array(ArrayType *array, FunctionCallInfoData *fcinfo)
+#else
+pcpatch_from_point_array(ArrayType *array, FunctionCallInfo fcinfo)
+#endif
 {
 	int nelems;
 	bits8 *bitmap;
@@ -209,7 +213,11 @@ pcpatch_from_point_array(ArrayType *array, FunctionCallInfoData *fcinfo)
 
 
 static PCPATCH *
+#if PGSQL_VERSION < 120
 pcpatch_from_patch_array(ArrayType *array, FunctionCallInfoData *fcinfo)
+#else
+pcpatch_from_patch_array(ArrayType *array, FunctionCallInfo fcinfo)
+#endif
 {
 	int nelems;
 	bits8 *bitmap;
