@@ -322,11 +322,11 @@ SELECT PC_Get(PC_PatchAvg(pa)) FROM pa_test_dim order by 1 limit 1;
 SELECT PC_Summary(pa) summary FROM pa_test_dim order by 1 limit 1;
 
 -- test binary
-COPY pa_test TO '/tmp/file' WITH BINARY;
+COPY pa_test TO '/tmp/__pgpointcloud_pa_test_file__' WITH BINARY;
 CREATE TABLE IF NOT EXISTS pa_test_in (
     pa PCPATCH(1)
 );
-COPY pa_test_in FROM '/tmp/file' WITH BINARY;
+COPY pa_test_in FROM '/tmp/__pgpointcloud_pa_test_file__' WITH BINARY;
 SELECT 'patch', count(*) FROM pa_test i, pa_test_in o WHERE PC_AsText(i.pa) = PC_AsText(o.pa);
 
 --DROP TABLE pts_collection;
