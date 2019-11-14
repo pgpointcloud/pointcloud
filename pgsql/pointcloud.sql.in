@@ -261,10 +261,7 @@ CREATE TYPE pcpatch (
 );
 
 -- Availability: 1.2.0next
-UPDATE pg_type SET typsend = 'pcpatch_send' WHERE typname='pcpatch';
-
--- Availability: 1.2.0next
-UPDATE pg_type SET typrecv = 'pcpatch_recv' WHERE typname='pcpatch';
+UPDATE pg_type SET typsend = 'pcpatch_send', typreceive = 'pcpatch_recv' WHERE typname='pcpatch' AND (typsend::text != 'pcpatch_send' OR typreceive::text != 'pcpatch_recv');
 
 CREATE OR REPLACE FUNCTION PC_AsText(p pcpatch)
 	RETURNS text AS 'MODULE_PATHNAME', 'pcpatch_as_text'
