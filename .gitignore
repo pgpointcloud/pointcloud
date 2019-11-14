@@ -15,3 +15,5 @@ Makefile
 */*/Makefile
 pgsql/pointcloud.control
 pgsql/pointcloud--*
+pgsql_postgis/pointcloud_postgis.control
+pgsql_postgis/pointcloud_postgis--*

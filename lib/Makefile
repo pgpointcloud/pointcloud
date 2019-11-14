@@ -1,8 +1,8 @@
 
 include ../config.mk
 
-CPPFLAGS = $(XML2_CPPFLAGS) $(ZLIB_CPPFLAGS) $(GHT_CPPFLAGS) $(LAZPERF_CPPFLAGS)
-LDFLAGS = $(XML2_LDFLAGS) $(ZLIB_LDFLAGS) $(GHT_LDFLASGS)
+CPPFLAGS = $(XML2_CPPFLAGS) $(ZLIB_CPPFLAGS) $(LAZPERF_CPPFLAGS)
+LDFLAGS = $(XML2_LDFLAGS) $(ZLIB_LDFLAGS)
 CFLAGS += -fPIC
 
 OBJS = \
@@ -13,7 +13,6 @@ OBJS = \
 	pc_patch.o \
 	pc_patch_dimensional.o \
 	pc_patch_uncompressed.o \
-	pc_patch_ght.o \
 	pc_point.o \
 	pc_pointlist.o \
 	pc_schema.o \

@@ -1,8 +1,8 @@
 
 include ../../config.mk
 
-CPPFLAGS = $(XML2_CPPFLAGS) $(CUNIT_CPPFLAGS) $(ZLIB_CPPFLAGS) $(GHT_CPPFLAGS) -I..
-LDFLAGS = $(XML2_LDFLAGS) $(CUNIT_LDFLAGS) $(ZLIB_LDFLAGS) $(GHT_LDFLAGS)
+CPPFLAGS = $(XML2_CPPFLAGS) $(CUNIT_CPPFLAGS) $(ZLIB_CPPFLAGS) -I..
+LDFLAGS = $(XML2_LDFLAGS) $(CUNIT_LDFLAGS) $(ZLIB_LDFLAGS)
 
 EXE = cu_tester
 
@@ -13,9 +13,9 @@ OBJS =	\
 	cu_pc_schema.o \
 	cu_pc_point.o \
 	cu_pc_patch.o \
-	cu_pc_patch_ght.o \
 	cu_pc_patch_lazperf.o \
-	cu_pc_sort.o
+	cu_pc_sort.o \
+	cu_pc_util.o
 
 ifeq ($(CUNIT_LDFLAGS),)
 # No cunit? Emit message and continue

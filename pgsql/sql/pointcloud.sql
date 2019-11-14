@@ -42,12 +42,6 @@ VALUES (1, 0, -- XYZI, scaled, uncompressed
   </pc:dimension>
   <pc:metadata>
     <Metadata name="compression">none</Metadata>
-    <Metadata name="ght_xmin"></Metadata>
-    <Metadata name="ght_ymin"></Metadata>
-    <Metadata name="ght_xmax"></Metadata>
-    <Metadata name="ght_ymax"></Metadata>
-    <Metadata name="ght_keylength"></Metadata>
-    <Metadata name="ght_depth"></Metadata>
     <Metadata name="spatialreference" type="id">4326</Metadata>
   </pc:metadata>
 </pc:PointCloudSchema>'
@@ -89,6 +83,55 @@ VALUES (1, 0, -- XYZI, scaled, uncompressed
   </pc:dimension>
   <pc:metadata>
     <Metadata name="compression">dimensional</Metadata>
+    <Metadata name="spatialreference" type="id">4326</Metadata>
+  </pc:metadata>
+</pc:PointCloudSchema>'
+)
+,(4, 0, -- (I1,X,Y,Z,I2), scaled, uncompressed
+'<?xml version="1.0" encoding="UTF-8"?>
+<pc:PointCloudSchema xmlns:pc="http://pointcloud.org/schemas/PC/1.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <pc:dimension>
+    <pc:position>1</pc:position>
+    <pc:size>2</pc:size>
+    <pc:description>The intensity value is the integer representation of the pulse return magnitude. This value is optional and system specific. However, it should always be included if available.</pc:description>
+    <pc:name>I1</pc:name>
+    <pc:interpretation>uint16_t</pc:interpretation>
+    <pc:scale>1</pc:scale>
+  </pc:dimension>
+  <pc:dimension>
+    <pc:position>2</pc:position>
+    <pc:size>4</pc:size>
+    <pc:description>X coordinate as a long integer. You must use the scale and offset information of the header to determine the double value.</pc:description>
+    <pc:name>X</pc:name>
+    <pc:interpretation>int32_t</pc:interpretation>
+    <pc:scale>0.01</pc:scale>
+  </pc:dimension>
+  <pc:dimension>
+    <pc:position>3</pc:position>
+    <pc:size>4</pc:size>
+    <pc:description>Y coordinate as a long integer. You must use the scale and offset information of the header to determine the double value.</pc:description>
+    <pc:name>Y</pc:name>
+    <pc:interpretation>int32_t</pc:interpretation>
+    <pc:scale>0.01</pc:scale>
+  </pc:dimension>
+  <pc:dimension>
+    <pc:position>4</pc:position>
+    <pc:size>4</pc:size>
+    <pc:description>Z coordinate as a long integer. You must use the scale and offset information of the header to determine the double value.</pc:description>
+    <pc:name>Z</pc:name>
+    <pc:interpretation>int32_t</pc:interpretation>
+    <pc:scale>0.01</pc:scale>
+  </pc:dimension>
+  <pc:dimension>
+    <pc:position>5</pc:position>
+    <pc:size>2</pc:size>
+    <pc:description>The intensity value is the integer representation of the pulse return magnitude. This value is optional and system specific. However, it should always be included if available.</pc:description>
+    <pc:name>I2</pc:name>
+    <pc:interpretation>uint16_t</pc:interpretation>
+    <pc:scale>1</pc:scale>
+  </pc:dimension>
+  <pc:metadata>
+    <Metadata name="compression">none</Metadata>
     <Metadata name="spatialreference" type="id">4326</Metadata>
   </pc:metadata>
 </pc:PointCloudSchema>'
@@ -228,9 +271,12 @@ INSERT INTO pa_test (pa) VALUES ('0000000001000000000000000200000006000000070000
 SELECT PC_Uncompress(pa) FROM pa_test LIMIT 1;
 
 SELECT PC_AsText(pa) FROM pa_test;
+SELECT PC_EnvelopeAsBinary(pa) from pa_test;
 SELECT PC_Envelope(pa) from pa_test;
 SELECT PC_AsText(PC_Union(pa)) FROM pa_test;
 SELECT sum(PC_NumPoints(pa)) FROM pa_test;
+
+SELECT PC_AsText(PC_Range(pa, 1, 1)) FROM pa_test;
 
 CREATE TABLE IF NOT EXISTS pa_test_dim (
     pa PCPATCH(3)
@@ -318,9 +364,7 @@ FROM p1, ( values
   ('dimensional','rle'),
   ('dimensional','zlib'),
   ('dimensional','sigbits'),
-  ('dimensional','auto'),
-  ('laz','null')
-  -- ,('ght',null) -- fails due to https://github.com/pgpointcloud/pointcloud/issues/35
+  ('dimensional','auto')
 ) dimcompr(compr,sc)
 ORDER BY compr,sc,v;
 
@@ -349,5 +393,53 @@ FROM ( SELECT
     PC_Patch( PC_MakePoint(3,ARRAY[-1,0,4862413,1]) ),
     'y',0) p
 ) foo;
+
+-- test for PC_BoundingDiagonalAsBinary
+SELECT PC_BoundingDiagonalAsBinary(
+	PC_Patch(ARRAY[
+		PC_MakePoint(1, ARRAY[0.,0.,0.,10.]),
+		PC_MakePoint(1, ARRAY[1.,1.,1.,10.]),
+		PC_MakePoint(1, ARRAY[10.,10.,10.,10.])]));
+
+-- test PC_SetPCId
+-- from pcid 1 to 1 (same dimensions, same positions, same compressions)
+-- pcid 1: (X,Y,Z,I), scaled, uncompressed
+SELECT
+  PC_AsText(PC_SetPCId(p, 1)) t, PC_Summary(PC_SetPCId(p, 1))::json->'compr' c
+FROM ( SELECT PC_Patch(PC_MakePoint(1, ARRAY[-1,0,4862413,1])) p ) foo;
+
+-- test PC_SetPCId
+-- from pcid 1 to 3 (same dimensions, same positions, different compressions)
+-- pcid 1: (X,Y,Z,I), scaled, uncompressed
+-- pcid 3: (X,Y,Z,I), scaled, dimensionally compressed
+SELECT
+  PC_AsText(PC_SetPCId(p, 3)) t, PC_Summary(PC_SetPCId(p, 3))::json->'compr' c
+FROM ( SELECT PC_Patch(PC_MakePoint(1, ARRAY[-1,0,4862413,1])) p ) foo;
+
+-- test PC_SetPCId
+-- from pcid 1 to 4 (different dimensions, different positions, same compressions)
+-- pcid 1: (X,Y,Z,I), scaled, uncompressed
+-- pcid 2: (I1,X,Y,Z,I2), scaled, uncompressed
+SELECT
+  PC_AsText(PC_SetPCId(p, 4, 2.0)) t, PC_Summary(PC_SetPCId(p, 4, 2.0))::json->'compr' c
+FROM ( SELECT PC_Patch(PC_MakePoint(1, ARRAY[-1,0,4862413,1])) p ) foo;
+
+-- test PC_SetPCId
+-- from pcid 1 to 10 (incompatible dimensions because of different interpretations)
+-- pcid 1: (X,Y,Z,I), scaled, uncompressed
+-- pcid 10: (X,Y,Z), unscaled, dimensionally compressed
+SELECT
+  PC_AsText(PC_SetPCId(p, 10)) t, PC_Summary(PC_SetPCId(p, 10))::json->'compr' c
+FROM ( SELECT PC_Patch(PC_MakePoint(1, ARRAY[-1,0,4862413,1])) p ) foo;
+
+-- test PC_Transform
+SELECT
+  PC_AsText(PC_Transform(p, 10, 1.0)) t, PC_Summary(PC_Transform(p, 10, 1.0))::json->'compr' c
+FROM ( SELECT PC_Patch(PC_MakePoint(1, ARRAY[-1,0,4862413,1])) p ) foo;
+
+
+-- test PC_Patch from float8 array
+SELECT pc_astext(PC_MakePatch(1, ARRAY[-1,0,5,1, -1,0,6,1, -1,0,7,1]));
+
 
 TRUNCATE pointcloud_formats;

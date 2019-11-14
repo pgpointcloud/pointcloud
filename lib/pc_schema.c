@@ -96,8 +96,6 @@ pc_compression_name(int num)
 	{
 	case PC_NONE:
 		return "none";
-	case PC_GHT:
-		return "ght";
 	case PC_DIMENSIONAL:
 		return "dimensional";
 	case PC_LAZPERF:
@@ -113,26 +111,20 @@ pc_compression_number(const char *str)
 	if ( ! str )
 		return PC_NONE;
 
-	if (	(str[0] == 'd' || str[0] == 'D') &&
-		(strcasecmp(str, "dimensional") == 0) )
+	if ( (str[0] == 'd' || str[0] == 'D') &&
+		 (strcasecmp(str, "dimensional") == 0) )
 	{
 		return PC_DIMENSIONAL;
 	}
 
-	if (	(str[0] == 'l' || str[0] == 'L') &&
-		(strcasecmp(str, "laz") == 0) )
+	if ( (str[0] == 'l' || str[0] == 'L') &&
+		 (strcasecmp(str, "laz") == 0) )
 	{
 		return PC_LAZPERF;
 	}
 
-	if (	(str[0] == 'g' || str[0] == 'G') &&
-		(strcasecmp(str, "ght") == 0) )
-	{
-		return PC_GHT;
-	}
-
-	if (	(str[0] == 'n' || str[0] == 'N') &&
-		(strcasecmp(str, "none") == 0) )
+	if ( (str[0] == 'n' || str[0] == 'N') &&
+		 (strcasecmp(str, "none") == 0) )
 	{
 		return PC_NONE;
 	}
@@ -196,10 +188,7 @@ pc_schema_new(uint32_t ndims)
 	pcs->dims = pcalloc(sizeof(PCDIMENSION*) * ndims);
 	pcs->namehash = create_string_hashtable();
 	pcs->ndims = ndims;
-	pcs->x_position = -1;
-	pcs->y_position = -1;
-	pcs->z_position = -1;
-	pcs->m_position = -1;
+	/* pcalloc memsets to 0, so xdim,ydim,zdim and mdim are already NULL */
 	return pcs;
 }
 
@@ -237,10 +226,6 @@ pc_schema_clone(const PCSCHEMA *s)
 	PCSCHEMA *pcs = pc_schema_new(s->ndims);
 	pcs->pcid = s->pcid;
 	pcs->srid = s->srid;
-	pcs->x_position = s->x_position;
-	pcs->y_position = s->y_position;
-	pcs->z_position = s->z_position;
-	pcs->m_position = s->m_position;
 	pcs->compression = s->compression;
 	for ( i = 0; i < pcs->ndims; i++ )
 	{
@@ -249,6 +234,10 @@ pc_schema_clone(const PCSCHEMA *s)
 			pc_schema_set_dimension(pcs, pc_dimension_clone(s->dims[i]));
 		}
 	}
+	pcs->xdim = s->xdim ? pcs->dims[s->xdim->position] : NULL;
+	pcs->ydim = s->ydim ? pcs->dims[s->ydim->position] : NULL;
+	pcs->zdim = s->zdim ? pcs->dims[s->zdim->position] : NULL;
+	pcs->mdim = s->mdim ? pcs->dims[s->mdim->position] : NULL;
 	pc_schema_calculate_byteoffsets(pcs);
 	return pcs;
 }
@@ -337,47 +326,35 @@ void pc_schema_check_xyzm(PCSCHEMA *s)
 	{
 		char *dimname = s->dims[i]->name;
 		if ( ! dimname ) continue;
-		if (	strcasecmp(dimname, "X") == 0 ||
-			strcasecmp(dimname, "Longitude") == 0 ||
-			strcasecmp(dimname, "Lon") == 0 )
+		if ( strcasecmp(dimname, "X") == 0 ||
+			 strcasecmp(dimname, "Longitude") == 0 ||
+			 strcasecmp(dimname, "Lon") == 0 )
 		{
-			s->x_position = i;
+			s->xdim = s->dims[i];
 			continue;
 		}
-		if (	strcasecmp(dimname, "Y") == 0 ||
-			strcasecmp(dimname, "Latitude") == 0 ||
-			strcasecmp(dimname, "Lat") == 0 )
+		if ( strcasecmp(dimname, "Y") == 0 ||
+			 strcasecmp(dimname, "Latitude") == 0 ||
+			 strcasecmp(dimname, "Lat") == 0 )
 		{
-			s->y_position = i;
+			s->ydim = s->dims[i];
 			continue;
 		}
-		if (	strcasecmp(dimname, "Z") == 0 ||
-			strcasecmp(dimname, "H") == 0 ||
-			strcasecmp(dimname, "Height") == 0 )
+		if ( strcasecmp(dimname, "Z") == 0 ||
+			 strcasecmp(dimname, "H") == 0 ||
+			 strcasecmp(dimname, "Height") == 0 )
 		{
-			s->z_position = i;
+			s->zdim = s->dims[i];
 			continue;
 		}
-		if (	strcasecmp(dimname, "M") == 0 ||
-			strcasecmp(dimname, "T") == 0 ||
-			strcasecmp(dimname, "Time") == 0 ||
-			strcasecmp(dimname, "GPSTime") == 0 )
+		if ( strcasecmp(dimname, "M") == 0 ||
+			 strcasecmp(dimname, "T") == 0 ||
+			 strcasecmp(dimname, "Time") == 0 ||
+			 strcasecmp(dimname, "GPSTime") == 0 )
 		{
-			s->m_position = i;
+			s->mdim = s->dims[i];
 			continue;
 		}
-	}
-
-	if ( s->x_position < 0 )
-	{
-		pcerror("pc_schema_check_xyzm: invalid x_position '%d'", s->x_position);
-		return;
-	}
-
-	if ( s->y_position < 0 )
-	{
-		pcerror("pc_schema_check_xyzm: invalid y_position '%d'", s->y_position);
-		return;
 	}
 }
 
@@ -400,14 +377,14 @@ xml_node_get_content(xmlNodePtr node)
 }
 
 /** Population a PCSCHEMA struct from the XML representation */
-int
-pc_schema_from_xml(const char *xml_str, PCSCHEMA **schema)
+PCSCHEMA *
+pc_schema_from_xml(const char *xml_str)
 {
 	xmlDocPtr xml_doc = NULL;
 	xmlNodePtr xml_root = NULL;
 	xmlNsPtr xml_ns = NULL;
-	xmlXPathContextPtr xpath_ctx;
-	xmlXPathObjectPtr xpath_obj;
+	xmlXPathContextPtr xpath_ctx = NULL;
+	xmlXPathObjectPtr xpath_obj = NULL;
 	xmlNodeSetPtr nodes;
 	PCSCHEMA *s = NULL;
 	const char *xml_ptr = xml_str;
@@ -424,14 +401,12 @@ pc_schema_from_xml(const char *xml_str, PCSCHEMA **schema)
 
 
 	/* Parse XML doc */
-	*schema = NULL;
 	xmlInitParser();
 	xml_doc = xmlReadMemory(xml_ptr, xml_size, NULL, NULL, 0);
 	if ( ! xml_doc )
 	{
-		xmlCleanupParser();
 		pcwarn("unable to parse schema XML");
-		return PC_FAILURE;
+		goto cleanup;
 	}
 
 	/* Capture the namespace */
@@ -441,12 +416,10 @@ pc_schema_from_xml(const char *xml_str, PCSCHEMA **schema)
 
 	/* Create xpath evaluation context */
 	xpath_ctx = xmlXPathNewContext(xml_doc);
-	if( ! xpath_ctx )
+	if ( ! xpath_ctx )
 	{
-		xmlFreeDoc(xml_doc);
-		xmlCleanupParser();
 		pcwarn("unable to create new XPath context to read schema XML");
-		return PC_FAILURE;
+		goto cleanup;
 	}
 
 	/* Register the root namespace if there is one */
@@ -455,13 +428,10 @@ pc_schema_from_xml(const char *xml_str, PCSCHEMA **schema)
 
 	/* Evaluate xpath expression */
 	xpath_obj = xmlXPathEvalExpression(xpath_str, xpath_ctx);
-	if( ! xpath_obj )
+	if ( ! xpath_obj )
 	{
-		xmlXPathFreeContext(xpath_ctx);
-		xmlFreeDoc(xml_doc);
-		xmlCleanupParser();
 		pcwarn("unable to evaluate xpath expression \"%s\" against schema XML", xpath_str);
-		return PC_FAILURE;
+		goto cleanup;
 	}
 
 	/* Iterate on the dimensions we found */
@@ -470,12 +440,11 @@ pc_schema_from_xml(const char *xml_str, PCSCHEMA **schema)
 		int ndims = nodes->nodeNr;
 		int i;
 		s = pc_schema_new(ndims);
-		*schema = s;
 
 		for ( i = 0; i < ndims; i++ )
 		{
 			/* This is a "dimension" */
-			if( nodes->nodeTab[i]->type == XML_ELEMENT_NODE )
+			if ( nodes->nodeTab[i]->type == XML_ELEMENT_NODE )
 			{
 				xmlNodePtr cur = nodes->nodeTab[i];
 				xmlNodePtr child;
@@ -484,7 +453,7 @@ pc_schema_from_xml(const char *xml_str, PCSCHEMA **schema)
 				/* These are the values of the dimension */
 				for ( child = cur->children; child; child = child->next )
 				{
-					if( child->type == XML_ELEMENT_NODE && child->children != NULL)
+					if ( child->type == XML_ELEMENT_NODE && child->children != NULL)
 					{
 						char *content = (char*)(child->children->content);
 						char *name = (char*)(child->name);
@@ -517,30 +486,20 @@ pc_schema_from_xml(const char *xml_str, PCSCHEMA **schema)
 				d->size = pc_interpretation_size(d->interpretation);
 
 				/* Store the dimension in the schema */
-				if ( d->position < ndims )
+				if ( d->position >= ndims )
 				{
-					if ( s->dims[d->position] )
-					{
-						xmlXPathFreeObject(xpath_obj);
-						xmlXPathFreeContext(xpath_ctx);
-						xmlFreeDoc(xml_doc);
-						xmlCleanupParser();
-						pc_schema_free(s);
-						pcwarn("schema dimension at position \"%d\" is declared twice", d->position + 1, ndims);
-						return PC_FAILURE;
-					}
-					pc_schema_set_dimension(s, d);
-				}
-				else
-				{
-					xmlXPathFreeObject(xpath_obj);
-					xmlXPathFreeContext(xpath_ctx);
-					xmlFreeDoc(xml_doc);
-					xmlCleanupParser();
-					pc_schema_free(s);
 					pcwarn("schema dimension states position \"%d\", but number of XML dimensions is \"%d\"", d->position + 1, ndims);
-					return PC_FAILURE;
+					pc_dimension_free(d);
+					goto cleanup;
+
 				}
+				else if ( s->dims[d->position] )
+				{
+					pcwarn("schema dimension at position \"%d\" is declared twice", d->position + 1, ndims);
+					pc_dimension_free(d);
+					goto cleanup;
+				}
+				pc_schema_set_dimension(s, d);
 			}
 		}
 
@@ -554,13 +513,10 @@ pc_schema_from_xml(const char *xml_str, PCSCHEMA **schema)
 
 	/* SEARCH FOR METADATA ENTRIES */
 	xpath_obj = xmlXPathEvalExpression(xpath_metadata_str, xpath_ctx);
-	if( ! xpath_obj )
+	if ( ! xpath_obj )
 	{
-		xmlXPathFreeContext(xpath_ctx);
-		xmlFreeDoc(xml_doc);
-		xmlCleanupParser();
 		pcwarn("unable to evaluate xpath expression \"%s\" against schema XML", xpath_metadata_str);
-		return PC_FAILURE;
+		goto cleanup;
 	}
 
 	/* Iterate on the <Metadata> we find */
@@ -575,7 +531,7 @@ pc_schema_from_xml(const char *xml_str, PCSCHEMA **schema)
 			/* Read the metadata name and value from the node */
 			/* <Metadata name="somename">somevalue</Metadata> */
 			xmlNodePtr cur = nodes->nodeTab[i];
-			if( cur->type == XML_ELEMENT_NODE && strcmp((char*)(cur->name), "Metadata") == 0 )
+			if ( cur->type == XML_ELEMENT_NODE && strcmp((char*)(cur->name), "Metadata") == 0 )
 			{
 				metadata_name = (char*)xmlGetProp(cur, (xmlChar*)"name");
 				metadata_value = xml_node_get_content(cur);
@@ -594,13 +550,22 @@ pc_schema_from_xml(const char *xml_str, PCSCHEMA **schema)
 		}
 	}
 
-	xmlXPathFreeObject(xpath_obj);
+cleanup:
+	if ( s && ! pc_schema_is_valid(s) )
+	{
+		pc_schema_free(s);
+		s = NULL;
+	}
 
-	xmlXPathFreeContext(xpath_ctx);
-	xmlFreeDoc(xml_doc);
+	if ( xpath_obj )
+		xmlXPathFreeObject(xpath_obj);
+	if ( xpath_ctx )
+		xmlXPathFreeContext(xpath_ctx);
+	if ( xml_doc )
+		xmlFreeDoc(xml_doc);
 	xmlCleanupParser();
 
-	return PC_SUCCESS;
+	return s;
 }
 
 uint32_t
@@ -608,13 +573,13 @@ pc_schema_is_valid(const PCSCHEMA *s)
 {
 	int i;
 
-	if ( s->x_position < 0 )
+	if ( ! s->xdim )
 	{
 		pcwarn("schema does not include an X coordinate");
 		return PC_FALSE;
 	}
 
-	if ( s->y_position < 0 )
+	if ( ! s->ydim )
 	{
 		pcwarn("schema does not include a Y coordinate");
 		return PC_FALSE;
@@ -661,4 +626,70 @@ size_t
 pc_schema_get_size(const PCSCHEMA *s)
 {
 	return s->size;
+}
+
+
+/**
+* Return true if the schemas have the same dimensions with the same
+* interpretations and at the same locations. The scales and offsets
+* may be different though. Otherwise return false.
+*/
+uint32_t
+pc_schema_same_dimensions(const PCSCHEMA *s1, const PCSCHEMA *s2)
+{
+	size_t i;
+
+	if ( s1->ndims != s2->ndims )
+		return PC_FALSE;
+
+	for ( i = 0; i < s1->ndims; i++ )
+	{
+		PCDIMENSION *s1dim = s1->dims[i];
+		PCDIMENSION *s2dim = s2->dims[i];
+
+		if ( strcasecmp(s1dim->name, s2dim->name) != 0 )
+			return PC_FALSE;
+
+		if ( s1dim->interpretation != s2dim->interpretation )
+			return PC_FALSE;
+	}
+
+	return PC_TRUE;
+}
+
+
+/**
+* Return false if s1 and s2 don't have the same srids, or if there are dimensions
+* in s2 that are also in s1 but don't have the same interpretations, scales or
+* offsets. Otherwise return true. The function is used to determine if
+* re-interpretating the patch data is required when changing from one schema
+* (s1) to another (s2).
+*/
+uint32_t
+pc_schema_same_interpretations(const PCSCHEMA *s1, const PCSCHEMA *s2)
+{
+	size_t i;
+
+	if ( s1->srid != s2->srid )
+		return PC_FALSE;
+
+	for ( i = 0; i < s2->ndims; i++ )
+	{
+		PCDIMENSION *s2dim = s2->dims[i];
+		PCDIMENSION *s1dim = pc_schema_get_dimension_by_name(s1, s2dim->name);
+
+		if ( s1dim )
+		{
+			if ( s1dim->interpretation != s2dim->interpretation )
+				return PC_FALSE;
+
+			if ( s1dim->scale != s2dim->scale )
+				return PC_FALSE;
+
+			if ( s1dim->offset != s2dim->offset )
+				return PC_FALSE;
+		}
+	}
+
+	return PC_TRUE;
 }

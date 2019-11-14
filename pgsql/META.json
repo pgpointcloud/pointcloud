@@ -23,11 +23,11 @@
     "generated_by": "Paul Ramsey",
 	"resources": {
 		"bugtracker": {
-			"web": "http://github.com/pramsey/pointcloud"
+			"web": "https://github.com/pgpointcloud/pointcloud"
 		},
 		"repository": {
 			"url": "",
-			"web": "http://github.com/pramsey/pointcloud",
+			"web": "https://github.com/pgpointcloud/pointcloud",
 			"type": "git"
 		}
 	},

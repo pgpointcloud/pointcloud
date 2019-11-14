@@ -225,19 +225,6 @@ pc_patch_dimensional_is_sorted(const PCPATCH_DIMENSIONAL *pdl, PCDIMENSION_LIST 
 
 
 uint32_t
-pc_patch_ght_is_sorted(const PCPATCH_GHT *pa, PCDIMENSION_LIST dim, char strict)
-{
-	PCPATCH_UNCOMPRESSED *pu = pc_patch_uncompressed_from_ght(pa);
-	if ( !pu ) {
-		pcerror("Patch uncompression failed");
-		return PC_FAILURE - 1; // aliasing issue : PC_FALSE == PC_FAILURE...
-	}
-	uint32_t is_sorted = pc_patch_uncompressed_is_sorted(pu,dim,strict);
-	pc_patch_free((PCPATCH*)pu);
-	return is_sorted;
-}
-
-uint32_t
 pc_patch_lazperf_is_sorted(const PCPATCH_LAZPERF *pa, PCDIMENSION_LIST dim, char strict)
 {
 	PCPATCH_UNCOMPRESSED *pu = pc_patch_uncompressed_from_lazperf(pa);
@@ -265,9 +252,6 @@ pc_patch_is_sorted(const PCPATCH *pa, const char **name, int ndims, char strict)
 		break;
 	case PC_DIMENSIONAL:
 		is_sorted = pc_patch_dimensional_is_sorted((PCPATCH_DIMENSIONAL*)pa,dim,strict);
-		break;
-	case PC_GHT:
-		is_sorted = pc_patch_ght_is_sorted((PCPATCH_GHT*)pa,dim,strict);
 		break;
 	case PC_LAZPERF:
 		is_sorted = pc_patch_lazperf_is_sorted((PCPATCH_LAZPERF*)pa,dim,strict);

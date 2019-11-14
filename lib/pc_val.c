@@ -218,5 +218,6 @@ pc_double_to_ptr(uint8_t *ptr, uint32_t interpretation, double val)
 		return PC_FAILURE;
 	}
 	}
+
 	return PC_SUCCESS;
 }

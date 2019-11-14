@@ -16,6 +16,8 @@ void
 pc_patch_lazperf_free(PCPATCH_LAZPERF *pal)
 {
 	assert(pal);
+	assert(pal->schema);
+	pc_patch_free_stats((PCPATCH*) pal);
 	pcfree(pal->lazperf);
 	pcfree(pal);
 }
@@ -95,6 +97,7 @@ pc_patch_uncompressed_from_lazperf(const PCPATCH_LAZPERF *palaz)
 
 	if (size != -1)
 	{
+		size_t datasize;
 		pcu = pcalloc(sizeof(PCPATCH_UNCOMPRESSED));
 		pcu->type = PC_NONE;
 		pcu->readonly = PC_FALSE;
@@ -105,10 +108,12 @@ pc_patch_uncompressed_from_lazperf(const PCPATCH_LAZPERF *palaz)
 
 		// not optimal but we have to pass by the context manager otherwise
 		// a segfault happenned (sometimes) during a pcfree of lazperf field
-		pcu->data = (uint8_t*) pcalloc(palaz->schema->size * palaz->npoints);
-		memcpy(pcu->data, decompressed, palaz->schema->size * palaz->npoints);
+		datasize = palaz->schema->size * palaz->npoints;
+		pcu->data = (uint8_t*) pcalloc(datasize);
+		memcpy(pcu->data, decompressed, datasize);
 		free(decompressed);
 
+		pcu->datasize = datasize;
 		pcu->maxpoints = palaz->npoints;
 	}
 	else
@@ -181,7 +186,7 @@ pc_patch_lazperf_from_wkb(const PCSCHEMA *schema, const uint8_t *wkb, size_t wkb
 	/*
 	byte:		 endianness (1 = NDR, 0 = XDR)
 	uint32:	 pcid (key to POINTCLOUD_SCHEMAS)
-	uint32:	 compression (0 = no compression, 1 = dimensional, 2 = GHT)
+	uint32:	 compression (0 = no compression, 1 = dimensional, 2 = lazperf)
 	uint32:	 npoints
 	uint32:	 lazperfsize
 	uint8[]:	lazerperfbuffer
@@ -206,6 +211,7 @@ pc_patch_lazperf_from_wkb(const PCSCHEMA *schema, const uint8_t *wkb, size_t wkb
 	patch->readonly = PC_FALSE;
 	patch->schema = schema;
 	patch->npoints = npoints;
+	patch->stats = NULL;
 
 	/* Start on the LAZPERF */
 	buf = wkb+hdrsz;
@@ -231,4 +237,20 @@ pc_patch_lazperf_compute_extent(PCPATCH_LAZPERF *patch)
 
 	PCPATCH_UNCOMPRESSED *pau = pc_patch_uncompressed_from_lazperf(patch);
 	return pc_patch_uncompressed_compute_extent(pau);
+}
+
+PCPOINT *
+pc_patch_lazperf_pointn(const PCPATCH_LAZPERF *patch, int n)
+{
+#ifndef HAVE_LAZPERF
+	pcerror("%s: lazperf support is not enabled", __func__);
+	return NULL;
+#endif
+
+	PCPOINT *pt = pc_point_make(patch->schema);
+	PCPATCH_UNCOMPRESSED *pau = pc_patch_uncompressed_from_lazperf(patch);
+	size_t size = patch->schema->size;
+	memcpy(pt->data, pau->data + n * size, size);
+	pc_patch_free((PCPATCH*) pau);
+	return pt;
 }

@@ -148,6 +148,7 @@ pc_patch_dimensional_decompress(const PCPATCH_DIMENSIONAL *pdl)
 	pdl_decompressed = pcalloc(sizeof(PCPATCH_DIMENSIONAL));
 	memcpy(pdl_decompressed, pdl, sizeof(PCPATCH_DIMENSIONAL));
 	pdl_decompressed->bytes = pcalloc(ndims*sizeof(PCBYTES));
+	pdl_decompressed->stats = pc_stats_clone(pdl->stats);
 
 	/* Compress each dimension as dictated by stats */
 	for ( i = 0; i < ndims; i++ )
@@ -164,6 +165,8 @@ pc_patch_dimensional_free(PCPATCH_DIMENSIONAL *pdl)
 	int i;
 	assert(pdl);
 	assert(pdl->schema);
+
+	pc_patch_free_stats((PCPATCH*) pdl);
 
 	if ( pdl->bytes )
 	{
@@ -185,22 +188,24 @@ pc_patch_dimensional_compute_extent(PCPATCH_DIMENSIONAL *pdl)
 
 	assert(pdl);
 	assert(pdl->schema);
+	assert(pdl->schema->xdim);
+	assert(pdl->schema->ydim);
 
 	/* Get x extremes */
-	pcb = &(pdl->bytes[pdl->schema->x_position]);
+	pcb = &(pdl->bytes[pdl->schema->xdim->position]);
 	rv = pc_bytes_minmax(pcb, &xmin, &xmax, &xavg);
 	if ( PC_FAILURE == rv ) return PC_FAILURE;
-	xmin = pc_value_scale_offset(xmin, pdl->schema->dims[pdl->schema->x_position]);
-	xmax = pc_value_scale_offset(xmax, pdl->schema->dims[pdl->schema->x_position]);
+	xmin = pc_value_scale_offset(xmin, pdl->schema->xdim);
+	xmax = pc_value_scale_offset(xmax, pdl->schema->xdim);
 	pdl->bounds.xmin = xmin;
 	pdl->bounds.xmax = xmax;
 
 	/* Get y extremes */
-	pcb = &(pdl->bytes[pdl->schema->y_position]);
+	pcb = &(pdl->bytes[pdl->schema->ydim->position]);
 	rv = pc_bytes_minmax(pcb, &ymin, &ymax, &yavg);
 	if ( PC_FAILURE == rv ) return PC_FAILURE;
-	ymin = pc_value_scale_offset(ymin, pdl->schema->dims[pdl->schema->y_position]);
-	ymax = pc_value_scale_offset(ymax, pdl->schema->dims[pdl->schema->y_position]);
+	ymin = pc_value_scale_offset(ymin, pdl->schema->ydim);
+	ymax = pc_value_scale_offset(ymax, pdl->schema->ydim);
 	pdl->bounds.ymin = ymin;
 	pdl->bounds.ymax = ymax;
 
@@ -213,7 +218,7 @@ pc_patch_dimensional_to_wkb(const PCPATCH_DIMENSIONAL *patch, size_t *wkbsize)
 	/*
 	byte:     endianness (1 = NDR, 0 = XDR)
 	uint32:   pcid (key to POINTCLOUD_SCHEMAS)
-	uint32:   compression (0 = no compression, 1 = dimensional, 2 = GHT)
+	uint32:   compression (0 = no compression, 1 = dimensional, 2 = lazperf)
 	uint32:   npoints
 	dimensions[]:  pcbytes (interpret relative to pcid and compressions)
 	*/
@@ -254,7 +259,7 @@ pc_patch_dimensional_from_wkb(const PCSCHEMA *schema, const uint8_t *wkb, size_t
 	/*
 	byte:     endianness (1 = NDR, 0 = XDR)
 	uint32:   pcid (key to POINTCLOUD_SCHEMAS)
-	uint32:   compression (0 = no compression, 1 = dimensional, 2 = GHT)
+	uint32:   compression (0 = no compression, 1 = dimensional, 2 = lazperf)
 	uint32:   npoints
 	dimensions[]:  dims (interpret relative to pcid and compressions)
 	*/
@@ -280,6 +285,7 @@ pc_patch_dimensional_from_wkb(const PCSCHEMA *schema, const uint8_t *wkb, size_t
 	patch->schema = schema;
 	patch->npoints = npoints;
 	patch->bytes = pcalloc(ndims*sizeof(PCBYTES));
+	patch->stats = NULL;
 
 	buf = wkb+hdrsz;
 	for ( i = 0; i < ndims; i++ )

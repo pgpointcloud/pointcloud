@@ -2,12 +2,10 @@
 
 #undef PGSQL_VERSION
 
-#undef HAVE_LIBGHT
-
 #undef HAVE_LAZPERF
 
 #undef HAVE_CUNIT
 
-#undef PROJECT_SOURCE_DIR 
+#undef PROJECT_SOURCE_DIR
 
 #undef POINTCLOUD_VERSION

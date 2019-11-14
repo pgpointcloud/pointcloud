@@ -21,10 +21,6 @@
 #include "pc_config.h"
 #include "hashtable.h"
 
-#ifdef HAVE_LIBGHT
-#include "ght.h"
-#endif
-
 #ifndef __GNUC__
 #define __attribute__ (x)
 #endif
@@ -39,9 +35,8 @@
 enum COMPRESSIONS
 {
 	PC_NONE = 0,
-	PC_GHT = 1,
-	PC_DIMENSIONAL = 2,
-	PC_LAZPERF = 3
+	PC_DIMENSIONAL = 1,
+	PC_LAZPERF = 2
 };
 
 /**
@@ -88,10 +83,10 @@ typedef struct
 	size_t size;          /* How wide (bytes) is a point with this schema? */
 	PCDIMENSION **dims;   /* Array of dimension pointers */
 	uint32_t srid;        /* Foreign key reference to SPATIAL_REF_SYS */
-	int32_t x_position;   /* What entry is the x coordinate at? */
-	int32_t y_position;   /* What entry is the y coordinate at? */
-	int32_t z_position;   /* What entry is the z coordinate at? */
-	int32_t m_position;   /* What entry is the m coordinate at? */
+	PCDIMENSION *xdim;    /* pointer to the x dimension within dims */
+	PCDIMENSION *ydim;    /* pointer to the y dimension within dims */
+	PCDIMENSION *zdim;    /* pointer to the z dimension within dims */
+	PCDIMENSION *mdim;    /* pointer to the m dimension within dims */
 	uint32_t compression; /* Compression type applied to the data */
 	hashtable *namehash;  /* Look-up from dimension name to pointer */
 } PCSCHEMA;
@@ -199,13 +194,6 @@ typedef struct
 typedef struct
 {
 	PCPATCH_COMMON
-	size_t ghtsize;
-	uint8_t *ght;
-} PCPATCH_GHT;
-
-typedef struct
-{
-	PCPATCH_COMMON
 	size_t lazperfsize;
 	uint8_t *lazperf;
 } PCPATCH_LAZPERF;
@@ -253,11 +241,11 @@ void pc_install_default_handlers(void);
 */
 
 /** Convert binary to hex */
-uint8_t* bytes_from_hexbytes(const char *hexbuf, size_t hexsize);
+uint8_t* pc_bytes_from_hexbytes(const char *hexbuf, size_t hexsize);
 /** Convert hex to binary */
-char* hexbytes_from_bytes(const uint8_t *bytebuf, size_t bytesize);
+char* pc_hexbytes_from_bytes(const uint8_t *bytebuf, size_t bytesize);
 /** Read the the PCID from WKB form of a POINT/PATCH */
-uint32_t wkb_get_pcid(const uint8_t *wkb);
+uint32_t pc_wkb_get_pcid(const uint8_t *wkb);
 /** Build an empty #PCDIMSTATS based on the schema */
 PCDIMSTATS* pc_dimstats_make(const PCSCHEMA *schema);
 /** Get compression name from enum */
@@ -272,7 +260,7 @@ const char* pc_compression_name(int num);
 /** Release the memory in a schema structure */
 void pc_schema_free(PCSCHEMA *pcs);
 /** Build a schema structure from the XML serialisation */
-int pc_schema_from_xml(const char *xmlstr, PCSCHEMA **schema);
+PCSCHEMA *pc_schema_from_xml(const char *xmlstr);
 /** Print out JSON readable format of schema */
 char* pc_schema_to_json(const PCSCHEMA *pcs);
 /** Extract dimension information by position */
@@ -289,6 +277,10 @@ void pc_schema_set_dimension(PCSCHEMA *s, PCDIMENSION *d);
 void pc_schema_check_xyzm(PCSCHEMA *s);
 /** Get the width in bytes of a single point in the schema */
 size_t pc_schema_get_size(const PCSCHEMA *s);
+/** Check whether the schemas have the same dimensions at the same positions */
+uint32_t pc_schema_same_dimensions(const PCSCHEMA *s1, const PCSCHEMA *s2);
+/** Check whether the schemas have compatible dimension interpretations */
+uint32_t pc_schema_same_interpretations(const PCSCHEMA *s1, const PCSCHEMA *s2);
 
 
 /**********************************************************************
@@ -318,8 +310,8 @@ PCPOINT* pc_point_make(const PCSCHEMA *s);
 /** Create a new readonly PCPOINT on top of a data buffer */
 PCPOINT* pc_point_from_data(const PCSCHEMA *s, const uint8_t *data);
 
-/** Create a new read/write PCPOINT from a double array */
-PCPOINT* pc_point_from_double_array(const PCSCHEMA *s, double *array, uint32_t nelems);
+/** Create a new read/write PCPOINT from a double array  with an offset */
+PCPOINT* pc_point_from_double_array(const PCSCHEMA *s, double *array, uint32_t offset, uint32_t stride);
 
 /**
 * Return an allocated double array of doubles representing point values
@@ -331,38 +323,47 @@ double* pc_point_to_double_array(const PCPOINT *pt);
 /** Frees the PTPOINT and data (if not readonly). Does not free referenced schema */
 void pc_point_free(PCPOINT *pt);
 
-/** Casts named dimension value to double and scale/offset appropriately before returning */
-int pc_point_get_double_by_name(const PCPOINT *pt, const char *name, double *d);
+/** Get dimension value by dimension name */
+int pc_point_get_double_by_name(const PCPOINT *pt, const char *name, double *val);
 
-/** Casts dimension value to double and scale/offset appropriately before returning */
-int pc_point_get_double_by_index(const PCPOINT *pt, uint32_t idx, double *d);
+/** Get dimension value by dimension index */
+int pc_point_get_double_by_index(const PCPOINT *pt, uint32_t idx, double *val);
 
-/** Reads a double right off the data area */
-int pc_point_get_double(const PCPOINT *pt, const PCDIMENSION *dim, double *d);
+/** Read a double right off the data area, applying scale/offset  */
+int pc_point_get_double(const PCPOINT *pt, const PCDIMENSION *dim, double *val);
+
+/** Set dimension value by dimension name */
+int pc_point_set_double_by_name(PCPOINT *pt, const char *name, double val);
+
+/** Set dimension value by dimension index */
+int pc_point_set_double_by_index(PCPOINT *pt, uint32_t idx, double val);
+
+/** Write a double to the data area after unapplying scale/offset */
+int pc_point_set_double(PCPOINT *pt, const PCDIMENSION *dim, double val);
 
 /** Returns X coordinate */
-double pc_point_get_x(const PCPOINT *pt);
+int pc_point_get_x(const PCPOINT *pt, double *val);
 
 /** Returns Y coordinate */
-double pc_point_get_y(const PCPOINT *pt);
+int pc_point_get_y(const PCPOINT *pt, double *val);
 
 /** Returns Z coordinate */
-double pc_point_get_z(const PCPOINT *pt);
+int pc_point_get_z(const PCPOINT *pt, double *val);
 
 /** Returns M coordinate */
-double pc_point_get_m(const PCPOINT *pt);
+int pc_point_get_m(const PCPOINT *pt, double *val);
 
 /** Set the X coordinate */
-double pc_point_set_x(PCPOINT *pt, double val);
+int pc_point_set_x(PCPOINT *pt, double val);
 
 /** Set the Y coordinate */
-double pc_point_set_y(PCPOINT *pt, double val);
+int pc_point_set_y(PCPOINT *pt, double val);
 
 /** Set the Z coordinate */
-double pc_point_set_z(PCPOINT *pt, double val);
+int pc_point_set_z(PCPOINT *pt, double val);
 
 /** Set the M coordinate */
-double pc_point_set_m(PCPOINT *pt, double val);
+int pc_point_set_m(PCPOINT *pt, double val);
 
 /** Create a new readwrite PCPOINT from a hex byte array */
 PCPOINT* pc_point_from_wkb(const PCSCHEMA *s, uint8_t *wkb, size_t wkbsize);
@@ -422,6 +423,9 @@ int pc_bytes_deserialize(const uint8_t *buf, const PCDIMENSION *dim, PCBYTES *pc
 /** Wrap serialized stats in a new stats objects */
 PCSTATS* pc_stats_new_from_data(const PCSCHEMA *schema, const uint8_t *mindata, const uint8_t *maxdata, const uint8_t *avgdata);
 
+/** Allocate a stats object */
+PCSTATS* pc_stats_new(const PCSCHEMA *schema);
+
 /** Free a stats object */
 void pc_stats_free(PCSTATS *stats);
 
@@ -436,6 +440,12 @@ int pc_patch_compute_extent(PCPATCH *patch);
 
 /** True/false if bounds intersect */
 int pc_bounds_intersects(const PCBOUNDS *b1, const PCBOUNDS *b2);
+
+/** Returns OGC WKB of the bounding diagonal of XY bounds */
+uint8_t* pc_bounding_diagonal_wkb_from_bounds(const PCBOUNDS *bounds, const PCSCHEMA *schema, size_t *wkbsize);
+
+/** Returns OGC WKB of the bounding diagonal of XY, XYZ, XYM or XYZM bounds */
+uint8_t* pc_bounding_diagonal_wkb_from_stats(const PCSTATS *stats, size_t *wkbsize);
 
 /** Subset batch based on less-than condition on dimension */
 PCPATCH* pc_patch_filter_lt_by_name(const PCPATCH *pa, const char *name, double val);
@@ -457,5 +467,14 @@ PCPATCH *pc_patch_sort(const PCPATCH *pa, const char **name, int ndims);
 
 /** True/false if the patch is sorted on dimension */
 uint32_t pc_patch_is_sorted(const PCPATCH *pa, const char **name, int ndims, char strict);
+
+/** Subset batch based on index */
+PCPATCH* pc_patch_range(const PCPATCH *pa, int first, int count);
+
+/** assign a schema to the patch */
+PCPATCH *pc_patch_set_schema(PCPATCH *patch, const PCSCHEMA *schema, double def);
+
+/** transform the patch based on the passed schema */
+PCPATCH *pc_patch_transform(const PCPATCH *patch, const PCSCHEMA *schema, double def);
 
 #endif /* _PC_API_H */

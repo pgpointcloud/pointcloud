@@ -106,6 +106,15 @@ int16_t wkb_get_int16(const uint8_t *wkb, int flip_endian);
 /** Read the number of points from a wkb */
 uint32_t wkb_get_npoints(const uint8_t *wkb);
 
+/** Write a double into a byte array */
+uint8_t *wkb_set_double(uint8_t *wkb, double d);
+
+/** Write a uint32 into a byte array */
+uint8_t *wkb_set_uint32(uint8_t *wkb, uint32_t i);
+
+/** Write a char into a byte array */
+uint8_t *wkb_set_char(uint8_t *wkb, char c);
+
 /** Force a byte array into the machine endianness */
 uint8_t* uncompressed_bytes_flip_endian(const uint8_t *bytebuf, const PCSCHEMA *schema, uint32_t npoints);
 
@@ -157,6 +166,7 @@ char* pc_dimstats_to_string(const PCDIMSTATS *pds);
 
 /** Returns newly allocated patch that only contains the points fitting the filter condition */
 PCPATCH* pc_patch_filter(const PCPATCH *pa, uint32_t dimnum, PC_FILTERTYPE filter, double val1, double val2);
+void pc_patch_free_stats(PCPATCH *pa);
 
 /* DIMENSIONAL PATCHES */
 char* pc_patch_dimensional_to_string(const PCPATCH_DIMENSIONAL *pa);
@@ -187,19 +197,6 @@ PCPATCH_UNCOMPRESSED* pc_patch_uncompressed_from_dimensional(const PCPATCH_DIMEN
 int pc_patch_uncompressed_add_point(PCPATCH_UNCOMPRESSED *c, const PCPOINT *p);
 PCPOINT *pc_patch_uncompressed_pointn(const PCPATCH_UNCOMPRESSED *patch, int n);
 
-/* GHT PATCHES */
-char* pc_patch_ght_to_string(const PCPATCH_GHT *patch);
-PCPATCH_GHT* pc_patch_ght_from_uncompressed(const PCPATCH_UNCOMPRESSED *pa);
-PCPATCH_GHT* pc_patch_ght_from_pointlist(const PCPOINTLIST *pdl);
-PCPATCH_UNCOMPRESSED* pc_patch_uncompressed_from_ght(const PCPATCH_GHT *pght);
-void pc_patch_ght_free(PCPATCH_GHT *paght);
-int pc_patch_ght_compute_extent(PCPATCH_GHT *patch);
-uint8_t* pc_patch_ght_to_wkb(const PCPATCH_GHT *patch, size_t *wkbsize);
-PCPATCH* pc_patch_ght_from_wkb(const PCSCHEMA *schema, const uint8_t *wkb, size_t wkbsize);
-PCPOINTLIST* pc_pointlist_from_ght(const PCPATCH_GHT *pag);
-PCPATCH_GHT* pc_patch_ght_filter(const PCPATCH_GHT *patch, uint32_t dimnum, PC_FILTERTYPE filter, double val1, double val2);
-PCPOINT *pc_patch_ght_pointn(const PCPATCH_GHT *patch, int n);
-
 /* LAZPERF PATCHES */
 PCPATCH_LAZPERF* pc_patch_lazperf_from_pointlist(const PCPOINTLIST *pl);
 PCPATCH_LAZPERF* pc_patch_lazperf_from_uncompressed(const PCPATCH_UNCOMPRESSED *pa);
@@ -210,6 +207,7 @@ char* pc_patch_lazperf_to_string(const PCPATCH_LAZPERF *pa);
 void pc_patch_lazperf_free(PCPATCH_LAZPERF *palaz);
 uint8_t* pc_patch_lazperf_to_wkb(const PCPATCH_LAZPERF *patch, size_t *wkbsize);
 PCPATCH* pc_patch_lazperf_from_wkb(const PCSCHEMA *schema, const uint8_t *wkb, size_t wkbsize);
+PCPOINT *pc_patch_lazperf_pointn(const PCPATCH_LAZPERF *patch, int n);
 
 /****************************************************************************
 * BYTES

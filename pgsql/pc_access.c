@@ -23,11 +23,13 @@ void pc_cstring_array_free(const char **array, int nelems);
 Datum pcpoint_get_value(PG_FUNCTION_ARGS);
 Datum pcpoint_get_values(PG_FUNCTION_ARGS);
 Datum pcpatch_from_pcpoint_array(PG_FUNCTION_ARGS);
+Datum pcpatch_from_float_array(PG_FUNCTION_ARGS);
 Datum pcpatch_from_pcpatch_array(PG_FUNCTION_ARGS);
 Datum pcpatch_uncompress(PG_FUNCTION_ARGS);
 Datum pcpatch_compress(PG_FUNCTION_ARGS);
 Datum pcpatch_numpoints(PG_FUNCTION_ARGS);
 Datum pcpatch_pointn(PG_FUNCTION_ARGS);
+Datum pcpatch_range(PG_FUNCTION_ARGS);
 Datum pcpatch_pcid(PG_FUNCTION_ARGS);
 Datum pcpatch_summary(PG_FUNCTION_ARGS);
 Datum pcpatch_compression(PG_FUNCTION_ARGS);
@@ -40,6 +42,9 @@ Datum pcpatch_size(PG_FUNCTION_ARGS);
 Datum pcpoint_size(PG_FUNCTION_ARGS);
 Datum pcpoint_pcid(PG_FUNCTION_ARGS);
 Datum pc_version(PG_FUNCTION_ARGS);
+Datum pc_pgsql_version(PG_FUNCTION_ARGS);
+Datum pc_libxml2_version(PG_FUNCTION_ARGS);
+Datum pc_lazperf_enabled(PG_FUNCTION_ARGS);
 
 /* Generic aggregation functions */
 Datum pointcloud_agg_transfn(PG_FUNCTION_ARGS);
@@ -133,7 +138,11 @@ array_get_isnull(const bits8 *nullbitmap, int offset)
 }
 
 static PCPATCH *
+#if PGSQL_VERSION < 120
 pcpatch_from_point_array(ArrayType *array, FunctionCallInfoData *fcinfo)
+#else
+pcpatch_from_point_array(ArrayType *array, FunctionCallInfo fcinfo)
+#endif
 {
 	int nelems;
 	bits8 *bitmap;
@@ -204,7 +213,11 @@ pcpatch_from_point_array(ArrayType *array, FunctionCallInfoData *fcinfo)
 
 
 static PCPATCH *
+#if PGSQL_VERSION < 120
 pcpatch_from_patch_array(ArrayType *array, FunctionCallInfoData *fcinfo)
+#else
+pcpatch_from_patch_array(ArrayType *array, FunctionCallInfo fcinfo)
+#endif
 {
 	int nelems;
 	bits8 *bitmap;
@@ -320,6 +333,60 @@ Datum pcpatch_from_pcpoint_array(PG_FUNCTION_ARGS)
 		PG_RETURN_NULL();
 
 	serpa = pc_patch_serialize(pa, NULL);
+	pc_patch_free(pa);
+	PG_RETURN_POINTER(serpa);
+}
+
+
+PG_FUNCTION_INFO_V1(pcpatch_from_float_array);
+Datum pcpatch_from_float_array(PG_FUNCTION_ARGS)
+{
+	int i, ndims, nelems, npoints;
+	float8 *vals;
+	PCPATCH *pa;
+	PCPOINTLIST *pl;
+	SERIALIZED_PATCH *serpa;
+	uint32 pcid = PG_GETARG_INT32(0);
+	ArrayType *arrptr = PG_GETARG_ARRAYTYPE_P(1);
+	PCSCHEMA *schema = pc_schema_from_pcid(pcid, fcinfo);
+
+	if ( ! schema )
+		elog(ERROR, "unable to load schema for pcid = %d", pcid);
+
+	if ( ARR_ELEMTYPE(arrptr) != FLOAT8OID )
+		elog(ERROR, "array must be of float8[]");
+
+	if ( ARR_NDIM(arrptr) != 1 )
+		elog(ERROR, "float8[] must have one dimension");
+
+	if ( ARR_HASNULL(arrptr) )
+		elog(ERROR, "float8[] must not have null elements");
+
+	ndims = schema->ndims;
+	nelems = ARR_DIMS(arrptr)[0];
+
+	if ( nelems % ndims != 0 ) {
+		elog(ERROR, "array dimensions do not match schema dimensions of pcid = %d", pcid);
+	}
+
+	npoints = nelems / ndims;
+
+	vals = (float8*) ARR_DATA_PTR(arrptr);
+	pl = pc_pointlist_make(nelems);
+
+	for ( i = 0; i < npoints; ++i ) {
+
+		PCPOINT* pt = pc_point_from_double_array(schema, vals, i * ndims, ndims);
+		pc_pointlist_add_point(pl, pt);
+	}
+
+	pa = pc_patch_from_pointlist(pl);
+	pc_pointlist_free(pl);
+	if ( ! pa )
+		PG_RETURN_NULL();
+
+	serpa = pc_patch_serialize(pa, NULL);
+
 	pc_patch_free(pa);
 	PG_RETURN_POINTER(serpa);
 }
@@ -630,14 +697,11 @@ Datum pcpatch_compress(PG_FUNCTION_ARGS)
 		pa = (PCPATCH*)pc_patch_dimensional_compress(pdl, stats);
 		pc_patch_dimensional_free(pdl);
 	}}
-	else if ( strcmp(compr_in, "ght") == 0 ) {
-		schema->compression = PC_GHT;
-	}
 	else if ( strcmp(compr_in, "laz") == 0 ) {
 		schema->compression = PC_LAZPERF;
 	}
 	else {
-		elog(ERROR, "Unrecognized compression '%s'. Please specify 'auto','dimensional' or 'ght'", compr_in);
+		elog(ERROR, "Unrecognized compression '%s'. Please specify 'auto','dimensional' or 'laz'", compr_in);
 	}
 
 	pa->schema = schema; /* install overridden schema */
@@ -675,6 +739,29 @@ Datum pcpatch_pointn(PG_FUNCTION_ARGS)
 	serpt = pc_point_serialize(pt);
 	pc_point_free(pt);
 	PG_RETURN_POINTER(serpt);
+}
+
+PG_FUNCTION_INFO_V1(pcpatch_range);
+Datum pcpatch_range(PG_FUNCTION_ARGS)
+{
+	SERIALIZED_PATCH *serpaout;
+	SERIALIZED_PATCH *serpa = PG_GETARG_SERPATCH_P(0);
+	int32 first = PG_GETARG_INT32(1);
+	int32 count = PG_GETARG_INT32(2);
+	PCSCHEMA *schema = pc_schema_from_pcid(serpa->pcid, fcinfo);
+	PCPATCH *patch = pc_patch_deserialize(serpa, schema);
+	PCPATCH *patchout = NULL;
+	if ( patch )
+	{
+		patchout = pc_patch_range(patch, first, count);
+		if ( patchout != patch )
+			pc_patch_free(patch);
+	}
+	if ( !patchout )
+		PG_RETURN_NULL();
+	serpaout = pc_patch_serialize(patchout, NULL);
+	pc_patch_free(patchout);
+	PG_RETURN_POINTER(serpaout);
 }
 
 PG_FUNCTION_INFO_V1(pcpatch_pcid);
@@ -800,9 +887,9 @@ Datum pcpatch_intersects(PG_FUNCTION_ARGS)
 
 	if ( pc_bounds_intersects(&(serpa1->bounds), &(serpa2->bounds)) )
 	{
-		PG_RETURN_BOOL(TRUE);
+		PG_RETURN_BOOL(true);
 	}
-	PG_RETURN_BOOL(FALSE);
+	PG_RETURN_BOOL(false);
 }
 
 PG_FUNCTION_INFO_V1(pcpatch_size);
@@ -834,6 +921,36 @@ Datum pc_version(PG_FUNCTION_ARGS)
 	snprintf(version, 64, "%s", POINTCLOUD_VERSION);
 	version_text = cstring_to_text(version);
 	PG_RETURN_TEXT_P(version_text);
+}
+
+PG_FUNCTION_INFO_V1(pc_pgsql_version);
+Datum pc_pgsql_version(PG_FUNCTION_ARGS)
+{
+	text *version_text;
+	char version[12];
+	snprintf(version, 12, "%d", PGSQL_VERSION);
+	version_text = cstring_to_text(version);
+	PG_RETURN_TEXT_P(version_text);
+}
+
+PG_FUNCTION_INFO_V1(pc_libxml2_version);
+Datum pc_libxml2_version(PG_FUNCTION_ARGS)
+{
+	text *version_text;
+	char version[64];
+	snprintf(version, 64, "%s", LIBXML2_VERSION);
+	version_text = cstring_to_text(version);
+	PG_RETURN_TEXT_P(version_text);
+}
+
+PG_FUNCTION_INFO_V1(pc_lazperf_enabled);
+Datum pc_lazperf_enabled(PG_FUNCTION_ARGS)
+{
+#ifdef HAVE_LAZPERF
+	PG_RETURN_BOOL(true);
+#else
+	PG_RETURN_BOOL(false);
+#endif
 }
 
 /**

@@ -1,4 +1,33 @@
-1.1.0, YYYY-MM-DD
+1.2.0, 2018-08-22
+-----------------
+
+- New features
+ - Add PC_MakePatch(pcid integer, values float8[]) #220
+ - Mark functions as PARALLEL SAFE #227
+
+- Bug fixes
+ - patch fails to compress as GHT #35
+ - libght breaks schema parsing #196
+ - Fix memcpy size in pc_patch_wkb_set_int32 #226
+
+- Enhancements
+ - Improve doc for PC_FilterBetween #217
+ - Remove GHT support #214
+ - Fix installcheck when lazperf is disabled #222
+ - Fix compilation and installcheck when lazperf is disabled #224
+
+1.1.1, 2018-06-12
+-----------------
+
+- Bug fixes
+ - Fix bug in pc_patch_uncompressed_from_lazperf (#215)
+
+- Enhancements
+ - Document creating a PC_EnvelopeGeometry-based index (#208)
+ - Use PostgreSQL 9.6 with PostGIS 2.4 on Travis (#210)
+ - Add missing description in AC_DEFINE (#213)
+
+1.1.0, 2018-04-30
 -----------------
 
 - New functions
@@ -10,6 +39,12 @@
  - PC_Lib_Version(), PC_Script_Version() (#40)
  - PC_Sort(pcpatch,text[]) (#106)
  - PC_IsSorted(pcpatch,text[],boolean) (#106)
+ - PC_Range(pcpatch, int, int) returns pcpatch (#152)
+ - PC_BoundingDiagonalAsBinary(pcpatch) and PC_BoundingDiagonalGeometry(pcpach) (#158)
+ - PC_SetPCId(pcpatch, int, float8 default 0.0) (#163)
+ - PC_Transform(pcpatch, int, float8 default 0.0) (#165)
+ - PC_Full_Version() (#201)
+
 - Enhancements
  - Support sigbits encoding for 64bit integers (#61)
  - Warn about truncated values (#68)

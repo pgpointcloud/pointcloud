@@ -89,7 +89,7 @@ pc_stats_new_from_data(const PCSCHEMA *schema, const uint8_t *mindata, const uin
 * point shells and the data areas underneath. Used for initial calcution
 * of patch stats, when objects first created.
 */
-static PCSTATS *
+PCSTATS *
 pc_stats_new(const PCSCHEMA *schema)
 {
 	/*size_t sz = schema->size;*/

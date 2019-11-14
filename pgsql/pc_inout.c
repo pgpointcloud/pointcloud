@@ -33,7 +33,8 @@ Datum pcpoint_from_double_array(PG_FUNCTION_ARGS);
 Datum pcpoint_as_text(PG_FUNCTION_ARGS);
 Datum pcpatch_as_text(PG_FUNCTION_ARGS);
 Datum pcpoint_as_bytea(PG_FUNCTION_ARGS);
-Datum pcpatch_bytea_envelope(PG_FUNCTION_ARGS);
+Datum pcpatch_envelope_as_bytea(PG_FUNCTION_ARGS);
+Datum pcpatch_bounding_diagonal_as_bytea(PG_FUNCTION_ARGS);
 
 
 static void
@@ -229,13 +230,12 @@ Datum pcschema_is_valid(PG_FUNCTION_ARGS)
 	bool valid;
 	text *xml = PG_GETARG_TEXT_P(0);
 	char *xmlstr = text_to_cstring(xml);
-	PCSCHEMA *schema;
-	int err = pc_schema_from_xml(xmlstr, &schema);
+	PCSCHEMA *schema = pc_schema_from_xml(xmlstr);
 	pfree(xmlstr);
 
-	if ( ! err )
+	if ( !schema )
 	{
-		PG_RETURN_BOOL(FALSE);
+		PG_RETURN_BOOL(false);
 	}
 
 	valid = pc_schema_is_valid(schema);
@@ -288,7 +288,7 @@ Datum pcpoint_from_double_array(PG_FUNCTION_ARGS)
 		elog(ERROR, "array dimensions do not match schema dimensions of pcid = %d", pcid);
 
 	vals = (float8*) ARR_DATA_PTR(arrptr);
-	pt = pc_point_from_double_array(schema, vals, nelems);
+	pt = pc_point_from_double_array(schema, vals, 0, nelems);
 
 	serpt = pc_point_serialize(pt);
 	pc_point_free(pt);
@@ -357,8 +357,8 @@ Datum pcpoint_as_bytea(PG_FUNCTION_ARGS)
 	PG_RETURN_BYTEA_P(wkb);
 }
 
-PG_FUNCTION_INFO_V1(pcpatch_bytea_envelope);
-Datum pcpatch_bytea_envelope(PG_FUNCTION_ARGS)
+PG_FUNCTION_INFO_V1(pcpatch_envelope_as_bytea);
+Datum pcpatch_envelope_as_bytea(PG_FUNCTION_ARGS)
 {
 	uint8 *bytes;
 	size_t bytes_size;
@@ -374,6 +374,50 @@ Datum pcpatch_bytea_envelope(PG_FUNCTION_ARGS)
 	SET_VARSIZE(wkb, wkb_size);
 
 	pfree(bytes);
+
+	PG_RETURN_BYTEA_P(wkb);
+}
+
+PG_FUNCTION_INFO_V1(pcpatch_bounding_diagonal_as_bytea);
+Datum pcpatch_bounding_diagonal_as_bytea(PG_FUNCTION_ARGS)
+{
+	static const size_t stats_size_guess = 400;
+	SERIALIZED_PATCH *serpatch;
+	PCSCHEMA *schema;
+	PCSTATS *stats;
+	uint8 *bytes;
+	size_t bytes_size;
+	bytea *wkb;
+	size_t wkb_size;
+
+	serpatch = PG_GETHEADERX_SERPATCH_P(0, stats_size_guess);
+	schema = pc_schema_from_pcid(serpatch->pcid, fcinfo);
+
+	if ( schema->zdim || schema->mdim )
+	{
+		if ( stats_size_guess < pc_stats_size(schema) )
+			serpatch = PG_GETHEADERX_SERPATCH_P(0, pc_stats_size(schema));
+
+		stats = pc_patch_stats_deserialize(schema, serpatch->data);
+		if ( !stats )
+			PG_RETURN_NULL();
+
+		bytes = pc_bounding_diagonal_wkb_from_stats(stats, &bytes_size);
+
+		pc_stats_free(stats);
+	}
+	else
+	{
+		bytes = pc_bounding_diagonal_wkb_from_bounds(
+			&serpatch->bounds, schema, &bytes_size);
+	}
+
+	wkb_size = VARHDRSZ + bytes_size;
+	wkb = palloc(wkb_size);
+	memcpy(VARDATA(wkb), bytes, bytes_size);
+	SET_VARSIZE(wkb, wkb_size);
+
+	pcfree(bytes);
 
 	PG_RETURN_BYTEA_P(wkb);
 }
