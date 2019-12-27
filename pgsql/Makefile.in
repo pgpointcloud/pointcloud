@@ -32,7 +32,7 @@ DATA_built = \
 
 REGRESS = 
 
-ifeq "$(PGSQL_MAJOR_VERSION)" "9"
+ifeq ("$(PGSQL_MAJOR_VERSION)", "9")
 REGRESS += pointcloud_pg9
 else
 REGRESS += pointcloud

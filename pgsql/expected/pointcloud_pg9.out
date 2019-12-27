@@ -238,10 +238,10 @@ CREATE TABLE IF NOT EXISTS pt_test (
     pt PCPOINT(1)
 );
 \d pt_test
-                Table "public.pt_test"
- Column |    Type    | Collation | Nullable | Default 
---------+------------+-----------+----------+---------
- pt     | pcpoint(1) |           |          | 
+     Table "public.pt_test"
+ Column |    Type    | Modifiers 
+--------+------------+-----------
+ pt     | pcpoint(1) | 
 
 DELETE FROM pt_test;
 INSERT INTO pt_test (pt) VALUES ('00000000020000000100000002000000030004');
@@ -305,10 +305,10 @@ CREATE TABLE IF NOT EXISTS pa_test (
     pa PCPATCH(1)
 );
 \d pa_test
-                Table "public.pa_test"
- Column |    Type    | Collation | Nullable | Default 
---------+------------+-----------+----------+---------
- pa     | pcpatch(1) |           |          | 
+     Table "public.pa_test"
+ Column |    Type    | Modifiers 
+--------+------------+-----------
+ pa     | pcpatch(1) | 
 
 DELETE FROM pa_test;
 INSERT INTO pa_test (pa) VALUES ('0000000002000000000000000200000002000000030000000500060000000200000003000000050008');
@@ -377,10 +377,10 @@ CREATE TABLE IF NOT EXISTS pa_test_dim (
     pa PCPATCH(3)
 );
 \d pa_test_dim
-              Table "public.pa_test_dim"
- Column |    Type    | Collation | Nullable | Default 
---------+------------+-----------+----------+---------
- pa     | pcpatch(3) |           |          | 
+   Table "public.pa_test_dim"
+ Column |    Type    | Modifiers 
+--------+------------+-----------
+ pa     | pcpatch(3) | 
 
 INSERT INTO pa_test_dim (pa) VALUES ('0000000003000000000000000200000002000000030000000500060000000200000003000000050008');
 INSERT INTO pa_test_dim (pa) VALUES ('000000000300000000000000020000000600000007000000050006000000090000000A00000005000A');
