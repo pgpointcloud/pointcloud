@@ -30,7 +30,15 @@ DATA_built = \
   $(EXTENSION)--$(EXTVERSION).sql \
   $(UPGRADES)
 
-REGRESS = pointcloud pointcloud_columns schema
+REGRESS = 
+
+ifeq "$(PGSQL_MAJOR_VERSION)" "9"
+REGRESS += pointcloud_pg9
+else
+REGRESS += pointcloud
+endif
+
+REGRESS += pointcloud_columns schema
 
 ifneq ("$(LAZPERF_STATUS)", "disabled")
 REGRESS += pointcloud-laz
