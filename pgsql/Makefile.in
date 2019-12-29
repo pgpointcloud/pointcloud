@@ -40,8 +40,14 @@ endif
 
 REGRESS += pointcloud_columns schema
 
+ifeq ("$(PGSQL_MAJOR_VERSION)", "9")
 ifneq ("$(LAZPERF_STATUS)", "disabled")
-REGRESS += pointcloud-laz
+REGRESS += pointcloud_laz_pg9
+endif
+else
+ifneq ("$(LAZPERF_STATUS)", "disabled")
+REGRESS += pointcloud_laz
+endif
 endif
 
 # Add in build/link flags for lib
