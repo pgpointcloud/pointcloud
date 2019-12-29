@@ -6,6 +6,8 @@ jobs:
       dist: xenial
     - env: POSTGRESQL_VERSION="10" POSTGIS_VERSION="2.5"
       dist: xenial
+    - env: POSTGRESQL_VERSION="11" POSTGIS_VERSION="2.5"
+      dist: xenial
 
 script:
   - sudo service postgresql stop
