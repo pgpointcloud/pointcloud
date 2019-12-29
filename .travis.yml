@@ -10,6 +10,8 @@ jobs:
       dist: xenial
     - env: POSTGRESQL_VERSION="12" POSTGIS_VERSION="2.5"
       dist: bionic
+    - env: POSTGRESQL_VERSION="12" POSTGIS_VERSION="3"
+      dist: bionic
 
 script:
   - sudo service postgresql stop
