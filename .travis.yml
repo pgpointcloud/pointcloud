@@ -1,31 +1,36 @@
 language: c
-dist: trusty
 
-before_install:
-  - sudo apt-get update
-  - sudo apt-get install -q postgresql-server-dev-9.6 libcunit1-dev valgrind
-  - sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
-  - sudo apt-get update -qq
-
-install:
-  - sudo apt-get install -qq g++-4.8
-  - export CXX="g++-4.8"
-  - sh .install-lazperf.sh
-  - npm install -g eclint@1.1.5
-
-addons:
-  postgresql: "9.6" # for "installcheck"
-  apt:
-    packages:
-      - postgresql-9.6-postgis-2.4
-
-# Note: Valgrind currently reports many problems when libght is enabled. So for
-# now, and until the problems are fixed, we just run the unit tests with libght
-# enabled.
+jobs:
+  include:
+    - env: POSTGRESQL_VERSION="9.6" POSTGIS_VERSION="2.5"
+      dist: xenial
+    - env: POSTGRESQL_VERSION="10" POSTGIS_VERSION="2.5"
+      dist: xenial
+    - env: POSTGRESQL_VERSION="11" POSTGIS_VERSION="2.5"
+      dist: xenial
+    - env: POSTGRESQL_VERSION="12" POSTGIS_VERSION="2.5"
+      dist: bionic
+    - env: POSTGRESQL_VERSION="12" POSTGIS_VERSION="3"
+      dist: bionic
 
 script:
+  - sudo service postgresql stop
+  - sudo apt-get remove postgresql* -y
+  - sudo apt-get install -q postgresql-server-dev-$POSTGRESQL_VERSION postgresql-client-$POSTGRESQL_VERSION postgresql-$POSTGRESQL_VERSION-postgis-$POSTGIS_VERSION libcunit1-dev valgrind g++
+  - sudo pg_dropcluster --stop $POSTGRESQL_VERSION main
+  - sudo rm -rf /etc/postgresql/$POSTGRESQL_VERSION /var/lib/postgresql/$POSTGRESQL_VERSION
+  - sudo pg_createcluster -u postgres $POSTGRESQL_VERSION main -- --auth-local trust --auth-host password
+  - sudo /etc/init.d/postgresql start $POSTGRESQL_VERSION || sudo journalctl -xe
+  - psql -c 'CREATE ROLE travis SUPERUSER LOGIN CREATEDB;' -U postgres
+  - nvm install 8
+  - npm install -g eclint@1.1.5
   - eclint check * */* */cunit/*
+  - sh .install-lazperf.sh
   - ./tools/build-install.sh # test compilation without lazperf
   - ./tools/build-install.sh --with-lazperf=/usr/local && make check && ./tools/valgrind.sh
   - make installcheck || { cat pgsql/regression.diffs && false; }
   - (cd tools/benchmark_compression && sh compression_benchmark.sh)
+
+after_failure:
+  - cat pgsql/regression.out
+  - cat pgsql/regression.diffs

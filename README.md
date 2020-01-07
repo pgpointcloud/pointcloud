@@ -27,7 +27,7 @@ After generating the configure script with ``autogen.sh``,  ``./configure --help
 
 Note: you can use ``--with-pgconfig`` on the ``./configure`` command line if you have multiple PostgreSQL installations on your system and want to target a specific one. For example:
 
-- ``./configure --with-pgconfig=/usr/lib/postgresql/9.5/bin/pg_config``
+- ``./configure --with-pgconfig=/usr/lib/postgresql/12/bin/pg_config``
 
 Run unit tests:
 
