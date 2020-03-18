@@ -1,11 +1,8 @@
 set client_min_messages to ERROR;
-SET extra_float_digits = 0;
+
 CREATE EXTENSION pointcloud;
+
 SELECT PC_Version();
- pc_version 
-------------
- 1.2.1
-(1 row)
 
 INSERT INTO pointcloud_formats (pcid, srid, schema)
 VALUES (1, 0, -- XYZI, scaled, uncompressed
@@ -235,181 +232,66 @@ VALUES (1, 0, -- XYZI, scaled, uncompressed
 </pc:PointCloudSchema>'
 )
 ;
+
+
 CREATE TABLE IF NOT EXISTS pt_test (
     pt PCPOINT(1)
 );
 \d pt_test
-                Table "public.pt_test"
- Column |    Type    | Collation | Nullable | Default 
---------+------------+-----------+----------+---------
- pt     | pcpoint(1) |           |          | 
 
 DELETE FROM pt_test;
 INSERT INTO pt_test (pt) VALUES ('00000000020000000100000002000000030004');
-ERROR:  no entry in "pointcloud_formats" for pcid = 2
-LINE 1: INSERT INTO pt_test (pt) VALUES ('00000000020000000100000002...
-                                         ^
 INSERT INTO pt_test (pt) VALUES ('00000000010000000100000002000000030004');
 INSERT INTO pt_test (pt) VALUES ('00000000010000000200000003000000030005');
 INSERT INTO pt_test (pt) VALUES ('00000000010000000300000004000000030006');
-SELECT PC_Get(pt, 'Intensity') FROM pt_test;
- pc_get 
---------
-      4
-      5
-      6
-(3 rows)
 
+SELECT PC_Get(pt, 'Intensity') FROM pt_test;
 SELECT Sum(PC_Get(pt, 'y')) FROM pt_test;
- sum  
-------
- 0.09
-(1 row)
 
 SELECT PC_Get(pt) FROM pt_test;
-       pc_get       
---------------------
- {0.01,0.02,0.03,4}
- {0.02,0.03,0.03,5}
- {0.03,0.04,0.03,6}
-(3 rows)
 
 SELECT PC_AsText(pt) FROM pt_test;
-             pc_astext              
-------------------------------------
- {"pcid":1,"pt":[0.01,0.02,0.03,4]}
- {"pcid":1,"pt":[0.02,0.03,0.03,5]}
- {"pcid":1,"pt":[0.03,0.04,0.03,6]}
-(3 rows)
 
 SELECT PC_AsText(PC_Patch(pt)) FROM pt_test;
-                                  pc_astext                                  
------------------------------------------------------------------------------
- {"pcid":1,"pts":[[0.01,0.02,0.03,4],[0.02,0.03,0.03,5],[0.03,0.04,0.03,6]]}
-(1 row)
-
 SELECT PC_AsText(PC_Explode(PC_Patch(pt))) FROM pt_test;
-             pc_astext              
-------------------------------------
- {"pcid":1,"pt":[0.01,0.02,0.03,4]}
- {"pcid":1,"pt":[0.02,0.03,0.03,5]}
- {"pcid":1,"pt":[0.03,0.04,0.03,6]}
-(3 rows)
-
 SELECT Sum(PC_MemSize(pt)) FROM pt_test;
- sum 
------
-  75
-(1 row)
 
 CREATE TABLE IF NOT EXISTS pa_test (
     pa PCPATCH(1)
 );
 \d pa_test
-                Table "public.pa_test"
- Column |    Type    | Collation | Nullable | Default 
---------+------------+-----------+----------+---------
- pa     | pcpatch(1) |           |          | 
 
 DELETE FROM pa_test;
 INSERT INTO pa_test (pa) VALUES ('0000000002000000000000000200000002000000030000000500060000000200000003000000050008');
-ERROR:  no entry in "pointcloud_formats" for pcid = 2
-LINE 1: INSERT INTO pa_test (pa) VALUES ('00000000020000000000000002...
-                                         ^
 INSERT INTO pa_test (pa) VALUES ('0000000001000000000000000200000002000000030000000500060000000200000003000000050008');
 INSERT INTO pa_test (pa) VALUES ('000000000100000000000000020000000600000007000000050006000000090000000A00000005000A');
 INSERT INTO pa_test (pa) VALUES ('000000000100000000000000020000000600000007000000050006000000090000000A00000005000A');
 INSERT INTO pa_test (pa) VALUES ('000000000100000000000000020000000600000007000000050006000000090000000A00000005000A');
+
 SELECT PC_Uncompress(pa) FROM pa_test LIMIT 1;
-                                   pc_uncompress                                    
-------------------------------------------------------------------------------------
- 0101000000000000000200000002000000030000000500000006000200000003000000050000000800
-(1 row)
 
 SELECT PC_AsText(pa) FROM pa_test;
-                        pc_astext                         
-----------------------------------------------------------
- {"pcid":1,"pts":[[0.02,0.03,0.05,6],[0.02,0.03,0.05,8]]}
- {"pcid":1,"pts":[[0.06,0.07,0.05,6],[0.09,0.1,0.05,10]]}
- {"pcid":1,"pts":[[0.06,0.07,0.05,6],[0.09,0.1,0.05,10]]}
- {"pcid":1,"pts":[[0.06,0.07,0.05,6],[0.09,0.1,0.05,10]]}
-(4 rows)
-
 SELECT PC_EnvelopeAsBinary(pa) from pa_test;
-                                                                                     pc_envelopeasbinary                                                                                      
-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
- \x010300000001000000050000007b14ae47e17a943fb81e85eb51b89e3f7b14ae47e17a943fb81e85eb51b89e3f7b14ae47e17a943fb81e85eb51b89e3f7b14ae47e17a943fb81e85eb51b89e3f7b14ae47e17a943fb81e85eb51b89e3f
- \x01030000000100000005000000b81e85eb51b8ae3fec51b81e85ebb13fb81e85eb51b8ae3f9a9999999999b93f0ad7a3703d0ab73f9a9999999999b93f0ad7a3703d0ab73fec51b81e85ebb13fb81e85eb51b8ae3fec51b81e85ebb13f
- \x01030000000100000005000000b81e85eb51b8ae3fec51b81e85ebb13fb81e85eb51b8ae3f9a9999999999b93f0ad7a3703d0ab73f9a9999999999b93f0ad7a3703d0ab73fec51b81e85ebb13fb81e85eb51b8ae3fec51b81e85ebb13f
- \x01030000000100000005000000b81e85eb51b8ae3fec51b81e85ebb13fb81e85eb51b8ae3f9a9999999999b93f0ad7a3703d0ab73f9a9999999999b93f0ad7a3703d0ab73fec51b81e85ebb13fb81e85eb51b8ae3fec51b81e85ebb13f
-(4 rows)
-
 SELECT PC_Envelope(pa) from pa_test;
-                                                                                         pc_envelope                                                                                          
-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
- \x010300000001000000050000007b14ae47e17a943fb81e85eb51b89e3f7b14ae47e17a943fb81e85eb51b89e3f7b14ae47e17a943fb81e85eb51b89e3f7b14ae47e17a943fb81e85eb51b89e3f7b14ae47e17a943fb81e85eb51b89e3f
- \x01030000000100000005000000b81e85eb51b8ae3fec51b81e85ebb13fb81e85eb51b8ae3f9a9999999999b93f0ad7a3703d0ab73f9a9999999999b93f0ad7a3703d0ab73fec51b81e85ebb13fb81e85eb51b8ae3fec51b81e85ebb13f
- \x01030000000100000005000000b81e85eb51b8ae3fec51b81e85ebb13fb81e85eb51b8ae3f9a9999999999b93f0ad7a3703d0ab73f9a9999999999b93f0ad7a3703d0ab73fec51b81e85ebb13fb81e85eb51b8ae3fec51b81e85ebb13f
- \x01030000000100000005000000b81e85eb51b8ae3fec51b81e85ebb13fb81e85eb51b8ae3f9a9999999999b93f0ad7a3703d0ab73f9a9999999999b93f0ad7a3703d0ab73fec51b81e85ebb13fb81e85eb51b8ae3fec51b81e85ebb13f
-(4 rows)
-
 SELECT PC_AsText(PC_Union(pa)) FROM pa_test;
-                                                                                 pc_astext                                                                                  
-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
- {"pcid":1,"pts":[[0.02,0.03,0.05,6],[0.02,0.03,0.05,8],[0.06,0.07,0.05,6],[0.09,0.1,0.05,10],[0.06,0.07,0.05,6],[0.09,0.1,0.05,10],[0.06,0.07,0.05,6],[0.09,0.1,0.05,10]]}
-(1 row)
-
 SELECT sum(PC_NumPoints(pa)) FROM pa_test;
- sum 
------
-   8
-(1 row)
 
 SELECT PC_AsText(PC_Range(pa, 1, 1)) FROM pa_test;
-               pc_astext               
----------------------------------------
- {"pcid":1,"pts":[[0.02,0.03,0.05,6]]}
- {"pcid":1,"pts":[[0.06,0.07,0.05,6]]}
- {"pcid":1,"pts":[[0.06,0.07,0.05,6]]}
- {"pcid":1,"pts":[[0.06,0.07,0.05,6]]}
-(4 rows)
 
 CREATE TABLE IF NOT EXISTS pa_test_dim (
     pa PCPATCH(3)
 );
 \d pa_test_dim
-              Table "public.pa_test_dim"
- Column |    Type    | Collation | Nullable | Default 
---------+------------+-----------+----------+---------
- pa     | pcpatch(3) |           |          | 
 
 INSERT INTO pa_test_dim (pa) VALUES ('0000000003000000000000000200000002000000030000000500060000000200000003000000050008');
 INSERT INTO pa_test_dim (pa) VALUES ('000000000300000000000000020000000600000007000000050006000000090000000A00000005000A');
 INSERT INTO pa_test_dim (pa) VALUES ('0000000003000000000000000200000002000000030000000500060000000200000003000000050003');
 INSERT INTO pa_test_dim (pa) VALUES ('0000000003000000000000000200000002000000030000000500060000000200000003000000050001');
+
 SELECT Sum(PC_NumPoints(pa)) FROM pa_test_dim;
- sum 
------
-   8
-(1 row)
-
 SELECT Sum(PC_MemSize(pa)) FROM pa_test_dim;
- sum 
------
- 684
-(1 row)
-
 SELECT Sum(PC_PatchMax(pa,'x')) FROM pa_test_dim;
- sum  
-------
- 0.15
-(1 row)
-
 SELECT Sum(PC_PatchMin(pa,'x')) FROM pa_test_dim;
- sum  
-------
- 0.12
-(1 row)
 
 DELETE FROM pa_test_dim;
 INSERT INTO pa_test_dim (pa)
@@ -423,83 +305,33 @@ FROM (
          a/400 AS gid
  FROM generate_series(1,1600) AS a
 ) AS values GROUP BY gid;
-SELECT Sum(PC_NumPoints(pa)) FROM pa_test_dim;
- sum  
-------
- 1600
-(1 row)
 
+SELECT Sum(PC_NumPoints(pa)) FROM pa_test_dim;
 SELECT Sum(PC_MemSize(pa)) FROM pa_test_dim;
- sum  
-------
- 8733
-(1 row)
 
 SELECT Max(PC_PatchMax(pa,'x')) FROM pa_test_dim;
- max  
-------
- -111
-(1 row)
-
 SELECT Min(PC_PatchMin(pa,'x')) FROM pa_test_dim;
-   min   
----------
- -126.99
-(1 row)
-
 SELECT Min(PC_PatchMin(pa,'z')) FROM pa_test_dim;
- min 
------
-   1
-(1 row)
 
 -- https://github.com/pgpointcloud/pointcloud/issues/77
 SELECT PC_Get(PC_PatchMax(pa)) FROM pa_test_dim order by 1 limit 1;
-         pc_get         
-------------------------
- {-123.01,48.99,399,39}
-(1 row)
-
 SELECT PC_Get(PC_PatchMin(pa)) FROM pa_test_dim order by 1 limit 1;
-       pc_get        
----------------------
- {-126.99,45.01,1,0}
-(1 row)
-
 SELECT PC_Get(PC_PatchAvg(pa)) FROM pa_test_dim order by 1 limit 1;
-      pc_get      
-------------------
- {-125,47,200,20}
-(1 row)
+
 
 SELECT PC_Summary(pa) summary FROM pa_test_dim order by 1 limit 1;
-                                                                                                                                                                                                                                              summary                                                                                                                                                                                                                                               
-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
- {"pcid":3, "npts":1, "srid":0, "compr":"dimensional","dims":[{"pos":0,"name":"X","size":4,"type":"int32_t","compr":"zlib","stats":{"min":-111,"max":-111,"avg":-111}},{"pos":1,"name":"Y","size":4,"type":"int32_t","compr":"zlib","stats":{"min":61,"max":61,"avg":61}},{"pos":2,"name":"Z","size":4,"type":"int32_t","compr":"zlib","stats":{"min":1600,"max":1600,"avg":1600}},{"pos":3,"name":"Intensity","size":2,"type":"uint16_t","compr":"zlib","stats":{"min":160,"max":160,"avg":160}}]}
-(1 row)
+
 
 --DROP TABLE pts_collection;
 DROP TABLE pt_test;
 DROP TABLE pa_test;
 DROP TABLE pa_test_dim;
+
 -- See https://github.com/pgpointcloud/pointcloud/issues/44
 SELECT PC_AsText(PC_Patch(ARRAY[PC_MakePoint(3, ARRAY[-127, 45, 124.0, 4.0])]::pcpoint[]));
-             pc_astext              
-------------------------------------
- {"pcid":3,"pts":[[-127,45,124,4]]}
-(1 row)
 
 SELECT 'pc_id1', PC_PCId(PC_Patch(PC_MakePoint(3, ARRAY[-1,-2,-3,-4])));
- ?column? | pc_pcid 
-----------+---------
- pc_id1   |       3
-(1 row)
-
 SELECT 'pc_id2', PC_PCId(PC_MakePoint(3, ARRAY[-1,-2,-3,-4]));
- ?column? | pc_pcid 
-----------+---------
- pc_id2   |       3
-(1 row)
 
 -- Test PC_Compress
 -- Also regression tests for
@@ -535,76 +367,9 @@ FROM p1, ( values
   ('dimensional','auto')
 ) dimcompr(compr,sc)
 ORDER BY compr,sc,v;
- test  | v  |    compr    |   sc    | ok 
--------+----+-------------+---------+----
- compr | -7 | dimensional | auto    | t
- compr | -6 | dimensional | auto    | t
- compr | -5 | dimensional | auto    | t
- compr | -4 | dimensional | auto    | t
- compr | -3 | dimensional | auto    | t
- compr | -2 | dimensional | auto    | t
- compr | -1 | dimensional | auto    | t
- compr |  0 | dimensional | auto    | t
- compr |  1 | dimensional | auto    | t
- compr |  2 | dimensional | auto    | t
- compr |  3 | dimensional | auto    | t
- compr |  4 | dimensional | auto    | t
- compr |  5 | dimensional | auto    | t
- compr |  6 | dimensional | auto    | t
- compr |  7 | dimensional | auto    | t
- compr | -7 | dimensional | rle     | t
- compr | -6 | dimensional | rle     | t
- compr | -5 | dimensional | rle     | t
- compr | -4 | dimensional | rle     | t
- compr | -3 | dimensional | rle     | t
- compr | -2 | dimensional | rle     | t
- compr | -1 | dimensional | rle     | t
- compr |  0 | dimensional | rle     | t
- compr |  1 | dimensional | rle     | t
- compr |  2 | dimensional | rle     | t
- compr |  3 | dimensional | rle     | t
- compr |  4 | dimensional | rle     | t
- compr |  5 | dimensional | rle     | t
- compr |  6 | dimensional | rle     | t
- compr |  7 | dimensional | rle     | t
- compr | -7 | dimensional | sigbits | t
- compr | -6 | dimensional | sigbits | t
- compr | -5 | dimensional | sigbits | t
- compr | -4 | dimensional | sigbits | t
- compr | -3 | dimensional | sigbits | t
- compr | -2 | dimensional | sigbits | t
- compr | -1 | dimensional | sigbits | t
- compr |  0 | dimensional | sigbits | t
- compr |  1 | dimensional | sigbits | t
- compr |  2 | dimensional | sigbits | t
- compr |  3 | dimensional | sigbits | t
- compr |  4 | dimensional | sigbits | t
- compr |  5 | dimensional | sigbits | t
- compr |  6 | dimensional | sigbits | t
- compr |  7 | dimensional | sigbits | t
- compr | -7 | dimensional | zlib    | t
- compr | -6 | dimensional | zlib    | t
- compr | -5 | dimensional | zlib    | t
- compr | -4 | dimensional | zlib    | t
- compr | -3 | dimensional | zlib    | t
- compr | -2 | dimensional | zlib    | t
- compr | -1 | dimensional | zlib    | t
- compr |  0 | dimensional | zlib    | t
- compr |  1 | dimensional | zlib    | t
- compr |  2 | dimensional | zlib    | t
- compr |  3 | dimensional | zlib    | t
- compr |  4 | dimensional | zlib    | t
- compr |  5 | dimensional | zlib    | t
- compr |  6 | dimensional | zlib    | t
- compr |  7 | dimensional | zlib    | t
-(60 rows)
 
 SELECT PC_Summary(PC_Compress(PC_Patch(PC_MakePoint(10,ARRAY[1,1,1,1,1,1,1])),
   'dimensional'))::json->'compr';
-   ?column?    
----------------
- "dimensional"
-(1 row)
 
 -- https://github.com/pgpointcloud/pointcloud/issues/79
 SELECT '#79' issue,
@@ -616,10 +381,6 @@ FROM ( SELECT
     PC_Patch( PC_MakePoint(20,ARRAY[-1,0,1]) ),
     'y',0) p
 ) foo;
- issue | x_min | x_max | y_min | y_max | z_min | z_max 
--------+-------+-------+-------+-------+-------+-------
- #79   |    -1 |    -1 |     0 |     0 |     1 |     1
-(1 row)
 
 -- https://github.com/pgpointcloud/pointcloud/issues/78
 SELECT '#78' issue,
@@ -632,10 +393,6 @@ FROM ( SELECT
     PC_Patch( PC_MakePoint(3,ARRAY[-1,0,4862413,1]) ),
     'y',0) p
 ) foo;
- issue | x_min | x_max | y_min | y_max |  z_min  |  z_max  | i_min | i_max 
--------+-------+-------+-------+-------+---------+---------+-------+-------
- #78   |    -1 |    -1 |     0 |     0 | 4862413 | 4862413 |     1 |     1
-(1 row)
 
 -- test for PC_BoundingDiagonalAsBinary
 SELECT PC_BoundingDiagonalAsBinary(
@@ -643,10 +400,6 @@ SELECT PC_BoundingDiagonalAsBinary(
 		PC_MakePoint(1, ARRAY[0.,0.,0.,10.]),
 		PC_MakePoint(1, ARRAY[1.,1.,1.,10.]),
 		PC_MakePoint(1, ARRAY[10.,10.,10.,10.])]));
-                                             pc_boundingdiagonalasbinary                                              
-----------------------------------------------------------------------------------------------------------------------
- \x010200008002000000000000000000000000000000000000000000000000000000000000000000244000000000000024400000000000002440
-(1 row)
 
 -- test PC_SetPCId
 -- from pcid 1 to 1 (same dimensions, same positions, same compressions)
@@ -654,10 +407,6 @@ SELECT PC_BoundingDiagonalAsBinary(
 SELECT
   PC_AsText(PC_SetPCId(p, 1)) t, PC_Summary(PC_SetPCId(p, 1))::json->'compr' c
 FROM ( SELECT PC_Patch(PC_MakePoint(1, ARRAY[-1,0,4862413,1])) p ) foo;
-                    t                    |   c    
------------------------------------------+--------
- {"pcid":1,"pts":[[-1,0,4.86241e+06,1]]} | "none"
-(1 row)
 
 -- test PC_SetPCId
 -- from pcid 1 to 3 (same dimensions, same positions, different compressions)
@@ -666,10 +415,6 @@ FROM ( SELECT PC_Patch(PC_MakePoint(1, ARRAY[-1,0,4862413,1])) p ) foo;
 SELECT
   PC_AsText(PC_SetPCId(p, 3)) t, PC_Summary(PC_SetPCId(p, 3))::json->'compr' c
 FROM ( SELECT PC_Patch(PC_MakePoint(1, ARRAY[-1,0,4862413,1])) p ) foo;
-                    t                    |       c       
------------------------------------------+---------------
- {"pcid":3,"pts":[[-1,0,4.86241e+06,1]]} | "dimensional"
-(1 row)
 
 -- test PC_SetPCId
 -- from pcid 1 to 4 (different dimensions, different positions, same compressions)
@@ -678,10 +423,6 @@ FROM ( SELECT PC_Patch(PC_MakePoint(1, ARRAY[-1,0,4862413,1])) p ) foo;
 SELECT
   PC_AsText(PC_SetPCId(p, 4, 2.0)) t, PC_Summary(PC_SetPCId(p, 4, 2.0))::json->'compr' c
 FROM ( SELECT PC_Patch(PC_MakePoint(1, ARRAY[-1,0,4862413,1])) p ) foo;
-                     t                     |   c    
--------------------------------------------+--------
- {"pcid":4,"pts":[[2,-1,0,4.86241e+06,2]]} | "none"
-(1 row)
 
 -- test PC_SetPCId
 -- from pcid 1 to 10 (incompatible dimensions because of different interpretations)
@@ -690,21 +431,15 @@ FROM ( SELECT PC_Patch(PC_MakePoint(1, ARRAY[-1,0,4862413,1])) p ) foo;
 SELECT
   PC_AsText(PC_SetPCId(p, 10)) t, PC_Summary(PC_SetPCId(p, 10))::json->'compr' c
 FROM ( SELECT PC_Patch(PC_MakePoint(1, ARRAY[-1,0,4862413,1])) p ) foo;
-ERROR:  dimension interpretations are not matching
+
 -- test PC_Transform
 SELECT
   PC_AsText(PC_Transform(p, 10, 1.0)) t, PC_Summary(PC_Transform(p, 10, 1.0))::json->'compr' c
 FROM ( SELECT PC_Patch(PC_MakePoint(1, ARRAY[-1,0,4862413,1])) p ) foo;
-                  t                   |   c    
---------------------------------------+--------
- {"pcid":10,"pts":[[-1,0,1,1,1,1,1]]} | "none"
-(1 row)
+
 
 -- test PC_Patch from float8 array
 SELECT pc_astext(PC_MakePatch(1, ARRAY[-1,0,5,1, -1,0,6,1, -1,0,7,1]));
-                      pc_astext                      
------------------------------------------------------
- {"pcid":1,"pts":[[-1,0,5,1],[-1,0,6,1],[-1,0,7,1]]}
-(1 row)
+
 
 TRUNCATE pointcloud_formats;
