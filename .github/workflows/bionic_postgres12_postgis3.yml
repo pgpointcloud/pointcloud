@@ -1,4 +1,4 @@
-name: "[Ubuntu Bionic] PostgreSQL 12 / PostGIS 3"
+name: "[ubuntu-18.04] PostgreSQL 12 and PostGIS 3"
 
 on: [push, pull_request]
 
