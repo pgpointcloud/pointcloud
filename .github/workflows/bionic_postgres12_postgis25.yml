@@ -1,0 +1,30 @@
+name: "[Ubuntu Bionic] PostgreSQL 12 / PostGIS 2.5"
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    name: Building and testing
+    runs-on: ubuntu-18.04
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v2
+      - name: Install PostgreSQL and PostGIS
+        env:
+          POSTGRESQL_VERSION: 12
+          POSTGIS_VERSION: 2.5
+        run: .github/scripts/postgresql_postgis.sh
+      - name: Install and check PgPointCloud
+        run: .github/scripts/pgpointcloud.sh
+  code:
+    name: Code layout
+    runs-on: ubuntu-18.04
+    steps:
+      - name: Install nvm
+        uses: actions/setup-node@v1
+        with:
+          node-version: '8'
+      - name: Linter
+        run: |
+          npm install -g eclint@1.1.5
+          eclint check * */* */cunit/*
