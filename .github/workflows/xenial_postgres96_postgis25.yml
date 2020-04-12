@@ -16,15 +16,3 @@ jobs:
         run: .github/scripts/postgresql_postgis.sh
       - name: Install and check PgPointCloud
         run: .github/scripts/pgpointcloud.sh
-  code:
-    name: Code layout
-    runs-on: ubuntu-16.04
-    steps:
-      - name: Install nvm
-        uses: actions/setup-node@v1
-        with:
-          node-version: '8'
-      - name: Linter
-        run: |
-          npm install -g eclint@1.1.5
-          eclint check * */* */cunit/*
