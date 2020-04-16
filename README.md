@@ -10,16 +10,16 @@ A PostgreSQL extension for storing point cloud (LIDAR) data.
 
 |                | PostGIS 2.5   |
 | -------------- |:-------------:|
-| PostgreSQL 9.6 | ![](https://img.shields.io/github/workflow/status/pblottiere/pointcloud/%5Bubuntu-16.04%5D%20PostgreSQL%209.6%20and%20PostGIS%202.5?label=CI&logo=github&style=plastic) |
-| PostgreSQL 10  | ![](https://img.shields.io/github/workflow/status/pblottiere/pointcloud/%5Bubuntu-16.04%5D%20PostgreSQL%2010%20and%20PostGIS%202.5?label=CI&logo=github&style=plastic) |
-| PostgreSQL 11  | ![](https://img.shields.io/github/workflow/status/pblottiere/pointcloud/%5Bubuntu-16.04%5D%20PostgreSQL%2011%20and%20PostGIS%202.5?label=CI&logo=github&style=plastic) |
+| PostgreSQL 9.6 | ![](https://img.shields.io/github/workflow/status/pgpointcloud/pointcloud/%5Bubuntu-16.04%5D%20PostgreSQL%209.6%20and%20PostGIS%202.5?label=CI&logo=github&style=plastic) |
+| PostgreSQL 10  | ![](https://img.shields.io/github/workflow/status/pgpointcloud/pointcloud/%5Bubuntu-16.04%5D%20PostgreSQL%2010%20and%20PostGIS%202.5?label=CI&logo=github&style=plastic) |
+| PostgreSQL 11  | ![](https://img.shields.io/github/workflow/status/pgpointcloud/pointcloud/%5Bubuntu-16.04%5D%20PostgreSQL%2011%20and%20PostGIS%202.5?label=CI&logo=github&style=plastic) |
 
 ### Ubuntu 18.04
 
 
 |                | PostGIS 2.5   | PostGIS 3 |
 | -------------- |:-------------:|:---------:|
-| PostgreSQL 12  | ![](https://img.shields.io/github/workflow/status/pblottiere/pointcloud/%5Bubuntu-18.04%5D%20PostgreSQL%2012%20and%20PostGIS%202.5?label=CI&logo=github&style=plastic) | ![](https://img.shields.io/github/workflow/status/pblottiere/pointcloud/%5Bubuntu-18.04%5D%20PostgreSQL%2012%20and%20PostGIS%203?label=CI&logo=github&style=plastic) |
+| PostgreSQL 12  | ![](https://img.shields.io/github/workflow/status/pgpointcloud/pointcloud/%5Bubuntu-18.04%5D%20PostgreSQL%2012%20and%20PostGIS%202.5?label=CI&logo=github&style=plastic) | ![](https://img.shields.io/github/workflow/status/pgpointcloud/pointcloud/%5Bubuntu-18.04%5D%20PostgreSQL%2012%20and%20PostGIS%203?label=CI&logo=github&style=plastic) |
 
 
 ## Build/Install ##
