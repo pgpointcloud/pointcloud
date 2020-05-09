@@ -17,14 +17,22 @@ RUN apt-get update \
         build-essential \
         autoconf \
         automake \
+        cmake \
         zlib1g-dev \
         postgresql-server-dev-all \
         libxml2-dev \
     && rm -rf /var/lib/apt/lists/* \
+    && git clone https://github.com/verma/laz-perf.git \
+    && cd laz-perf \
+    && cmake . \
+    && make \
+    && make install \
+    && cd .. \
+    && rm -r laz-perf \
     && git clone https://github.com/pgpointcloud/pointcloud \
     && cd pointcloud \
     && ./autogen.sh \
-    && ./configure --with-pgconfig=/usr/lib/postgresql/${POSTGRES_VERSION}/bin/pg_config CFLAGS="-Wall -Werror -O2 -g" \
+    && ./configure --with-lazperf=/usr/local --with-pgconfig=/usr/lib/postgresql/${POSTGRES_VERSION}/bin/pg_config CFLAGS="-Wall -Werror -O2 -g" \
     && make \
     && make install \
     && apt-get purge -y --auto-remove \
@@ -33,6 +41,7 @@ RUN apt-get update \
         build-essential \
         autoconf \
         automake \
+        cmake \
         zlib1g-dev \
         postgresql-server-dev-all \
         libxml2-dev
