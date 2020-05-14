@@ -22,3 +22,7 @@ pgsql/pc_access.bc
 pgsql/pc_editor.bc
 pgsql/pc_inout.bc
 pgsql/pc_pgsql.bc
+
+venv
+doc/build
+doc/__pycache__/
