@@ -1,0 +1,317 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Point Cloud Objects &mdash; pgpointcloud</title>
+  
+
+  
+  
+    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="../genindex.html"/>
+        <link rel="search" title="Search" href="../search.html"/>
+        <link rel="copyright" title="Copyright" href="../copyright.html"/>
+    <link rel="top" title="pgpointcloud" href="../index.html"/>
+        <link rel="up" title="Concepts" href="index.html"/>
+        <link rel="next" title="Tables" href="tables.html"/>
+        <link rel="prev" title="Schemas" href="schemas.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> pgPointcloud
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.2.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Concepts</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="schemas.html">Schemas</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Point Cloud Objects</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#pcpoint">PcPoint</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pcpatch">PcPatch</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tables.html">Tables</a></li>
+<li class="toctree-l2"><a class="reference internal" href="compressions.html">Compressions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="binary.html">Binary Formats</a></li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../download.html">Download</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Getting Started</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../functions/index.html">Functions</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../development.html">Development</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../community.html">Community</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../faq.html">FAQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../copyright.html">License</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">pgPointcloud</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="index.html">Concepts</a> &raquo;</li>
+        
+      <li>Point Cloud Objects</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="point-cloud-objects">
+<span id="objects"></span><h1>Point Cloud Objects<a class="headerlink" href="#point-cloud-objects" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="pcpoint">
+<h2>PcPoint<a class="headerlink" href="#pcpoint" title="Permalink to this headline">¶</a></h2>
+<p>The basic point cloud type is a <code class="docutils literal"><span class="pre">PcPoint</span></code>. Every point has a (large?) number of
+dimensions, but at a minimum an X and Y coordinate that place it in space.</p>
+<p>Points can be rendered in a human-readable JSON form using the
+<code class="docutils literal"><span class="pre">PC_AsText(pcpoint)</span></code> function. The “pcid” is the foreign key reference to the
+<code class="docutils literal"><span class="pre">pointcloud_formats</span></code> table, where the meaning of each dimension in the “pt”
+array of doubles is explained. The underlying storage of the data might not be
+double, but by the time it has been extracted, scaled and offset, it is
+representable as doubles.</p>
+<div class="highlight-sql"><div class="highlight"><pre><span></span>{
+    &quot;pcid&quot; : 1,
+      &quot;pt&quot; : [0.01, 0.02, 0.03, 4]
+}
+</pre></div>
+</div>
+</div>
+<div class="section" id="pcpatch">
+<h2>PcPatch<a class="headerlink" href="#pcpatch" title="Permalink to this headline">¶</a></h2>
+<p>The structure of database storage is such that storing billions of points as
+individual records in a table is not an efficient use of resources. Instead, we
+collect a group of <code class="docutils literal"><span class="pre">PcPoint</span></code> into a <code class="docutils literal"><span class="pre">PcPatch</span></code>. Each patch should hopefully
+contain points that are near together.</p>
+<p>Instead of a table of billions of single <code class="docutils literal"><span class="pre">PcPoint</span></code> records, a collection of
+LIDAR data can be represented in the database as a much smaller collection (10s
+of millions) of <code class="docutils literal"><span class="pre">PcPatch</span></code> records.</p>
+<p>Patches can be rendered into a human-readable JSON form using the
+<code class="docutils literal"><span class="pre">PC_AsText(pcpatch)</span></code> function. The “pcid” is the foreign key reference to the
+<code class="docutils literal"><span class="pre">pointcloud_formats</span></code> table.</p>
+<div class="highlight-sql"><div class="highlight"><pre><span></span>{
+    &quot;pcid&quot; : 1,
+     &quot;pts&quot; : [
+              [0.02, 0.03, 0.05, 6],
+              [0.02, 0.03, 0.05, 8]
+             ]
+}
+</pre></div>
+</div>
+</div>
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="tables.html" class="btn btn-neutral float-right" title="Tables" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="schemas.html" class="btn btn-neutral" title="Schemas" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+
+    </p>
+  </div>
+    <div class="footer">
+        <div class="container">
+            &copy;  2020
+            <a href="https://github.com/pramsey">Paul Ramsey</a>,
+            <a href="http://github.com/pblottiere">Paul Blottiere</a>,
+            <a href="http://github.com/mbredif">Mathieu Brédif</a>,
+            <a href="http://github.com/elemoine">Eric Lemoine</a>,
+            and
+            <a href="https://github.com/pgpointcloud/pointcloud/graphs/contributors">others</a>,
+        </div>
+    </div>
+     
+
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'1.2.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

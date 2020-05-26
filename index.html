@@ -1,132 +1,367 @@
+
+
 <!DOCTYPE html>
-<html>
-  <head>
-    <meta charset='utf-8'>
-    <meta http-equiv="X-UA-Compatible" content="chrome=1">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-    <link href='https://fonts.googleapis.com/css?family=Architects+Daughter' rel='stylesheet' type='text/css'>
-    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
-    <link rel="stylesheet" type="text/css" href="stylesheets/pygment_trac.css" media="screen">
-    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print">
-
-    <!--[if lt IE 9]>
-    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
-    <![endif]-->
-
-    <title>Pointcloud by pgpointcloud</title>
-  </head>
-
-  <body>
-    <header>
-      <div class="inner">
-        <h1>Pointcloud</h1>
-        <h2>A PostgreSQL extension for storing point cloud (LIDAR) data.</h2>
-        <a href="https://github.com/pgpointcloud/pointcloud" class="button"><small>View project on</small> GitHub</a>
-      </div>
-    </header>
-
-    <div id="content-wrapper">
-      <div class="inner clearfix">
-        <section id="main-content">
-          <h3>
-<a name="welcome-to-pgpointcloud-simple-home-site" class="anchor" href="#welcome-to-pgpointcloud-simple-home-site"><span class="octicon octicon-link"></span></a>Welcome to pgPointCloud simple home site</h3>
-
-<h4>
-<a name="introduction" class="anchor" href="#introduction"><span class="octicon octicon-link"></span></a>Introduction</h4>
-
-<p><code>@TODO : put a nice image in background</code></p>
-
-<ul>
-<li>Lidar point cloud are becoming more and more available. Devices are easy to get, not too expensive, and provide very accurate 3D points.</li>
-<li>Yet storing and using those Billions of points is a challenge.</li>
-<li> <strong>pgPointCLoud</strong> is an open source PostgreSQL extension for storing point cloud (LIDAR) data and use it with PostGIS.</li>
-<li>It is very easy to use, robust and efficient.</li>
-<li>By storing Lidar point in a PostgreSQL database, pgPointCloud eases many problems and allows a good integration with other geo-spatial data (vector,raster) into one common framework : PostGIS.</li>
-</ul><h4>
-<a name="what-can-be-done-with-pgpointcloud" class="anchor" href="#what-can-be-done-with-pgpointcloud"><span class="octicon octicon-link"></span></a>What can be done with pgPointCloud?</h4>
-
-<ul>
-<li>pgPointCloud offers a way to efficiently store points in a postgres database.</li>
-<li>In fact, pgpPointCloud stores <em>groups</em> of points (pcPoints) called pcPatch</li>
-<li>storing groups of point allows efficient compression of data.</li>
-<li>This patch have a bounding box which can be used by PostGIS spatial features to greatly accelerate queries.</li>
-<li>pgPointCloud allow then to efficiently <em>query</em> very big point cloud.</li>
-<li><p>Querying can be done using spatial criteria (which points are in this area), as well as point attributes criteria (which points have a value of this attribute between .. and ... ?)</p></li>
-<li><p>The point cloud being in a server, they can be used for processing or visualization, or streamed.</p></li>
-</ul><h4>
-<a name="why-use-pgpointcloud-to-store-lidar-points-into-postgresql-and-not-in-point-cloud-files" class="anchor" href="#why-use-pgpointcloud-to-store-lidar-points-into-postgresql-and-not-in-point-cloud-files"><span class="octicon octicon-link"></span></a>Why use pgPointCloud to store Lidar points into postgreSQL and not in point cloud files?</h4>
-
-<ul>
-<li>The traditional way of storing point cloud is using several files containing each a part of the point cloud</li>
-<li>This as some severe limitations (that could be solved, that would amount to recreate a small postgres/postGis)
-
-<ul>
-<li>Not efficient data query (to get a few points, you need to read the whole file)</li>
-<li>no concurrency (only one user can modify points at a time/read points at a time)</li>
-<li>files tends to get duplicated a lot (each worker has it's own private version)</li>
-<li>no security of data ( file could be corrupted by a processing, hard to manage who access what)</li>
-<li>Hard to use several different point cloud at the same time</li>
-<li>Hard to use point cloud with other spatial data (vector, raster, images)</li>
-</ul>
-</li>
-<li>pgPointCloud solves all of this problem, at a very low cost: you have to use a DBMS.</li>
-</ul><h4>
-<a name="does-pgpointcloud-scale" class="anchor" href="#does-pgpointcloud-scale"><span class="octicon octicon-link"></span></a>Does pgPointCloud scale?</h4>
-
-<ul>
-<li>pgPointCloud is a young project, yet it has been proven to work fast (1ms query time) with a 5 billions points cloud.</li>
-<li>Currently pgPointCloud is fast for
-
-<ul>
-<li>[x] Load data into DB</li>
-<li>[x] automatically compress data</li>
-<li>[x] Query patches based on spatial or other attributes</li>
-</ul>
-</li>
-<li>It is slow for
-
-<ul>
-<li>[ ] Data output (100k pts/sec)</li>
-<li>[ ] In base conversion (no functions)</li>
-</ul>
-</li>
-</ul><h4>
-<a name="resources" class="anchor" href="#resources"><span class="octicon octicon-link"></span></a>Resources</h4>
-
-<ul>
-<li>
-<a href="https://github.com/pramsey/pointcloud#pointcloud">pgPointCloud repository</a> with very thorough step by step demo</li>
-<li><a href="http://lists.osgeo.org/cgi-bin/mailman/listinfo/pgpointcloud">pgPointCloud mailing list</a></li>
-<li>pgPointCloud documentation
-
-<ul>
-<li>
-<a href="http://boundlessgeo.com/wp-content/uploads/2013/10/pgpointcloud-foss4-2013.pdf">General presentationof pgPointCloud by its creator @pramsey</a> </li>
-<li><a href="http://www.coordinatesolutions.com/download/Jan2013OGI%20Presentation.pdf">A testimony of successful uses of pgPointCloud in a vector/raster/Lidar framework </a></li>
-<li><a href="https://github.com/Remi-C/Postgres_Day_2014_10_RemiC/raw/master/presentation/A%20PostgreSQL%20Server%20for%20Point%20Cloud%20Storage%20and%20Processing.pdf">An Advanced presentation of various usages of a Point Cloud server, starting from basic to very complex examples</a></li>
-<li><a href="http://foss4g-e.org/sites/default/files/11-Martinez-Rubi_0.pdf">A scientific paper comparing a pgPointCloud solution and a MonetDB solution</a></li>
-</ul>
-</li>
-</ul>
-        </section>
-
-        <aside id="sidebar">
-          <a href="https://github.com/pgpointcloud/pointcloud/zipball/master" class="button">
-            <small>Download</small>
-            .zip file
-          </a>
-          <a href="https://github.com/pgpointcloud/pointcloud/tarball/master" class="button">
-            <small>Download</small>
-            .tar.gz file
-          </a>
-
-          <p class="repo-owner"><a href="https://github.com/pgpointcloud/pointcloud"></a> is maintained by <a href="https://github.com/pgpointcloud">pgpointcloud</a>.</p>
-
-          <p>This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the Architect theme by <a href="https://twitter.com/jasonlong">Jason Long</a>.</p>
-        </aside>
-      </div>
-    </div>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>pgPointcloud - A PostgreSQL extension for storing point cloud (LIDAR) data. &mdash; pgpointcloud</title>
+  
 
   
-  </body>
+  
+    <link rel="shortcut icon" href="_static/favicon.ico"/>
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="genindex.html"/>
+        <link rel="search" title="Search" href="search.html"/>
+        <link rel="copyright" title="Copyright" href="copyright.html"/>
+    <link rel="top" title="pgpointcloud" href="#"/>
+        <link rel="next" title="Concepts" href="concepts/index.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="#" class="icon icon-home"> pgPointcloud
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.2.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="concepts/index.html">Concepts</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="download.html">Download</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Getting Started</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="functions/index.html">Functions</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="development.html">Development</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="community.html">Community</a></li>
+<li class="toctree-l1"><a class="reference internal" href="faq.html">FAQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="copyright.html">License</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="#">pgPointcloud</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="#">Docs</a> &raquo;</li>
+        
+      <li>pgPointcloud - A PostgreSQL extension for storing point cloud (LIDAR) data.</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="pgpointcloud-a-postgresql-extension-for-storing-point-cloud-lidar-data">
+<span id="home"></span><h1>pgPointcloud - A PostgreSQL extension for storing point cloud (LIDAR) data.<a class="headerlink" href="#pgpointcloud-a-postgresql-extension-for-storing-point-cloud-lidar-data" title="Permalink to this headline">¶</a></h1>
+<p><a class="reference external" href="http://en.wikipedia.org/wiki/LIDAR">LIDAR</a> <a class="reference external" href="http://en.wikipedia.org/wiki/Point_cloud">point cloud</a> are becoming more and more available. Devices are easy to
+get, not too expensive, and provide very accurate 3D points. pgPointCLoud is an
+open source <a class="reference external" href="https://www.postgresql.org/">PostgreSQL</a> extension for storing point cloud data and use it with
+<a class="reference external" href="https://postgis.net/">PostGIS</a>. It is very easy to use, robust and efficient.</p>
+<p>By storing Lidar point in a PostgreSQL database, pgPointcloud eases many
+problems and allows a good integration with other geo-spatial data
+(vector, raster) into one common framework : PostGIS.</p>
+<div class="section" id="news">
+<h2>News<a class="headerlink" href="#news" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id1">
+<h3><strong>01-07-2020</strong><a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
+<p>pgPointcloud 1.2.1 has been released.</p>
+</div>
+</div>
+<div class="section" id="concepts">
+<h2>Concepts<a class="headerlink" href="#concepts" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="concepts/index.html">Concepts</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="concepts/schemas.html">Schemas</a></li>
+<li class="toctree-l2"><a class="reference internal" href="concepts/objects.html">Point Cloud Objects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="concepts/tables.html">Tables</a></li>
+<li class="toctree-l2"><a class="reference internal" href="concepts/compressions.html">Compressions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="concepts/binary.html">Binary Formats</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<div class="section" id="download">
+<h2>Download<a class="headerlink" href="#download" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="download.html">Download</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="download.html#current-release-s">Current Release(s)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="download.html#past-releases">Past Releases</a></li>
+<li class="toctree-l2"><a class="reference internal" href="download.html#development-source">Development Source</a></li>
+<li class="toctree-l2"><a class="reference internal" href="download.html#binaries">Binaries</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<div class="section" id="getting-started">
+<h2>Getting Started<a class="headerlink" href="#getting-started" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Getting Started</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#introduction">Introduction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#install-pdal">Install PDAL</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#running-a-pdal-pipeline">Running a PDAL pipeline</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#pdal-pgpointcloud-reader-writer">PDAL pgpointcloud reader/writer</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<div class="section" id="functions">
+<h2>Functions<a class="headerlink" href="#functions" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="functions/index.html">Functions</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="functions/points.html">PcPoint</a></li>
+<li class="toctree-l2"><a class="reference internal" href="functions/patchs.html">PcPatch</a></li>
+<li class="toctree-l2"><a class="reference internal" href="functions/wkb.html">WKB</a></li>
+<li class="toctree-l2"><a class="reference internal" href="functions/postgis.html">PostGIS</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<div class="section" id="development">
+<h2>Development<a class="headerlink" href="#development" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="development.html">Development</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="development.html#requirements">Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="development.html#build-install">Build/Install</a></li>
+<li class="toctree-l2"><a class="reference internal" href="development.html#tests">Tests</a></li>
+<li class="toctree-l2"><a class="reference internal" href="development.html#write-a-loading-system">Write a loading system</a></li>
+<li class="toctree-l2"><a class="reference internal" href="development.html#documentation">Documentation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="development.html#docker-image">Docker Image</a></li>
+<li class="toctree-l2"><a class="reference internal" href="development.html#continuous-integration">Continuous Integration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="development.html#release">Release</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<div class="section" id="project">
+<h2>Project<a class="headerlink" href="#project" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="community.html">Community</a></li>
+<li class="toctree-l1"><a class="reference internal" href="faq.html">FAQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="copyright.html">License</a></li>
+</ul>
+</div>
+</div>
+<div class="section" id="indices-and-tables">
+<h2>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></li>
+<li><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></li>
+</ul>
+</div>
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="concepts/index.html" class="btn btn-neutral float-right" title="Concepts" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+
+    </p>
+  </div>
+    <div class="footer">
+        <div class="container">
+            &copy;  2020
+            <a href="https://github.com/pramsey">Paul Ramsey</a>,
+            <a href="http://github.com/pblottiere">Paul Blottiere</a>,
+            <a href="http://github.com/mbredif">Mathieu Brédif</a>,
+            <a href="http://github.com/elemoine">Eric Lemoine</a>,
+            and
+            <a href="https://github.com/pgpointcloud/pointcloud/graphs/contributors">others</a>,
+        </div>
+    </div>
+     
+
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'1.2.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
 </html>
