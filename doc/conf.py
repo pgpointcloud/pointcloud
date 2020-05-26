@@ -97,7 +97,7 @@ pygments_style = 'sphinx'
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
-html_theme = 'rtd_theme'
+html_theme = 'sphinx_rtd_theme'
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
@@ -130,7 +130,8 @@ html_static_path = ['_static']
 
 # If not '', a 'Last updated on:' timestamp is inserted at every page bottom,
 # using the given strftime format.
-html_last_updated_fmt = '%b %d, %Y'
+# html_last_updated_fmt = ''
+# html_last_updated_fmt = '%b %d, %Y'
 
 # If true, SmartyPants will be used to convert quotes and dashes to
 # typographically correct entities.
@@ -160,10 +161,10 @@ html_last_updated_fmt = '%b %d, %Y'
 html_show_sourcelink = False
 
 # If true, "Created using Sphinx" is shown in the HTML footer. Default is True.
-#html_show_sphinx = True
+html_show_sphinx = False
 
 # If true, "(C) Copyright ..." is shown in the HTML footer. Default is True.
-#html_show_copyright = True
+html_show_copyright = False
 
 # If true, an OpenSearch description file will be output, and all pages will
 # contain a <link> tag referring to it.  The value of this option must be the
@@ -217,8 +218,8 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-        (master_doc, '%s.tex'% project, u'PDAL: Point cloud Data Abstraction Library',
-         r'Andrew Bell\\Brad Chambers\\Howard Butler\\Michael Gerlek\\PDAL Contributors', 'manual'),
+        (master_doc, '%s.tex'% project, u'pgPointcloud - A PostgreSQL extension for storing point cloud (LIDAR) data.',
+         r'Paul Ramsey\\Paul Blottiere\\Mathieu Brédif\\Eric Lemoine', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
