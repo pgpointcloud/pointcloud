@@ -10,7 +10,7 @@ jobs:
       - name: Check out repository code
         uses: actions/checkout@v2
       - name: Install sphinx
-        run: sudo apt-get install python3-sphinx python3-sphinxcontrib.bibtex
+        run: sudo apt-get install python3-sphinx python3-sphinxcontrib.bibtex python3-sphinx-rtd-theme
       - name: Build html documentation
         run: cd doc && make html && cd -
       - name: Deploy
