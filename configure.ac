@@ -205,6 +205,11 @@ dnl the final version. This is to guard against user error...
 PGSQL_FULL_VERSION=`$PG_CONFIG --version`
 PGSQL_MAJOR_VERSION=`echo $PGSQL_FULL_VERSION | sed 's/[[^0-9]]*\([[0-9]]*\).*/\1/'`
 PGSQL_MINOR_VERSION=`echo $PGSQL_FULL_VERSION | sed 's/[[^0-9]]*\([[0-9]]*\)\.\([[0-9]]*\).*/\2/'`
+
+if test "$PGSQL_MAJOR_VERSION" -ge 9; then
+	PGSQL_MINOR_VERSION=0
+fi
+
 PGSQL_VERSION="$PGSQL_MAJOR_VERSION$PGSQL_MINOR_VERSION"
 
 AC_SUBST([PGSQL_MAJOR_VERSION])
