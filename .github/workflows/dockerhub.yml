@@ -1,6 +1,9 @@
 name: "Docker image latest"
 
-on: [push, pull_request]
+on:
+  push:
+    branches:
+    - master
 
 jobs:
   build:
