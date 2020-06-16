@@ -15,4 +15,10 @@ jobs:
           POSTGIS_VERSION: 2.5
         run: .github/scripts/postgresql_postgis.sh
       - name: Install and check PgPointCloud
+        env:
+          POSTGRESQL_VERSION: 10
+          POSTGIS_VERSION: 2.5
         run: .github/scripts/pgpointcloud.sh
+      - name: Error
+        if: ${{ failure() }}
+        run: cat pgsql/regression.diffs
