@@ -131,7 +131,7 @@ SELECT Sum(PC_NumPoints(pa)) FROM pa_test_laz;
 SELECT Sum(PC_MemSize(pa)) FROM pa_test_laz;
  sum 
 -----
- 487
+ 519
 (1 row)
 
 SELECT Sum(PC_PatchMax(pa,'x')) FROM pa_test_laz;
@@ -233,7 +233,7 @@ SELECT Sum(PC_NumPoints(pa)) FROM pa_test_laz;
 SELECT Sum(PC_MemSize(pa)) FROM pa_test_laz;
  sum  
 ------
- 1499
+ 1539
 (1 row)
 
 SELECT Max(PC_PatchMax(pa,'x')) FROM pa_test_laz;
