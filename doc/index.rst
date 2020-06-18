@@ -9,7 +9,7 @@ get, not too expensive, and provide very accurate 3D points. pgPointCLoud is an
 open source PostgreSQL_ extension for storing point cloud data and use it with
 PostGIS_. It is very easy to use, robust and efficient.
 
-By storing Lidar point in a PostgreSQL database, pgPointcloud eases many
+By storing LIDAR points in a PostgreSQL database, pgPointcloud eases many
 problems and allows a good integration with other geo-spatial data
 (vector, raster) into one common framework : PostGIS.
 
