@@ -26,3 +26,5 @@ pgsql/pc_pgsql.bc
 venv
 doc/build
 doc/__pycache__/
+
+**/.DS_Store

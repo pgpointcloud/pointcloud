@@ -45,3 +45,6 @@ RUN apt-get update \
         zlib1g-dev \
         postgresql-server-dev-all \
         libxml2-dev
+
+RUN mkdir -p /docker-entrypoint-initdb.d
+COPY ./initdb-pgpointcloud.sh /docker-entrypoint-initdb.d/10_pgpointcloud.sh
