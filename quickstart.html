@@ -103,13 +103,16 @@
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Getting Started</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#introduction">Introduction</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#install-pdal">Install PDAL</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#running-a-pdal-pipeline">Running a PDAL pipeline</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#pdal-pgpointcloud-reader-writer">PDAL pgpointcloud reader/writer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#running-a-pipeline">Running a pipeline</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#pgpointcloud-reader-writer">pgpointcloud reader/writer</a></li>
 </ul>
 </li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="functions/index.html">Functions</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/index.html">Tutorials</a></li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="development.html">Development</a></li>
@@ -195,8 +198,8 @@ format conversion library.</p>
 <p>With PDAL installed you’re ready to run a PDAL import into PostgreSQL
 PointCloud thanks to the dedicated <a class="reference external" href="https://pdal.io/stages/writers.pgpointcloud.html#writers-pgpointcloud">pgPointcloud writer</a>.</p>
 </div>
-<div class="section" id="running-a-pdal-pipeline">
-<h2>Running a PDAL pipeline<a class="headerlink" href="#running-a-pdal-pipeline" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="running-a-pipeline">
+<h2>Running a pipeline<a class="headerlink" href="#running-a-pipeline" title="Permalink to this headline">¶</a></h2>
 <p>PDAL includes a <a class="reference external" href="https://pdal.io/apps/index.html">command line program</a> that allows both simple format
 translations and more complex “pipelines” of transformation. The pdal translate
 does simple format transformations. In order to load data into Pointcloud we
@@ -283,8 +286,8 @@ partial extracts from a table:</p>
 </pre></div>
 </div>
 </div>
-<div class="section" id="pdal-pgpointcloud-reader-writer">
-<h2>PDAL pgpointcloud reader/writer<a class="headerlink" href="#pdal-pgpointcloud-reader-writer" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="pgpointcloud-reader-writer">
+<h2>pgpointcloud reader/writer<a class="headerlink" href="#pgpointcloud-reader-writer" title="Permalink to this headline">¶</a></h2>
 <p>The PDAL <a class="reference external" href="https://pdal.io/stages/writers.pgpointcloud.html">writers.pgpointcloud</a> for PostgreSQL Pointcloud takes the following
 options:</p>
 <ul class="simple">

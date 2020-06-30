@@ -24,7 +24,7 @@ With PDAL installed you're ready to run a PDAL import into PostgreSQL
 PointCloud thanks to the dedicated `pgPointcloud writer`_.
 
 
-Running a PDAL pipeline
+Running a pipeline
 ------------------------------------------------------------------------------
 
 PDAL includes a `command line program`_ that allows both simple format
@@ -125,7 +125,7 @@ partial extracts from a table:
   }
 
 
-PDAL pgpointcloud reader/writer
+pgpointcloud reader/writer
 ------------------------------------------------------------------------------
 
 The PDAL `writers.pgpointcloud`_ for PostgreSQL Pointcloud takes the following

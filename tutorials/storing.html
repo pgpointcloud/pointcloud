@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Concepts &mdash; pgpointcloud</title>
+  <title>Storing points &mdash; pgpointcloud</title>
   
 
   
@@ -39,8 +39,9 @@
         <link rel="search" title="Search" href="../search.html"/>
         <link rel="copyright" title="Copyright" href="../copyright.html"/>
     <link rel="top" title="pgpointcloud" href="../index.html"/>
-        <link rel="next" title="Schemas" href="schemas.html"/>
-        <link rel="prev" title="pgPointcloud - A PostgreSQL extension for storing point cloud (LIDAR) data." href="../index.html"/> 
+        <link rel="up" title="Tutorials" href="index.html"/>
+        <link rel="next" title="Development" href="../development.html"/>
+        <link rel="prev" title="Tutorials" href="index.html"/> 
 
   
   <script src="../_static/js/modernizr.min.js"></script>
@@ -93,15 +94,8 @@
               
             
             
-              <ul class="current">
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Concepts</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="schemas.html">Schemas</a></li>
-<li class="toctree-l2"><a class="reference internal" href="objects.html">Point Cloud Objects</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tables.html">Tables</a></li>
-<li class="toctree-l2"><a class="reference internal" href="compressions.html">Compressions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="binary.html">Binary Formats</a></li>
-</ul>
-</li>
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../concepts/index.html">Concepts</a></li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../download.html">Download</a></li>
@@ -112,8 +106,16 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../functions/index.html">Functions</a></li>
 </ul>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../tutorials/index.html">Tutorials</a></li>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Tutorials</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Storing points</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#start-docker-container">Start Docker container</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#run-pdal-pipeline">Run PDAL pipeline</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#configure-connection-service-file">Configure connection service file</a></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../development.html">Development</a></li>
@@ -166,7 +168,9 @@
     
       <li><a href="../index.html">Docs</a> &raquo;</li>
         
-      <li>Concepts</li>
+          <li><a href="index.html">Tutorials</a> &raquo;</li>
+        
+      <li>Storing points</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -183,31 +187,48 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="concepts">
-<span id="id1"></span><h1>Concepts<a class="headerlink" href="#concepts" title="Permalink to this headline">¶</a></h1>
-<p>LIDAR sensors quickly produce millions of points with large numbers of
-variables measured on each point. The challenge for a point cloud database
-extension is efficiently storing this data while allowing high fidelity access
-to the many variables stored.</p>
-<div class="toctree-wrapper compound">
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="schemas.html">Schemas</a></li>
-<li class="toctree-l1"><a class="reference internal" href="objects.html">Point Cloud Objects</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="objects.html#pcpoint">PcPoint</a></li>
-<li class="toctree-l2"><a class="reference internal" href="objects.html#pcpatch">PcPatch</a></li>
+  <div class="section" id="storing-points">
+<h1>Storing points<a class="headerlink" href="#storing-points" title="Permalink to this headline">¶</a></h1>
+<p>This tutorial is a basic introduction to pgPointcloud to store points in a
+PostgreSQL database hosted on a Docker container.</p>
+<div class="section" id="start-docker-container">
+<h2>Start Docker container<a class="headerlink" href="#start-docker-container" title="Permalink to this headline">¶</a></h2>
+<p>First we download the latest tag of the pgPoincloud Docker image:</p>
+<p>This Docker image is based on the official PostgreSQL image and the full
+documentation is available <a class="reference external" href="https://hub.docker.com/_/postgres">here</a>.</p>
+<p>For a basic usage, we have to define two environment variables:</p>
+<ul class="simple">
+<li>the PostgreSQL database: <code class="docutils literal"><span class="pre">POSTGRES_DB</span></code></li>
+<li>the PostgreSQL password: <code class="docutils literal"><span class="pre">POSTGRES_PASSWORD</span></code></li>
 </ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="tables.html">Tables</a></li>
-<li class="toctree-l1"><a class="reference internal" href="compressions.html">Compressions</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="compressions.html#dimensional-compression">Dimensional Compression</a></li>
+<p>Then we can start a new container:</p>
+<p>Extensions are automatically created in the new database named <code class="docutils literal"><span class="pre">pointclouds</span></code>:</p>
+</div>
+<div class="section" id="run-pdal-pipeline">
+<h2>Run PDAL pipeline<a class="headerlink" href="#run-pdal-pipeline" title="Permalink to this headline">¶</a></h2>
+<p>For the need of the tutorial, we can download sample data from the <a class="reference external" href="https://github.com/PDAL">PDAL</a>
+organization:</p>
+<p>Thanks to the <code class="docutils literal"><span class="pre">pdal</span> <span class="pre">info</span></code> command, we can obtain some information on the dataset:</p>
+<ul class="simple">
+<li>Number of points: 3811489</li>
+<li>Spatial reference: EPSG:32616</li>
 </ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="binary.html">Binary Formats</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="binary.html#point-binary">Point Binary</a></li>
-<li class="toctree-l2"><a class="reference internal" href="binary.html#patch-binary">Patch Binary</a></li>
-</ul>
-</li>
-</ul>
+<p>To configure the json PDAL pipeline, we need to set up the <code class="docutils literal"><span class="pre">connection</span></code>
+parameter for the <code class="docutils literal"><span class="pre">pgpointcloud</span></code> writer. To do that, the Docker container IP
+adress on which the PostgreSQL database is running is necessary:</p>
+<p>So the <code class="docutils literal"><span class="pre">pipeline.json</span></code> file looks like:</p>
+<p>}</p>
+<p>The PDAL pipeline can finally be execute with <code class="docutils literal"><span class="pre">pdal</span> <span class="pre">pipeline</span> <span class="pre">pipeline.json</span></code>
+and an <code class="docutils literal"><span class="pre">airport</span></code> table is created.</p>
+</div>
+<div class="section" id="configure-connection-service-file">
+<h2>Configure connection service file<a class="headerlink" href="#configure-connection-service-file" title="Permalink to this headline">¶</a></h2>
+<p>To facilitate the access to the database hosted on the Docker container, we can
+configure the PostgreSQL connection service file:</p>
+<p>Then we can explore the content of the new <code class="docutils literal"><span class="pre">airport</span></code> table:</p>
+<p>In this case, we have <code class="docutils literal"><span class="pre">9529</span></code> patchs containing <code class="docutils literal"><span class="pre">400</span></code> points (the size of
+the chipper filter), meaning about <code class="docutils literal"><span class="pre">3811600</span></code> points. So the last patch isn’t
+fully filled.</p>
 </div>
 </div>
 
@@ -221,10 +242,10 @@ to the many variables stored.</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="schemas.html" class="btn btn-neutral float-right" title="Schemas" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="../development.html" class="btn btn-neutral float-right" title="Development" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="../index.html" class="btn btn-neutral" title="pgPointcloud - A PostgreSQL extension for storing point cloud (LIDAR) data." accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="index.html" class="btn btn-neutral" title="Tutorials" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

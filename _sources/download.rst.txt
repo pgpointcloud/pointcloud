@@ -50,6 +50,19 @@ the development version with ``git``:
 .. _`github`: https://github.com/pgpointcloud/pointcloud/
 
 
+Docker Hub
+-----------------------------------------------------------------------------
+
+An official Docker image is available on `Docker Hub`_. To retrieve the
+development version:
+
+.. code-block:: bash
+
+   $ docker pull pgpointcloud/pointcloud
+
+.. _`Docker Hub`: https://hub.docker.com/r/pgpointcloud/pointcloud
+
+
 Binaries
 ------------------------------------------------------------------------------
 
