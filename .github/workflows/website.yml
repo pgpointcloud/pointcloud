@@ -13,9 +13,9 @@ jobs:
       - name: Check out repository code
         uses: actions/checkout@v2
       - name: Install sphinx
-        run: sudo apt-get install python3-sphinx python3-sphinxcontrib.bibtex python3-sphinx-rtd-theme
+        run: sudo apt-get install python3-virtualenv virtualenv
       - name: Build html documentation
-        run: cd doc && make html && cd -
+        run: virtualenv -p /usr/bin/python3 venv && source venv/bin/activate && pip install sphinx sphinx_rtd_theme sphinxcontrib.bibtex && cd doc && make html && cd -
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v2.4.0
         env:
