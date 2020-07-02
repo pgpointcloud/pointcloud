@@ -1,8 +1,7 @@
 
 
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html5" lang="en" >
 <head>
   <meta charset="utf-8">
   
@@ -12,6 +11,10 @@
   
 
   
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+
+  
   
     <link rel="shortcut icon" href="../_static/favicon.ico"/>
   
@@ -19,48 +22,39 @@
   
 
   
-
-  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
   
     
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
 
-  
-
-  
-  
-    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
-  
-
-  
-
-  
-        <link rel="index" title="Index"
-              href="../genindex.html"/>
-        <link rel="search" title="Search" href="../search.html"/>
-        <link rel="copyright" title="Copyright" href="../copyright.html"/>
-    <link rel="top" title="pgpointcloud" href="../index.html"/>
-        <link rel="up" title="Functions" href="index.html"/>
-        <link rel="next" title="Tutorials" href="../tutorials/index.html"/>
-        <link rel="prev" title="WKB" href="wkb.html"/> 
-
-  
-  <script src="../_static/js/modernizr.min.js"></script>
-
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="copyright" title="Copyright" href="../copyright.html" />
+    <link rel="next" title="Tutorials" href="../tutorials/index.html" />
+    <link rel="prev" title="WKB" href="wkb.html" /> 
 </head>
 
-<body class="wy-body-for-nav" role="document">
+<body class="wy-body-for-nav">
 
    
   <div class="wy-grid-for-nav">
-
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search">
+        <div class="wy-side-nav-search" >
           
 
           
-            <a href="../index.html" class="icon icon-home"> pgPointcloud
+            <a href="../index.html" class="icon icon-home" alt="Documentation Home"> pgPointcloud
           
 
           
@@ -87,6 +81,7 @@
           
         </div>
 
+        
         <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
           
             
@@ -134,13 +129,14 @@
             
           
         </div>
+        
       </div>
     </nav>
 
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
 
       
-      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+      <nav class="wy-nav-top" aria-label="top navigation">
         
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="../index.html">pgPointcloud</a>
@@ -148,9 +144,10 @@
       </nav>
 
 
-      
       <div class="wy-nav-content">
+        
         <div class="rst-content">
+        
           
 
 
@@ -171,7 +168,7 @@
 
   <ul class="wy-breadcrumbs">
     
-      <li><a href="../index.html">Docs</a> &raquo;</li>
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
         
           <li><a href="index.html">Functions</a> &raquo;</li>
         
@@ -194,99 +191,124 @@
             
   <div class="section" id="postgis">
 <span id="points"></span><h1>PostGIS<a class="headerlink" href="#postgis" title="Permalink to this headline">¶</a></h1>
-<p>The <code class="docutils literal"><span class="pre">pointcloud_postgis</span></code> extension adds functions that allow you to use
-PostgreSQL Pointcloud with PostGIS, converting <code class="docutils literal"><span class="pre">PcPoint</span></code> and <code class="docutils literal"><span class="pre">PcPatch</span></code> to
+<p>The <code class="docutils literal notranslate"><span class="pre">pointcloud_postgis</span></code> extension adds functions that allow you to use
+PostgreSQL Pointcloud with PostGIS, converting <code class="docutils literal notranslate"><span class="pre">PcPoint</span></code> and <code class="docutils literal notranslate"><span class="pre">PcPatch</span></code> to
 Geometry and doing spatial filtering on point cloud data. The
-<code class="docutils literal"><span class="pre">pointcloud_postgis</span></code> extension depends on both the <code class="docutils literal"><span class="pre">postgis</span></code> and
-<code class="docutils literal"><span class="pre">pointcloud</span> <span class="pre">extensions</span></code>, so they must be installed first:</p>
-<div class="highlight-sql"><div class="highlight"><pre><span></span><span class="k">CREATE</span> <span class="n">EXTENSION</span> <span class="n">postgis</span><span class="p">;</span>
+<code class="docutils literal notranslate"><span class="pre">pointcloud_postgis</span></code> extension depends on both the <code class="docutils literal notranslate"><span class="pre">postgis</span></code> and
+<code class="docutils literal notranslate"><span class="pre">pointcloud</span> <span class="pre">extensions</span></code>, so they must be installed first:</p>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">CREATE</span> <span class="n">EXTENSION</span> <span class="n">postgis</span><span class="p">;</span>
 <span class="k">CREATE</span> <span class="n">EXTENSION</span> <span class="n">pointcloud</span><span class="p">;</span>
 <span class="k">CREATE</span> <span class="n">EXTENSION</span> <span class="n">pointcloud_postgis</span><span class="p">;</span>
 </pre></div>
 </div>
 <div class="section" id="pc-intersects">
 <h2>PC_Intersects<a class="headerlink" href="#pc-intersects" title="Permalink to this headline">¶</a></h2>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name" colspan="2">PC_Intersects(p pcpatch, g geometry) returns boolean:</th></tr>
-<tr class="field-odd field"><td>&#160;</td><td class="field-body"></td>
-</tr>
-<tr class="field-even field"><th class="field-name" colspan="2">PC_Intersects(g geometry, p pcpatch) returns boolean:</th></tr>
-<tr class="field-even field"><td>&#160;</td><td class="field-body"></td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">PC_Intersects(p pcpatch, g geometry) returns boolean</dt>
+<dd class="field-odd"><p></p></dd>
+<dt class="field-even">PC_Intersects(g geometry, p pcpatch) returns boolean</dt>
+<dd class="field-even"><p></p></dd>
+</dl>
 <p>Returns true if the bounds of the patch intersect the geometry.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">SELECT</span> <span class="n">PC_Intersects</span><span class="p">(</span><span class="s1">&#39;SRID=4326;POINT(-126.451 45.552)&#39;</span><span class="p">::</span><span class="n">geometry</span><span class="p">,</span> <span class="n">pa</span><span class="p">)</span>
+<span class="n">FROM</span> <span class="n">patches</span> <span class="n">WHERE</span> <span class="nb">id</span> <span class="o">=</span> <span class="mi">7</span><span class="p">;</span>
+
+<span class="n">t</span>
+</pre></div>
+</div>
 </div>
 <div class="section" id="pc-intersection">
 <h2>PC_Intersection<a class="headerlink" href="#pc-intersection" title="Permalink to this headline">¶</a></h2>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name" colspan="2">PC_Intersection(pcpatch, geometry) returns pcpatch:</th></tr>
-<tr class="field-odd field"><td>&#160;</td><td class="field-body"></td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">PC_Intersection(pcpatch, geometry) returns pcpatch</dt>
+<dd class="field-odd"><p></p></dd>
+</dl>
 <p>Returns a PcPatch which only contains points that intersected the geometry.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">SELECT</span> <span class="n">PC_AsText</span><span class="p">(</span><span class="n">PC_Explode</span><span class="p">(</span><span class="n">PC_Intersection</span><span class="p">(</span>
+      <span class="n">pa</span><span class="p">,</span>
+      <span class="s1">&#39;SRID=4326;POLYGON((-126.451 45.552, -126.42 47.55, -126.40 45.552, -126.451 45.552))&#39;</span><span class="p">::</span><span class="n">geometry</span>
+<span class="p">)))</span>
+<span class="n">FROM</span> <span class="n">patches</span> <span class="n">WHERE</span> <span class="nb">id</span> <span class="o">=</span> <span class="mi">7</span><span class="p">;</span>
+
+             <span class="n">pc_astext</span>
+<span class="o">--------------------------------------</span>
+ <span class="p">{</span><span class="s2">&quot;pcid&quot;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span><span class="s2">&quot;pt&quot;</span><span class="p">:[</span><span class="o">-</span><span class="mf">126.44</span><span class="p">,</span><span class="mf">45.56</span><span class="p">,</span><span class="mi">56</span><span class="p">,</span><span class="mi">5</span><span class="p">]}</span>
+ <span class="p">{</span><span class="s2">&quot;pcid&quot;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span><span class="s2">&quot;pt&quot;</span><span class="p">:[</span><span class="o">-</span><span class="mf">126.43</span><span class="p">,</span><span class="mf">45.57</span><span class="p">,</span><span class="mi">57</span><span class="p">,</span><span class="mi">5</span><span class="p">]}</span>
+ <span class="p">{</span><span class="s2">&quot;pcid&quot;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span><span class="s2">&quot;pt&quot;</span><span class="p">:[</span><span class="o">-</span><span class="mf">126.42</span><span class="p">,</span><span class="mf">45.58</span><span class="p">,</span><span class="mi">58</span><span class="p">,</span><span class="mi">5</span><span class="p">]}</span>
+ <span class="p">{</span><span class="s2">&quot;pcid&quot;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span><span class="s2">&quot;pt&quot;</span><span class="p">:[</span><span class="o">-</span><span class="mf">126.41</span><span class="p">,</span><span class="mf">45.59</span><span class="p">,</span><span class="mi">59</span><span class="p">,</span><span class="mi">5</span><span class="p">]}</span>
+</pre></div>
+</div>
 </div>
 <div class="section" id="geometry">
 <h2>Geometry<a class="headerlink" href="#geometry" title="Permalink to this headline">¶</a></h2>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name" colspan="2">Geometry(pcpoint) returns geometry:</th></tr>
-<tr class="field-odd field"><td>&#160;</td><td class="field-body"></td>
-</tr>
-</tbody>
-</table>
-<p>:pcpoint::geometry returns geometry:</p>
-<p>Casts <code class="docutils literal"><span class="pre">PcPoint</span></code> to the PostGIS geometry equivalent, placing the x/y/z/m of the
-<code class="docutils literal"><span class="pre">PcPoint</span></code> into the x/y/z/m of the PostGIS point.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Geometry(pcpoint) returns geometry</dt>
+<dd class="field-odd"><p></p></dd>
+<dt class="field-even">pcpoint::geometry returns geometry</dt>
+<dd class="field-even"><p></p></dd>
+</dl>
+<p>Casts <code class="docutils literal notranslate"><span class="pre">PcPoint</span></code> to the PostGIS geometry equivalent, placing the x/y/z/m of the
+<code class="docutils literal notranslate"><span class="pre">PcPoint</span></code> into the x/y/z/m of the PostGIS point.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">SELECT</span> <span class="n">ST_AsText</span><span class="p">(</span><span class="n">PC_MakePoint</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">ARRAY</span><span class="p">[</span><span class="o">-</span><span class="mi">127</span><span class="p">,</span> <span class="mi">45</span><span class="p">,</span> <span class="mf">124.0</span><span class="p">,</span> <span class="mf">4.0</span><span class="p">])::</span><span class="n">geometry</span><span class="p">);</span>
+
+<span class="n">POINT</span> <span class="n">Z</span> <span class="p">(</span><span class="o">-</span><span class="mi">127</span> <span class="mi">45</span> <span class="mi">124</span><span class="p">)</span>
+</pre></div>
+</div>
 </div>
 <div class="section" id="pc-envelopegeometry">
 <h2>PC_EnvelopeGeometry<a class="headerlink" href="#pc-envelopegeometry" title="Permalink to this headline">¶</a></h2>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name" colspan="2">PC_EnvelopeGeometry(pcpatch) returns geometry:</th></tr>
-<tr class="field-odd field"><td>&#160;</td><td class="field-body"></td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">PC_EnvelopeGeometry(pcpatch) returns geometry</dt>
+<dd class="field-odd"><p></p></dd>
+</dl>
 <p>Returns the 2D bounds of the patch as a PostGIS Polygon 2D. Useful for
 performing 2D intersection tests with PostGIS geometries.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">SELECT</span> <span class="n">ST_AsText</span><span class="p">(</span><span class="n">PC_EnvelopeGeometry</span><span class="p">(</span><span class="n">pa</span><span class="p">))</span> <span class="n">FROM</span> <span class="n">patches</span> <span class="n">LIMIT</span> <span class="mi">1</span><span class="p">;</span>
+
+<span class="n">POLYGON</span><span class="p">((</span><span class="o">-</span><span class="mf">126.99</span> <span class="mf">45.01</span><span class="p">,</span><span class="o">-</span><span class="mf">126.99</span> <span class="mf">45.09</span><span class="p">,</span><span class="o">-</span><span class="mf">126.91</span> <span class="mf">45.09</span><span class="p">,</span><span class="o">-</span><span class="mf">126.91</span> <span class="mf">45.01</span><span class="p">,</span><span class="o">-</span><span class="mf">126.99</span> <span class="mf">45.01</span><span class="p">))</span>
+</pre></div>
+</div>
 <p>For example, this is how one may want to create an index:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">CREATE</span> <span class="n">INDEX</span> <span class="n">ON</span> <span class="n">patches</span> <span class="n">USING</span> <span class="n">GIST</span><span class="p">(</span><span class="n">PC_EnvelopeGeometry</span><span class="p">(</span><span class="n">patch</span><span class="p">));</span>
+</pre></div>
+</div>
 </div>
 <div class="section" id="pc-boundingdiagonalgeometry">
 <h2>PC_BoundingDiagonalGeometry<a class="headerlink" href="#pc-boundingdiagonalgeometry" title="Permalink to this headline">¶</a></h2>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name" colspan="2">PC_BoundingDiagonalGeometry(pcpatch) returns geometry:</th></tr>
-<tr class="field-odd field"><td>&#160;</td><td class="field-body"></td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">PC_BoundingDiagonalGeometry(pcpatch) returns geometry</dt>
+<dd class="field-odd"><p></p></dd>
+</dl>
 <p>Returns the bounding diagonal of a patch. This is a LineString (2D), a
 LineString Z or a LineString M or a LineString ZM, based on the existence of
 the Z and M dimensions in the patch. This function is useful for creating an
 index on a patch column.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">SELECT</span> <span class="n">ST_AsText</span><span class="p">(</span><span class="n">PC_BoundingDiagonalGeometry</span><span class="p">(</span><span class="n">pa</span><span class="p">))</span> <span class="n">FROM</span> <span class="n">patches</span><span class="p">;</span>
+                  <span class="n">st_astext</span>
+<span class="o">------------------------------------------------</span>
+<span class="n">LINESTRING</span> <span class="n">Z</span> <span class="p">(</span><span class="o">-</span><span class="mf">126.99</span> <span class="mf">45.01</span> <span class="mi">1</span><span class="p">,</span><span class="o">-</span><span class="mf">126.91</span> <span class="mf">45.09</span> <span class="mi">9</span><span class="p">)</span>
+<span class="n">LINESTRING</span> <span class="n">Z</span> <span class="p">(</span><span class="o">-</span><span class="mi">126</span> <span class="mi">46</span> <span class="mi">100</span><span class="p">,</span><span class="o">-</span><span class="mi">126</span> <span class="mi">46</span> <span class="mi">100</span><span class="p">)</span>
+<span class="n">LINESTRING</span> <span class="n">Z</span> <span class="p">(</span><span class="o">-</span><span class="mf">126.2</span> <span class="mf">45.8</span> <span class="mi">80</span><span class="p">,</span><span class="o">-</span><span class="mf">126.11</span> <span class="mf">45.89</span> <span class="mi">89</span><span class="p">)</span>
+<span class="n">LINESTRING</span> <span class="n">Z</span> <span class="p">(</span><span class="o">-</span><span class="mf">126.4</span> <span class="mf">45.6</span> <span class="mi">60</span><span class="p">,</span><span class="o">-</span><span class="mf">126.31</span> <span class="mf">45.69</span> <span class="mi">69</span><span class="p">)</span>
+<span class="n">LINESTRING</span> <span class="n">Z</span> <span class="p">(</span><span class="o">-</span><span class="mf">126.3</span> <span class="mf">45.7</span> <span class="mi">70</span><span class="p">,</span><span class="o">-</span><span class="mf">126.21</span> <span class="mf">45.79</span> <span class="mi">79</span><span class="p">)</span>
+<span class="n">LINESTRING</span> <span class="n">Z</span> <span class="p">(</span><span class="o">-</span><span class="mf">126.8</span> <span class="mf">45.2</span> <span class="mi">20</span><span class="p">,</span><span class="o">-</span><span class="mf">126.71</span> <span class="mf">45.29</span> <span class="mi">29</span><span class="p">)</span>
+<span class="n">LINESTRING</span> <span class="n">Z</span> <span class="p">(</span><span class="o">-</span><span class="mf">126.5</span> <span class="mf">45.5</span> <span class="mi">50</span><span class="p">,</span><span class="o">-</span><span class="mf">126.41</span> <span class="mf">45.59</span> <span class="mi">59</span><span class="p">)</span>
+<span class="n">LINESTRING</span> <span class="n">Z</span> <span class="p">(</span><span class="o">-</span><span class="mf">126.6</span> <span class="mf">45.4</span> <span class="mi">40</span><span class="p">,</span><span class="o">-</span><span class="mf">126.51</span> <span class="mf">45.49</span> <span class="mi">49</span><span class="p">)</span>
+<span class="n">LINESTRING</span> <span class="n">Z</span> <span class="p">(</span><span class="o">-</span><span class="mf">126.9</span> <span class="mf">45.1</span> <span class="mi">10</span><span class="p">,</span><span class="o">-</span><span class="mf">126.81</span> <span class="mf">45.19</span> <span class="mi">19</span><span class="p">)</span>
+<span class="n">LINESTRING</span> <span class="n">Z</span> <span class="p">(</span><span class="o">-</span><span class="mf">126.7</span> <span class="mf">45.3</span> <span class="mi">30</span><span class="p">,</span><span class="o">-</span><span class="mf">126.61</span> <span class="mf">45.39</span> <span class="mi">39</span><span class="p">)</span>
+<span class="n">LINESTRING</span> <span class="n">Z</span> <span class="p">(</span><span class="o">-</span><span class="mf">126.1</span> <span class="mf">45.9</span> <span class="mi">90</span><span class="p">,</span><span class="o">-</span><span class="mf">126.01</span> <span class="mf">45.99</span> <span class="mi">99</span><span class="p">)</span>
+</pre></div>
+</div>
 <p>For example, this is how one may want to create an index:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">CREATE</span> <span class="n">INDEX</span> <span class="n">ON</span> <span class="n">patches</span> <span class="n">USING</span> <span class="n">GIST</span><span class="p">(</span><span class="n">PC_BoundingDiagonalGeometry</span><span class="p">(</span><span class="n">patch</span><span class="p">)</span> <span class="n">gist_geometry_ops_nd</span><span class="p">);</span>
+</pre></div>
+</div>
 </div>
 </div>
 
 
            </div>
-           <div class="articleComments">
-            
-           </div>
+           
           </div>
           <footer>
   
@@ -295,7 +317,7 @@ index on a patch column.</p>
         <a href="../tutorials/index.html" class="btn btn-neutral float-right" title="Tutorials" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="wkb.html" class="btn btn-neutral" title="WKB" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="wkb.html" class="btn btn-neutral float-left" title="WKB" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -331,38 +353,15 @@ index on a patch column.</p>
   </div>
   
 
-
-  
-
-    <script type="text/javascript">
-        var DOCUMENTATION_OPTIONS = {
-            URL_ROOT:'../',
-            VERSION:'1.2.1',
-            COLLAPSE_INDEX:false,
-            FILE_SUFFIX:'.html',
-            HAS_SOURCE:  true,
-            SOURCELINK_SUFFIX: '.txt'
-        };
-    </script>
-      <script type="text/javascript" src="../_static/jquery.js"></script>
-      <script type="text/javascript" src="../_static/underscore.js"></script>
-      <script type="text/javascript" src="../_static/doctools.js"></script>
-      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-
-  
-
-  
-  
-    <script type="text/javascript" src="../_static/js/theme.js"></script>
-  
-
-  
-  
   <script type="text/javascript">
       jQuery(function () {
-          SphinxRtdTheme.StickyNav.enable();
+          SphinxRtdTheme.Navigation.enable(true);
       });
   </script>
+
+  
+  
+    
    
 
 </body>

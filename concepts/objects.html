@@ -1,8 +1,7 @@
 
 
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html5" lang="en" >
 <head>
   <meta charset="utf-8">
   
@@ -12,6 +11,10 @@
   
 
   
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+
+  
   
     <link rel="shortcut icon" href="../_static/favicon.ico"/>
   
@@ -19,48 +22,39 @@
   
 
   
-
-  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
   
     
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
 
-  
-
-  
-  
-    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
-  
-
-  
-
-  
-        <link rel="index" title="Index"
-              href="../genindex.html"/>
-        <link rel="search" title="Search" href="../search.html"/>
-        <link rel="copyright" title="Copyright" href="../copyright.html"/>
-    <link rel="top" title="pgpointcloud" href="../index.html"/>
-        <link rel="up" title="Concepts" href="index.html"/>
-        <link rel="next" title="Tables" href="tables.html"/>
-        <link rel="prev" title="Schemas" href="schemas.html"/> 
-
-  
-  <script src="../_static/js/modernizr.min.js"></script>
-
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="copyright" title="Copyright" href="../copyright.html" />
+    <link rel="next" title="Tables" href="tables.html" />
+    <link rel="prev" title="Schemas" href="schemas.html" /> 
 </head>
 
-<body class="wy-body-for-nav" role="document">
+<body class="wy-body-for-nav">
 
    
   <div class="wy-grid-for-nav">
-
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search">
+        <div class="wy-side-nav-search" >
           
 
           
-            <a href="../index.html" class="icon icon-home"> pgPointcloud
+            <a href="../index.html" class="icon icon-home" alt="Documentation Home"> pgPointcloud
           
 
           
@@ -87,6 +81,7 @@
           
         </div>
 
+        
         <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
           
             
@@ -132,13 +127,14 @@
             
           
         </div>
+        
       </div>
     </nav>
 
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
 
       
-      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+      <nav class="wy-nav-top" aria-label="top navigation">
         
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="../index.html">pgPointcloud</a>
@@ -146,9 +142,10 @@
       </nav>
 
 
-      
       <div class="wy-nav-content">
+        
         <div class="rst-content">
+        
           
 
 
@@ -169,7 +166,7 @@
 
   <ul class="wy-breadcrumbs">
     
-      <li><a href="../index.html">Docs</a> &raquo;</li>
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
         
           <li><a href="index.html">Concepts</a> &raquo;</li>
         
@@ -194,15 +191,15 @@
 <span id="objects"></span><h1>Point Cloud Objects<a class="headerlink" href="#point-cloud-objects" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="pcpoint">
 <h2>PcPoint<a class="headerlink" href="#pcpoint" title="Permalink to this headline">¶</a></h2>
-<p>The basic point cloud type is a <code class="docutils literal"><span class="pre">PcPoint</span></code>. Every point has a (large?) number of
+<p>The basic point cloud type is a <code class="docutils literal notranslate"><span class="pre">PcPoint</span></code>. Every point has a (large?) number of
 dimensions, but at a minimum an X and Y coordinate that place it in space.</p>
 <p>Points can be rendered in a human-readable JSON form using the
-<code class="docutils literal"><span class="pre">PC_AsText(pcpoint)</span></code> function. The “pcid” is the foreign key reference to the
-<code class="docutils literal"><span class="pre">pointcloud_formats</span></code> table, where the meaning of each dimension in the “pt”
+<code class="docutils literal notranslate"><span class="pre">PC_AsText(pcpoint)</span></code> function. The “pcid” is the foreign key reference to the
+<code class="docutils literal notranslate"><span class="pre">pointcloud_formats</span></code> table, where the meaning of each dimension in the “pt”
 array of doubles is explained. The underlying storage of the data might not be
 double, but by the time it has been extracted, scaled and offset, it is
 representable as doubles.</p>
-<div class="highlight-sql"><div class="highlight"><pre><span></span>{
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span>{
     &quot;pcid&quot; : 1,
       &quot;pt&quot; : [0.01, 0.02, 0.03, 4]
 }
@@ -213,15 +210,15 @@ representable as doubles.</p>
 <h2>PcPatch<a class="headerlink" href="#pcpatch" title="Permalink to this headline">¶</a></h2>
 <p>The structure of database storage is such that storing billions of points as
 individual records in a table is not an efficient use of resources. Instead, we
-collect a group of <code class="docutils literal"><span class="pre">PcPoint</span></code> into a <code class="docutils literal"><span class="pre">PcPatch</span></code>. Each patch should hopefully
+collect a group of <code class="docutils literal notranslate"><span class="pre">PcPoint</span></code> into a <code class="docutils literal notranslate"><span class="pre">PcPatch</span></code>. Each patch should hopefully
 contain points that are near together.</p>
-<p>Instead of a table of billions of single <code class="docutils literal"><span class="pre">PcPoint</span></code> records, a collection of
+<p>Instead of a table of billions of single <code class="docutils literal notranslate"><span class="pre">PcPoint</span></code> records, a collection of
 LIDAR data can be represented in the database as a much smaller collection (10s
-of millions) of <code class="docutils literal"><span class="pre">PcPatch</span></code> records.</p>
+of millions) of <code class="docutils literal notranslate"><span class="pre">PcPatch</span></code> records.</p>
 <p>Patches can be rendered into a human-readable JSON form using the
-<code class="docutils literal"><span class="pre">PC_AsText(pcpatch)</span></code> function. The “pcid” is the foreign key reference to the
-<code class="docutils literal"><span class="pre">pointcloud_formats</span></code> table.</p>
-<div class="highlight-sql"><div class="highlight"><pre><span></span>{
+<code class="docutils literal notranslate"><span class="pre">PC_AsText(pcpatch)</span></code> function. The “pcid” is the foreign key reference to the
+<code class="docutils literal notranslate"><span class="pre">pointcloud_formats</span></code> table.</p>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span>{
     &quot;pcid&quot; : 1,
      &quot;pts&quot; : [
               [0.02, 0.03, 0.05, 6],
@@ -235,9 +232,7 @@ of millions) of <code class="docutils literal"><span class="pre">PcPatch</span><
 
 
            </div>
-           <div class="articleComments">
-            
-           </div>
+           
           </div>
           <footer>
   
@@ -246,7 +241,7 @@ of millions) of <code class="docutils literal"><span class="pre">PcPatch</span><
         <a href="tables.html" class="btn btn-neutral float-right" title="Tables" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="schemas.html" class="btn btn-neutral" title="Schemas" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="schemas.html" class="btn btn-neutral float-left" title="Schemas" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -282,38 +277,15 @@ of millions) of <code class="docutils literal"><span class="pre">PcPatch</span><
   </div>
   
 
-
-  
-
-    <script type="text/javascript">
-        var DOCUMENTATION_OPTIONS = {
-            URL_ROOT:'../',
-            VERSION:'1.2.1',
-            COLLAPSE_INDEX:false,
-            FILE_SUFFIX:'.html',
-            HAS_SOURCE:  true,
-            SOURCELINK_SUFFIX: '.txt'
-        };
-    </script>
-      <script type="text/javascript" src="../_static/jquery.js"></script>
-      <script type="text/javascript" src="../_static/underscore.js"></script>
-      <script type="text/javascript" src="../_static/doctools.js"></script>
-      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-
-  
-
-  
-  
-    <script type="text/javascript" src="../_static/js/theme.js"></script>
-  
-
-  
-  
   <script type="text/javascript">
       jQuery(function () {
-          SphinxRtdTheme.StickyNav.enable();
+          SphinxRtdTheme.Navigation.enable(true);
       });
   </script>
+
+  
+  
+    
    
 
 </body>

@@ -1,8 +1,7 @@
 
 
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html5" lang="en" >
 <head>
   <meta charset="utf-8">
   
@@ -12,6 +11,10 @@
   
 
   
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+
+  
   
     <link rel="shortcut icon" href="../_static/favicon.ico"/>
   
@@ -19,48 +22,39 @@
   
 
   
-
-  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
   
     
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
 
-  
-
-  
-  
-    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
-  
-
-  
-
-  
-        <link rel="index" title="Index"
-              href="../genindex.html"/>
-        <link rel="search" title="Search" href="../search.html"/>
-        <link rel="copyright" title="Copyright" href="../copyright.html"/>
-    <link rel="top" title="pgpointcloud" href="../index.html"/>
-        <link rel="up" title="Tutorials" href="index.html"/>
-        <link rel="next" title="Development" href="../development.html"/>
-        <link rel="prev" title="Tutorials" href="index.html"/> 
-
-  
-  <script src="../_static/js/modernizr.min.js"></script>
-
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="copyright" title="Copyright" href="../copyright.html" />
+    <link rel="next" title="Development" href="../development.html" />
+    <link rel="prev" title="Tutorials" href="index.html" /> 
 </head>
 
-<body class="wy-body-for-nav" role="document">
+<body class="wy-body-for-nav">
 
    
   <div class="wy-grid-for-nav">
-
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search">
+        <div class="wy-side-nav-search" >
           
 
           
-            <a href="../index.html" class="icon icon-home"> pgPointcloud
+            <a href="../index.html" class="icon icon-home" alt="Documentation Home"> pgPointcloud
           
 
           
@@ -87,6 +81,7 @@
           
         </div>
 
+        
         <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
           
             
@@ -129,13 +124,14 @@
             
           
         </div>
+        
       </div>
     </nav>
 
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
 
       
-      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+      <nav class="wy-nav-top" aria-label="top navigation">
         
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="../index.html">pgPointcloud</a>
@@ -143,9 +139,10 @@
       </nav>
 
 
-      
       <div class="wy-nav-content">
+        
         <div class="rst-content">
+        
           
 
 
@@ -166,7 +163,7 @@
 
   <ul class="wy-breadcrumbs">
     
-      <li><a href="../index.html">Docs</a> &raquo;</li>
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
         
           <li><a href="index.html">Tutorials</a> &raquo;</li>
         
@@ -194,49 +191,113 @@ PostgreSQL database hosted on a Docker container.</p>
 <div class="section" id="start-docker-container">
 <h2>Start Docker container<a class="headerlink" href="#start-docker-container" title="Permalink to this headline">¶</a></h2>
 <p>First we download the latest tag of the pgPoincloud Docker image:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ docker pull pgpointcloud/pointcloud
+</pre></div>
+</div>
 <p>This Docker image is based on the official PostgreSQL image and the full
 documentation is available <a class="reference external" href="https://hub.docker.com/_/postgres">here</a>.</p>
 <p>For a basic usage, we have to define two environment variables:</p>
 <ul class="simple">
-<li>the PostgreSQL database: <code class="docutils literal"><span class="pre">POSTGRES_DB</span></code></li>
-<li>the PostgreSQL password: <code class="docutils literal"><span class="pre">POSTGRES_PASSWORD</span></code></li>
+<li><p>the PostgreSQL database: <code class="docutils literal notranslate"><span class="pre">POSTGRES_DB</span></code></p></li>
+<li><p>the PostgreSQL password: <code class="docutils literal notranslate"><span class="pre">POSTGRES_PASSWORD</span></code></p></li>
 </ul>
 <p>Then we can start a new container:</p>
-<p>Extensions are automatically created in the new database named <code class="docutils literal"><span class="pre">pointclouds</span></code>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ docker run --name pgpointcloud -e POSTGRES_DB=pointclouds -e POSTGRES_PASSWORD=mysecretpassword -d pgpointcloud/pointcloud
+</pre></div>
+</div>
+<p>Extensions are automatically created in the new database named <code class="docutils literal notranslate"><span class="pre">pointclouds</span></code>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ docker exec -it pgpointcloud psql -U postgres -d pointclouds -c &quot;\dx&quot;
+                                          List of installed extensions
+        Name          | Version |   Schema   |                             Description
+------------------------+---------+------------+---------------------------------------------------------------------
+ fuzzystrmatch          | 1.1     | public     | determine similarities and distance between strings
+ plpgsql                | 1.0     | pg_catalog | PL/pgSQL procedural language
+ pointcloud             | 1.2.1   | public     | data type for lidar point clouds
+ pointcloud_postgis     | 1.2.1   | public     | integration for pointcloud LIDAR data and PostGIS geometry data
+ postgis                | 3.0.1   | public     | PostGIS geometry, geography, and raster spatial types and functions
+ postgis_tiger_geocoder | 3.0.1   | tiger      | PostGIS tiger geocoder and reverse geocoder
+ postgis_topology       | 3.0.1   | topology   | PostGIS topology spatial types and functions
+(7 rows)
+</pre></div>
+</div>
 </div>
 <div class="section" id="run-pdal-pipeline">
 <h2>Run PDAL pipeline<a class="headerlink" href="#run-pdal-pipeline" title="Permalink to this headline">¶</a></h2>
 <p>For the need of the tutorial, we can download sample data from the <a class="reference external" href="https://github.com/PDAL">PDAL</a>
 organization:</p>
-<p>Thanks to the <code class="docutils literal"><span class="pre">pdal</span> <span class="pre">info</span></code> command, we can obtain some information on the dataset:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ wget https://github.com/PDAL/data/raw/master/liblas/LAS12_Sample_withRGB_Quick_Terrain_Modeler_fixed.laz /tmp
+</pre></div>
+</div>
+<p>Thanks to the <code class="docutils literal notranslate"><span class="pre">pdal</span> <span class="pre">info</span></code> command, we can obtain some information on the dataset:</p>
 <ul class="simple">
-<li>Number of points: 3811489</li>
-<li>Spatial reference: EPSG:32616</li>
+<li><p>Number of points: 3811489</p></li>
+<li><p>Spatial reference: EPSG:32616</p></li>
 </ul>
-<p>To configure the json PDAL pipeline, we need to set up the <code class="docutils literal"><span class="pre">connection</span></code>
-parameter for the <code class="docutils literal"><span class="pre">pgpointcloud</span></code> writer. To do that, the Docker container IP
+<p>To configure the json PDAL pipeline, we need to set up the <code class="docutils literal notranslate"><span class="pre">connection</span></code>
+parameter for the <code class="docutils literal notranslate"><span class="pre">pgpointcloud</span></code> writer. To do that, the Docker container IP
 adress on which the PostgreSQL database is running is necessary:</p>
-<p>So the <code class="docutils literal"><span class="pre">pipeline.json</span></code> file looks like:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ docker inspect -f &#39;{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}&#39; pgpointcloud
+172.17.0.2
+</pre></div>
+</div>
+<p>So the <code class="docutils literal notranslate"><span class="pre">pipeline.json</span></code> file looks like:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="s2">&quot;pipeline&quot;</span><span class="p">:[</span>
+  <span class="p">{</span>
+    <span class="s2">&quot;type&quot;</span><span class="p">:</span><span class="s2">&quot;readers.las&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;filename&quot;</span><span class="p">:</span><span class="s2">&quot;/tmp/LAS12_Sample_withRGB_Quick_Terrain_Modeler_fixed.laz&quot;</span>
+  <span class="p">},</span>
+  <span class="p">{</span>
+    <span class="s2">&quot;type&quot;</span><span class="p">:</span><span class="s2">&quot;filters.chipper&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;capacity&quot;</span><span class="p">:</span><span class="s2">&quot;400&quot;</span>
+  <span class="p">},</span>
+  <span class="p">{</span>
+    <span class="s2">&quot;type&quot;</span><span class="p">:</span><span class="s2">&quot;writers.pgpointcloud&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;connection&quot;</span><span class="p">:</span><span class="s2">&quot;host=&#39;172.17.0.2&#39; dbname=&#39;pointclouds&#39; user=&#39;postgres&#39; password=&#39;mysecretpassword&#39; port=&#39;5432&#39;&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;table&quot;</span><span class="p">:</span><span class="s2">&quot;airport&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;compression&quot;</span><span class="p">:</span><span class="s2">&quot;none&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;srid&quot;</span><span class="p">:</span><span class="s2">&quot;32616&quot;</span>
+  <span class="p">}</span>
+<span class="p">]</span>
+</pre></div>
+</div>
 <p>}</p>
-<p>The PDAL pipeline can finally be execute with <code class="docutils literal"><span class="pre">pdal</span> <span class="pre">pipeline</span> <span class="pre">pipeline.json</span></code>
-and an <code class="docutils literal"><span class="pre">airport</span></code> table is created.</p>
+<p>The PDAL pipeline can finally be execute with <code class="docutils literal notranslate"><span class="pre">pdal</span> <span class="pre">pipeline</span> <span class="pre">pipeline.json</span></code>
+and an <code class="docutils literal notranslate"><span class="pre">airport</span></code> table is created.</p>
 </div>
 <div class="section" id="configure-connection-service-file">
 <h2>Configure connection service file<a class="headerlink" href="#configure-connection-service-file" title="Permalink to this headline">¶</a></h2>
 <p>To facilitate the access to the database hosted on the Docker container, we can
 configure the PostgreSQL connection service file:</p>
-<p>Then we can explore the content of the new <code class="docutils literal"><span class="pre">airport</span></code> table:</p>
-<p>In this case, we have <code class="docutils literal"><span class="pre">9529</span></code> patchs containing <code class="docutils literal"><span class="pre">400</span></code> points (the size of
-the chipper filter), meaning about <code class="docutils literal"><span class="pre">3811600</span></code> points. So the last patch isn’t
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">pgpointcloud</span><span class="p">]</span>
+<span class="n">host</span><span class="o">=</span><span class="mf">172.17</span><span class="o">.</span><span class="mf">0.2</span>
+<span class="n">port</span><span class="o">=</span><span class="mi">5432</span>
+<span class="n">dbname</span><span class="o">=</span><span class="n">pointclouds</span>
+<span class="n">user</span><span class="o">=</span><span class="n">postgres</span>
+<span class="n">password</span><span class="o">=</span><span class="n">mysecretpassword</span>
+</pre></div>
+</div>
+<p>Then we can explore the content of the new <code class="docutils literal notranslate"><span class="pre">airport</span></code> table:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ psql service=pgpointcloud
+psql (12.3)
+Type &quot;help&quot; for help.
+
+pointclouds=# select count(*) from airport;
+ count
+-------
+  9529
+(1 row)
+</pre></div>
+</div>
+<p>In this case, we have <code class="docutils literal notranslate"><span class="pre">9529</span></code> patchs containing <code class="docutils literal notranslate"><span class="pre">400</span></code> points (the size of
+the chipper filter), meaning about <code class="docutils literal notranslate"><span class="pre">3811600</span></code> points. So the last patch isn’t
 fully filled.</p>
 </div>
 </div>
 
 
            </div>
-           <div class="articleComments">
-            
-           </div>
+           
           </div>
           <footer>
   
@@ -245,7 +306,7 @@ fully filled.</p>
         <a href="../development.html" class="btn btn-neutral float-right" title="Development" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="index.html" class="btn btn-neutral" title="Tutorials" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="index.html" class="btn btn-neutral float-left" title="Tutorials" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -281,38 +342,15 @@ fully filled.</p>
   </div>
   
 
-
-  
-
-    <script type="text/javascript">
-        var DOCUMENTATION_OPTIONS = {
-            URL_ROOT:'../',
-            VERSION:'1.2.1',
-            COLLAPSE_INDEX:false,
-            FILE_SUFFIX:'.html',
-            HAS_SOURCE:  true,
-            SOURCELINK_SUFFIX: '.txt'
-        };
-    </script>
-      <script type="text/javascript" src="../_static/jquery.js"></script>
-      <script type="text/javascript" src="../_static/underscore.js"></script>
-      <script type="text/javascript" src="../_static/doctools.js"></script>
-      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-
-  
-
-  
-  
-    <script type="text/javascript" src="../_static/js/theme.js"></script>
-  
-
-  
-  
   <script type="text/javascript">
       jQuery(function () {
-          SphinxRtdTheme.StickyNav.enable();
+          SphinxRtdTheme.Navigation.enable(true);
       });
   </script>
+
+  
+  
+    
    
 
 </body>

@@ -1,8 +1,7 @@
 
 
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html5" lang="en" >
 <head>
   <meta charset="utf-8">
   
@@ -12,6 +11,10 @@
   
 
   
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+
+  
   
     <link rel="shortcut icon" href="../_static/favicon.ico"/>
   
@@ -19,48 +22,39 @@
   
 
   
-
-  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
   
     
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
 
-  
-
-  
-  
-    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
-  
-
-  
-
-  
-        <link rel="index" title="Index"
-              href="../genindex.html"/>
-        <link rel="search" title="Search" href="../search.html"/>
-        <link rel="copyright" title="Copyright" href="../copyright.html"/>
-    <link rel="top" title="pgpointcloud" href="../index.html"/>
-        <link rel="up" title="Functions" href="index.html"/>
-        <link rel="next" title="PcPatch" href="patchs.html"/>
-        <link rel="prev" title="Functions" href="index.html"/> 
-
-  
-  <script src="../_static/js/modernizr.min.js"></script>
-
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="copyright" title="Copyright" href="../copyright.html" />
+    <link rel="next" title="PcPatch" href="patchs.html" />
+    <link rel="prev" title="Functions" href="index.html" /> 
 </head>
 
-<body class="wy-body-for-nav" role="document">
+<body class="wy-body-for-nav">
 
    
   <div class="wy-grid-for-nav">
-
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search">
+        <div class="wy-side-nav-search" >
           
 
           
-            <a href="../index.html" class="icon icon-home"> pgPointcloud
+            <a href="../index.html" class="icon icon-home" alt="Documentation Home"> pgPointcloud
           
 
           
@@ -87,6 +81,7 @@
           
         </div>
 
+        
         <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
           
             
@@ -134,13 +129,14 @@
             
           
         </div>
+        
       </div>
     </nav>
 
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
 
       
-      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+      <nav class="wy-nav-top" aria-label="top navigation">
         
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="../index.html">pgPointcloud</a>
@@ -148,9 +144,10 @@
       </nav>
 
 
-      
       <div class="wy-nav-content">
+        
         <div class="rst-content">
+        
           
 
 
@@ -171,7 +168,7 @@
 
   <ul class="wy-breadcrumbs">
     
-      <li><a href="../index.html">Docs</a> &raquo;</li>
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
         
           <li><a href="index.html">Functions</a> &raquo;</li>
         
@@ -196,89 +193,99 @@
 <span id="points"></span><h1>PcPoint<a class="headerlink" href="#pcpoint" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="pc-makepoint">
 <h2>PC_MakePoint<a class="headerlink" href="#pc-makepoint" title="Permalink to this headline">¶</a></h2>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name" colspan="2">PC_MakePoint(pcid integer, vals float8[]) returns pcpoint:</th></tr>
-<tr class="field-odd field"><td>&#160;</td><td class="field-body"></td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">PC_MakePoint(pcid integer, vals float8[]) returns pcpoint</dt>
+<dd class="field-odd"><p></p></dd>
+</dl>
 <p>Given a valid pcid schema number and an array of doubles that matches the
 schema, construct a new pcpoint.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">SELECT</span> <span class="n">PC_MakePoint</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">ARRAY</span><span class="p">[</span><span class="o">-</span><span class="mi">127</span><span class="p">,</span> <span class="mi">45</span><span class="p">,</span> <span class="mf">124.0</span><span class="p">,</span> <span class="mf">4.0</span><span class="p">]);</span>
+
+<span class="mi">010100000064</span><span class="n">CEFFFF94110000703000000400</span>
+</pre></div>
+</div>
 <p>Insert some test values into the points table:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">INSERT</span> <span class="n">INTO</span> <span class="n">points</span> <span class="p">(</span><span class="n">pt</span><span class="p">)</span>
+<span class="n">SELECT</span> <span class="n">PC_MakePoint</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">ARRAY</span><span class="p">[</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">,</span><span class="n">z</span><span class="p">,</span><span class="n">intensity</span><span class="p">])</span>
+<span class="n">FROM</span> <span class="p">(</span>
+  <span class="n">SELECT</span>
+  <span class="o">-</span><span class="mi">127</span><span class="o">+</span><span class="n">a</span><span class="o">/</span><span class="mf">100.0</span> <span class="n">AS</span> <span class="n">x</span><span class="p">,</span>
+    <span class="mi">45</span><span class="o">+</span><span class="n">a</span><span class="o">/</span><span class="mf">100.0</span> <span class="n">AS</span> <span class="n">y</span><span class="p">,</span>
+         <span class="mf">1.0</span><span class="o">*</span><span class="n">a</span> <span class="n">AS</span> <span class="n">z</span><span class="p">,</span>
+          <span class="n">a</span><span class="o">/</span><span class="mi">10</span> <span class="n">AS</span> <span class="n">intensity</span>
+  <span class="n">FROM</span> <span class="n">generate_series</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">100</span><span class="p">)</span> <span class="n">AS</span> <span class="n">a</span>
+<span class="p">)</span> <span class="n">AS</span> <span class="n">values</span><span class="p">;</span>
+</pre></div>
+</div>
 </div>
 <div class="section" id="pc-astext">
 <h2>PC_AsText<a class="headerlink" href="#pc-astext" title="Permalink to this headline">¶</a></h2>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name" colspan="2">PC_AsText(p pcpoint) returns text:</th></tr>
-<tr class="field-odd field"><td>&#160;</td><td class="field-body"></td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">PC_AsText(p pcpoint) returns text</dt>
+<dd class="field-odd"><p></p></dd>
+</dl>
 <p>Return a JSON version of the data in that point.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">SELECT</span> <span class="n">PC_AsText</span><span class="p">(</span><span class="s1">&#39;010100000064CEFFFF94110000703000000400&#39;</span><span class="p">::</span><span class="n">pcpoint</span><span class="p">);</span>
+
+<span class="p">{</span><span class="s2">&quot;pcid&quot;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span><span class="s2">&quot;pt&quot;</span><span class="p">:[</span><span class="o">-</span><span class="mi">127</span><span class="p">,</span><span class="mi">45</span><span class="p">,</span><span class="mi">124</span><span class="p">,</span><span class="mi">4</span><span class="p">]}</span>
+</pre></div>
+</div>
 </div>
 <div class="section" id="pc-pcid">
 <h2>PC_PCId<a class="headerlink" href="#pc-pcid" title="Permalink to this headline">¶</a></h2>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name" colspan="2">PC_PCId(p pcpoint) returns integer (from 1.1.0):</th></tr>
-<tr class="field-odd field"><td>&#160;</td><td class="field-body"></td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">PC_PCId(p pcpoint) returns integer (from 1.1.0)</dt>
+<dd class="field-odd"><p></p></dd>
+</dl>
 <p>Return the pcid schema number of this point.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">SELECT</span> <span class="n">PC_PCId</span><span class="p">(</span><span class="s1">&#39;010100000064CEFFFF94110000703000000400&#39;</span><span class="p">::</span><span class="n">pcpoint</span><span class="p">);</span>
+
+<span class="mi">1</span>
+</pre></div>
+</div>
 </div>
 <div class="section" id="pc-get">
 <h2>PC_Get<a class="headerlink" href="#pc-get" title="Permalink to this headline">¶</a></h2>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name" colspan="2">PC_Get(pt pcpoint) returns float8[]:</th></tr>
-<tr class="field-odd field"><td>&#160;</td><td class="field-body"></td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">PC_Get(pt pcpoint) returns float8[]</dt>
+<dd class="field-odd"><p></p></dd>
+</dl>
 <p>Return values of all dimensions in an array.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name" colspan="2">PC_Get(pt pcpoint, dimname text) returns numeric:</th></tr>
-<tr class="field-odd field"><td>&#160;</td><td class="field-body"></td>
-</tr>
-</tbody>
-</table>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">SELECT</span> <span class="n">PC_Get</span><span class="p">(</span><span class="s1">&#39;010100000064CEFFFF94110000703000000400&#39;</span><span class="p">::</span><span class="n">pcpoint</span><span class="p">);</span>
+
+<span class="p">{</span><span class="o">-</span><span class="mi">127</span><span class="p">,</span><span class="mi">45</span><span class="p">,</span><span class="mi">124</span><span class="p">,</span><span class="mi">4</span><span class="p">}</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">PC_Get(pt pcpoint, dimname text) returns numeric</dt>
+<dd class="field-odd"><p></p></dd>
+</dl>
 <p>Return the numeric value of the named dimension. The dimension name must exist
 in the schema.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">SELECT</span> <span class="n">PC_Get</span><span class="p">(</span><span class="s1">&#39;010100000064CEFFFF94110000703000000400&#39;</span><span class="p">::</span><span class="n">pcpoint</span><span class="p">,</span> <span class="s1">&#39;Intensity&#39;</span><span class="p">);</span>
+
+<span class="mi">4</span>
+</pre></div>
+</div>
 </div>
 <div class="section" id="pc-memsize">
 <h2>PC_MemSize<a class="headerlink" href="#pc-memsize" title="Permalink to this headline">¶</a></h2>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name" colspan="2">PC_MemSize(pt pcpoint) returns int4:</th></tr>
-<tr class="field-odd field"><td>&#160;</td><td class="field-body"></td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">PC_MemSize(pt pcpoint) returns int4</dt>
+<dd class="field-odd"><p></p></dd>
+</dl>
 <p>Return the memory size of a pcpoint.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">SELECT</span> <span class="n">PC_MemSize</span><span class="p">(</span><span class="n">PC_MakePoint</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">ARRAY</span><span class="p">[</span><span class="o">-</span><span class="mi">127</span><span class="p">,</span> <span class="mi">45</span><span class="p">,</span> <span class="mf">124.0</span><span class="p">,</span> <span class="mf">4.0</span><span class="p">]));</span>
+
+<span class="mi">25</span>
+</pre></div>
+</div>
 </div>
 </div>
 
 
            </div>
-           <div class="articleComments">
-            
-           </div>
+           
           </div>
           <footer>
   
@@ -287,7 +294,7 @@ in the schema.</p>
         <a href="patchs.html" class="btn btn-neutral float-right" title="PcPatch" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="index.html" class="btn btn-neutral" title="Functions" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="index.html" class="btn btn-neutral float-left" title="Functions" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -323,38 +330,15 @@ in the schema.</p>
   </div>
   
 
-
-  
-
-    <script type="text/javascript">
-        var DOCUMENTATION_OPTIONS = {
-            URL_ROOT:'../',
-            VERSION:'1.2.1',
-            COLLAPSE_INDEX:false,
-            FILE_SUFFIX:'.html',
-            HAS_SOURCE:  true,
-            SOURCELINK_SUFFIX: '.txt'
-        };
-    </script>
-      <script type="text/javascript" src="../_static/jquery.js"></script>
-      <script type="text/javascript" src="../_static/underscore.js"></script>
-      <script type="text/javascript" src="../_static/doctools.js"></script>
-      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-
-  
-
-  
-  
-    <script type="text/javascript" src="../_static/js/theme.js"></script>
-  
-
-  
-  
   <script type="text/javascript">
       jQuery(function () {
-          SphinxRtdTheme.StickyNav.enable();
+          SphinxRtdTheme.Navigation.enable(true);
       });
   </script>
+
+  
+  
+    
    
 
 </body>

@@ -1,8 +1,7 @@
 
 
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html5" lang="en" >
 <head>
   <meta charset="utf-8">
   
@@ -12,6 +11,10 @@
   
 
   
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+
+  
   
     <link rel="shortcut icon" href="_static/favicon.ico"/>
   
@@ -19,47 +22,39 @@
   
 
   
-
-  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
   
     
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
 
-  
-
-  
-  
-    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  
-
-  
-
-  
-        <link rel="index" title="Index"
-              href="genindex.html"/>
-        <link rel="search" title="Search" href="search.html"/>
-        <link rel="copyright" title="Copyright" href="copyright.html"/>
-    <link rel="top" title="pgpointcloud" href="index.html"/>
-        <link rel="next" title="License" href="copyright.html"/>
-        <link rel="prev" title="Community" href="community.html"/> 
-
-  
-  <script src="_static/js/modernizr.min.js"></script>
-
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="copyright" title="Copyright" href="copyright.html" />
+    <link rel="next" title="License" href="copyright.html" />
+    <link rel="prev" title="Community" href="community.html" /> 
 </head>
 
-<body class="wy-body-for-nav" role="document">
+<body class="wy-body-for-nav">
 
    
   <div class="wy-grid-for-nav">
-
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search">
+        <div class="wy-side-nav-search" >
           
 
           
-            <a href="index.html" class="icon icon-home"> pgPointcloud
+            <a href="index.html" class="icon icon-home" alt="Documentation Home"> pgPointcloud
           
 
           
@@ -86,6 +81,7 @@
           
         </div>
 
+        
         <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
           
             
@@ -120,13 +116,14 @@
             
           
         </div>
+        
       </div>
     </nav>
 
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
 
       
-      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+      <nav class="wy-nav-top" aria-label="top navigation">
         
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="index.html">pgPointcloud</a>
@@ -134,9 +131,10 @@
       </nav>
 
 
-      
       <div class="wy-nav-content">
+        
         <div class="rst-content">
+        
           
 
 
@@ -157,7 +155,7 @@
 
   <ul class="wy-breadcrumbs">
     
-      <li><a href="index.html">Docs</a> &raquo;</li>
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
         
       <li>FAQ</li>
     
@@ -181,17 +179,17 @@
 <p><strong>What can be done with pgPointcloud?</strong></p>
 <blockquote>
 <div><ul class="simple">
-<li>pgPointcloud offers a way to efficiently store points in a postgres
-database.  In fact, pgpPointCloud stores groups of points (<code class="docutils literal"><span class="pre">pcPoints</span></code>)
-called <code class="docutils literal"><span class="pre">pcPatch</span></code> storing groups of point allows efficient compression of
+<li><p>pgPointcloud offers a way to efficiently store points in a postgres
+database.  In fact, pgpPointCloud stores groups of points (<code class="docutils literal notranslate"><span class="pre">pcPoints</span></code>)
+called <code class="docutils literal notranslate"><span class="pre">pcPatch</span></code> storing groups of point allows efficient compression of
 data.  This patch have a bounding box which can be used by PostGIS spatial
 features to greatly accelerate queries. pgPointcloud allows then to
 efficiently query very big point cloud. Querying can be done using spatial
 criteria (which points are in this area), as well as point attributes
 criteria (which points have a value of this attribute between .. and …
-?).</li>
-<li>The point cloud being in a server, they can be used for processing or
-visualization, or streamed.</li>
+?).</p></li>
+<li><p>The point cloud being in a server, they can be used for processing or
+visualization, or streamed.</p></li>
 </ul>
 </div></blockquote>
 <div class="line-block">
@@ -203,14 +201,14 @@ visualization, or streamed.</li>
 each a part of the point cloud. This has some severe limitations:</p>
 <blockquote>
 <div><ul class="simple">
-<li>Not efficient data query (to get a few points, you need to read the whole file)</li>
-<li>No concurrency (only one user can modify points at a time/read points at
-a time)</li>
-<li>Files tends to get duplicated a lot (each worker has it’s own private
+<li><p>Not efficient data query (to get a few points, you need to read the whole file)</p></li>
+<li><p>No concurrency (only one user can modify points at a time/read points at
+a time)</p></li>
+<li><p>Files tends to get duplicated a lot (each worker has it’s own private
 version) no security of data ( file could be corrupted by a processing,
-hard to manage who access what)</li>
-<li>Hard to use several different point cloud at the same time</li>
-<li>Hard to use point cloud with other spatial data (vector, raster, images)</li>
+hard to manage who access what)</p></li>
+<li><p>Hard to use several different point cloud at the same time</p></li>
+<li><p>Hard to use point cloud with other spatial data (vector, raster, images)</p></li>
 </ul>
 </div></blockquote>
 <p>pgPointcloud solves all of this problem, at a very low cost: you have to use a
@@ -226,16 +224,16 @@ time) with a 5 billions points cloud.</p>
 <p>Currently pgPointcloud is fast for:</p>
 <blockquote>
 <div><ul class="simple">
-<li>Load data into DB</li>
-<li>Automatically compress data</li>
-<li>Query patches based on spatial or other attributes</li>
+<li><p>Load data into DB</p></li>
+<li><p>Automatically compress data</p></li>
+<li><p>Query patches based on spatial or other attributes</p></li>
 </ul>
 </div></blockquote>
 <p>It is slow for:</p>
 <blockquote>
 <div><ul class="simple">
-<li>Data output (100k pts/sec)</li>
-<li>In base conversion (no functions)</li>
+<li><p>Data output (100k pts/sec)</p></li>
+<li><p>In base conversion (no functions)</p></li>
 </ul>
 </div></blockquote>
 </div></blockquote>
@@ -243,9 +241,7 @@ time) with a 5 billions points cloud.</p>
 
 
            </div>
-           <div class="articleComments">
-            
-           </div>
+           
           </div>
           <footer>
   
@@ -254,7 +250,7 @@ time) with a 5 billions points cloud.</p>
         <a href="copyright.html" class="btn btn-neutral float-right" title="License" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="community.html" class="btn btn-neutral" title="Community" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="community.html" class="btn btn-neutral float-left" title="Community" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -290,38 +286,15 @@ time) with a 5 billions points cloud.</p>
   </div>
   
 
-
-  
-
-    <script type="text/javascript">
-        var DOCUMENTATION_OPTIONS = {
-            URL_ROOT:'./',
-            VERSION:'1.2.1',
-            COLLAPSE_INDEX:false,
-            FILE_SUFFIX:'.html',
-            HAS_SOURCE:  true,
-            SOURCELINK_SUFFIX: '.txt'
-        };
-    </script>
-      <script type="text/javascript" src="_static/jquery.js"></script>
-      <script type="text/javascript" src="_static/underscore.js"></script>
-      <script type="text/javascript" src="_static/doctools.js"></script>
-      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-
-  
-
-  
-  
-    <script type="text/javascript" src="_static/js/theme.js"></script>
-  
-
-  
-  
   <script type="text/javascript">
       jQuery(function () {
-          SphinxRtdTheme.StickyNav.enable();
+          SphinxRtdTheme.Navigation.enable(true);
       });
   </script>
+
+  
+  
+    
    
 
 </body>

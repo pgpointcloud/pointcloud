@@ -1,8 +1,7 @@
 
 
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html5" lang="en" >
 <head>
   <meta charset="utf-8">
   
@@ -12,6 +11,10 @@
   
 
   
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+
+  
   
     <link rel="shortcut icon" href="../_static/favicon.ico"/>
   
@@ -19,48 +22,39 @@
   
 
   
-
-  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
   
     
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
 
-  
-
-  
-  
-    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
-  
-
-  
-
-  
-        <link rel="index" title="Index"
-              href="../genindex.html"/>
-        <link rel="search" title="Search" href="../search.html"/>
-        <link rel="copyright" title="Copyright" href="../copyright.html"/>
-    <link rel="top" title="pgpointcloud" href="../index.html"/>
-        <link rel="up" title="Concepts" href="index.html"/>
-        <link rel="next" title="Compressions" href="compressions.html"/>
-        <link rel="prev" title="Point Cloud Objects" href="objects.html"/> 
-
-  
-  <script src="../_static/js/modernizr.min.js"></script>
-
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="copyright" title="Copyright" href="../copyright.html" />
+    <link rel="next" title="Compressions" href="compressions.html" />
+    <link rel="prev" title="Point Cloud Objects" href="objects.html" /> 
 </head>
 
-<body class="wy-body-for-nav" role="document">
+<body class="wy-body-for-nav">
 
    
   <div class="wy-grid-for-nav">
-
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search">
+        <div class="wy-side-nav-search" >
           
 
           
-            <a href="../index.html" class="icon icon-home"> pgPointcloud
+            <a href="../index.html" class="icon icon-home" alt="Documentation Home"> pgPointcloud
           
 
           
@@ -87,6 +81,7 @@
           
         </div>
 
+        
         <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
           
             
@@ -128,13 +123,14 @@
             
           
         </div>
+        
       </div>
     </nav>
 
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
 
       
-      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+      <nav class="wy-nav-top" aria-label="top navigation">
         
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="../index.html">pgPointcloud</a>
@@ -142,9 +138,10 @@
       </nav>
 
 
-      
       <div class="wy-nav-content">
+        
         <div class="rst-content">
+        
           
 
 
@@ -165,7 +162,7 @@
 
   <ul class="wy-breadcrumbs">
     
-      <li><a href="../index.html">Docs</a> &raquo;</li>
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
         
           <li><a href="index.html">Concepts</a> &raquo;</li>
         
@@ -188,12 +185,12 @@
             
   <div class="section" id="tables">
 <span id="id1"></span><h1>Tables<a class="headerlink" href="#tables" title="Permalink to this headline">¶</a></h1>
-<p>Usually you will only be creating tables for storing <code class="docutils literal"><span class="pre">PcPatch</span></code> objects, and
-using <code class="docutils literal"><span class="pre">PcPoint</span></code> objects as transitional objects for filtering, but it is
-possible to create tables of both types. <code class="docutils literal"><span class="pre">PcPatch</span></code> and <code class="docutils literal"><span class="pre">PcPoint</span></code> columns
+<p>Usually you will only be creating tables for storing <code class="docutils literal notranslate"><span class="pre">PcPatch</span></code> objects, and
+using <code class="docutils literal notranslate"><span class="pre">PcPoint</span></code> objects as transitional objects for filtering, but it is
+possible to create tables of both types. <code class="docutils literal notranslate"><span class="pre">PcPatch</span></code> and <code class="docutils literal notranslate"><span class="pre">PcPoint</span></code> columns
 both require an argument that indicate the pcid that will be used to interpret
 the column.</p>
-<div class="highlight-sql"><div class="highlight"><pre><span></span><span class="c1">-- This example requires the schema entry from the previous</span>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="c1">-- This example requires the schema entry from the previous</span>
 <span class="c1">-- section to be loaded so that pcid==1 exists.</span>
 
 <span class="c1">-- A table of points</span>
@@ -212,14 +209,14 @@ the column.</p>
 <p>In addition to any tables you create, you will find two other system-provided
 point cloud tables:</p>
 <ul class="simple">
-<li>the <code class="docutils literal"><span class="pre">pointcloud_formats</span></code> table that holds all the pcid entries and
-schema documents</li>
-<li>the <code class="docutils literal"><span class="pre">pointcloud_columns</span></code> view, that displays all the columns in your
-database that contain point cloud objects</li>
+<li><p>the <code class="docutils literal notranslate"><span class="pre">pointcloud_formats</span></code> table that holds all the pcid entries and
+schema documents</p></li>
+<li><p>the <code class="docutils literal notranslate"><span class="pre">pointcloud_columns</span></code> view, that displays all the columns in your
+database that contain point cloud objects</p></li>
 </ul>
 <p>Now that you have created two tables, you’ll see entries for them in the
-<code class="docutils literal"><span class="pre">pointcloud_columns</span></code> view:</p>
-<div class="highlight-sql"><div class="highlight"><pre><span></span><span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">pointcloud_columns</span><span class="p">;</span>
+<code class="docutils literal notranslate"><span class="pre">pointcloud_columns</span></code> view:</p>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">pointcloud_columns</span><span class="p">;</span>
 
  <span class="k">schema</span> <span class="o">|</span>    <span class="k">table</span>    <span class="o">|</span> <span class="k">column</span> <span class="o">|</span> <span class="n">pcid</span> <span class="o">|</span> <span class="n">srid</span> <span class="o">|</span>  <span class="k">type</span>
 <span class="c1">--------+-------------+--------+------+------+---------</span>
@@ -231,9 +228,7 @@ database that contain point cloud objects</li>
 
 
            </div>
-           <div class="articleComments">
-            
-           </div>
+           
           </div>
           <footer>
   
@@ -242,7 +237,7 @@ database that contain point cloud objects</li>
         <a href="compressions.html" class="btn btn-neutral float-right" title="Compressions" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="objects.html" class="btn btn-neutral" title="Point Cloud Objects" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="objects.html" class="btn btn-neutral float-left" title="Point Cloud Objects" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -278,38 +273,15 @@ database that contain point cloud objects</li>
   </div>
   
 
-
-  
-
-    <script type="text/javascript">
-        var DOCUMENTATION_OPTIONS = {
-            URL_ROOT:'../',
-            VERSION:'1.2.1',
-            COLLAPSE_INDEX:false,
-            FILE_SUFFIX:'.html',
-            HAS_SOURCE:  true,
-            SOURCELINK_SUFFIX: '.txt'
-        };
-    </script>
-      <script type="text/javascript" src="../_static/jquery.js"></script>
-      <script type="text/javascript" src="../_static/underscore.js"></script>
-      <script type="text/javascript" src="../_static/doctools.js"></script>
-      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-
-  
-
-  
-  
-    <script type="text/javascript" src="../_static/js/theme.js"></script>
-  
-
-  
-  
   <script type="text/javascript">
       jQuery(function () {
-          SphinxRtdTheme.StickyNav.enable();
+          SphinxRtdTheme.Navigation.enable(true);
       });
   </script>
+
+  
+  
+    
    
 
 </body>

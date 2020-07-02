@@ -1,8 +1,7 @@
 
 
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html5" lang="en" >
 <head>
   <meta charset="utf-8">
   
@@ -12,6 +11,10 @@
   
 
   
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+
+  
   
     <link rel="shortcut icon" href="../_static/favicon.ico"/>
   
@@ -19,48 +22,39 @@
   
 
   
-
-  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
   
     
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
 
-  
-
-  
-  
-    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
-  
-
-  
-
-  
-        <link rel="index" title="Index"
-              href="../genindex.html"/>
-        <link rel="search" title="Search" href="../search.html"/>
-        <link rel="copyright" title="Copyright" href="../copyright.html"/>
-    <link rel="top" title="pgpointcloud" href="../index.html"/>
-        <link rel="up" title="Functions" href="index.html"/>
-        <link rel="next" title="PostGIS" href="postgis.html"/>
-        <link rel="prev" title="PcPatch" href="patchs.html"/> 
-
-  
-  <script src="../_static/js/modernizr.min.js"></script>
-
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="copyright" title="Copyright" href="../copyright.html" />
+    <link rel="next" title="PostGIS" href="postgis.html" />
+    <link rel="prev" title="PcPatch" href="patchs.html" /> 
 </head>
 
-<body class="wy-body-for-nav" role="document">
+<body class="wy-body-for-nav">
 
    
   <div class="wy-grid-for-nav">
-
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search">
+        <div class="wy-side-nav-search" >
           
 
           
-            <a href="../index.html" class="icon icon-home"> pgPointcloud
+            <a href="../index.html" class="icon icon-home" alt="Documentation Home"> pgPointcloud
           
 
           
@@ -87,6 +81,7 @@
           
         </div>
 
+        
         <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
           
             
@@ -132,13 +127,14 @@
             
           
         </div>
+        
       </div>
     </nav>
 
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
 
       
-      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+      <nav class="wy-nav-top" aria-label="top navigation">
         
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="../index.html">pgPointcloud</a>
@@ -146,9 +142,10 @@
       </nav>
 
 
-      
       <div class="wy-nav-content">
+        
         <div class="rst-content">
+        
           
 
 
@@ -169,7 +166,7 @@
 
   <ul class="wy-breadcrumbs">
     
-      <li><a href="../index.html">Docs</a> &raquo;</li>
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
         
           <li><a href="index.html">Functions</a> &raquo;</li>
         
@@ -194,55 +191,56 @@
 <span id="points"></span><h1>WKB<a class="headerlink" href="#wkb" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="pc-asbinary">
 <h2>PC_AsBinary<a class="headerlink" href="#pc-asbinary" title="Permalink to this headline">¶</a></h2>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name" colspan="2">PC_AsBinary(p pcpoint) returns bytea:</th></tr>
-<tr class="field-odd field"><td>&#160;</td><td class="field-body"></td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">PC_AsBinary(p pcpoint) returns bytea</dt>
+<dd class="field-odd"><p></p></dd>
+</dl>
 <p>Return the OGC “well-known binary” format for the point.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">SELECT</span> <span class="n">PC_AsBinary</span><span class="p">(</span><span class="s1">&#39;010100000064CEFFFF94110000703000000400&#39;</span><span class="p">::</span><span class="n">pcpoint</span><span class="p">);</span>
+
+\<span class="n">x01010000800000000000c05fc000000000008046400000000000005f40</span>
+</pre></div>
+</div>
 </div>
 <div class="section" id="pc-enveloppeasbinary">
 <h2>PC_EnveloppeAsBinary<a class="headerlink" href="#pc-enveloppeasbinary" title="Permalink to this headline">¶</a></h2>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name" colspan="2">PC_EnvelopeAsBinary(p pcpatch) returns bytea:</th></tr>
-<tr class="field-odd field"><td>&#160;</td><td class="field-body"></td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">PC_EnvelopeAsBinary(p pcpatch) returns bytea</dt>
+<dd class="field-odd"><p></p></dd>
+</dl>
 <p>Return the OGC “well-known binary” format for the 2D bounds of the patch.
 Useful for performing 2D intersection tests with geometries.</p>
-<p><code class="docutils literal"><span class="pre">PC_Envelope</span></code> is an alias to <code class="docutils literal"><span class="pre">PC_EnvelopeAsBinary</span></code>. But <code class="docutils literal"><span class="pre">PC_Envelope</span></code> is
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">SELECT</span> <span class="n">PC_EnvelopeAsBinary</span><span class="p">(</span><span class="n">pa</span><span class="p">)</span> <span class="n">FROM</span> <span class="n">patches</span> <span class="n">LIMIT</span> <span class="mi">1</span><span class="p">;</span>
+
+\<span class="n">x0103000000010000000500000090c2f5285cbf5fc0e17a</span>
+<span class="mi">14</span><span class="n">ae4781464090c2f5285cbf5fc0ec51b81e858b46400ad7</span>
+<span class="n">a3703dba5fc0ec51b81e858b46400ad7a3703dba5fc0e17a</span>
+<span class="mi">14</span><span class="n">ae4781464090c2f5285cbf5fc0e17a14ae47814640</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">PC_Envelope</span></code> is an alias to <code class="docutils literal notranslate"><span class="pre">PC_EnvelopeAsBinary</span></code>. But <code class="docutils literal notranslate"><span class="pre">PC_Envelope</span></code> is
 deprecated and will be removed in a future version (2.0) of the extension.
-<code class="docutils literal"><span class="pre">PC_EnvelopeAsBinary</span></code> is to be used instead.</p>
+<code class="docutils literal notranslate"><span class="pre">PC_EnvelopeAsBinary</span></code> is to be used instead.</p>
 </div>
 <div class="section" id="pc-boundingdiagonalasbinary">
 <h2>PC_BoundingDiagonalAsBinary<a class="headerlink" href="#pc-boundingdiagonalasbinary" title="Permalink to this headline">¶</a></h2>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name" colspan="2">PC_BoundingDiagonalAsBinary(p pcpatch) returns bytea:</th></tr>
-<tr class="field-odd field"><td>&#160;</td><td class="field-body"></td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">PC_BoundingDiagonalAsBinary(p pcpatch) returns bytea</dt>
+<dd class="field-odd"><p></p></dd>
+</dl>
 <p>Return the OGC “well-known binary” format for the bounding diagonal of the
 patch.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">SELECT</span> <span class="n">PC_BoundingDiagonalAsBinary</span><span class="p">(</span> <span class="n">PC_Patch</span><span class="p">(</span><span class="n">ARRAY</span><span class="p">[</span> <span class="n">PC_MakePoint</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">ARRAY</span><span class="p">[</span><span class="mf">0.</span><span class="p">,</span><span class="mf">0.</span><span class="p">,</span><span class="mf">0.</span><span class="p">,</span><span class="mf">10.</span><span class="p">]),</span> <span class="n">PC_MakePoint</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">ARRAY</span><span class="p">[</span><span class="mf">1.</span><span class="p">,</span><span class="mf">1.</span><span class="p">,</span><span class="mf">1.</span><span class="p">,</span><span class="mf">10.</span><span class="p">]),</span> <span class="n">PC_MakePoint</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">ARRAY</span><span class="p">[</span><span class="mf">10.</span><span class="p">,</span><span class="mf">10.</span><span class="p">,</span><span class="mf">10.</span><span class="p">,</span><span class="mf">10.</span><span class="p">])]));</span>
+
+\<span class="n">x01020000a0e610000002000000000000000000000000000000000000000000000000000000000000000000244000000000000024400000000000002440</span>
+</pre></div>
+</div>
 </div>
 </div>
 
 
            </div>
-           <div class="articleComments">
-            
-           </div>
+           
           </div>
           <footer>
   
@@ -251,7 +249,7 @@ patch.</p>
         <a href="postgis.html" class="btn btn-neutral float-right" title="PostGIS" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="patchs.html" class="btn btn-neutral" title="PcPatch" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="patchs.html" class="btn btn-neutral float-left" title="PcPatch" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -287,38 +285,15 @@ patch.</p>
   </div>
   
 
-
-  
-
-    <script type="text/javascript">
-        var DOCUMENTATION_OPTIONS = {
-            URL_ROOT:'../',
-            VERSION:'1.2.1',
-            COLLAPSE_INDEX:false,
-            FILE_SUFFIX:'.html',
-            HAS_SOURCE:  true,
-            SOURCELINK_SUFFIX: '.txt'
-        };
-    </script>
-      <script type="text/javascript" src="../_static/jquery.js"></script>
-      <script type="text/javascript" src="../_static/underscore.js"></script>
-      <script type="text/javascript" src="../_static/doctools.js"></script>
-      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-
-  
-
-  
-  
-    <script type="text/javascript" src="../_static/js/theme.js"></script>
-  
-
-  
-  
   <script type="text/javascript">
       jQuery(function () {
-          SphinxRtdTheme.StickyNav.enable();
+          SphinxRtdTheme.Navigation.enable(true);
       });
   </script>
+
+  
+  
+    
    
 
 </body>

@@ -1,8 +1,7 @@
 
 
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html5" lang="en" >
 <head>
   <meta charset="utf-8">
   
@@ -12,6 +11,10 @@
   
 
   
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+
+  
   
     <link rel="shortcut icon" href="_static/favicon.ico"/>
   
@@ -19,47 +22,39 @@
   
 
   
-
-  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
   
     
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
 
-  
-
-  
-  
-    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  
-
-  
-
-  
-        <link rel="index" title="Index"
-              href="genindex.html"/>
-        <link rel="search" title="Search" href="search.html"/>
-        <link rel="copyright" title="Copyright" href="copyright.html"/>
-    <link rel="top" title="pgpointcloud" href="index.html"/>
-        <link rel="next" title="Community" href="community.html"/>
-        <link rel="prev" title="Storing points" href="tutorials/storing.html"/> 
-
-  
-  <script src="_static/js/modernizr.min.js"></script>
-
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="copyright" title="Copyright" href="copyright.html" />
+    <link rel="next" title="Community" href="community.html" />
+    <link rel="prev" title="Storing points" href="tutorials/storing.html" /> 
 </head>
 
-<body class="wy-body-for-nav" role="document">
+<body class="wy-body-for-nav">
 
    
   <div class="wy-grid-for-nav">
-
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search">
+        <div class="wy-side-nav-search" >
           
 
           
-            <a href="index.html" class="icon icon-home"> pgPointcloud
+            <a href="index.html" class="icon icon-home" alt="Documentation Home"> pgPointcloud
           
 
           
@@ -86,6 +81,7 @@
           
         </div>
 
+        
         <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
           
             
@@ -130,13 +126,14 @@
             
           
         </div>
+        
       </div>
     </nav>
 
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
 
       
-      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+      <nav class="wy-nav-top" aria-label="top navigation">
         
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="index.html">pgPointcloud</a>
@@ -144,9 +141,10 @@
       </nav>
 
 
-      
       <div class="wy-nav-content">
+        
         <div class="rst-content">
+        
           
 
 
@@ -167,7 +165,7 @@
 
   <ul class="wy-breadcrumbs">
     
-      <li><a href="index.html">Docs</a> &raquo;</li>
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
         
       <li>Development</li>
     
@@ -193,32 +191,32 @@ Docker image, update the documentation and run unit tests.</p>
 <div class="section" id="requirements">
 <h2>Requirements<a class="headerlink" href="#requirements" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>PostgreSQL and PostgreSQL development packages must be installed (pg_config
+<li><p>PostgreSQL and PostgreSQL development packages must be installed (pg_config
 and server headers). For Red Hat and Ubuntu, the package names are usually
-<code class="docutils literal"><span class="pre">postgresql-dev</span></code> or <code class="docutils literal"><span class="pre">postgresql-devel</span></code></li>
-<li>LibXML2 development packages must be installed, usually <code class="docutils literal"><span class="pre">libxml2-dev</span></code> or
-<code class="docutils literal"><span class="pre">libxml2-devel</span></code></li>
-<li>CUnit packages must be installed</li>
-<li>[Optional] <code class="docutils literal"><span class="pre">laz-perf</span></code> library may be installed for LAZ compression support
-(built from <a class="reference external" href="https://github.com/hobu/laz-perf">source</a>)</li>
+<code class="docutils literal notranslate"><span class="pre">postgresql-dev</span></code> or <code class="docutils literal notranslate"><span class="pre">postgresql-devel</span></code></p></li>
+<li><p>LibXML2 development packages must be installed, usually <code class="docutils literal notranslate"><span class="pre">libxml2-dev</span></code> or
+<code class="docutils literal notranslate"><span class="pre">libxml2-devel</span></code></p></li>
+<li><p>CUnit packages must be installed</p></li>
+<li><p>[Optional] <code class="docutils literal notranslate"><span class="pre">laz-perf</span></code> library may be installed for LAZ compression support
+(built from <a class="reference external" href="https://github.com/hobu/laz-perf">source</a>)</p></li>
 </ul>
 </div>
 <div class="section" id="build-install">
 <h2>Build/Install<a class="headerlink" href="#build-install" title="Permalink to this headline">¶</a></h2>
-<p>After generating the configure script with <code class="docutils literal"><span class="pre">autogen.sh</span></code>, you can use
-<code class="docutils literal"><span class="pre">./configure</span> <span class="pre">--help</span></code> to get a complete listing of configuration options.</p>
-<div class="highlight-bash"><div class="highlight"><pre><span></span>$ ./autogen.sh
+<p>After generating the configure script with <code class="docutils literal notranslate"><span class="pre">autogen.sh</span></code>, you can use
+<code class="docutils literal notranslate"><span class="pre">./configure</span> <span class="pre">--help</span></code> to get a complete listing of configuration options.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ ./autogen.sh
 $ ./configure
 $ make
 $ sudo make install
 </pre></div>
 </div>
 <div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p>You can use <code class="docutils literal"><span class="pre">--with-pgconfig</span></code> on the <code class="docutils literal"><span class="pre">./configure</span></code> command line if
+<p class="admonition-title">Note</p>
+<p>You can use <code class="docutils literal notranslate"><span class="pre">--with-pgconfig</span></code> on the <code class="docutils literal notranslate"><span class="pre">./configure</span></code> command line if
 you have multiple PostgreSQL installations on your system and want to target a
 specific one. For example:</p>
-<div class="last highlight-bash"><div class="highlight"><pre><span></span>$ ./configure --with-pgconfig<span class="o">=</span>/usr/lib/postgresql/12/bin/pg_config
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ ./configure --with-pgconfig<span class="o">=</span>/usr/lib/postgresql/12/bin/pg_config
 </pre></div>
 </div>
 </div>
@@ -226,18 +224,18 @@ specific one. For example:</p>
 <div class="section" id="tests">
 <h2>Tests<a class="headerlink" href="#tests" title="Permalink to this headline">¶</a></h2>
 <p><strong>Unit tests</strong></p>
-<div class="highlight-bash"><div class="highlight"><pre><span></span>$ make check
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ make check
 </pre></div>
 </div>
 <p><strong>Regressions tests</strong></p>
 <p>pgPointcloud includes SQL tests to run against an existing installation. To run
 the SQL tests:</p>
-<div class="highlight-bash"><div class="highlight"><pre><span></span>$ sudo make install
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ sudo make install
 $ <span class="nv">PGUSER</span><span class="o">=</span>a_user <span class="nv">PGPASSWORD</span><span class="o">=</span>a_password <span class="nv">PGHOST</span><span class="o">=</span>localhost make installcheck
 </pre></div>
 </div>
-<p>This command will create a database named <code class="docutils literal"><span class="pre">contrib_regression</span></code> and will execute
-the SQL scripts located in <code class="docutils literal"><span class="pre">pgsql/sql</span></code> in this database.</p>
+<p>This command will create a database named <code class="docutils literal notranslate"><span class="pre">contrib_regression</span></code> and will execute
+the SQL scripts located in <code class="docutils literal notranslate"><span class="pre">pgsql/sql</span></code> in this database.</p>
 </div>
 <div class="section" id="write-a-loading-system">
 <h2>Write a loading system<a class="headerlink" href="#write-a-loading-system" title="Permalink to this headline">¶</a></h2>
@@ -257,26 +255,26 @@ patch.</p>
 <p>Sphinx is used to build the documentation. For that, you have to install the
 next Python packages:</p>
 <ul class="simple">
-<li><code class="docutils literal"><span class="pre">sphinx</span></code></li>
-<li><code class="docutils literal"><span class="pre">sphinxcontrib.bibtex</span></code></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">sphinx</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">sphinxcontrib.bibtex</span></code></p></li>
 </ul>
 <p>Then:</p>
-<div class="highlight-bash"><div class="highlight"><pre><span></span>$ <span class="nb">cd</span> doc <span class="o">&amp;&amp;</span> make html
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ <span class="nb">cd</span> doc <span class="o">&amp;&amp;</span> make html
 </pre></div>
 </div>
-<p>The HTML documentation is available in <code class="docutils literal"><span class="pre">doc/build/html</span></code>.</p>
+<p>The HTML documentation is available in <code class="docutils literal notranslate"><span class="pre">doc/build/html</span></code>.</p>
 <div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">The documentation can be generated in another format like pdf, epub, …
-You can use <code class="docutils literal"><span class="pre">make</span></code> to get a list of all available formats.</p>
+<p class="admonition-title">Note</p>
+<p>The documentation can be generated in another format like pdf, epub, …
+You can use <code class="docutils literal notranslate"><span class="pre">make</span></code> to get a list of all available formats.</p>
 </div>
 </div>
 <div class="section" id="docker-image">
 <h2>Docker Image<a class="headerlink" href="#docker-image" title="Permalink to this headline">¶</a></h2>
-<p>A <code class="docutils literal"><span class="pre">Dockerfile</span></code> is provided in the <code class="docutils literal"><span class="pre">docker</span></code> directory and based on the
+<p>A <code class="docutils literal notranslate"><span class="pre">Dockerfile</span></code> is provided in the <code class="docutils literal notranslate"><span class="pre">docker</span></code> directory and based on the
 official PostgreSQL docker image available <a class="reference external" href="https://hub.docker.com/_/postgres">DockerHub</a>. The image generated
 is based on PostgreSQL 12, PostGIS 3 and the laz-perf support is activated.</p>
-<div class="highlight-bash"><div class="highlight"><pre><span></span>$ docker build --rm -t pgpointcloud docker/
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ docker build --rm -t pgpointcloud docker/
 </pre></div>
 </div>
 </div>
@@ -284,32 +282,32 @@ is based on PostgreSQL 12, PostGIS 3 and the laz-perf support is activated.</p>
 <h2>Continuous Integration<a class="headerlink" href="#continuous-integration" title="Permalink to this headline">¶</a></h2>
 <p>pgPointcloud tests are run with <a class="reference external" href="https://github.com/pgpointcloud/pointcloud/actions">Github Actions</a> on several Ubuntu versions
 and with various PostgreSQL/PostGIS releases:</p>
-<table border="1" class="docutils">
+<table class="docutils align-default">
 <colgroup>
-<col width="31%" />
-<col width="33%" />
-<col width="35%" />
+<col style="width: 31%" />
+<col style="width: 33%" />
+<col style="width: 35%" />
 </colgroup>
-<tbody valign="top">
-<tr class="row-odd"><td>&#160;</td>
-<td>PostGIS 2.5</td>
-<td>PostGIS 3</td>
+<tbody>
+<tr class="row-odd"><td></td>
+<td><p>PostGIS 2.5</p></td>
+<td><p>PostGIS 3</p></td>
 </tr>
-<tr class="row-even"><td>PostgreSQL 9.6</td>
-<td><a class="reference external" href="https://github.com/pgpointcloud/pointcloud/actions?query=workflow%3A%22%5Bubuntu-16.04%5D+PostgreSQL+9.6+and+PostGIS+2.5%22"><img alt="96_25" src="https://img.shields.io/github/workflow/status/pgpointcloud/pointcloud/%5Bubuntu-16.04%5D%20PostgreSQL%209.6%20and%20PostGIS%202.5?label=Ubuntu%2016.04&amp;logo=github&amp;style=plastic" /></a></td>
-<td>&#160;</td>
+<tr class="row-even"><td><p>PostgreSQL 9.6</p></td>
+<td><p><a class="reference external" href="https://github.com/pgpointcloud/pointcloud/actions?query=workflow%3A%22%5Bubuntu-16.04%5D+PostgreSQL+9.6+and+PostGIS+2.5%22"><img alt="96_25" src="https://img.shields.io/github/workflow/status/pgpointcloud/pointcloud/%5Bubuntu-16.04%5D%20PostgreSQL%209.6%20and%20PostGIS%202.5?label=Ubuntu%2016.04&amp;logo=github&amp;style=plastic" /></a></p></td>
+<td></td>
 </tr>
-<tr class="row-odd"><td>PostgreSQL 10</td>
-<td><img alt="10_25" src="https://img.shields.io/github/workflow/status/pgpointcloud/pointcloud/%5Bubuntu-16.04%5D%20PostgreSQL%2010%20and%20PostGIS%202.5?label=Ubuntu%2016.04&amp;logo=github&amp;style=plastic:target:https://github.com/pgpointcloud/pointcloud/actions?query=workflow%3A%22%5Bubuntu-16.04%5D+PostgreSQL+10+and+PostGIS+2.5%22" /></td>
-<td>&#160;</td>
+<tr class="row-odd"><td><p>PostgreSQL 10</p></td>
+<td><p><img alt="10_25" src="https://img.shields.io/github/workflow/status/pgpointcloud/pointcloud/%5Bubuntu-16.04%5D%20PostgreSQL%2010%20and%20PostGIS%202.5?label=Ubuntu%2016.04&amp;logo=github&amp;style=plastic:target:https://github.com/pgpointcloud/pointcloud/actions?query=workflow%3A%22%5Bubuntu-16.04%5D+PostgreSQL+10+and+PostGIS+2.5%22" /></p></td>
+<td></td>
 </tr>
-<tr class="row-even"><td>PostgreSQL 11</td>
-<td><img alt="11_25" src="https://img.shields.io/github/workflow/status/pgpointcloud/pointcloud/%5Bubuntu-16.04%5D%20PostgreSQL%2011%20and%20PostGIS%202.5?label=Ubuntu%2016.04&amp;logo=github&amp;style=plastic:target:https://github.com/pgpointcloud/pointcloud/actions?query=workflow%3A%22%5Bubuntu-16.04%5D+PostgreSQL+11+and+PostGIS+2.5%22" /></td>
-<td>&#160;</td>
+<tr class="row-even"><td><p>PostgreSQL 11</p></td>
+<td><p><img alt="11_25" src="https://img.shields.io/github/workflow/status/pgpointcloud/pointcloud/%5Bubuntu-16.04%5D%20PostgreSQL%2011%20and%20PostGIS%202.5?label=Ubuntu%2016.04&amp;logo=github&amp;style=plastic:target:https://github.com/pgpointcloud/pointcloud/actions?query=workflow%3A%22%5Bubuntu-16.04%5D+PostgreSQL+11+and+PostGIS+2.5%22" /></p></td>
+<td></td>
 </tr>
-<tr class="row-odd"><td>PostgreSQL 12</td>
-<td><img alt="12_25" src="https://img.shields.io/github/workflow/status/pgpointcloud/pointcloud/%5Bubuntu-18.04%5D%20PostgreSQL%2012%20and%20PostGIS%202.5?label=Ubuntu%2018.04&amp;logo=github&amp;style=plastic:target:https://github.com/pgpointcloud/pointcloud/actions?query=workflow%3A%22%5Bubuntu-18.04%5D+PostgreSQL+12+and+PostGIS+2.5%22" /></td>
-<td><img alt="12_3" src="https://img.shields.io/github/workflow/status/pgpointcloud/pointcloud/%5Bubuntu-18.04%5D%20PostgreSQL%2012%20and%20PostGIS%203?label=Ubuntu%2018.04&amp;logo=github&amp;style=plastic:target:https://github.com/pgpointcloud/pointcloud/actions?query=workflow%3A%22%5Bubuntu-18.04%5D+PostgreSQL+12+and+PostGIS+3%22" /></td>
+<tr class="row-odd"><td><p>PostgreSQL 12</p></td>
+<td><p><img alt="12_25" src="https://img.shields.io/github/workflow/status/pgpointcloud/pointcloud/%5Bubuntu-18.04%5D%20PostgreSQL%2012%20and%20PostGIS%202.5?label=Ubuntu%2018.04&amp;logo=github&amp;style=plastic:target:https://github.com/pgpointcloud/pointcloud/actions?query=workflow%3A%22%5Bubuntu-18.04%5D+PostgreSQL+12+and+PostGIS+2.5%22" /></p></td>
+<td><p><img alt="12_3" src="https://img.shields.io/github/workflow/status/pgpointcloud/pointcloud/%5Bubuntu-18.04%5D%20PostgreSQL%2012%20and%20PostGIS%203?label=Ubuntu%2018.04&amp;logo=github&amp;style=plastic:target:https://github.com/pgpointcloud/pointcloud/actions?query=workflow%3A%22%5Bubuntu-18.04%5D+PostgreSQL+12+and+PostGIS+3%22" /></p></td>
 </tr>
 </tbody>
 </table>
@@ -320,18 +318,18 @@ and with various PostgreSQL/PostGIS releases:</p>
 <h2>Release<a class="headerlink" href="#release" title="Permalink to this headline">¶</a></h2>
 <p>Steps for releasing a new version of Pointcloud:</p>
 <ol class="arabic simple">
-<li>Add a new section to the <code class="docutils literal"><span class="pre">NEWS</span></code> file, listing all the changes associated
-with the new release.</li>
-<li>Change the version number in the <code class="docutils literal"><span class="pre">Version.config</span></code> and
-<code class="docutils literal"><span class="pre">pgsql/expected/pointcloud.out</span></code> files.</li>
-<li>Update the value of <code class="docutils literal"><span class="pre">UPGRADABLE</span></code> in <code class="docutils literal"><span class="pre">pgsql/Makefile.in</span></code>. This variable
+<li><p>Add a new section to the <code class="docutils literal notranslate"><span class="pre">NEWS</span></code> file, listing all the changes associated
+with the new release.</p></li>
+<li><p>Change the version number in the <code class="docutils literal notranslate"><span class="pre">Version.config</span></code> and
+<code class="docutils literal notranslate"><span class="pre">pgsql/expected/pointcloud.out</span></code> files.</p></li>
+<li><p>Update the value of <code class="docutils literal notranslate"><span class="pre">UPGRADABLE</span></code> in <code class="docutils literal notranslate"><span class="pre">pgsql/Makefile.in</span></code>. This variable
 defines the versions from which a database can be upgraded to the new
-Pointcloud version.</li>
-<li>Create a PR&nbsp;with these changes.</li>
-<li>When the PR is merged create a tag for the new release and push it to
-GitHub:</li>
+Pointcloud version.</p></li>
+<li><p>Create a PR with these changes.</p></li>
+<li><p>When the PR is merged create a tag for the new release and push it to
+GitHub:</p></li>
 </ol>
-<div class="highlight-bash"><div class="highlight"><pre><span></span>$ git tag -a vx.y.z -m <span class="s1">&#39;version x.y.z&#39;</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ git tag -a vx.y.z -m <span class="s1">&#39;version x.y.z&#39;</span>
 $ git push origin vx.y.z
 </pre></div>
 </div>
@@ -340,9 +338,7 @@ $ git push origin vx.y.z
 
 
            </div>
-           <div class="articleComments">
-            
-           </div>
+           
           </div>
           <footer>
   
@@ -351,7 +347,7 @@ $ git push origin vx.y.z
         <a href="community.html" class="btn btn-neutral float-right" title="Community" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="tutorials/storing.html" class="btn btn-neutral" title="Storing points" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="tutorials/storing.html" class="btn btn-neutral float-left" title="Storing points" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -387,38 +383,15 @@ $ git push origin vx.y.z
   </div>
   
 
-
-  
-
-    <script type="text/javascript">
-        var DOCUMENTATION_OPTIONS = {
-            URL_ROOT:'./',
-            VERSION:'1.2.1',
-            COLLAPSE_INDEX:false,
-            FILE_SUFFIX:'.html',
-            HAS_SOURCE:  true,
-            SOURCELINK_SUFFIX: '.txt'
-        };
-    </script>
-      <script type="text/javascript" src="_static/jquery.js"></script>
-      <script type="text/javascript" src="_static/underscore.js"></script>
-      <script type="text/javascript" src="_static/doctools.js"></script>
-      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-
-  
-
-  
-  
-    <script type="text/javascript" src="_static/js/theme.js"></script>
-  
-
-  
-  
   <script type="text/javascript">
       jQuery(function () {
-          SphinxRtdTheme.StickyNav.enable();
+          SphinxRtdTheme.Navigation.enable(true);
       });
   </script>
+
+  
+  
+    
    
 
 </body>
