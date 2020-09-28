@@ -1,3 +1,15 @@
+1.2.1, 2020-01-01
+-----------------
+
+- Bug fixes
+ - Fix compilation with PostgreSQL 11 #237
+ - Fix compilation with PostgreSQL 12 #243
+
+- Enhancements
+ - Improve documentation for PC_MemSize #232
+ - Fix unit tests with PostgreSQL >= 10 #253
+ - Fix typo in README #238
+
 1.2.0, 2018-08-22
 -----------------
 

@@ -437,7 +437,7 @@ size_t
 pc_patch_serialized_size(const PCPATCH *patch)
 {
 	size_t stats_size = pc_stats_size(patch->schema);
-	size_t common_size = sizeof(SERIALIZED_PATCH) - 1;
+	size_t common_size = BUFFERALIGN(sizeof(SERIALIZED_PATCH)) - 1;
 	switch( patch->type )
 	{
 	case PC_NONE:
@@ -751,7 +751,7 @@ pc_patch_uncompressed_deserialize(const SERIALIZED_PATCH *serpatch, const PCSCHE
 	patch->data = buf + stats_size;
 
 	/* Calculate the point data buffer size */
-	patch->datasize = VARSIZE(serpatch) - sizeof(SERIALIZED_PATCH) + 1 - stats_size;
+	patch->datasize = VARSIZE(serpatch) - BUFFERALIGN(sizeof(SERIALIZED_PATCH)) + 1 - stats_size;
 	if ( patch->datasize != patch->npoints * schema->size )
 		pcerror("%s: calculated patch data sizes don't match (%d != %d)", __func__, patch->datasize, patch->npoints * schema->size);
 
