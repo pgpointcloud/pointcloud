@@ -92,7 +92,6 @@ Sphinx is used to build the documentation. For that, you have to install the
 next Python packages:
 
 - ``sphinx``
-- ``sphinxcontrib.bibtex``
 
 Then:
 
