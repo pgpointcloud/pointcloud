@@ -291,6 +291,83 @@ static uint32_t m_mask = 0x40000000;
 static uint32_t z_mask = 0x80000000;
 
 uint8_t *
+pc_bounds_to_geometry_wkb(const PCBOUNDS *bounds, uint32_t srid, size_t *wkbsize)
+{
+	/* Bounds! */
+	double xmin = bounds->xmin;
+	double ymin = bounds->ymin;
+	double xmax = bounds->xmax;
+	double ymax = bounds->ymax;
+
+	static uint32_t srid_mask = 0x20000000;
+	static uint32_t npoints_by_type[] = { 0, 1, 2, 5 };
+	/* WKB POINT, LINESTRING or POLYGON */
+	uint32_t wkbtype = 1 + (xmin != xmax) + (ymin != ymax);
+	uint32_t npoints = npoints_by_type[wkbtype];
+	uint8_t *wkb, *ptr;
+	/* endian + (type + nrings? + npoints?) + npoints dbl pt */
+	size_t size = 1 + wkbtype * 4 + npoints * 2 * 8;
+
+	if ( srid )
+	{
+		wkbtype |= srid_mask;
+		size += 4;
+	}
+
+	wkb = pcalloc(size);
+	ptr = wkb;
+
+	ptr = wkb_set_char(ptr, machine_endian()); /* Endian flag */
+
+	ptr = wkb_set_uint32(ptr, wkbtype); /* TYPE = POINT, LINESTRING or POLYGON */
+
+	if ( srid )
+	{
+		ptr = wkb_set_uint32(ptr, srid); /* SRID */
+	}
+
+	switch ( wkbtype )
+	{
+	case 3 /* POLYGON */ : ptr = wkb_set_uint32(ptr, 1);  /* NRINGS */
+	case 2 /* LINESTRING */ : ptr = wkb_set_uint32(ptr, npoints); /* NPOINTS */
+	}
+
+	/* Point 0 */
+	ptr = wkb_set_double(ptr, xmin);
+	ptr = wkb_set_double(ptr, ymin);
+
+	if ( wkbtype == 2 ) // LINESTRING
+	{
+		/* Point 1 */
+		ptr = wkb_set_double(ptr, xmax);
+		ptr = wkb_set_double(ptr, ymax);
+	}
+	else if( wkbtype == 3 ) // POLYGON
+	{
+		/* Point 1 */
+		ptr = wkb_set_double(ptr, xmin);
+		ptr = wkb_set_double(ptr, ymax);
+
+		/* Point 2 */
+		ptr = wkb_set_double(ptr, xmax);
+		ptr = wkb_set_double(ptr, ymax);
+
+		/* Point 3 */
+		ptr = wkb_set_double(ptr, xmax);
+		ptr = wkb_set_double(ptr, ymin);
+
+		/* Point 4 */
+		ptr = wkb_set_double(ptr, xmin);
+		ptr = wkb_set_double(ptr, ymin);
+	}
+
+	if ( wkbsize )
+		*wkbsize = size;
+
+	return wkb;
+}
+
+uint8_t *
 pc_bounding_diagonal_wkb_from_bounds(
 	const PCBOUNDS *bounds, const PCSCHEMA *schema, size_t *wkbsize)
 {
