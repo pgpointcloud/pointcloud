@@ -9,6 +9,7 @@ check:
 
 installcheck:
 	$(MAKE) -C pgsql $@
+	$(MAKE) -C pgsql_postgis $@
 
 astyle:
 	find . \

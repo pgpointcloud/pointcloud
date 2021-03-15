@@ -1,3 +1,4 @@
+SET SEARCH_PATH to pointcloudext;
 INSERT INTO pointcloud_formats (pcid, srid, schema)
 VALUES (5, 0,
 '<?xml version="1.0" encoding="UTF-8"?>

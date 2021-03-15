@@ -1,4 +1,4 @@
-
+SET search_path TO pointcloudext;
 drop table if exists pts_collection;
 create table pts_collection ( id serial primary key, gid integer, pt pcpoint(1) );
 begin;

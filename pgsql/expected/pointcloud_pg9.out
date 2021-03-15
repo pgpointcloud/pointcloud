@@ -1,5 +1,7 @@
 set client_min_messages to ERROR;
-CREATE EXTENSION pointcloud;
+CREATE SCHEMA pointcloudext;
+CREATE EXTENSION pointcloud SCHEMA pointcloudext;
+SET search_path TO pointcloudext;
 SELECT PC_Version();
  pc_version 
 ------------
@@ -238,14 +240,14 @@ CREATE TABLE IF NOT EXISTS pt_test (
     pt PCPOINT(1)
 );
 \d pt_test
-     Table "public.pt_test"
+  Table "pointcloudext.pt_test"
  Column |    Type    | Modifiers 
 --------+------------+-----------
  pt     | pcpoint(1) | 
 
 DELETE FROM pt_test;
 INSERT INTO pt_test (pt) VALUES ('00000000020000000100000002000000030004');
-ERROR:  no entry in "pointcloud_formats" for pcid = 2
+ERROR:  no entry in "pointcloudext.pointcloud_formats" for pcid = 2
 LINE 1: INSERT INTO pt_test (pt) VALUES ('00000000020000000100000002...
                                          ^
 INSERT INTO pt_test (pt) VALUES ('00000000010000000100000002000000030004');
@@ -305,14 +307,14 @@ CREATE TABLE IF NOT EXISTS pa_test (
     pa PCPATCH(1)
 );
 \d pa_test
-     Table "public.pa_test"
+  Table "pointcloudext.pa_test"
  Column |    Type    | Modifiers 
 --------+------------+-----------
  pa     | pcpatch(1) | 
 
 DELETE FROM pa_test;
 INSERT INTO pa_test (pa) VALUES ('0000000002000000000000000200000002000000030000000500060000000200000003000000050008');
-ERROR:  no entry in "pointcloud_formats" for pcid = 2
+ERROR:  no entry in "pointcloudext.pointcloud_formats" for pcid = 2
 LINE 1: INSERT INTO pa_test (pa) VALUES ('00000000020000000000000002...
                                          ^
 INSERT INTO pa_test (pa) VALUES ('0000000001000000000000000200000002000000030000000500060000000200000003000000050008');
@@ -377,7 +379,7 @@ CREATE TABLE IF NOT EXISTS pa_test_dim (
     pa PCPATCH(3)
 );
 \d pa_test_dim
-   Table "public.pa_test_dim"
+Table "pointcloudext.pa_test_dim"
  Column |    Type    | Modifiers 
 --------+------------+-----------
  pa     | pcpatch(3) | 

@@ -1,7 +1,9 @@
 set client_min_messages to ERROR;
 SET extra_float_digits = 0;
 
-CREATE EXTENSION pointcloud;
+CREATE SCHEMA pointcloudext;
+CREATE EXTENSION pointcloud SCHEMA pointcloudext;
+SET search_path TO pointcloudext;
 
 SELECT PC_Version();
 

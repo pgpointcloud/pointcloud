@@ -1,3 +1,4 @@
+SET SEARCH_PATH to pointcloudext;
 INSERT INTO pointcloud_formats (pcid, srid) VALUES (777, 666);
 CREATE TABLE pc1(p pcpoint);
 CREATE TABLE pc2(p pcpoint);
