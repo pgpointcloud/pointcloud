@@ -1,77 +1,127 @@
 -----------------------------------------------------------------------------
 -- Function to overlap polygon on patch
 --
-CREATE OR REPLACE FUNCTION PC_Intersection(pcpatch, geometry)
+
+-- lookup schema for postgis and pointcloud
+SELECT set_config('pointcloud_postgis.schema.postgis', nspname, true) FROM pg_namespace n, pg_extension e WHERE e.extname = 'postgis' AND e.extnamespace = n.oid;
+SELECT set_config('pointcloud_postgis.schema.pointcloud', nspname, true) FROM pg_namespace n, pg_extension e WHERE e.extname = 'pointcloud' AND e.extnamespace = n.oid;
+
+CREATE PROCEDURE create_function_qualify_schema(func text)
+AS
+$$
+BEGIN
+    func := replace(func, '@postgis@', quote_ident(current_setting('pointcloud_postgis.schema.postgis')));
+    func := replace(func, '@pointcloud@', quote_ident(current_setting('pointcloud_postgis.schema.pointcloud')));
+    execute func;
+END;
+$$
+LANGUAGE plpgsql;
+
+CALL create_function_qualify_schema(
+$Q$
+CREATE OR REPLACE FUNCTION PC_Intersection(@pointcloud@.pcpatch, @postgis@.geometry)
 	RETURNS pcpatch AS
-	$$
+    $$
 		WITH
-			 pts AS (SELECT PC_Explode($1) AS pt),
-		   pgpts AS (SELECT ST_GeomFromEWKB(PC_AsBinary(pt)) AS pgpt, pt FROM pts),
-			ipts AS (SELECT pt FROM pgpts WHERE ST_Intersects(pgpt, $2)),
-			ipch AS (SELECT PC_Patch(pt) AS pch FROM ipts)
+			 pts AS (SELECT @pointcloud@.PC_Explode($1) AS pt),
+		   pgpts AS (SELECT @postgis@.ST_GeomFromEWKB(@pointcloud@.PC_AsBinary(pt)) AS pgpt, pt FROM pts),
+			ipts AS (SELECT pt FROM pgpts WHERE @postgis@.ST_Intersects(pgpt, $2)),
+			ipch AS (SELECT @pointcloud@.PC_Patch(pt) AS pch FROM ipts)
 		SELECT pch FROM ipch;
-	$$
+    $$
 	LANGUAGE 'sql';
+$Q$
+);
 
 -----------------------------------------------------------------------------
 -- Cast from pcpatch to polygon
 --
-CREATE OR REPLACE FUNCTION PC_EnvelopeGeometry(pcpatch)
-	RETURNS geometry AS
-	$$
-		SELECT ST_GeomFromEWKB(PC_EnvelopeAsBinary($1))
-	$$
+CALL create_function_qualify_schema(
+$Q$
+CREATE OR REPLACE FUNCTION PC_EnvelopeGeometry(@pointcloud@.pcpatch)
+	RETURNS @postgis@.geometry AS
+    $$
+		SELECT @postgis@.ST_GeomFromEWKB(@pointcloud@.PC_EnvelopeAsBinary($1))
+    $$
 	LANGUAGE 'sql';
+$Q$
+);
 
-CREATE OR REPLACE FUNCTION geometry(pcpatch)
-	RETURNS geometry AS
-	$$
-		SELECT PC_EnvelopeGeometry($1)
-	$$
+CALL create_function_qualify_schema(
+$Q$
+CREATE OR REPLACE FUNCTION geometry(@pointcloud@.pcpatch)
+	RETURNS @postgis@.geometry AS
+    $$
+		SELECT @extschema@.PC_EnvelopeGeometry($1)
+    $$
 	LANGUAGE 'sql';
+$Q$
+);
 
-CREATE CAST (pcpatch AS geometry) WITH FUNCTION PC_EnvelopeGeometry(pcpatch);
-
+CALL create_function_qualify_schema(
+$Q$
+CREATE CAST (@pointcloud@.pcpatch AS @postgis@.geometry) WITH FUNCTION @extschema@.PC_EnvelopeGeometry(@pointcloud@.pcpatch);
+$Q$
+);
 
 -----------------------------------------------------------------------------
 -- Cast from pcpoint to point
 --
-CREATE OR REPLACE FUNCTION geometry(pcpoint)
-	RETURNS geometry AS
+CALL create_function_qualify_schema(
+$Q$
+CREATE OR REPLACE FUNCTION geometry(@pointcloud@.pcpoint)
+	RETURNS @postgis@.geometry AS
 	$$
-		SELECT ST_GeomFromEWKB(PC_AsBinary($1))
+		SELECT @postgis@.ST_GeomFromEWKB(@pointcloud@.PC_AsBinary($1))
 	$$
 	LANGUAGE 'sql';
+$Q$
+);
 
-CREATE CAST (pcpoint AS geometry) WITH FUNCTION geometry(pcpoint);
-
+CALL create_function_qualify_schema(
+$Q$
+CREATE CAST (@pointcloud@.pcpoint AS @postgis@.geometry) WITH FUNCTION @extschema@.geometry(@pointcloud@.pcpoint);
+$Q$
+);
 
 -----------------------------------------------------------------------------
 -- Function to overlap polygon on patch
 --
-CREATE OR REPLACE FUNCTION PC_Intersects(pcpatch, geometry)
+CALL create_function_qualify_schema(
+$Q$
+CREATE OR REPLACE FUNCTION PC_Intersects(@pointcloud@.pcpatch, @postgis@.geometry)
 	RETURNS boolean AS
 	$$
-		SELECT ST_Intersects($2, PC_EnvelopeGeometry($1))
+		SELECT @postgis@.ST_Intersects($2, @extschema@.PC_EnvelopeGeometry($1))
 	$$
 	LANGUAGE 'sql';
+$Q$
+);
 
-CREATE OR REPLACE FUNCTION PC_Intersects(geometry, pcpatch)
+CALL create_function_qualify_schema(
+$Q$
+CREATE OR REPLACE FUNCTION PC_Intersects(@postgis@.geometry, @pointcloud@.pcpatch)
 	RETURNS boolean AS
 	$$
-		SELECT PC_Intersects($2, $1)
+		SELECT @postgis@.PC_Intersects($2, $1)
 	$$
 	LANGUAGE 'sql';
+$Q$
+);
 
 -----------------------------------------------------------------------------
 -- Function from pcpatch to LineString
 --
-CREATE OR REPLACE FUNCTION PC_BoundingDiagonalGeometry(pcpatch)
-	RETURNS geometry AS
+CALL create_function_qualify_schema(
+$Q$
+CREATE OR REPLACE FUNCTION PC_BoundingDiagonalGeometry(@pointcloud@.pcpatch)
+	RETURNS @postgis@.geometry AS
 	$$
-		SELECT ST_GeomFromEWKB(PC_BoundingDiagonalAsBinary($1))
+		SELECT @postgis@.ST_GeomFromEWKB(@pointcloud@.PC_BoundingDiagonalAsBinary($1))
 	$$
 	LANGUAGE 'sql';
+$Q$
+);
 
 -----------------------------------------------------------------------------
 -- Function returning the version number

@@ -15,8 +15,13 @@
 #include "executor/spi.h"
 #include "access/hash.h"
 #include "utils/hsearch.h"
+#include "utils/lsyscache.h" /* get_func_namespace, get_namespace_name */
+#include "utils/memutils.h" /* memorycontexts */
 
 PG_MODULE_MAGIC;
+
+static char *POINTCLOUD_SCHEMA = NULL;
+
 
 /**********************************************************************************
 * POSTGRESQL MEMORY MANAGEMENT HOOKS
@@ -233,6 +238,25 @@ uint32 pcid_from_datum(Datum d)
 	return serpart->pcid;
 }
 
+static void
+#if PGSQL_VERSION < 120
+set_pointcloud_extension_schema(FunctionCallInfoData* fcinfo)
+#else
+set_pointcloud_extension_schema(FunctionCallInfo fcinfo)
+#endif
+{
+	char *nsp_name;
+	Oid nsp_oid;
+
+	if (POINTCLOUD_SCHEMA) return;
+
+	nsp_oid = get_func_namespace(fcinfo->flinfo->fn_oid);
+	if (!nsp_oid) return;
+
+	nsp_name = get_namespace_name(nsp_oid);
+	POINTCLOUD_SCHEMA = MemoryContextStrdup(CacheMemoryContext, nsp_name);
+}
+
 PCSCHEMA *
 pc_schema_from_pcid_uncached(uint32 pcid)
 {
@@ -241,6 +265,7 @@ pc_schema_from_pcid_uncached(uint32 pcid)
 	int err, srid;
 	size_t size;
 	PCSCHEMA *schema;
+	char *pointcloud_formats_fullpath = quote_qualified_identifier(POINTCLOUD_SCHEMA, POINTCLOUD_FORMATS);
 
 	if (SPI_OK_CONNECT != SPI_connect ())
 	{
@@ -250,7 +275,7 @@ pc_schema_from_pcid_uncached(uint32 pcid)
 	}
 
 	sprintf(sql, "select %s, %s from %s where pcid = %d",
-		POINTCLOUD_FORMATS_XML, POINTCLOUD_FORMATS_SRID, POINTCLOUD_FORMATS, pcid);
+		POINTCLOUD_FORMATS_XML, POINTCLOUD_FORMATS_SRID, pointcloud_formats_fullpath, pcid);
 	err = SPI_exec(sql, 1);
 
 	if ( err < 0 )
@@ -264,7 +289,7 @@ pc_schema_from_pcid_uncached(uint32 pcid)
 	if (SPI_processed <= 0)
 	{
 		SPI_finish();
-		elog(ERROR, "no entry in \"%s\" for pcid = %d", POINTCLOUD_FORMATS, pcid);
+		elog(ERROR, "no entry in \"%s\" for pcid = %d", pointcloud_formats_fullpath, pcid);
 		return NULL;
 	}
 
@@ -276,7 +301,7 @@ pc_schema_from_pcid_uncached(uint32 pcid)
 	if ( ! ( xml_spi && srid_spi ) )
 	{
 		SPI_finish();
-		elog(ERROR, "unable to read row from \"%s\" for pcid = %d", POINTCLOUD_FORMATS, pcid);
+		elog(ERROR, "unable to read row from \"%s\" for pcid = %d", pointcloud_formats_fullpath, pcid);
 		return NULL;
 	}
 
@@ -298,7 +323,7 @@ pc_schema_from_pcid_uncached(uint32 pcid)
 	{
 		ereport(ERROR,
 			(errcode(ERRCODE_NOT_AN_XML_DOCUMENT),
-			errmsg("unable to parse XML for pcid = %d in \"%s\"", pcid, POINTCLOUD_FORMATS)));
+			errmsg("unable to parse XML for pcid = %d in \"%s\"", pcid, pointcloud_formats_fullpath)));
 	}
 
 	schema->pcid = pcid;
@@ -379,6 +404,8 @@ pc_schema_from_pcid(uint32 pcid, FunctionCallInfo fcinfo)
 
 	/* Not in there, load one the old-fashioned way. */
 	oldcontext = MemoryContextSwitchTo(fcinfo->flinfo->fn_mcxt);
+
+	set_pointcloud_extension_schema(fcinfo);
 	schema = pc_schema_from_pcid_uncached(pcid);
 	MemoryContextSwitchTo(oldcontext);
 
