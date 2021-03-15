@@ -11,7 +11,7 @@ DATA_built = \
   $(EXTENSION).control \
   $(EXTENSION)--$(EXTVERSION).sql
 
-REGRESS += pointcloud_postgis
+#REGRESS = pointcloud
 
 # Add in build/link flags for lib
 #PG_CPPFLAGS += -I../lib
