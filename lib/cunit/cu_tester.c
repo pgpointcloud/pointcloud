@@ -26,11 +26,11 @@ extern CU_SuiteInfo util_suite;
 
 /**
 * CUnit error handler
-* Log message in a global var instead of printing in stderr
+* Log message in a global var instead of printing in stdout/stderr
 *
 * CAUTION: Not stop execution on pcerror case !!!
 */
-static void cu_error_reporter(const char *fmt, va_list ap)
+static void cu_message_handler(const char *fmt, va_list ap)
 {
 	vsnprintf(cu_error_msg, MAX_CUNIT_MSG_LENGTH-1, fmt, ap);
 	cu_error_msg[MAX_CUNIT_MSG_LENGTH-1] = '\0';
@@ -75,7 +75,7 @@ int main(int argc, char *argv[])
 	/* Set up to use the system memory management / logging */
 	pc_install_default_handlers();
 
-	pc_set_handlers(0, 0, 0, cu_error_reporter, 0, 0);
+	pc_set_handlers(0, 0, 0, cu_message_handler, cu_message_handler, cu_message_handler);
 
 	/* initialize the CUnit test registry */
 	if (CUE_SUCCESS != CU_initialize_registry())
