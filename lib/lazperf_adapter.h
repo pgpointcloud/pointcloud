@@ -13,6 +13,11 @@
 #ifndef _LAZPERF_ADAPTER_H
 #define _LAZPERF_ADAPTER_H
 
+#include <stddef.h>
+#include <stdint.h>
+
+#include "pc_api_internal.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
