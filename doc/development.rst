@@ -128,21 +128,8 @@ and with various PostgreSQL/PostGIS releases:
 +---------------+----------------+-----------------+
 |               | PostGIS 2.5    | PostGIS 3       |
 +---------------+----------------+-----------------+
-| PostgreSQL 9.6| |96_25|        |                 |
-+---------------+----------------+-----------------+
-| PostgreSQL 10 | |10_25|        |                 |
-+---------------+----------------+-----------------+
-| PostgreSQL 11 | |11_25|        |                 |
-+---------------+----------------+-----------------+
 | PostgreSQL 12 | |12_25|        | |12_3|          |
 +---------------+----------------+-----------------+
-
- .. |96_25| image:: https://img.shields.io/github/workflow/status/pgpointcloud/pointcloud/%5Bubuntu-16.04%5D%20PostgreSQL%209.6%20and%20PostGIS%202.5?label=Ubuntu%2016.04&logo=github&style=plastic
-    :target: https://github.com/pgpointcloud/pointcloud/actions?query=workflow%3A%22%5Bubuntu-16.04%5D+PostgreSQL+9.6+and+PostGIS+2.5%22
-
-.. |10_25| image:: https://img.shields.io/github/workflow/status/pgpointcloud/pointcloud/%5Bubuntu-16.04%5D%20PostgreSQL%2010%20and%20PostGIS%202.5?label=Ubuntu%2016.04&logo=github&style=plastic :target: https://github.com/pgpointcloud/pointcloud/actions?query=workflow%3A%22%5Bubuntu-16.04%5D+PostgreSQL+10+and+PostGIS+2.5%22
-
-.. |11_25| image:: https://img.shields.io/github/workflow/status/pgpointcloud/pointcloud/%5Bubuntu-16.04%5D%20PostgreSQL%2011%20and%20PostGIS%202.5?label=Ubuntu%2016.04&logo=github&style=plastic :target: https://github.com/pgpointcloud/pointcloud/actions?query=workflow%3A%22%5Bubuntu-16.04%5D+PostgreSQL+11+and+PostGIS+2.5%22
 
 .. |12_25| image:: https://img.shields.io/github/workflow/status/pgpointcloud/pointcloud/%5Bubuntu-18.04%5D%20PostgreSQL%2012%20and%20PostGIS%202.5?label=Ubuntu%2018.04&logo=github&style=plastic :target: https://github.com/pgpointcloud/pointcloud/actions?query=workflow%3A%22%5Bubuntu-18.04%5D+PostgreSQL+12+and+PostGIS+2.5%22
 
