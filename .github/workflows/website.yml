@@ -15,6 +15,7 @@ jobs:
         run: virtualenv -p /usr/bin/python3 venv && source venv/bin/activate && pip install sphinx sphinx_rtd_theme && cd doc && make html && cd -
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
+        if: ${{ github.ref == 'refs/heads/main' }}
         with:
           deploy_key: ${{ secrets.ACTIONS_DEPLOY_KEY }}
           publish_branch: gh-pages
