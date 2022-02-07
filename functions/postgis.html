@@ -1,40 +1,22 @@
-
-
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8">
-  
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>PostGIS &mdash; pgpointcloud</title>
-  
-
-  
-  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-
-  
-  
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
     <link rel="shortcut icon" href="../_static/favicon.ico"/>
-  
-  
-  
-
-  
   <!--[if lt IE 9]>
     <script src="../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
         <script src="../_static/doctools.js"></script>
-    
-    <script type="text/javascript" src="../_static/js/theme.js"></script>
-
-    
+    <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="copyright" title="Copyright" href="../copyright.html" />
@@ -42,33 +24,16 @@
     <link rel="prev" title="WKB" href="wkb.html" /> 
 </head>
 
-<body class="wy-body-for-nav">
-
-   
+<body class="wy-body-for-nav"> 
   <div class="wy-grid-for-nav">
-    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-          
-
-          
-            <a href="../index.html" class="icon icon-home" alt="Documentation Home"> pgPointcloud
-          
-
-          
+            <a href="../index.html" class="icon icon-home"> pgPointcloud
           </a>
-
-          
-            
-            
               <div class="version">
                 1.2.1
               </div>
-            
-          
-
-          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -76,18 +41,7 @@
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-
-          
-        </div>
-
-        
-        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-          
-            
-            
-              
-            
-            
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul>
 <li class="toctree-l1"><a class="reference internal" href="../concepts/index.html">Concepts</a></li>
 </ul>
@@ -125,83 +79,44 @@
 <li class="toctree-l1"><a class="reference internal" href="../copyright.html">License</a></li>
 </ul>
 
-            
-          
         </div>
-        
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
-
-      
-      <nav class="wy-nav-top" aria-label="top navigation">
-        
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="../index.html">pgPointcloud</a>
-        
       </nav>
 
-
       <div class="wy-nav-content">
-        
         <div class="rst-content">
-        
-          
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div role="navigation" aria-label="breadcrumbs navigation">
-
+          <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-    
       <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
-        
           <li><a href="index.html">Functions</a> &raquo;</li>
-        
       <li>PostGIS</li>
-    
-    
       <li class="wy-breadcrumbs-aside">
-        
-            
-        
       </li>
-    
   </ul>
-
-  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-            
-  <div class="section" id="postgis">
-<span id="points"></span><h1>PostGIS<a class="headerlink" href="#postgis" title="Permalink to this headline">¶</a></h1>
+             
+  <section id="postgis">
+<span id="points"></span><h1>PostGIS<a class="headerlink" href="#postgis" title="Permalink to this headline"></a></h1>
 <p>The <code class="docutils literal notranslate"><span class="pre">pointcloud_postgis</span></code> extension adds functions that allow you to use
 PostgreSQL Pointcloud with PostGIS, converting <code class="docutils literal notranslate"><span class="pre">PcPoint</span></code> and <code class="docutils literal notranslate"><span class="pre">PcPatch</span></code> to
 Geometry and doing spatial filtering on point cloud data. The
 <code class="docutils literal notranslate"><span class="pre">pointcloud_postgis</span></code> extension depends on both the <code class="docutils literal notranslate"><span class="pre">postgis</span></code> and
 <code class="docutils literal notranslate"><span class="pre">pointcloud</span> <span class="pre">extensions</span></code>, so they must be installed first:</p>
-<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">CREATE</span> <span class="n">EXTENSION</span> <span class="n">postgis</span><span class="p">;</span>
-<span class="k">CREATE</span> <span class="n">EXTENSION</span> <span class="n">pointcloud</span><span class="p">;</span>
-<span class="k">CREATE</span> <span class="n">EXTENSION</span> <span class="n">pointcloud_postgis</span><span class="p">;</span>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">CREATE</span><span class="w"> </span><span class="n">EXTENSION</span><span class="w"> </span><span class="n">postgis</span><span class="p">;</span><span class="w"></span>
+<span class="k">CREATE</span><span class="w"> </span><span class="n">EXTENSION</span><span class="w"> </span><span class="n">pointcloud</span><span class="p">;</span><span class="w"></span>
+<span class="k">CREATE</span><span class="w"> </span><span class="n">EXTENSION</span><span class="w"> </span><span class="n">pointcloud_postgis</span><span class="p">;</span><span class="w"></span>
 </pre></div>
 </div>
-<div class="section" id="pc-intersects">
-<h2>PC_Intersects<a class="headerlink" href="#pc-intersects" title="Permalink to this headline">¶</a></h2>
+<section id="pc-intersects">
+<h2>PC_Intersects<a class="headerlink" href="#pc-intersects" title="Permalink to this headline"></a></h2>
 <dl class="field-list simple">
 <dt class="field-odd">PC_Intersects(p pcpatch, g geometry) returns boolean</dt>
 <dd class="field-odd"><p></p></dd>
@@ -215,9 +130,9 @@ Geometry and doing spatial filtering on point cloud data. The
 <span class="n">t</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="pc-intersection">
-<h2>PC_Intersection<a class="headerlink" href="#pc-intersection" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="pc-intersection">
+<h2>PC_Intersection<a class="headerlink" href="#pc-intersection" title="Permalink to this headline"></a></h2>
 <dl class="field-list simple">
 <dt class="field-odd">PC_Intersection(pcpatch, geometry) returns pcpatch</dt>
 <dd class="field-odd"><p></p></dd>
@@ -237,9 +152,9 @@ Geometry and doing spatial filtering on point cloud data. The
  <span class="p">{</span><span class="s2">&quot;pcid&quot;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span><span class="s2">&quot;pt&quot;</span><span class="p">:[</span><span class="o">-</span><span class="mf">126.41</span><span class="p">,</span><span class="mf">45.59</span><span class="p">,</span><span class="mi">59</span><span class="p">,</span><span class="mi">5</span><span class="p">]}</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="geometry">
-<h2>Geometry<a class="headerlink" href="#geometry" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="geometry">
+<h2>Geometry<a class="headerlink" href="#geometry" title="Permalink to this headline"></a></h2>
 <dl class="field-list simple">
 <dt class="field-odd">Geometry(pcpoint) returns geometry</dt>
 <dd class="field-odd"><p></p></dd>
@@ -253,9 +168,9 @@ Geometry and doing spatial filtering on point cloud data. The
 <span class="n">POINT</span> <span class="n">Z</span> <span class="p">(</span><span class="o">-</span><span class="mi">127</span> <span class="mi">45</span> <span class="mi">124</span><span class="p">)</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="pc-envelopegeometry">
-<h2>PC_EnvelopeGeometry<a class="headerlink" href="#pc-envelopegeometry" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="pc-envelopegeometry">
+<h2>PC_EnvelopeGeometry<a class="headerlink" href="#pc-envelopegeometry" title="Permalink to this headline"></a></h2>
 <dl class="field-list simple">
 <dt class="field-odd">PC_EnvelopeGeometry(pcpatch) returns geometry</dt>
 <dd class="field-odd"><p></p></dd>
@@ -271,9 +186,9 @@ performing 2D intersection tests with PostGIS geometries.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">CREATE</span> <span class="n">INDEX</span> <span class="n">ON</span> <span class="n">patches</span> <span class="n">USING</span> <span class="n">GIST</span><span class="p">(</span><span class="n">PC_EnvelopeGeometry</span><span class="p">(</span><span class="n">patch</span><span class="p">));</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="pc-boundingdiagonalgeometry">
-<h2>PC_BoundingDiagonalGeometry<a class="headerlink" href="#pc-boundingdiagonalgeometry" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="pc-boundingdiagonalgeometry">
+<h2>PC_BoundingDiagonalGeometry<a class="headerlink" href="#pc-boundingdiagonalgeometry" title="Permalink to this headline"></a></h2>
 <dl class="field-list simple">
 <dt class="field-odd">PC_BoundingDiagonalGeometry(pcpatch) returns geometry</dt>
 <dd class="field-odd"><p></p></dd>
@@ -302,35 +217,27 @@ index on a patch column.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">CREATE</span> <span class="n">INDEX</span> <span class="n">ON</span> <span class="n">patches</span> <span class="n">USING</span> <span class="n">GIST</span><span class="p">(</span><span class="n">PC_BoundingDiagonalGeometry</span><span class="p">(</span><span class="n">patch</span><span class="p">)</span> <span class="n">gist_geometry_ops_nd</span><span class="p">);</span>
 </pre></div>
 </div>
-</div>
-</div>
+</section>
+</section>
 
 
            </div>
-           
           </div>
-          <footer>
-  
-    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-      
-        <a href="../tutorials/index.html" class="btn btn-neutral float-right" title="Tutorials" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
-      
-      
-        <a href="wkb.html" class="btn btn-neutral float-left" title="WKB" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
-      
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="wkb.html" class="btn btn-neutral float-left" title="WKB" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../tutorials/index.html" class="btn btn-neutral float-right" title="Tutorials" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
-  
 
   <hr/>
 
   <div role="contentinfo">
-    <p>
-
-    </p>
+    <p></p>
   </div>
+
+  
     <div class="footer">
         <div class="container">
-            &copy;  2020
+            &copy;  2022
             <a href="https://github.com/pramsey">Paul Ramsey</a>,
             <a href="http://github.com/pblottiere">Paul Blottiere</a>,
             <a href="http://github.com/mbredif">Mathieu Brédif</a>,
@@ -343,25 +250,15 @@ index on a patch column.</p>
 
 
 </footer>
-
         </div>
       </div>
-
     </section>
-
   </div>
-  
-
-  <script type="text/javascript">
+  <script>
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script>
-
-  
-  
-    
-   
+  </script> 
 
 </body>
 </html>

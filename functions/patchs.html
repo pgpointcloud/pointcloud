@@ -1,40 +1,22 @@
-
-
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8">
-  
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>PcPatch &mdash; pgpointcloud</title>
-  
-
-  
-  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-
-  
-  
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
     <link rel="shortcut icon" href="../_static/favicon.ico"/>
-  
-  
-  
-
-  
   <!--[if lt IE 9]>
     <script src="../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
         <script src="../_static/doctools.js"></script>
-    
-    <script type="text/javascript" src="../_static/js/theme.js"></script>
-
-    
+    <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="copyright" title="Copyright" href="../copyright.html" />
@@ -42,33 +24,16 @@
     <link rel="prev" title="PcPoint" href="points.html" /> 
 </head>
 
-<body class="wy-body-for-nav">
-
-   
+<body class="wy-body-for-nav"> 
   <div class="wy-grid-for-nav">
-    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-          
-
-          
-            <a href="../index.html" class="icon icon-home" alt="Documentation Home"> pgPointcloud
-          
-
-          
+            <a href="../index.html" class="icon icon-home"> pgPointcloud
           </a>
-
-          
-            
-            
               <div class="version">
                 1.2.1
               </div>
-            
-          
-
-          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -76,18 +41,7 @@
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-
-          
-        </div>
-
-        
-        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-          
-            
-            
-              
-            
-            
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul>
 <li class="toctree-l1"><a class="reference internal" href="../concepts/index.html">Concepts</a></li>
 </ul>
@@ -147,73 +101,34 @@
 <li class="toctree-l1"><a class="reference internal" href="../copyright.html">License</a></li>
 </ul>
 
-            
-          
         </div>
-        
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
-
-      
-      <nav class="wy-nav-top" aria-label="top navigation">
-        
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="../index.html">pgPointcloud</a>
-        
       </nav>
 
-
       <div class="wy-nav-content">
-        
         <div class="rst-content">
-        
-          
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div role="navigation" aria-label="breadcrumbs navigation">
-
+          <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-    
       <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
-        
           <li><a href="index.html">Functions</a> &raquo;</li>
-        
       <li>PcPatch</li>
-    
-    
       <li class="wy-breadcrumbs-aside">
-        
-            
-        
       </li>
-    
   </ul>
-
-  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-            
-  <div class="section" id="pcpatch">
-<span id="patchs"></span><h1>PcPatch<a class="headerlink" href="#pcpatch" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="pc-patch">
-<h2>PC_Patch<a class="headerlink" href="#pc-patch" title="Permalink to this headline">¶</a></h2>
+             
+  <section id="pcpatch">
+<span id="patchs"></span><h1>PcPatch<a class="headerlink" href="#pcpatch" title="Permalink to this headline"></a></h1>
+<section id="pc-patch">
+<h2>PC_Patch<a class="headerlink" href="#pc-patch" title="Permalink to this headline"></a></h2>
 <dl class="field-list simple">
 <dt class="field-odd">PC_Patch(pts pcpoint[]) returns pcpatch</dt>
 <dd class="field-odd"><p></p></dd>
@@ -223,9 +138,9 @@
 <span class="n">SELECT</span> <span class="n">PC_Patch</span><span class="p">(</span><span class="n">pt</span><span class="p">)</span> <span class="n">FROM</span> <span class="n">points</span> <span class="n">GROUP</span> <span class="n">BY</span> <span class="nb">id</span><span class="o">/</span><span class="mi">10</span><span class="p">;</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="pc-makepatch">
-<h2>PC_MakePatch<a class="headerlink" href="#pc-makepatch" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="pc-makepatch">
+<h2>PC_MakePatch<a class="headerlink" href="#pc-makepatch" title="Permalink to this headline"></a></h2>
 <dl class="field-list simple">
 <dt class="field-odd">PC_MakePatch(pcid integer, vals float8[]) returns pcpatch</dt>
 <dd class="field-odd"><p></p></dd>
@@ -240,9 +155,9 @@ dimensions.</p>
 <span class="p">]}</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="pc-numpoints">
-<h2>PC_NumPoints<a class="headerlink" href="#pc-numpoints" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="pc-numpoints">
+<h2>PC_NumPoints<a class="headerlink" href="#pc-numpoints" title="Permalink to this headline"></a></h2>
 <dl class="field-list simple">
 <dt class="field-odd">PC_NumPoints(p pcpatch) returns integer</dt>
 <dd class="field-odd"><p></p></dd>
@@ -253,9 +168,9 @@ dimensions.</p>
 <span class="mi">9</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="pc-pcid">
-<h2>PC_PCId<a class="headerlink" href="#pc-pcid" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="pc-pcid">
+<h2>PC_PCId<a class="headerlink" href="#pc-pcid" title="Permalink to this headline"></a></h2>
 <dl class="field-list simple">
 <dt class="field-odd">PC_PCId(p pcpatch) returns integer</dt>
 <dd class="field-odd"><p></p></dd>
@@ -266,9 +181,9 @@ dimensions.</p>
 <span class="mi">1</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="pc-astext">
-<h2>PC_AsText<a class="headerlink" href="#pc-astext" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="pc-astext">
+<h2>PC_AsText<a class="headerlink" href="#pc-astext" title="Permalink to this headline"></a></h2>
 <dl class="field-list simple">
 <dt class="field-odd">PC_AsText(p pcpatch) returns text</dt>
 <dd class="field-odd"><p></p></dd>
@@ -283,9 +198,9 @@ dimensions.</p>
 <span class="p">]}</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="pc-summary">
-<h2>PC_Summary<a class="headerlink" href="#pc-summary" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="pc-summary">
+<h2>PC_Summary<a class="headerlink" href="#pc-summary" title="Permalink to this headline"></a></h2>
 <dl class="field-list simple">
 <dt class="field-odd">PC_Summary(p pcpatch) returns text (from 1.1.0)</dt>
 <dd class="field-odd"><p></p></dd>
@@ -296,9 +211,9 @@ dimensions.</p>
 <span class="p">{</span><span class="s2">&quot;pcid&quot;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;npts&quot;</span><span class="p">:</span><span class="mi">9</span><span class="p">,</span> <span class="s2">&quot;srid&quot;</span><span class="p">:</span><span class="mi">4326</span><span class="p">,</span> <span class="s2">&quot;compr&quot;</span><span class="p">:</span><span class="s2">&quot;dimensional&quot;</span><span class="p">,</span><span class="s2">&quot;dims&quot;</span><span class="p">:[{</span><span class="s2">&quot;pos&quot;</span><span class="p">:</span><span class="mi">0</span><span class="p">,</span><span class="s2">&quot;name&quot;</span><span class="p">:</span><span class="s2">&quot;X&quot;</span><span class="p">,</span><span class="s2">&quot;size&quot;</span><span class="p">:</span><span class="mi">4</span><span class="p">,</span><span class="s2">&quot;type&quot;</span><span class="p">:</span><span class="s2">&quot;int32_t&quot;</span><span class="p">,</span><span class="s2">&quot;compr&quot;</span><span class="p">:</span><span class="s2">&quot;sigbits&quot;</span><span class="p">,</span><span class="s2">&quot;stats&quot;</span><span class="p">:{</span><span class="s2">&quot;min&quot;</span><span class="p">:</span><span class="o">-</span><span class="mf">126.99</span><span class="p">,</span><span class="s2">&quot;max&quot;</span><span class="p">:</span><span class="o">-</span><span class="mf">126.91</span><span class="p">,</span><span class="s2">&quot;avg&quot;</span><span class="p">:</span><span class="o">-</span><span class="mf">126.95</span><span class="p">}},{</span><span class="s2">&quot;pos&quot;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span><span class="s2">&quot;name&quot;</span><span class="p">:</span><span class="s2">&quot;Y&quot;</span><span class="p">,</span><span class="s2">&quot;size&quot;</span><span class="p">:</span><span class="mi">4</span><span class="p">,</span><span class="s2">&quot;type&quot;</span><span class="p">:</span><span class="s2">&quot;int32_t&quot;</span><span class="p">,</span><span class="s2">&quot;compr&quot;</span><span class="p">:</span><span class="s2">&quot;sigbits&quot;</span><span class="p">,</span><span class="s2">&quot;stats&quot;</span><span class="p">:{</span><span class="s2">&quot;min&quot;</span><span class="p">:</span><span class="mf">45.01</span><span class="p">,</span><span class="s2">&quot;max&quot;</span><span class="p">:</span><span class="mf">45.09</span><span class="p">,</span><span class="s2">&quot;avg&quot;</span><span class="p">:</span><span class="mf">45.05</span><span class="p">}},{</span><span class="s2">&quot;pos&quot;</span><span class="p">:</span><span class="mi">2</span><span class="p">,</span><span class="s2">&quot;name&quot;</span><span class="p">:</span><span class="s2">&quot;Z&quot;</span><span class="p">,</span><span class="s2">&quot;size&quot;</span><span class="p">:</span><span class="mi">4</span><span class="p">,</span><span class="s2">&quot;type&quot;</span><span class="p">:</span><span class="s2">&quot;int32_t&quot;</span><span class="p">,</span><span class="s2">&quot;compr&quot;</span><span class="p">:</span><span class="s2">&quot;sigbits&quot;</span><span class="p">,</span><span class="s2">&quot;stats&quot;</span><span class="p">:{</span><span class="s2">&quot;min&quot;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span><span class="s2">&quot;max&quot;</span><span class="p">:</span><span class="mi">9</span><span class="p">,</span><span class="s2">&quot;avg&quot;</span><span class="p">:</span><span class="mi">5</span><span class="p">}},{</span><span class="s2">&quot;pos&quot;</span><span class="p">:</span><span class="mi">3</span><span class="p">,</span><span class="s2">&quot;name&quot;</span><span class="p">:</span><span class="s2">&quot;Intensity&quot;</span><span class="p">,</span><span class="s2">&quot;size&quot;</span><span class="p">:</span><span class="mi">2</span><span class="p">,</span><span class="s2">&quot;type&quot;</span><span class="p">:</span><span class="s2">&quot;uint16_t&quot;</span><span class="p">,</span><span class="s2">&quot;compr&quot;</span><span class="p">:</span><span class="s2">&quot;rle&quot;</span><span class="p">,</span><span class="s2">&quot;stats&quot;</span><span class="p">:{</span><span class="s2">&quot;min&quot;</span><span class="p">:</span><span class="mi">0</span><span class="p">,</span><span class="s2">&quot;max&quot;</span><span class="p">:</span><span class="mi">0</span><span class="p">,</span><span class="s2">&quot;avg&quot;</span><span class="p">:</span><span class="mi">0</span><span class="p">}}]}</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="pc-uncompress">
-<h2>PC_Uncompress<a class="headerlink" href="#pc-uncompress" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="pc-uncompress">
+<h2>PC_Uncompress<a class="headerlink" href="#pc-uncompress" title="Permalink to this headline"></a></h2>
 <dl class="field-list simple">
 <dt class="field-odd">PC_Uncompress(p pcpatch) returns pcpatch</dt>
 <dd class="field-odd"><p></p></dd>
@@ -314,9 +229,9 @@ returning.</p>
 <span class="mi">01010000000000000001000000</span><span class="n">C8CEFFFFF8110000102700000A00</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="pc-union">
-<h2>PC_Union<a class="headerlink" href="#pc-union" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="pc-union">
+<h2>PC_Union<a class="headerlink" href="#pc-union" title="Permalink to this headline"></a></h2>
 <dl class="field-list simple">
 <dt class="field-odd">PC_Union(p pcpatch[]) returns pcpatch</dt>
 <dd class="field-odd"><p></p></dd>
@@ -329,9 +244,9 @@ returning.</p>
 <span class="mi">100</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="pc-intersects">
-<h2>PC_Intersects<a class="headerlink" href="#pc-intersects" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="pc-intersects">
+<h2>PC_Intersects<a class="headerlink" href="#pc-intersects" title="Permalink to this headline"></a></h2>
 <dl class="field-list simple">
 <dt class="field-odd">PC_Intersects(p1 pcpatch, p2 pcpatch) returns boolean</dt>
 <dd class="field-odd"><p></p></dd>
@@ -345,9 +260,9 @@ returning.</p>
 <span class="n">t</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="pc-explode">
-<h2>PC_Explode<a class="headerlink" href="#pc-explode" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="pc-explode">
+<h2>PC_Explode<a class="headerlink" href="#pc-explode" title="Permalink to this headline"></a></h2>
 <dl class="field-list simple">
 <dt class="field-odd">PC_Explode(p pcpatch) returns SetOf[pcpoint]</dt>
 <dd class="field-odd"><p></p></dd>
@@ -371,9 +286,9 @@ each point in the patch.</p>
  <span class="p">{</span><span class="s2">&quot;pcid&quot;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span><span class="s2">&quot;pt&quot;</span><span class="p">:[</span><span class="o">-</span><span class="mf">126.41</span><span class="p">,</span><span class="mf">45.59</span><span class="p">,</span><span class="mi">59</span><span class="p">,</span><span class="mi">5</span><span class="p">]}</span> <span class="o">|</span>  <span class="mi">7</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="pc-patchavg">
-<h2>PC_PatchAvg<a class="headerlink" href="#pc-patchavg" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="pc-patchavg">
+<h2>PC_PatchAvg<a class="headerlink" href="#pc-patchavg" title="Permalink to this headline"></a></h2>
 <dl class="field-list simple">
 <dt class="field-odd">PC_PatchAvg(p pcpatch, dimname text) returns numeric</dt>
 <dd class="field-odd"><p></p></dd>
@@ -386,9 +301,9 @@ returns the average of those values. Dimension name must exist in the schema.</p
 <span class="mf">5.0000000000000000</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="pc-patchmax">
-<h2>PC_PatchMax<a class="headerlink" href="#pc-patchmax" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="pc-patchmax">
+<h2>PC_PatchMax<a class="headerlink" href="#pc-patchmax" title="Permalink to this headline"></a></h2>
 <dl class="field-list simple">
 <dt class="field-odd">PC_PatchMax(p pcpatch, dimname text) returns numeric</dt>
 <dd class="field-odd"><p></p></dd>
@@ -401,9 +316,9 @@ returns the maximum of those values. Dimension name must exist in the schema.</p
 <span class="o">-</span><span class="mf">126.41</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="pc-patchmin">
-<h2>PC_PatchMin<a class="headerlink" href="#pc-patchmin" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="pc-patchmin">
+<h2>PC_PatchMin<a class="headerlink" href="#pc-patchmin" title="Permalink to this headline"></a></h2>
 <dl class="field-list simple">
 <dt class="field-odd">PC_PatchMin(p pcpatch, dimname text) returns numeric</dt>
 <dd class="field-odd"><p></p></dd>
@@ -427,9 +342,9 @@ returns the minimum of those values. Dimension name must exist in the schema.</p
 <span class="p">{</span><span class="s2">&quot;pcid&quot;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span><span class="s2">&quot;pt&quot;</span><span class="p">:[</span><span class="o">-</span><span class="mf">126.5</span><span class="p">,</span><span class="mf">45.5</span><span class="p">,</span><span class="mi">50</span><span class="p">,</span><span class="mi">5</span><span class="p">]}</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="id1">
-<h2>PC_PatchAvg<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="id1">
+<h2>PC_PatchAvg<a class="headerlink" href="#id1" title="Permalink to this headline"></a></h2>
 <dl class="field-list simple">
 <dt class="field-odd">PC_PatchAvg(p pcpatch) returns pcpoint</dt>
 <dd class="field-odd"><p></p></dd>
@@ -441,9 +356,9 @@ returns the minimum of those values. Dimension name must exist in the schema.</p
 <span class="p">{</span><span class="s2">&quot;pcid&quot;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span><span class="s2">&quot;pt&quot;</span><span class="p">:[</span><span class="o">-</span><span class="mf">126.46</span><span class="p">,</span><span class="mf">45.54</span><span class="p">,</span><span class="mf">54.5</span><span class="p">,</span><span class="mi">5</span><span class="p">]}</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="id2">
-<h2>PC_PatchMax<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="id2">
+<h2>PC_PatchMax<a class="headerlink" href="#id2" title="Permalink to this headline"></a></h2>
 <dl class="field-list simple">
 <dt class="field-odd">PC_PatchMax(p pcpatch) returns pcpoint</dt>
 <dd class="field-odd"><p></p></dd>
@@ -455,9 +370,9 @@ returns the minimum of those values. Dimension name must exist in the schema.</p
 <span class="p">{</span><span class="s2">&quot;pcid&quot;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span><span class="s2">&quot;pt&quot;</span><span class="p">:[</span><span class="o">-</span><span class="mf">126.41</span><span class="p">,</span><span class="mf">45.59</span><span class="p">,</span><span class="mi">59</span><span class="p">,</span><span class="mi">5</span><span class="p">]}</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="pc-filtergreaterthan">
-<h2>PC_FilterGreaterThan<a class="headerlink" href="#pc-filtergreaterthan" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="pc-filtergreaterthan">
+<h2>PC_FilterGreaterThan<a class="headerlink" href="#pc-filtergreaterthan" title="Permalink to this headline"></a></h2>
 <dl class="field-list simple">
 <dt class="field-odd">PC_FilterGreaterThan(p pcpatch, dimname text, float8 value) returns pcpatch</dt>
 <dd class="field-odd"><p></p></dd>
@@ -470,36 +385,36 @@ value for the requested dimension.</p>
  <span class="p">{</span><span class="s2">&quot;pcid&quot;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span><span class="s2">&quot;pts&quot;</span><span class="p">:[[</span><span class="o">-</span><span class="mf">126.42</span><span class="p">,</span><span class="mf">45.58</span><span class="p">,</span><span class="mi">58</span><span class="p">,</span><span class="mi">5</span><span class="p">],[</span><span class="o">-</span><span class="mf">126.41</span><span class="p">,</span><span class="mf">45.59</span><span class="p">,</span><span class="mi">59</span><span class="p">,</span><span class="mi">5</span><span class="p">]]}</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="pc-filterlessthan">
-<h2>PC_FilterLessThan<a class="headerlink" href="#pc-filterlessthan" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="pc-filterlessthan">
+<h2>PC_FilterLessThan<a class="headerlink" href="#pc-filterlessthan" title="Permalink to this headline"></a></h2>
 <dl class="field-list simple">
 <dt class="field-odd">PC_FilterLessThan(p pcpatch, dimname text, float8 value) returns pcpatch</dt>
 <dd class="field-odd"><p></p></dd>
 </dl>
 <p>Returns a patch with only points whose values are less than the supplied value
 for the requested dimension.</p>
-</div>
-<div class="section" id="pc-filterbetween">
-<h2>PC_FilterBetween<a class="headerlink" href="#pc-filterbetween" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="pc-filterbetween">
+<h2>PC_FilterBetween<a class="headerlink" href="#pc-filterbetween" title="Permalink to this headline"></a></h2>
 <dl class="field-list simple">
 <dt class="field-odd">PC_FilterBetween(p pcpatch, dimname text, float8 value1, float8 value2) returns pcpatch</dt>
 <dd class="field-odd"><p></p></dd>
 </dl>
 <p>Returns a patch with only points whose values are between (excluding) the
 supplied values for the requested dimension.</p>
-</div>
-<div class="section" id="pc-filterequals">
-<h2>PC_FilterEquals<a class="headerlink" href="#pc-filterequals" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="pc-filterequals">
+<h2>PC_FilterEquals<a class="headerlink" href="#pc-filterequals" title="Permalink to this headline"></a></h2>
 <dl class="field-list simple">
 <dt class="field-odd">PC_FilterEquals(p pcpatch, dimname text, float8 value) returns pcpatch</dt>
 <dd class="field-odd"><p></p></dd>
 </dl>
 <p>Returns a patch with only points whose values are the same as the supplied
 values for the requested dimension.</p>
-</div>
-<div class="section" id="pc-compress">
-<h2>PC_Compress<a class="headerlink" href="#pc-compress" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="pc-compress">
+<h2>PC_Compress<a class="headerlink" href="#pc-compress" title="Permalink to this headline"></a></h2>
 <dl class="field-list simple">
 <dt class="field-odd">PC_Compress(p pcpatch,global_compression_scheme text,compression_config text) returns pcpatch</dt>
 <dd class="field-odd"><p></p></dd>
@@ -521,18 +436,18 @@ schemes are:</p>
 </div></blockquote>
 </li>
 </ul>
-</div>
-<div class="section" id="pc-pointn">
-<h2>PC_PointN<a class="headerlink" href="#pc-pointn" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="pc-pointn">
+<h2>PC_PointN<a class="headerlink" href="#pc-pointn" title="Permalink to this headline"></a></h2>
 <dl class="field-list simple">
 <dt class="field-odd">PC_PointN(p pcpatch, n int4) returns pcpoint</dt>
 <dd class="field-odd"><p></p></dd>
 </dl>
 <p>Returns the n-th point of the patch with 1-based indexing. Negative n counts
 point from the end.</p>
-</div>
-<div class="section" id="pc-issorted">
-<h2>PC_IsSorted<a class="headerlink" href="#pc-issorted" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="pc-issorted">
+<h2>PC_IsSorted<a class="headerlink" href="#pc-issorted" title="Permalink to this headline"></a></h2>
 <dl class="field-list simple">
 <dt class="field-odd">PC_IsSorted(p pcpatch, dimnames text[], strict boolean default true) returns boolean</dt>
 <dd class="field-odd"><p></p></dd>
@@ -540,27 +455,27 @@ point from the end.</p>
 <p>Checks whether a pcpatch is sorted lexicographically along the given
 dimensions. The <code class="docutils literal notranslate"><span class="pre">strict</span></code> option further checks that the ordering is strict
 (no duplicates).</p>
-</div>
-<div class="section" id="pc-sort">
-<h2>PC_Sort<a class="headerlink" href="#pc-sort" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="pc-sort">
+<h2>PC_Sort<a class="headerlink" href="#pc-sort" title="Permalink to this headline"></a></h2>
 <dl class="field-list simple">
 <dt class="field-odd">PC_Sort(p pcpatch, dimnames text[]) returns pcpatch</dt>
 <dd class="field-odd"><p></p></dd>
 </dl>
 <p>Returns a copy of the input patch lexicographically sorted along the given
 dimensions.</p>
-</div>
-<div class="section" id="pc-range">
-<h2>PC_Range<a class="headerlink" href="#pc-range" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="pc-range">
+<h2>PC_Range<a class="headerlink" href="#pc-range" title="Permalink to this headline"></a></h2>
 <dl class="field-list simple">
 <dt class="field-odd">PC_Range(p pcpatch, start int4, n int4) returns pcpatch</dt>
 <dd class="field-odd"><p></p></dd>
 </dl>
 <p>Returns a patch containing n points. These points are selected from the
 start-th point with 1-based indexing.</p>
-</div>
-<div class="section" id="pc-setpcid">
-<h2>PC_SetPCId<a class="headerlink" href="#pc-setpcid" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="pc-setpcid">
+<h2>PC_SetPCId<a class="headerlink" href="#pc-setpcid" title="Permalink to this headline"></a></h2>
 <dl class="field-list simple">
 <dt class="field-odd">PC_SetPCId(p pcpatch, pcid int4, def float8 default 0.0) returns pcpatch</dt>
 <dd class="field-odd"><p></p></dd>
@@ -569,9 +484,9 @@ start-th point with 1-based indexing.</p>
 <p>For dimensions that are in the “new” schema but not in the “old” schema the
 value <code class="docutils literal notranslate"><span class="pre">def</span></code> is set in the points of the output patch. <code class="docutils literal notranslate"><span class="pre">def</span></code> is optional,
 its default value is <code class="docutils literal notranslate"><span class="pre">0.0</span></code>.</p>
-</div>
-<div class="section" id="pc-transform">
-<h2>PC_Transform<a class="headerlink" href="#pc-transform" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="pc-transform">
+<h2>PC_Transform<a class="headerlink" href="#pc-transform" title="Permalink to this headline"></a></h2>
 <dl class="field-list simple">
 <dt class="field-odd">PC_Transform(p pcpatch, pcid int4, def float8 default 0.0) returns pcpatch</dt>
 <dd class="field-odd"><p></p></dd>
@@ -584,9 +499,9 @@ its default value is <code class="docutils literal notranslate"><span class="pre
 <p>Contrary to <code class="docutils literal notranslate"><span class="pre">PC_SetPCId</span></code>, <code class="docutils literal notranslate"><span class="pre">PC_Transform</span></code> may change (transform) the patch
 data if dimension interpretations, scales or offsets are different in the new
 schema.</p>
-</div>
-<div class="section" id="pc-memsize">
-<h2>PC_MemSize<a class="headerlink" href="#pc-memsize" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="pc-memsize">
+<h2>PC_MemSize<a class="headerlink" href="#pc-memsize" title="Permalink to this headline"></a></h2>
 <dl class="field-list simple">
 <dt class="field-odd">PC_MemSize(p pcpatch) returns int4</dt>
 <dd class="field-odd"><p></p></dd>
@@ -597,35 +512,27 @@ schema.</p>
 <span class="mi">161</span>
 </pre></div>
 </div>
-</div>
-</div>
+</section>
+</section>
 
 
            </div>
-           
           </div>
-          <footer>
-  
-    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-      
-        <a href="wkb.html" class="btn btn-neutral float-right" title="WKB" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
-      
-      
-        <a href="points.html" class="btn btn-neutral float-left" title="PcPoint" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
-      
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="points.html" class="btn btn-neutral float-left" title="PcPoint" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="wkb.html" class="btn btn-neutral float-right" title="WKB" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
-  
 
   <hr/>
 
   <div role="contentinfo">
-    <p>
-
-    </p>
+    <p></p>
   </div>
+
+  
     <div class="footer">
         <div class="container">
-            &copy;  2020
+            &copy;  2022
             <a href="https://github.com/pramsey">Paul Ramsey</a>,
             <a href="http://github.com/pblottiere">Paul Blottiere</a>,
             <a href="http://github.com/mbredif">Mathieu Brédif</a>,
@@ -638,25 +545,15 @@ schema.</p>
 
 
 </footer>
-
         </div>
       </div>
-
     </section>
-
   </div>
-  
-
-  <script type="text/javascript">
+  <script>
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script>
-
-  
-  
-    
-   
+  </script> 
 
 </body>
 </html>
