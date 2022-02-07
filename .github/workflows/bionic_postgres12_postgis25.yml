@@ -1,6 +1,10 @@
 name: "[ubuntu-18.04] PostgreSQL 12 and PostGIS 2.5"
 
-on: [push, pull_request]
+on:
+  push:
+    branches:
+      - master
+  pull_request:
 
 jobs:
   build:
