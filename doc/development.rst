@@ -36,13 +36,23 @@ After generating the configure script with ``autogen.sh``, you can use
 
 .. note::
 
-      You can use ``--with-pgconfig`` on the ``./configure`` command line if
-      you have multiple PostgreSQL installations on your system and want to target a
-      specific one. For example:
+  You can use ``--with-pgconfig`` on the ``./configure`` command line if
+  you have multiple PostgreSQL installations on your system and want to target a
+  specific one. For example:
 
-      .. code-block:: bash
+  .. code-block:: bash
 
-        $ ./configure --with-pgconfig=/usr/lib/postgresql/12/bin/pg_config
+    $ ./configure --with-pgconfig=/usr/lib/postgresql/12/bin/pg_config
+
+
+.. note::
+
+  If ``qsort_r`` is not available on your system, then you can use the embedded
+  implementation instead thanks to the next directive:
+
+  .. code-block:: bash
+
+    $ ./configure CFLAGS="-DNESTED_QSORT=1"
 
 ------------------------------------------------------------------------------
 Tests
