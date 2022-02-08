@@ -136,17 +136,17 @@ pgPointcloud tests are run with `Github Actions`_ on several Ubuntu versions
 and with various PostgreSQL/PostGIS releases:
 
 +---------------+-----------------------+------------------------+
-|               | PostGIS 2.5           | PostGIS 3              |
+|               | PostGIS 2.5           | PostGIS 3.2            |
 +---------------+-----------------------+------------------------+
-| PostgreSQL 12 | |12_25_bionic|        | - |12_3_bionic|        |
-|               |                       | - |12_3_focal|         |
+| PostgreSQL 12 | |12_25_bionic|        | - |12_32_bionic|       |
+|               |                       | - |12_32_focal|        |
 +---------------+-----------------------+------------------------+
 
 .. |12_25_bionic| image:: https://img.shields.io/github/workflow/status/pgpointcloud/pointcloud/%5Bubuntu-18.04%5D%20PostgreSQL%2012%20and%20PostGIS%202.5?label=Ubuntu%2018.04&logo=github&style=plastic :target: https://github.com/pgpointcloud/pointcloud/actions?query=workflow%3A%22%5Bubuntu-18.04%5D+PostgreSQL+12+and+PostGIS+2.5%22
 
-.. |12_3_bionic| image:: https://img.shields.io/github/workflow/status/pgpointcloud/pointcloud/%5Bubuntu-18.04%5D%20PostgreSQL%2012%20and%20PostGIS%203?label=Ubuntu%2018.04&logo=github&style=plastic :target: https://github.com/pgpointcloud/pointcloud/actions?query=workflow%3A%22%5Bubuntu-18.04%5D+PostgreSQL+12+and+PostGIS+3%22
+.. |12_32_bionic| image:: https://img.shields.io/github/workflow/status/pgpointcloud/pointcloud/%5Bubuntu-18.04%5D%20PostgreSQL%2012%20and%20PostGIS%203.2?label=Ubuntu%2018.04&logo=github&style=plastic :target: https://github.com/pgpointcloud/pointcloud/actions?query=workflow%3A%22%5Bubuntu-18.04%5D+PostgreSQL+12+and+PostGIS+3.2%22
 
-.. |12_3_focal| image:: https://img.shields.io/github/workflow/status/pgpointcloud/pointcloud/%5Bubuntu-20.04%5D%20PostgreSQL%2012%20and%20PostGIS%203?label=Ubuntu%2020.04&logo=github&style=plastic :target: https://github.com/pgpointcloud/pointcloud/actions?query=workflow%3A%22%5Bubuntu-20.04%5D+PostgreSQL+12+and+PostGIS+3%22
+.. |12_32_focal| image:: https://img.shields.io/github/workflow/status/pgpointcloud/pointcloud/%5Bubuntu-20.04%5D%20PostgreSQL%2012%20and%20PostGIS%203.2?label=Ubuntu%2020.04&logo=github&style=plastic :target: https://github.com/pgpointcloud/pointcloud/actions?query=workflow%3A%22%5Bubuntu-20.04%5D+PostgreSQL+12+and+PostGIS+3.2%22
 
 .. _`source`: https://github.com/hobu/laz-perf
 .. _`DockerHub`: https://hub.docker.com/_/postgres

@@ -1,4 +1,4 @@
-name: "[ubuntu-20.04] PostgreSQL 12 and PostGIS 3"
+name: "[ubuntu-20.04] PostgreSQL 12 and PostGIS 3.2"
 
 on:
   push:
