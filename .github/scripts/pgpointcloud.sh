@@ -2,9 +2,9 @@
 
 set -e
 
-./tools/build-install.sh
-sh .install-lazperf.sh
-./tools/build-install.sh --with-lazperf=/usr/local
+sh ./tools/build_install.sh
+sh ./tools/install_lazperf.sh
+sh ./tools/build_install.sh --with-lazperf=/usr/local
 make check
-./tools/valgrind.sh
+sh ./tools/valgrind.sh
 make installcheck
