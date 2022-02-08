@@ -1,3 +1,2 @@
 BasedOnStyle: llvm
-IndentWidth: 4
-BreakBeforeBraces: Stroustrup
+BreakBeforeBraces: Allman

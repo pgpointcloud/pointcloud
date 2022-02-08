@@ -46,44 +46,49 @@
  */
 #define NUM_INTERPRETATIONS 11
 
-enum INTERPRETATIONS {
-    PC_UNKNOWN = 0,
-    PC_INT8 = 1,
-    PC_UINT8 = 2,
-    PC_INT16 = 3,
-    PC_UINT16 = 4,
-    PC_INT32 = 5,
-    PC_UINT32 = 6,
-    PC_INT64 = 7,
-    PC_UINT64 = 8,
-    PC_DOUBLE = 9,
-    PC_FLOAT = 10
+enum INTERPRETATIONS
+{
+  PC_UNKNOWN = 0,
+  PC_INT8 = 1,
+  PC_UINT8 = 2,
+  PC_INT16 = 3,
+  PC_UINT16 = 4,
+  PC_INT32 = 5,
+  PC_UINT32 = 6,
+  PC_INT64 = 7,
+  PC_UINT64 = 8,
+  PC_DOUBLE = 9,
+  PC_FLOAT = 10
 };
 
-enum DIMCOMPRESSIONS {
-    PC_DIM_NONE = 0,
-    PC_DIM_RLE = 1,
-    PC_DIM_SIGBITS = 2,
-    PC_DIM_ZLIB = 3
+enum DIMCOMPRESSIONS
+{
+  PC_DIM_NONE = 0,
+  PC_DIM_RLE = 1,
+  PC_DIM_SIGBITS = 2,
+  PC_DIM_ZLIB = 3
 };
 
 /* PCDOUBLESTAT are members of PCDOUBLESTATS */
-typedef struct {
-    double min;
-    double max;
-    double sum;
+typedef struct
+{
+  double min;
+  double max;
+  double sum;
 } PCDOUBLESTAT;
 
 /* PCDOUBLESTATS are internal to calculating stats in this module */
-typedef struct {
-    uint32_t npoints;
-    PCDOUBLESTAT *dims;
+typedef struct
+{
+  uint32_t npoints;
+  PCDOUBLESTAT *dims;
 } PCDOUBLESTATS;
 
-typedef struct {
-    uint32_t nset;
-    uint32_t npoints;
-    uint8_t *map;
+typedef struct
+{
+  uint32_t nset;
+  uint32_t npoints;
+  uint8_t *map;
 } PCBITMAP;
 
 /** What is the endianness of this system? */

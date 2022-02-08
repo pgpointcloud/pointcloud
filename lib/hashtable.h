@@ -5,20 +5,22 @@
 
 /*****************************************************************************/
 
-typedef struct entry {
-    void *k, *v;
-    unsigned int h;
-    struct entry *next;
+typedef struct entry
+{
+  void *k, *v;
+  unsigned int h;
+  struct entry *next;
 } entry;
 
-typedef struct hashtable {
-    unsigned int tablelength;
-    entry **table;
-    unsigned int entrycount;
-    unsigned int loadlimit;
-    unsigned int primeindex;
-    unsigned int (*hashfn)(const void *k);
-    int (*eqfn)(const void *k1, const void *k2);
+typedef struct hashtable
+{
+  unsigned int tablelength;
+  entry **table;
+  unsigned int entrycount;
+  unsigned int loadlimit;
+  unsigned int primeindex;
+  unsigned int (*hashfn)(const void *k);
+  int (*eqfn)(const void *k1, const void *k2);
 } hashtable;
 
 /*****************************************************************************/
@@ -124,10 +126,10 @@ hashtable *create_string_hashtable(void);
 int hashtable_insert(hashtable *h, void *k, void *v);
 
 #define DEFINE_HASHTABLE_INSERT(fnname, keytype, valuetype)                    \
-    int fnname(hashtable *h, keytype *k, valuetype *v)                         \
-    {                                                                          \
-        return hashtable_insert(h, k, v);                                      \
-    }
+  int fnname(hashtable *h, keytype *k, valuetype *v)                           \
+  {                                                                            \
+    return hashtable_insert(h, k, v);                                          \
+  }
 
 /*****************************************************************************
 * hashtable_search
@@ -141,10 +143,10 @@ int hashtable_insert(hashtable *h, void *k, void *v);
 void *hashtable_search(hashtable *h, const void *k);
 
 #define DEFINE_HASHTABLE_SEARCH(fnname, keytype, valuetype)                    \
-    valuetype *fnname(hashtable *h, keytype *k)                                \
-    {                                                                          \
-        return (valuetype *)(hashtable_search(h, k));                          \
-    }
+  valuetype *fnname(hashtable *h, keytype *k)                                  \
+  {                                                                            \
+    return (valuetype *)(hashtable_search(h, k));                              \
+  }
 
 /*****************************************************************************
 * hashtable_remove
@@ -159,10 +161,10 @@ void * /* returns value */
 hashtable_remove(hashtable *h, void *k);
 
 #define DEFINE_HASHTABLE_REMOVE(fnname, keytype, valuetype)                    \
-    valuetype *fnname(hashtable *h, keytype *k)                                \
-    {                                                                          \
-        return (valuetype *)(hashtable_remove(h, k));                          \
-    }
+  valuetype *fnname(hashtable *h, keytype *k)                                  \
+  {                                                                            \
+    return (valuetype *)(hashtable_remove(h, k));                              \
+  }
 
 /**
  * @name hash_str
@@ -203,7 +205,7 @@ void hashtable_destroy(hashtable *h, int free_values);
 static inline unsigned int indexFor(unsigned int tablelength,
                                     unsigned int hashvalue)
 {
-    return (hashvalue % tablelength);
+  return (hashvalue % tablelength);
 };
 
 #endif /* __HASHTABLE_CWC22_H__ */

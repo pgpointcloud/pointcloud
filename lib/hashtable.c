@@ -31,29 +31,30 @@ const float max_load_factor = 0.65;
 /* hash_str */
 unsigned int hash_str(const void *vstr)
 {
-    unsigned int hash = 0;
-    int c;
-    const char *str = (const char *)vstr;
+  unsigned int hash = 0;
+  int c;
+  const char *str = (const char *)vstr;
 
-    while ((c = tolower(*str++))) {
-        hash = c + (hash << 6) + (hash << 16) - hash;
-    }
+  while ((c = tolower(*str++)))
+  {
+    hash = c + (hash << 6) + (hash << 16) - hash;
+  }
 
-    return hash;
+  return hash;
 }
 
 /*****************************************************************************/
 /* str_eq */
 int str_eq(const void *str1, const void *str2)
 {
-    return 0 == strcasecmp((const char *)str1, (const char *)str2);
+  return 0 == strcasecmp((const char *)str1, (const char *)str2);
 }
 
 /*****************************************************************************/
 /* create_string_hashtable */
 hashtable *create_string_hashtable()
 {
-    return create_hashtable(16, hash_str, str_eq);
+  return create_hashtable(16, hash_str, str_eq);
 }
 
 /*****************************************************************************/
@@ -61,105 +62,117 @@ hashtable *create_hashtable(unsigned int minsize,
                             unsigned int (*hashf)(const void *),
                             int (*eqf)(const void *, const void *))
 {
-    hashtable *h;
-    unsigned int pindex, size = primes[0];
-    /* Check requested hashtable isn't too large */
-    if (minsize > (1u << 30))
-        return NULL;
-    /* Enforce size as prime */
-    for (pindex = 0; pindex < prime_table_length; pindex++) {
-        if (primes[pindex] > minsize) {
-            size = primes[pindex];
-            break;
-        }
+  hashtable *h;
+  unsigned int pindex, size = primes[0];
+  /* Check requested hashtable isn't too large */
+  if (minsize > (1u << 30))
+    return NULL;
+  /* Enforce size as prime */
+  for (pindex = 0; pindex < prime_table_length; pindex++)
+  {
+    if (primes[pindex] > minsize)
+    {
+      size = primes[pindex];
+      break;
     }
-    h = (hashtable *)malloc(sizeof(hashtable));
-    if (NULL == h)
-        return NULL; /*oom*/
-    h->table = (struct entry **)malloc(sizeof(struct entry *) * size);
-    if (NULL == h->table) {
-        free(h); /*oom*/
-        return NULL;
-    }
-    memset(h->table, 0, size * sizeof(struct entry *));
-    h->tablelength = size;
-    h->primeindex = pindex;
-    h->entrycount = 0;
-    h->hashfn = hashf;
-    h->eqfn = eqf;
-    h->loadlimit = (unsigned int)ceil(size * max_load_factor);
-    return h;
+  }
+  h = (hashtable *)malloc(sizeof(hashtable));
+  if (NULL == h)
+    return NULL; /*oom*/
+  h->table = (struct entry **)malloc(sizeof(struct entry *) * size);
+  if (NULL == h->table)
+  {
+    free(h); /*oom*/
+    return NULL;
+  }
+  memset(h->table, 0, size * sizeof(struct entry *));
+  h->tablelength = size;
+  h->primeindex = pindex;
+  h->entrycount = 0;
+  h->hashfn = hashf;
+  h->eqfn = eqf;
+  h->loadlimit = (unsigned int)ceil(size * max_load_factor);
+  return h;
 }
 
 /*****************************************************************************/
 unsigned int hash(hashtable *h, const void *k)
 {
-    /* Aim to protect against poor hash functions by adding logic here
-     * - logic taken from java 1.4 hashtable source */
-    unsigned int i = h->hashfn(k);
-    i += ~(i << 9);
-    i ^= ((i >> 14) | (i << 18)); /* >>> */
-    i += (i << 4);
-    i ^= ((i >> 10) | (i << 22)); /* >>> */
-    return i;
+  /* Aim to protect against poor hash functions by adding logic here
+   * - logic taken from java 1.4 hashtable source */
+  unsigned int i = h->hashfn(k);
+  i += ~(i << 9);
+  i ^= ((i >> 14) | (i << 18)); /* >>> */
+  i += (i << 4);
+  i ^= ((i >> 10) | (i << 22)); /* >>> */
+  return i;
 }
 
 /*****************************************************************************/
 static int hashtable_expand(hashtable *h)
 {
-    /* Double the size of the table to accomodate more entries */
-    struct entry **newtable;
-    struct entry *e;
-    struct entry **pE;
-    unsigned int newsize, i, index;
-    /* Check we're not hitting max capacity */
-    if (h->primeindex == (prime_table_length - 1))
-        return 0;
-    newsize = primes[++(h->primeindex)];
+  /* Double the size of the table to accomodate more entries */
+  struct entry **newtable;
+  struct entry *e;
+  struct entry **pE;
+  unsigned int newsize, i, index;
+  /* Check we're not hitting max capacity */
+  if (h->primeindex == (prime_table_length - 1))
+    return 0;
+  newsize = primes[++(h->primeindex)];
 
-    newtable = (struct entry **)malloc(sizeof(struct entry *) * newsize);
-    if (NULL != newtable) {
-        memset(newtable, 0, newsize * sizeof(struct entry *));
-        /* This algorithm is not 'stable'. ie. it reverses the list
-         * when it transfers entries between the tables */
-        for (i = 0; i < h->tablelength; i++) {
-            while (NULL != (e = h->table[i])) {
-                h->table[i] = e->next;
-                index = indexFor(newsize, e->h);
-                e->next = newtable[index];
-                newtable[index] = e;
-            }
-        }
-        free(h->table);
-        h->table = newtable;
+  newtable = (struct entry **)malloc(sizeof(struct entry *) * newsize);
+  if (NULL != newtable)
+  {
+    memset(newtable, 0, newsize * sizeof(struct entry *));
+    /* This algorithm is not 'stable'. ie. it reverses the list
+     * when it transfers entries between the tables */
+    for (i = 0; i < h->tablelength; i++)
+    {
+      while (NULL != (e = h->table[i]))
+      {
+        h->table[i] = e->next;
+        index = indexFor(newsize, e->h);
+        e->next = newtable[index];
+        newtable[index] = e;
+      }
     }
-    /* Plan B: realloc instead */
-    else {
-        newtable = (struct entry **)realloc(h->table,
-                                            newsize * sizeof(struct entry *));
-        if (NULL == newtable) {
-            (h->primeindex)--;
-            return 0;
-        }
-        h->table = newtable;
-        memset(newtable[h->tablelength], 0, newsize - h->tablelength);
-        for (i = 0; i < h->tablelength; i++) {
-            for (pE = &(newtable[i]), e = *pE; e != NULL; e = *pE) {
-                index = indexFor(newsize, e->h);
-                if (index == i) {
-                    pE = &(e->next);
-                }
-                else {
-                    *pE = e->next;
-                    e->next = newtable[index];
-                    newtable[index] = e;
-                }
-            }
-        }
+    free(h->table);
+    h->table = newtable;
+  }
+  /* Plan B: realloc instead */
+  else
+  {
+    newtable =
+        (struct entry **)realloc(h->table, newsize * sizeof(struct entry *));
+    if (NULL == newtable)
+    {
+      (h->primeindex)--;
+      return 0;
     }
-    h->tablelength = newsize;
-    h->loadlimit = (unsigned int)ceil(newsize * max_load_factor);
-    return -1;
+    h->table = newtable;
+    memset(newtable[h->tablelength], 0, newsize - h->tablelength);
+    for (i = 0; i < h->tablelength; i++)
+    {
+      for (pE = &(newtable[i]), e = *pE; e != NULL; e = *pE)
+      {
+        index = indexFor(newsize, e->h);
+        if (index == i)
+        {
+          pE = &(e->next);
+        }
+        else
+        {
+          *pE = e->next;
+          e->next = newtable[index];
+          newtable[index] = e;
+        }
+      }
+    }
+  }
+  h->tablelength = newsize;
+  h->loadlimit = (unsigned int)ceil(newsize * max_load_factor);
+  return -1;
 }
 
 /*****************************************************************************/
@@ -168,111 +181,122 @@ unsigned int hashtable_count(hashtable *h) { return h->entrycount; }
 /*****************************************************************************/
 int hashtable_insert(hashtable *h, void *k, void *v)
 {
-    /* This method allows duplicate keys - but they shouldn't be used */
-    unsigned int index;
-    struct entry *e;
-    if (++(h->entrycount) > h->loadlimit) {
-        /* Ignore the return value. If expand fails, we should
-         * still try cramming just this value into the existing table
-         * -- we may not have memory for a larger table, but one more
-         * element may be ok. Next time we insert, we'll try expanding again.*/
-        hashtable_expand(h);
-    }
-    e = (struct entry *)malloc(sizeof(struct entry));
-    if (NULL == e) {
-        --(h->entrycount); /*oom*/
-        return 0;
-    }
-    e->h = hash(h, k);
-    index = indexFor(h->tablelength, e->h);
-    e->k = k;
-    e->v = v;
-    e->next = h->table[index];
-    h->table[index] = e;
-    return -1;
+  /* This method allows duplicate keys - but they shouldn't be used */
+  unsigned int index;
+  struct entry *e;
+  if (++(h->entrycount) > h->loadlimit)
+  {
+    /* Ignore the return value. If expand fails, we should
+     * still try cramming just this value into the existing table
+     * -- we may not have memory for a larger table, but one more
+     * element may be ok. Next time we insert, we'll try expanding again.*/
+    hashtable_expand(h);
+  }
+  e = (struct entry *)malloc(sizeof(struct entry));
+  if (NULL == e)
+  {
+    --(h->entrycount); /*oom*/
+    return 0;
+  }
+  e->h = hash(h, k);
+  index = indexFor(h->tablelength, e->h);
+  e->k = k;
+  e->v = v;
+  e->next = h->table[index];
+  h->table[index] = e;
+  return -1;
 }
 
 /*****************************************************************************/
 void * /* returns value associated with key */
 hashtable_search(hashtable *h, const void *k)
 {
-    struct entry *e;
-    unsigned int hashvalue, index;
-    hashvalue = hash(h, k);
-    index = indexFor(h->tablelength, hashvalue);
-    e = h->table[index];
-    while (NULL != e) {
-        /* Check hash value to short circuit heavier comparison */
-        if ((hashvalue == e->h) && (h->eqfn(k, e->k)))
-            return e->v;
-        e = e->next;
-    }
-    return NULL;
+  struct entry *e;
+  unsigned int hashvalue, index;
+  hashvalue = hash(h, k);
+  index = indexFor(h->tablelength, hashvalue);
+  e = h->table[index];
+  while (NULL != e)
+  {
+    /* Check hash value to short circuit heavier comparison */
+    if ((hashvalue == e->h) && (h->eqfn(k, e->k)))
+      return e->v;
+    e = e->next;
+  }
+  return NULL;
 }
 
 /*****************************************************************************/
 void * /* returns value associated with key */
 hashtable_remove(hashtable *h, void *k)
 {
-    /* TODO: consider compacting the table when the load factor drops enough,
-     *       or provide a 'compact' method. */
+  /* TODO: consider compacting the table when the load factor drops enough,
+   *       or provide a 'compact' method. */
 
-    struct entry *e;
-    struct entry **pE;
-    void *v;
-    unsigned int hashvalue, index;
+  struct entry *e;
+  struct entry **pE;
+  void *v;
+  unsigned int hashvalue, index;
 
-    hashvalue = hash(h, k);
-    index = indexFor(h->tablelength, hash(h, k));
-    pE = &(h->table[index]);
-    e = *pE;
-    while (NULL != e) {
-        /* Check hash value to short circuit heavier comparison */
-        if ((hashvalue == e->h) && (h->eqfn(k, e->k))) {
-            *pE = e->next;
-            h->entrycount--;
-            v = e->v;
-            free(e->k);
-            free(e);
-            return v;
-        }
-        pE = &(e->next);
-        e = e->next;
+  hashvalue = hash(h, k);
+  index = indexFor(h->tablelength, hash(h, k));
+  pE = &(h->table[index]);
+  e = *pE;
+  while (NULL != e)
+  {
+    /* Check hash value to short circuit heavier comparison */
+    if ((hashvalue == e->h) && (h->eqfn(k, e->k)))
+    {
+      *pE = e->next;
+      h->entrycount--;
+      v = e->v;
+      free(e->k);
+      free(e);
+      return v;
     }
-    return NULL;
+    pE = &(e->next);
+    e = e->next;
+  }
+  return NULL;
 }
 
 /*****************************************************************************/
 /* destroy */
 void hashtable_destroy(hashtable *h, int free_values)
 {
-    unsigned int i;
-    struct entry *e, *f;
-    struct entry **table = h->table;
-    if (free_values) {
-        for (i = 0; i < h->tablelength; i++) {
-            e = table[i];
-            while (NULL != e) {
-                f = e;
-                e = e->next;
-                free(f->k);
-                free(f->v);
-                free(f);
-            }
-        }
+  unsigned int i;
+  struct entry *e, *f;
+  struct entry **table = h->table;
+  if (free_values)
+  {
+    for (i = 0; i < h->tablelength; i++)
+    {
+      e = table[i];
+      while (NULL != e)
+      {
+        f = e;
+        e = e->next;
+        free(f->k);
+        free(f->v);
+        free(f);
+      }
     }
-    else {
-        for (i = 0; i < h->tablelength; i++) {
-            e = table[i];
-            while (NULL != e) {
-                f = e;
-                e = e->next;
-                free(f);
-            }
-        }
+  }
+  else
+  {
+    for (i = 0; i < h->tablelength; i++)
+    {
+      e = table[i];
+      while (NULL != e)
+      {
+        f = e;
+        e = e->next;
+        free(f);
+      }
     }
-    free(h->table);
-    free(h);
+  }
+  free(h->table);
+  free(h);
 }
 
 /*

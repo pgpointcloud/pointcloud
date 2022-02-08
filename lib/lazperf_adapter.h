@@ -19,12 +19,13 @@
 #include "pc_api_internal.h"
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
-size_t lazperf_compress_from_uncompressed(const PCPATCH_UNCOMPRESSED *pa,
-                                          uint8_t **compressed);
-size_t lazperf_uncompress_from_compressed(const PCPATCH_LAZPERF *pa,
-                                          uint8_t **decompressed);
+  size_t lazperf_compress_from_uncompressed(const PCPATCH_UNCOMPRESSED *pa,
+                                            uint8_t **compressed);
+  size_t lazperf_uncompress_from_compressed(const PCPATCH_LAZPERF *pa,
+                                            uint8_t **decompressed);
 #ifdef __cplusplus
 }
 #endif

@@ -32,61 +32,77 @@
 /**
  * Compression types for PCPOINTS in a PCPATCH
  */
-enum COMPRESSIONS { PC_NONE = 0, PC_DIMENSIONAL = 1, PC_LAZPERF = 2 };
+enum COMPRESSIONS
+{
+  PC_NONE = 0,
+  PC_DIMENSIONAL = 1,
+  PC_LAZPERF = 2
+};
 
 /**
  * Flags of endianness for inter-architecture
  * data transfers.
  */
-enum ENDIANS {
-    PC_XDR = 0, /* Big */
-    PC_NDR = 1  /* Little */
+enum ENDIANS
+{
+  PC_XDR = 0, /* Big */
+  PC_NDR = 1  /* Little */
 };
 
-typedef enum { PC_GT, PC_LT, PC_EQUAL, PC_BETWEEN } PC_FILTERTYPE;
+typedef enum
+{
+  PC_GT,
+  PC_LT,
+  PC_EQUAL,
+  PC_BETWEEN
+} PC_FILTERTYPE;
 
 /**
  * We need to hold a cached in-memory version of the format's
  * XML structure for speed, and this is it.
  */
-typedef struct {
-    char *name;
-    char *description;
-    uint32_t position;
-    uint32_t size;
-    uint32_t byteoffset;
-    uint32_t interpretation;
-    double scale;
-    double offset;
-    uint8_t active;
+typedef struct
+{
+  char *name;
+  char *description;
+  uint32_t position;
+  uint32_t size;
+  uint32_t byteoffset;
+  uint32_t interpretation;
+  double scale;
+  double offset;
+  uint8_t active;
 } PCDIMENSION;
 
-typedef struct {
-    uint32_t pcid;        /* Unique ID for schema */
-    uint32_t ndims;       /* How many dimensions does this schema have? */
-    size_t size;          /* How wide (bytes) is a point with this schema? */
-    PCDIMENSION **dims;   /* Array of dimension pointers */
-    uint32_t srid;        /* Foreign key reference to SPATIAL_REF_SYS */
-    PCDIMENSION *xdim;    /* pointer to the x dimension within dims */
-    PCDIMENSION *ydim;    /* pointer to the y dimension within dims */
-    PCDIMENSION *zdim;    /* pointer to the z dimension within dims */
-    PCDIMENSION *mdim;    /* pointer to the m dimension within dims */
-    uint32_t compression; /* Compression type applied to the data */
-    hashtable *namehash;  /* Look-up from dimension name to pointer */
+typedef struct
+{
+  uint32_t pcid;        /* Unique ID for schema */
+  uint32_t ndims;       /* How many dimensions does this schema have? */
+  size_t size;          /* How wide (bytes) is a point with this schema? */
+  PCDIMENSION **dims;   /* Array of dimension pointers */
+  uint32_t srid;        /* Foreign key reference to SPATIAL_REF_SYS */
+  PCDIMENSION *xdim;    /* pointer to the x dimension within dims */
+  PCDIMENSION *ydim;    /* pointer to the y dimension within dims */
+  PCDIMENSION *zdim;    /* pointer to the z dimension within dims */
+  PCDIMENSION *mdim;    /* pointer to the m dimension within dims */
+  uint32_t compression; /* Compression type applied to the data */
+  hashtable *namehash;  /* Look-up from dimension name to pointer */
 } PCSCHEMA;
 
 /* Used for dimensional patch statistics */
-typedef struct {
-    uint32_t total_runs;
-    uint32_t total_commonbits;
-    uint32_t recommended_compression;
+typedef struct
+{
+  uint32_t total_runs;
+  uint32_t total_commonbits;
+  uint32_t recommended_compression;
 } PCDIMSTAT;
 
-typedef struct {
-    int32_t ndims;
-    uint32_t total_points;
-    uint32_t total_patches;
-    PCDIMSTAT *stats;
+typedef struct
+{
+  int32_t ndims;
+  uint32_t total_points;
+  uint32_t total_patches;
+  PCDIMSTAT *stats;
 } PCDIMSTATS;
 
 /**
@@ -96,41 +112,46 @@ typedef struct {
  * PgSQL memory and setting the capacity to 0
  * to indicate it is read-only.
  */
-typedef struct {
-    int8_t readonly;
-    const PCSCHEMA *schema;
-    uint8_t *data; /* A serialized version of the data */
+typedef struct
+{
+  int8_t readonly;
+  const PCSCHEMA *schema;
+  uint8_t *data; /* A serialized version of the data */
 } PCPOINT;
 
-typedef struct {
-    void *mem; /* An opaque memory buffer to be freed on destruction if not NULL
-                */
-    uint32_t npoints;
-    uint32_t maxpoints;
-    PCPOINT **points;
+typedef struct
+{
+  void *mem; /* An opaque memory buffer to be freed on destruction if not NULL
+              */
+  uint32_t npoints;
+  uint32_t maxpoints;
+  PCPOINT **points;
 } PCPOINTLIST;
 
-typedef struct {
-    size_t size;
-    uint32_t npoints;
-    uint32_t interpretation;
-    uint32_t compression;
-    uint32_t readonly;
-    uint8_t *bytes;
+typedef struct
+{
+  size_t size;
+  uint32_t npoints;
+  uint32_t interpretation;
+  uint32_t compression;
+  uint32_t readonly;
+  uint8_t *bytes;
 } PCBYTES;
 
-typedef struct {
-    double xmin;
-    double xmax;
-    double ymin;
-    double ymax;
+typedef struct
+{
+  double xmin;
+  double xmax;
+  double ymin;
+  double ymax;
 } PCBOUNDS;
 
 /* Used for generic patch statistics */
-typedef struct {
-    PCPOINT min;
-    PCPOINT max;
-    PCPOINT avg;
+typedef struct
+{
+  PCPOINT min;
+  PCPOINT max;
+  PCPOINT avg;
 } PCSTATS;
 
 /**
@@ -142,33 +163,37 @@ typedef struct {
  */
 
 #define PCPATCH_COMMON                                                         \
-    int type;                                                                  \
-    int8_t readonly;                                                           \
-    const PCSCHEMA *schema;                                                    \
-    uint32_t npoints;                                                          \
-    PCBOUNDS bounds;                                                           \
-    PCSTATS *stats;
+  int type;                                                                    \
+  int8_t readonly;                                                             \
+  const PCSCHEMA *schema;                                                      \
+  uint32_t npoints;                                                            \
+  PCBOUNDS bounds;                                                             \
+  PCSTATS *stats;
 
-typedef struct {
-    PCPATCH_COMMON
+typedef struct
+{
+  PCPATCH_COMMON
 } PCPATCH;
 
-typedef struct {
-    PCPATCH_COMMON
-    uint32_t maxpoints; /* How many points we can hold (or 0 for read-only) */
-    size_t datasize;
-    uint8_t *data; /* A serialized version of the data */
+typedef struct
+{
+  PCPATCH_COMMON
+  uint32_t maxpoints; /* How many points we can hold (or 0 for read-only) */
+  size_t datasize;
+  uint8_t *data; /* A serialized version of the data */
 } PCPATCH_UNCOMPRESSED;
 
-typedef struct {
-    PCPATCH_COMMON
-    PCBYTES *bytes;
+typedef struct
+{
+  PCPATCH_COMMON
+  PCBYTES *bytes;
 } PCPATCH_DIMENSIONAL;
 
-typedef struct {
-    PCPATCH_COMMON
-    size_t lazperfsize;
-    uint8_t *lazperf;
+typedef struct
+{
+  PCPATCH_COMMON
+  size_t lazperfsize;
+  uint8_t *lazperf;
 } PCPATCH_LAZPERF;
 
 /* Global function signatures for memory/logging handlers. */
