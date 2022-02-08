@@ -16,7 +16,7 @@ jobs:
       - name: Install clang-format
         run: sudo apt-get install clang-format
       - name: Clang-format check
-        run: clang-format --dry-run --Werror --style=llvm lib/*.c lib/*.cpp lib/*.hpp lib/*.h lib/cunit/*.c lib/cunit/*.h
+        run: clang-format --dry-run --Werror -style=file lib/*.c lib/*.cpp lib/*.hpp lib/*.h lib/cunit/*.c lib/cunit/*.h
   sql_code_layout:
     name: SQL linter
     runs-on: ubuntu-18.04
