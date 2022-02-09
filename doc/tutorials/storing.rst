@@ -11,7 +11,7 @@ Start Docker container
 
 First we download the latest tag of the pgPoincloud Docker image:
 
-.. code-block::
+.. code-block:: bash
 
   $ docker pull pgpointcloud/pointcloud
 
@@ -25,13 +25,13 @@ For a basic usage, we have to define two environment variables:
 
 Then we can start a new container:
 
-.. code-block::
+.. code-block:: bash
 
   $ docker run --name pgpointcloud -e POSTGRES_DB=pointclouds -e POSTGRES_PASSWORD=mysecretpassword -d pgpointcloud/pointcloud
 
 Extensions are automatically created in the new database named ``pointclouds``:
 
-.. code-block::
+.. code-block:: bash
 
   $ docker exec -it pgpointcloud psql -U postgres -d pointclouds -c "\dx"
                                             List of installed extensions
@@ -55,9 +55,9 @@ Run PDAL pipeline
 For the need of the tutorial, we can download sample data from the `PDAL`_
 organization:
 
-.. code-block::
+.. code-block:: bash
 
-  $ wget https://github.com/PDAL/data/raw/master/liblas/LAS12_Sample_withRGB_Quick_Terrain_Modeler_fixed.laz /tmp
+  $ wget https://github.com/PDAL/data/raw/master/liblas/LAS12_Sample_withRGB_Quick_Terrain_Modeler_fixed.laz -P /tmp
 
 Thanks to the ``pdal info`` command, we can obtain some information on the dataset:
 
@@ -68,7 +68,7 @@ To configure the json PDAL pipeline, we need to set up the ``connection``
 parameter for the ``pgpointcloud`` writer. To do that, the Docker container IP
 adress on which the PostgreSQL database is running is necessary:
 
-.. code-block::
+.. code-block:: bash
 
   $ docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' pgpointcloud
   172.17.0.2
@@ -76,27 +76,27 @@ adress on which the PostgreSQL database is running is necessary:
 
 So the ``pipeline.json`` file looks like:
 
-.. code-block::
+.. code-block:: json
 
   {
-  "pipeline":[
-    {
-      "type":"readers.las",
-      "filename":"/tmp/LAS12_Sample_withRGB_Quick_Terrain_Modeler_fixed.laz"
-    },
-    {
-      "type":"filters.chipper",
-      "capacity":"400"
-    },
-    {
-      "type":"writers.pgpointcloud",
-      "connection":"host='172.17.0.2' dbname='pointclouds' user='postgres' password='mysecretpassword' port='5432'",
-      "table":"airport",
-      "compression":"none",
-      "srid":"32616"
-    }
-  ]
-}
+    "pipeline":[
+      {
+        "type":"readers.las",
+        "filename":"/tmp/LAS12_Sample_withRGB_Quick_Terrain_Modeler_fixed.laz"
+      },
+      {
+        "type":"filters.chipper",
+        "capacity":"400"
+      },
+      {
+        "type":"writers.pgpointcloud",
+        "connection":"host='172.17.0.2' dbname='pointclouds' user='postgres' password='mysecretpassword' port='5432'",
+        "table":"airport",
+        "compression":"dimensional",
+        "srid":"32616"
+      }
+    ]
+  }
 
 The PDAL pipeline can finally be execute with ``pdal pipeline pipeline.json``
 and an ``airport`` table is created.
@@ -111,7 +111,7 @@ Configure connection service file
 To facilitate the access to the database hosted on the Docker container, we can
 configure the PostgreSQL connection service file:
 
-.. code-block::
+.. code-block:: bash
 
   [pgpointcloud]
   host=172.17.0.2
@@ -122,13 +122,13 @@ configure the PostgreSQL connection service file:
 
 Then we can explore the content of the new ``airport`` table:
 
-.. code-block::
+.. code-block:: bash
 
   $ psql service=pgpointcloud
   psql (12.3)
   Type "help" for help.
 
-  pointclouds=# select count(*) from airport;
+  pointclouds=# SELECT COUNT(*) FROM airport;
    count
   -------
     9529
