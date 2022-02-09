@@ -40,9 +40,8 @@ clean:
 	@rm -f $(OBJS) $(LIB_A) $(OBJS_LAZPERF) $(LIB_A_LAZPERF)
 	$(MAKE) -C cunit $@
 
-install:
+install uninstall:
 	@echo "No install target in lib"
 
 check:
 	$(MAKE) -C cunit $@
-
