@@ -11,38 +11,32 @@ Once a new version of pgPointcloud installed, you may want to update your
 databases where the extension is already in use. The first thing to compare is
 the version currently used with versions actually available on your system:
 
-.. code-block:: bash
+.. code-block:: sql
 
-   mydatabase=# SELECT pc_version();
-    pc_version
-   ------------
-    1.1.1
-   (1 row)
+   SELECT pc_version();
+   --> 1.1.1
 
-   mydatabase=# SELECT version FROM pg_available_extension_versions WHERE name ='pointcloud';
-     version
-   -----------
-    1.1.1
-    1.2.1
-   (2 rows)
+   SELECT version FROM pg_available_extension_versions WHERE name ='pointcloud';
+   --> 1.1.1
+   --> 1.2.1
 
 
 Then you can update to the latest version with ``ALTER EXTENSION pointcloud
 UPDATE`` or target a specific version:
 
-.. code-block:: bash
+.. code-block:: sql
 
-   mydatabase=# ALTER EXTENSION pointcloud UPDATE TO '1.2.1';
-   ALTER EXTENSION
-   mydatabase=# SELECT pc_version();
-    pc_version
-   ------------
-    1.2.1
-   (1 row)
+   ALTER EXTENSION pointcloud UPDATE TO '1.2.1';
+
+   SELECT pc_version();
+   --> 1.2.1
 
 
 .. warning::
 
    The GHT compression has been removed in the 1.2.0 version. Unfortunately,
-   you have to remove the compression before updating the extension from 1.1.x
-   to a higher version.
+   you have to remove the compression on your tables before updating the
+   extension from 1.1.x to a higher version. Some information are available in
+   the `Schema and compression`_ tutorial.
+
+.. _`Schema and compression`: /https://pgpointcloud.github.io/pointcloud/tutorials/compression.html#schema-and-compression
