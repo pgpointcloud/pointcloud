@@ -289,7 +289,7 @@ PCSCHEMA *pc_schema_from_pcid_uncached(uint32 pcid)
   if (SPI_processed <= 0)
   {
     SPI_finish();
-    elog(ERROR, "no entry in \"%s\" for pcid = %d", POINTCLOUD_FORMATS, pcid);
+    elog(ERROR, "no entry in \"%s\" for pcid = %d", formats, pcid);
     return NULL;
   }
 
@@ -301,8 +301,7 @@ PCSCHEMA *pc_schema_from_pcid_uncached(uint32 pcid)
   if (!(xml_spi && srid_spi))
   {
     SPI_finish();
-    elog(ERROR, "unable to read row from \"%s\" for pcid = %d",
-         POINTCLOUD_FORMATS, pcid);
+    elog(ERROR, "unable to read row from \"%s\" for pcid = %d", formats, pcid);
     return NULL;
   }
 
@@ -324,7 +323,7 @@ PCSCHEMA *pc_schema_from_pcid_uncached(uint32 pcid)
   {
     ereport(ERROR, (errcode(ERRCODE_NOT_AN_XML_DOCUMENT),
                     errmsg("unable to parse XML for pcid = %d in \"%s\"", pcid,
-                           POINTCLOUD_FORMATS)));
+                           formats)));
   }
 
   schema->pcid = pcid;
