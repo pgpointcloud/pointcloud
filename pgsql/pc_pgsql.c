@@ -11,12 +11,46 @@
  ***********************************************************************/
 
 #include "pc_pgsql.h"
+
 #include "access/hash.h"
 #include "executor/spi.h"
 #include "utils/hsearch.h"
+#include "utils/memutils.h"
+#include "utils/lsyscache.h"
+
 #include <assert.h>
 
 PG_MODULE_MAGIC;
+
+/**********************************************************************************
+ * Pointcloud constants
+ */
+
+static PC_CONSTANTS *pc_constants = NULL;
+
+static void
+#if PGSQL_VERSION < 120
+pointcloud_initialize_cache(FunctionCallInfoData* fcinfo)
+#else
+pointcloud_initialize_cache(FunctionCallInfo fcinfo)
+#endif
+{
+  Oid nsp_oid;
+  char *nsp_name;
+
+  if ( pc_constants )
+    return;
+
+  pc_constants = MemoryContextAlloc(CacheMemoryContext, sizeof(PC_CONSTANTS));
+
+  nsp_oid = get_func_namespace(fcinfo->flinfo->fn_oid);
+  nsp_name = get_namespace_name(nsp_oid);
+  pc_constants->schema = MemoryContextStrdup(CacheMemoryContext, nsp_name);
+
+  pc_constants->formats = MemoryContextStrdup(CacheMemoryContext, "pointcloud_formats");
+  pc_constants->formats_srid = MemoryContextStrdup(CacheMemoryContext, "srid");
+  pc_constants->formats_schema = MemoryContextStrdup(CacheMemoryContext, "schema");
+}
 
 /**********************************************************************************
  * POSTGRESQL MEMORY MANAGEMENT HOOKS
@@ -228,6 +262,7 @@ PCSCHEMA *pc_schema_from_pcid_uncached(uint32 pcid)
     return NULL;
   }
 
+  // char *formats = quote_qualified_identifier(POINTCLOUD_SCHEMA, POINTCLOUD_FORMATS);
   sprintf(sql, "select %s, %s from %s where pcid = %d", POINTCLOUD_FORMATS_XML,
           POINTCLOUD_FORMATS_SRID, POINTCLOUD_FORMATS, pcid);
   err = SPI_exec(sql, 1);
@@ -356,6 +391,7 @@ pc_schema_from_pcid(uint32 pcid, FunctionCallInfo fcinfo)
 
   /* Not in there, load one the old-fashioned way. */
   oldcontext = MemoryContextSwitchTo(fcinfo->flinfo->fn_mcxt);
+  pointcloud_initialize_cache(fcinfo);
   schema = pc_schema_from_pcid_uncached(pcid);
   MemoryContextSwitchTo(oldcontext);
 

@@ -46,6 +46,14 @@
 #define AUTOCOMPRESS_NO 0
 #define AUTOCOMPRESS_YES 1
 
+typedef struct
+{
+  char *schema;
+  char *formats;
+  char *formats_srid;
+  char *formats_schema;
+} PC_CONSTANTS;
+
 /**
  * Serialized point type for clouds. Variable length, because there can be
  * an arbitrary number of dimensions. The pcid is a foreign key
