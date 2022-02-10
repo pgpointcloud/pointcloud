@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Schema and compression &mdash; pgpointcloud</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="copyright" title="Copyright" href="../copyright.html" />
+    <link rel="next" title="Development" href="../development.html" />
+    <link rel="prev" title="Storing points" href="storing.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html" class="icon icon-home"> pgPointcloud
+          </a>
+              <div class="version">
+                1.2.1
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../concepts/index.html">Concepts</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../download.html">Download</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Getting Started</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../functions/index.html">Functions</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../update.html">Update</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Tutorials</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="storing.html">Storing points</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Schema and compression</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#compression-type">Compression type</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#create-a-new-schema">Create a new schema</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#transform-a-patch">Transform a patch</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../development.html">Development</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../community.html">Community</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../faq.html">FAQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../copyright.html">License</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">pgPointcloud</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="index.html">Tutorials</a> &raquo;</li>
+      <li>Schema and compression</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="schema-and-compression">
+<h1>Schema and compression<a class="headerlink" href="#schema-and-compression" title="Permalink to this headline"></a></h1>
+<p>This tutorial is an introduction for investigating XML schemas and playing with
+compression of patches.</p>
+<section id="compression-type">
+<h2>Compression type<a class="headerlink" href="#compression-type" title="Permalink to this headline"></a></h2>
+<p>The compression of a patch may be retrieved through its XML schema but it’s
+also stored in the patch itself. Of course, both needs to be consistent so
+updating an existing schema is hardly discouraged and may lead to errors.</p>
+<p>In the first case, the XML schema needs to be parsed with <code class="docutils literal notranslate"><span class="pre">xpath</span></code> function to
+retrieve the <code class="docutils literal notranslate"><span class="pre">pc:metadata</span></code> tag of a specific patch:</p>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">WITH</span><span class="w"> </span><span class="n">tmp</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="p">(</span><span class="w"></span>
+<span class="w">    </span><span class="k">SELECT</span><span class="w"> </span><span class="n">pc_pcid</span><span class="p">(</span><span class="n">pa</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="k">AS</span><span class="w"> </span><span class="n">_pcid</span><span class="w"></span>
+<span class="w">    </span><span class="k">FROM</span><span class="w"> </span><span class="n">airport</span><span class="w"></span>
+<span class="w">    </span><span class="k">LIMIT</span><span class="w"> </span><span class="mi">1</span><span class="w"></span>
+<span class="p">)</span><span class="w"></span>
+<span class="k">SELECT</span><span class="w"> </span><span class="k">unnest</span><span class="p">(</span><span class="w"></span>
+<span class="w">    </span><span class="n">xpath</span><span class="p">(</span><span class="w"></span>
+<span class="w">        </span><span class="s1">&#39;/pc:PointCloudSchema/pc:metadata/Metadata/text()&#39;</span><span class="p">,</span><span class="w"></span>
+<span class="w">        </span><span class="k">schema</span><span class="p">::</span><span class="n">xml</span><span class="p">,</span><span class="w"></span>
+<span class="w">        </span><span class="nb">array</span><span class="p">[</span><span class="w"></span>
+<span class="w">            </span><span class="p">[</span><span class="s1">&#39;pc&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;http://pointcloud.org/schemas/PC/&#39;</span><span class="p">],</span><span class="w"></span>
+<span class="w">            </span><span class="p">[</span><span class="s1">&#39;xsi&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;http://www.w3.org/2001/XMLSchema-instance&#39;</span><span class="p">]</span><span class="w"></span>
+<span class="w">        </span><span class="p">]</span><span class="w"></span>
+<span class="w">    </span><span class="p">)</span><span class="w"></span>
+<span class="p">)</span><span class="w"></span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">tmp</span><span class="p">,</span><span class="n">pointcloud_formats</span><span class="w"></span>
+<span class="k">WHERE</span><span class="w"> </span><span class="n">pcid</span><span class="o">=</span><span class="n">tmp</span><span class="p">.</span><span class="n">_pcid</span><span class="p">;</span><span class="w"></span>
+<span class="c1">--&gt; dimensional</span>
+</pre></div>
+</div>
+<p>A much easier way to retrieve the compression type is to take a look to the
+JSON summary of the patch:</p>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">SELECT</span><span class="w"> </span><span class="n">pc_summary</span><span class="p">(</span><span class="n">pa</span><span class="p">)::</span><span class="n">json</span><span class="o">-&gt;</span><span class="s1">&#39;compr&#39;</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">airport</span><span class="w"> </span><span class="k">LIMIT</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"></span>
+<span class="c1">--&gt; dimensional</span>
+</pre></div>
+</div>
+</section>
+<section id="create-a-new-schema">
+<h2>Create a new schema<a class="headerlink" href="#create-a-new-schema" title="Permalink to this headline"></a></h2>
+<p>A schema is just a XML document and may be manually inserted into the
+<code class="docutils literal notranslate"><span class="pre">pointcloud_formats</span></code> table directly from a file. We can also duplicate an
+existing schema and tweak some parameters.</p>
+<p>For example, we can create a new schema without compression and based on the
+schema <code class="docutils literal notranslate"><span class="pre">pcid=1</span></code>:</p>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">INSERT</span><span class="w"> </span><span class="k">INTO</span><span class="w"> </span><span class="n">pointcloud_formats</span><span class="w"> </span><span class="p">(</span><span class="n">pcid</span><span class="p">,</span><span class="w"> </span><span class="n">srid</span><span class="p">,</span><span class="w"> </span><span class="k">schema</span><span class="p">)</span><span class="w"></span>
+<span class="k">SELECT</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="n">srid</span><span class="p">,</span><span class="w"> </span><span class="n">regexp_replace</span><span class="p">(</span><span class="k">schema</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;dimensional&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;none&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;g&#39;</span><span class="p">)</span><span class="w"></span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">pointcloud_formats</span><span class="w"></span>
+<span class="k">WHERE</span><span class="w"> </span><span class="n">pcid</span><span class="o">=</span><span class="mi">1</span><span class="p">;</span><span class="w"></span>
+</pre></div>
+</div>
+</section>
+<section id="transform-a-patch">
+<h2>Transform a patch<a class="headerlink" href="#transform-a-patch" title="Permalink to this headline"></a></h2>
+<p>Thanks to the <code class="docutils literal notranslate"><span class="pre">pc_transform</span></code> function, we can transform the underlying data
+of a patch to match a specific schema. So if we want to remove the dimensional
+compression from an existing patch, we can use the schema with <code class="docutils literal notranslate"><span class="pre">pcid=2</span></code>
+previously created.</p>
+<p>In this particular case, the transformed patch doesn’t have compression
+anymore:</p>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">SELECT</span><span class="w"> </span><span class="n">pc_summary</span><span class="p">(</span><span class="n">pc_transform</span><span class="p">(</span><span class="n">pa</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">))::</span><span class="n">json</span><span class="o">-&gt;</span><span class="s1">&#39;compr&#39;</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">airport</span><span class="w"> </span><span class="k">LIMIT</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"></span>
+<span class="c1">--&gt; none</span>
+</pre></div>
+</div>
+<p>So a new table of uncompressed patches may be easily created:</p>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">CREATE</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">airport_uncompressed</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="k">SELECT</span><span class="w"> </span><span class="n">pc_transform</span><span class="p">(</span><span class="n">pa</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">pa</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">airport</span><span class="p">;</span><span class="w"></span>
+
+<span class="k">SELECT</span><span class="w"> </span><span class="n">pc_summary</span><span class="p">(</span><span class="n">pa</span><span class="p">)::</span><span class="n">json</span><span class="o">-&gt;</span><span class="s1">&#39;compr&#39;</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">airport_uncompressed</span><span class="w"> </span><span class="k">LIMIT</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"></span>
+<span class="c1">--&gt;  none</span>
+
+<span class="k">SELECT</span><span class="w"> </span><span class="n">pc_astext</span><span class="p">(</span><span class="n">pc_patchavg</span><span class="p">(</span><span class="n">pa</span><span class="p">))</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">airport</span><span class="w"> </span><span class="k">LIMIT</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"></span>
+<span class="c1">--&gt; {&quot;pcid&quot;:1,&quot;pt&quot;:[65535,0,0,0,0,0,0,0,0,30744,25999,17189,728265,4.67644e+06,299.08]}</span>
+
+<span class="k">SELECT</span><span class="w"> </span><span class="n">pc_astext</span><span class="p">(</span><span class="n">pc_patchavg</span><span class="p">(</span><span class="n">pa</span><span class="p">))</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">airport_uncompressed</span><span class="w"> </span><span class="k">LIMIT</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"></span>
+<span class="c1">--&gt; {&quot;pcid&quot;:2,&quot;pt&quot;:[65535,0,0,0,0,0,0,0,0,30744,25999,17189,728265,4.67644e+06,299.08]}</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="storing.html" class="btn btn-neutral float-left" title="Storing points" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../development.html" class="btn btn-neutral float-right" title="Development" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p></p>
+  </div>
+
+  
+    <div class="footer">
+        <div class="container">
+            &copy;  2022
+            <a href="https://github.com/pramsey">Paul Ramsey</a>,
+            <a href="http://github.com/pblottiere">Paul Blottiere</a>,
+            <a href="http://github.com/mbredif">Mathieu Brédif</a>,
+            <a href="http://github.com/elemoine">Eric Lemoine</a>,
+            and
+            <a href="https://github.com/pgpointcloud/pointcloud/graphs/contributors">others</a>,
+        </div>
+    </div>
+     
+
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

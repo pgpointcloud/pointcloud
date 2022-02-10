@@ -21,7 +21,7 @@
     <link rel="search" title="Search" href="search.html" />
     <link rel="copyright" title="Copyright" href="copyright.html" />
     <link rel="next" title="Community" href="community.html" />
-    <link rel="prev" title="Storing points" href="tutorials/storing.html" /> 
+    <link rel="prev" title="Schema and compression" href="tutorials/compression.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -53,6 +53,9 @@
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="functions/index.html">Functions</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="update.html">Update</a></li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="tutorials/index.html">Tutorials</a></li>
@@ -135,6 +138,14 @@ specific one. For example:</p>
 </pre></div>
 </div>
 </div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">qsort_r</span></code> is not available on your system, then you can use the embedded
+implementation instead thanks to the next directive:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ ./configure <span class="nv">CFLAGS</span><span class="o">=</span><span class="s2">&quot;-DNESTED_QSORT=1&quot;</span>
+</pre></div>
+</div>
+</div>
 </section>
 <section id="tests">
 <h2>Tests<a class="headerlink" href="#tests" title="Permalink to this headline"></a></h2>
@@ -198,18 +209,28 @@ is based on PostgreSQL 12, PostGIS 3 and the laz-perf support is activated.</p>
 and with various PostgreSQL/PostGIS releases:</p>
 <table class="docutils align-default">
 <colgroup>
-<col style="width: 31%" />
-<col style="width: 33%" />
-<col style="width: 35%" />
+<col style="width: 24%" />
+<col style="width: 37%" />
+<col style="width: 39%" />
 </colgroup>
 <tbody>
 <tr class="row-odd"><td></td>
 <td><p>PostGIS 2.5</p></td>
-<td><p>PostGIS 3</p></td>
+<td><p>PostGIS 3.2</p></td>
 </tr>
 <tr class="row-even"><td><p>PostgreSQL 12</p></td>
-<td><p><img alt="12_25" src="https://img.shields.io/github/workflow/status/pgpointcloud/pointcloud/%5Bubuntu-18.04%5D%20PostgreSQL%2012%20and%20PostGIS%202.5?label=Ubuntu%2018.04&amp;logo=github&amp;style=plastic:target:https://github.com/pgpointcloud/pointcloud/actions?query=workflow%3A%22%5Bubuntu-18.04%5D+PostgreSQL+12+and+PostGIS+2.5%22" /></p></td>
-<td><p><img alt="12_3" src="https://img.shields.io/github/workflow/status/pgpointcloud/pointcloud/%5Bubuntu-18.04%5D%20PostgreSQL%2012%20and%20PostGIS%203?label=Ubuntu%2018.04&amp;logo=github&amp;style=plastic:target:https://github.com/pgpointcloud/pointcloud/actions?query=workflow%3A%22%5Bubuntu-18.04%5D+PostgreSQL+12+and+PostGIS+3%22" /></p></td>
+<td><p><img alt="12_25_bionic" src="https://img.shields.io/github/workflow/status/pgpointcloud/pointcloud/%5Bubuntu-18.04%5D%20PostgreSQL%2012%20and%20PostGIS%202.5?label=Ubuntu%2018.04&amp;logo=github&amp;style=plastic:target:https://github.com/pgpointcloud/pointcloud/actions?query=workflow%3A%22%5Bubuntu-18.04%5D+PostgreSQL+12+and+PostGIS+2.5%22" /></p></td>
+<td><p><img alt="12_32_bionic" src="https://img.shields.io/github/workflow/status/pgpointcloud/pointcloud/%5Bubuntu-18.04%5D%20PostgreSQL%2012%20and%20PostGIS%203.2?label=Ubuntu%2018.04&amp;logo=github&amp;style=plastic:target:https://github.com/pgpointcloud/pointcloud/actions?query=workflow%3A%22%5Bubuntu-18.04%5D+PostgreSQL+12+and+PostGIS+3.2%22" /></p>
+<p><img alt="12_32_focal" src="https://img.shields.io/github/workflow/status/pgpointcloud/pointcloud/%5Bubuntu-20.04%5D%20PostgreSQL%2012%20and%20PostGIS%203.2?label=Ubuntu%2020.04&amp;logo=github&amp;style=plastic:target:https://github.com/pgpointcloud/pointcloud/actions?query=workflow%3A%22%5Bubuntu-20.04%5D+PostgreSQL+12+and+PostGIS+3.2%22" /></p>
+</td>
+</tr>
+<tr class="row-odd"><td><p>PostgreSQL 13</p></td>
+<td></td>
+<td><p><img alt="13_32_focal" src="https://img.shields.io/github/workflow/status/pgpointcloud/pointcloud/%5Bubuntu-20.04%5D%20PostgreSQL%2013%20and%20PostGIS%203.2?label=Ubuntu%2020.04&amp;logo=github&amp;style=plastic:target:https://github.com/pgpointcloud/pointcloud/actions?query=workflow%3A%22%5Bubuntu-20.04%5D+PostgreSQL+13+and+PostGIS+3.2%22" /></p></td>
+</tr>
+<tr class="row-even"><td><p>PostgreSQL 14</p></td>
+<td></td>
+<td><p><img alt="14_32_focal" src="https://img.shields.io/github/workflow/status/pgpointcloud/pointcloud/%5Bubuntu-20.04%5D%20PostgreSQL%2014%20and%20PostGIS%203.2?label=Ubuntu%2020.04&amp;logo=github&amp;style=plastic:target:https://github.com/pgpointcloud/pointcloud/actions?query=workflow%3A%22%5Bubuntu-20.04%5D+PostgreSQL+14+and+PostGIS+3.2%22" /></p></td>
 </tr>
 </tbody>
 </table>
@@ -240,7 +261,7 @@ $ git push origin vx.y.z
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="tutorials/storing.html" class="btn btn-neutral float-left" title="Storing points" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="tutorials/compression.html" class="btn btn-neutral float-left" title="Schema and compression" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="community.html" class="btn btn-neutral float-right" title="Community" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 

@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Community &mdash; pgpointcloud</title>
+  <title>Update &mdash; pgpointcloud</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
     <link rel="shortcut icon" href="_static/favicon.ico"/>
@@ -20,8 +20,8 @@
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="copyright" title="Copyright" href="copyright.html" />
-    <link rel="next" title="FAQ" href="faq.html" />
-    <link rel="prev" title="Development" href="development.html" /> 
+    <link rel="next" title="Tutorials" href="tutorials/index.html" />
+    <link rel="prev" title="PostGIS" href="functions/postgis.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -54,8 +54,11 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="functions/index.html">Functions</a></li>
 </ul>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="update.html">Update</a></li>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Update</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#pgpointcloud-extension">pgPointcloud extension</a></li>
+</ul>
+</li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="tutorials/index.html">Tutorials</a></li>
@@ -63,8 +66,8 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="development.html">Development</a></li>
 </ul>
-<ul class="current">
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Community</a></li>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="community.html">Community</a></li>
 <li class="toctree-l1"><a class="reference internal" href="faq.html">FAQ</a></li>
 <li class="toctree-l1"><a class="reference internal" href="copyright.html">License</a></li>
 </ul>
@@ -83,7 +86,7 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
-      <li>Community</li>
+      <li>Update</li>
       <li class="wy-breadcrumbs-aside">
       </li>
   </ul>
@@ -92,20 +95,45 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="community">
-<span id="id1"></span><h1>Community<a class="headerlink" href="#community" title="Permalink to this headline"></a></h1>
-<p>pgPointcloud’s community interacts through <a class="reference external" href="http://lists.osgeo.org/mailman/listinfo/pgpointcloud">Mailing List</a> and <a class="reference external" href="https://github.com/pgpointcloud/pointcloud">GitHub</a>.
-The <a class="reference external" href="http://lists.osgeo.org/mailman/listinfo/pgpointcloud">Mailing List</a> communication channel is for general questions and
-feedback. The <a class="reference external" href="https://github.com/pgpointcloud/pointcloud">GitHub</a> communication channel is for development activities,
-bug reports, and testing.</p>
+  <section id="update">
+<span id="id1"></span><h1>Update<a class="headerlink" href="#update" title="Permalink to this headline"></a></h1>
+<section id="pgpointcloud-extension">
+<h2>pgPointcloud extension<a class="headerlink" href="#pgpointcloud-extension" title="Permalink to this headline"></a></h2>
+<p>Once a new version of pgPointcloud installed, you may want to update your
+databases where the extension is already in use. The first thing to compare is
+the version currently used with versions actually available on your system:</p>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">SELECT</span><span class="w"> </span><span class="n">pc_version</span><span class="p">();</span><span class="w"></span>
+<span class="c1">--&gt; 1.1.1</span>
+
+<span class="k">SELECT</span><span class="w"> </span><span class="k">version</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">pg_available_extension_versions</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="s1">&#39;pointcloud&#39;</span><span class="p">;</span><span class="w"></span>
+<span class="c1">--&gt; 1.1.1</span>
+<span class="c1">--&gt; 1.2.1</span>
+</pre></div>
+</div>
+<p>Then you can update to the latest version with <code class="docutils literal notranslate"><span class="pre">ALTER</span> <span class="pre">EXTENSION</span> <span class="pre">pointcloud</span>
+<span class="pre">UPDATE</span></code> or target a specific version:</p>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">ALTER</span><span class="w"> </span><span class="n">EXTENSION</span><span class="w"> </span><span class="n">pointcloud</span><span class="w"> </span><span class="k">UPDATE</span><span class="w"> </span><span class="k">TO</span><span class="w"> </span><span class="s1">&#39;1.2.1&#39;</span><span class="p">;</span><span class="w"></span>
+
+<span class="k">SELECT</span><span class="w"> </span><span class="n">pc_version</span><span class="p">();</span><span class="w"></span>
+<span class="c1">--&gt; 1.2.1</span>
+</pre></div>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>The GHT compression has been removed in the 1.2.0 version. Unfortunately,
+you have to remove the compression on your tables before updating the
+extension from 1.1.x to a higher version. Some information are available in
+the <a class="reference external" href="/https://pgpointcloud.github.io/pointcloud/tutorials/compression.html#schema-and-compression">Schema and compression</a> tutorial.</p>
+</div>
+</section>
 </section>
 
 
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="development.html" class="btn btn-neutral float-left" title="Development" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="faq.html" class="btn btn-neutral float-right" title="FAQ" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="functions/postgis.html" class="btn btn-neutral float-left" title="PostGIS" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="tutorials/index.html" class="btn btn-neutral float-right" title="Tutorials" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

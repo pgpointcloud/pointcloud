@@ -20,7 +20,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="copyright" title="Copyright" href="../copyright.html" />
-    <link rel="next" title="Development" href="../development.html" />
+    <link rel="next" title="Schema and compression" href="compression.html" />
     <link rel="prev" title="Tutorials" href="index.html" /> 
 </head>
 
@@ -54,6 +54,9 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../functions/index.html">Functions</a></li>
 </ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../update.html">Update</a></li>
+</ul>
 <ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">Tutorials</a><ul class="current">
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Storing points</a><ul>
@@ -62,6 +65,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#configure-connection-service-file">Configure connection service file</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="compression.html">Schema and compression</a></li>
 </ul>
 </li>
 </ul>
@@ -105,7 +109,7 @@ PostgreSQL database hosted on a Docker container.</p>
 <section id="start-docker-container">
 <h2>Start Docker container<a class="headerlink" href="#start-docker-container" title="Permalink to this headline"></a></h2>
 <p>First we download the latest tag of the pgPoincloud Docker image:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ docker pull pgpointcloud/pointcloud
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ docker pull pgpointcloud/pointcloud
 </pre></div>
 </div>
 <p>This Docker image is based on the official PostgreSQL image and the full
@@ -116,22 +120,22 @@ documentation is available <a class="reference external" href="https://hub.docke
 <li><p>the PostgreSQL password: <code class="docutils literal notranslate"><span class="pre">POSTGRES_PASSWORD</span></code></p></li>
 </ul>
 <p>Then we can start a new container:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ docker run --name pgpointcloud -e POSTGRES_DB=pointclouds -e POSTGRES_PASSWORD=mysecretpassword -d pgpointcloud/pointcloud
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ docker run --name pgpointcloud -e <span class="nv">POSTGRES_DB</span><span class="o">=</span>pointclouds -e <span class="nv">POSTGRES_PASSWORD</span><span class="o">=</span>mysecretpassword -d pgpointcloud/pointcloud
 </pre></div>
 </div>
 <p>Extensions are automatically created in the new database named <code class="docutils literal notranslate"><span class="pre">pointclouds</span></code>:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ docker exec -it pgpointcloud psql -U postgres -d pointclouds -c &quot;\dx&quot;
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ docker <span class="nb">exec</span> -it pgpointcloud psql -U postgres -d pointclouds -c <span class="s2">&quot;\dx&quot;</span>
                                           List of installed extensions
-        Name          | Version |   Schema   |                             Description
+        Name          <span class="p">|</span> Version <span class="p">|</span>   Schema   <span class="p">|</span>                             Description
 ------------------------+---------+------------+---------------------------------------------------------------------
- fuzzystrmatch          | 1.1     | public     | determine similarities and distance between strings
- plpgsql                | 1.0     | pg_catalog | PL/pgSQL procedural language
- pointcloud             | 1.2.1   | public     | data type for lidar point clouds
- pointcloud_postgis     | 1.2.1   | public     | integration for pointcloud LIDAR data and PostGIS geometry data
- postgis                | 3.0.1   | public     | PostGIS geometry, geography, and raster spatial types and functions
- postgis_tiger_geocoder | 3.0.1   | tiger      | PostGIS tiger geocoder and reverse geocoder
- postgis_topology       | 3.0.1   | topology   | PostGIS topology spatial types and functions
-(7 rows)
+ fuzzystrmatch          <span class="p">|</span> <span class="m">1</span>.1     <span class="p">|</span> public     <span class="p">|</span> determine similarities and distance between strings
+ plpgsql                <span class="p">|</span> <span class="m">1</span>.0     <span class="p">|</span> pg_catalog <span class="p">|</span> PL/pgSQL procedural language
+ pointcloud             <span class="p">|</span> <span class="m">1</span>.2.1   <span class="p">|</span> public     <span class="p">|</span> data <span class="nb">type</span> <span class="k">for</span> lidar point clouds
+ pointcloud_postgis     <span class="p">|</span> <span class="m">1</span>.2.1   <span class="p">|</span> public     <span class="p">|</span> integration <span class="k">for</span> pointcloud LIDAR data and PostGIS geometry data
+ postgis                <span class="p">|</span> <span class="m">3</span>.0.1   <span class="p">|</span> public     <span class="p">|</span> PostGIS geometry, geography, and raster spatial types and functions
+ postgis_tiger_geocoder <span class="p">|</span> <span class="m">3</span>.0.1   <span class="p">|</span> tiger      <span class="p">|</span> PostGIS tiger geocoder and reverse geocoder
+ postgis_topology       <span class="p">|</span> <span class="m">3</span>.0.1   <span class="p">|</span> topology   <span class="p">|</span> PostGIS topology spatial types and functions
+<span class="o">(</span><span class="m">7</span> rows<span class="o">)</span>
 </pre></div>
 </div>
 </section>
@@ -139,7 +143,7 @@ documentation is available <a class="reference external" href="https://hub.docke
 <h2>Run PDAL pipeline<a class="headerlink" href="#run-pdal-pipeline" title="Permalink to this headline"></a></h2>
 <p>For the need of the tutorial, we can download sample data from the <a class="reference external" href="https://github.com/PDAL">PDAL</a>
 organization:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ wget https://github.com/PDAL/data/raw/master/liblas/LAS12_Sample_withRGB_Quick_Terrain_Modeler_fixed.laz /tmp
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ wget https://github.com/PDAL/data/raw/master/liblas/LAS12_Sample_withRGB_Quick_Terrain_Modeler_fixed.laz -P /tmp
 </pre></div>
 </div>
 <p>Thanks to the <code class="docutils literal notranslate"><span class="pre">pdal</span> <span class="pre">info</span></code> command, we can obtain some information on the dataset:</p>
@@ -150,32 +154,32 @@ organization:</p>
 <p>To configure the json PDAL pipeline, we need to set up the <code class="docutils literal notranslate"><span class="pre">connection</span></code>
 parameter for the <code class="docutils literal notranslate"><span class="pre">pgpointcloud</span></code> writer. To do that, the Docker container IP
 adress on which the PostgreSQL database is running is necessary:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ docker inspect -f &#39;{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}&#39; pgpointcloud
-172.17.0.2
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ docker inspect -f <span class="s1">&#39;{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}&#39;</span> pgpointcloud
+<span class="m">172</span>.17.0.2
 </pre></div>
 </div>
 <p>So the <code class="docutils literal notranslate"><span class="pre">pipeline.json</span></code> file looks like:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
-<span class="s2">&quot;pipeline&quot;</span><span class="p">:[</span>
-  <span class="p">{</span>
-    <span class="s2">&quot;type&quot;</span><span class="p">:</span><span class="s2">&quot;readers.las&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;filename&quot;</span><span class="p">:</span><span class="s2">&quot;/tmp/LAS12_Sample_withRGB_Quick_Terrain_Modeler_fixed.laz&quot;</span>
-  <span class="p">},</span>
-  <span class="p">{</span>
-    <span class="s2">&quot;type&quot;</span><span class="p">:</span><span class="s2">&quot;filters.chipper&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;capacity&quot;</span><span class="p">:</span><span class="s2">&quot;400&quot;</span>
-  <span class="p">},</span>
-  <span class="p">{</span>
-    <span class="s2">&quot;type&quot;</span><span class="p">:</span><span class="s2">&quot;writers.pgpointcloud&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;connection&quot;</span><span class="p">:</span><span class="s2">&quot;host=&#39;172.17.0.2&#39; dbname=&#39;pointclouds&#39; user=&#39;postgres&#39; password=&#39;mysecretpassword&#39; port=&#39;5432&#39;&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;table&quot;</span><span class="p">:</span><span class="s2">&quot;airport&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;compression&quot;</span><span class="p">:</span><span class="s2">&quot;none&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;srid&quot;</span><span class="p">:</span><span class="s2">&quot;32616&quot;</span>
-  <span class="p">}</span>
-<span class="p">]</span>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="nt">&quot;pipeline&quot;</span><span class="p">:[</span><span class="w"></span>
+<span class="w">    </span><span class="p">{</span><span class="w"></span>
+<span class="w">      </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="s2">&quot;readers.las&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">      </span><span class="nt">&quot;filename&quot;</span><span class="p">:</span><span class="s2">&quot;/tmp/LAS12_Sample_withRGB_Quick_Terrain_Modeler_fixed.laz&quot;</span><span class="w"></span>
+<span class="w">    </span><span class="p">},</span><span class="w"></span>
+<span class="w">    </span><span class="p">{</span><span class="w"></span>
+<span class="w">      </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="s2">&quot;filters.chipper&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">      </span><span class="nt">&quot;capacity&quot;</span><span class="p">:</span><span class="s2">&quot;400&quot;</span><span class="w"></span>
+<span class="w">    </span><span class="p">},</span><span class="w"></span>
+<span class="w">    </span><span class="p">{</span><span class="w"></span>
+<span class="w">      </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="s2">&quot;writers.pgpointcloud&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">      </span><span class="nt">&quot;connection&quot;</span><span class="p">:</span><span class="s2">&quot;host=&#39;172.17.0.2&#39; dbname=&#39;pointclouds&#39; user=&#39;postgres&#39; password=&#39;mysecretpassword&#39; port=&#39;5432&#39;&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">      </span><span class="nt">&quot;table&quot;</span><span class="p">:</span><span class="s2">&quot;airport&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">      </span><span class="nt">&quot;compression&quot;</span><span class="p">:</span><span class="s2">&quot;dimensional&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">      </span><span class="nt">&quot;srid&quot;</span><span class="p">:</span><span class="s2">&quot;32616&quot;</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="w">  </span><span class="p">]</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 </pre></div>
 </div>
-<p>}</p>
 <p>The PDAL pipeline can finally be execute with <code class="docutils literal notranslate"><span class="pre">pdal</span> <span class="pre">pipeline</span> <span class="pre">pipeline.json</span></code>
 and an <code class="docutils literal notranslate"><span class="pre">airport</span></code> table is created.</p>
 </section>
@@ -183,24 +187,24 @@ and an <code class="docutils literal notranslate"><span class="pre">airport</spa
 <h2>Configure connection service file<a class="headerlink" href="#configure-connection-service-file" title="Permalink to this headline"></a></h2>
 <p>To facilitate the access to the database hosted on the Docker container, we can
 configure the PostgreSQL connection service file:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">pgpointcloud</span><span class="p">]</span>
-<span class="n">host</span><span class="o">=</span><span class="mf">172.17.0.2</span>
-<span class="n">port</span><span class="o">=</span><span class="mi">5432</span>
-<span class="n">dbname</span><span class="o">=</span><span class="n">pointclouds</span>
-<span class="n">user</span><span class="o">=</span><span class="n">postgres</span>
-<span class="n">password</span><span class="o">=</span><span class="n">mysecretpassword</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="o">[</span>pgpointcloud<span class="o">]</span>
+<span class="nv">host</span><span class="o">=</span><span class="m">172</span>.17.0.2
+<span class="nv">port</span><span class="o">=</span><span class="m">5432</span>
+<span class="nv">dbname</span><span class="o">=</span>pointclouds
+<span class="nv">user</span><span class="o">=</span>postgres
+<span class="nv">password</span><span class="o">=</span>mysecretpassword
 </pre></div>
 </div>
 <p>Then we can explore the content of the new <code class="docutils literal notranslate"><span class="pre">airport</span></code> table:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ psql service=pgpointcloud
-psql (12.3)
-Type &quot;help&quot; for help.
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ psql <span class="nv">service</span><span class="o">=</span>pgpointcloud
+psql <span class="o">(</span><span class="m">12</span>.3<span class="o">)</span>
+Type <span class="s2">&quot;help&quot;</span> <span class="k">for</span> help.
 
-pointclouds=# select count(*) from airport;
+<span class="nv">pointclouds</span><span class="o">=</span><span class="c1"># SELECT COUNT(*) FROM airport;</span>
  count
 -------
-  9529
-(1 row)
+  <span class="m">9529</span>
+<span class="o">(</span><span class="m">1</span> row<span class="o">)</span>
 </pre></div>
 </div>
 <p>In this case, we have <code class="docutils literal notranslate"><span class="pre">9529</span></code> patchs containing <code class="docutils literal notranslate"><span class="pre">400</span></code> points (the size of
@@ -214,7 +218,7 @@ fully filled.</p>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="index.html" class="btn btn-neutral float-left" title="Tutorials" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="../development.html" class="btn btn-neutral float-right" title="Development" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="compression.html" class="btn btn-neutral float-right" title="Schema and compression" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
