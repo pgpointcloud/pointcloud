@@ -11,3 +11,4 @@ pgPointcloud.
   :maxdepth: 1
 
   storing
+  compression
