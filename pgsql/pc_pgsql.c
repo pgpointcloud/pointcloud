@@ -15,8 +15,8 @@
 #include "access/hash.h"
 #include "executor/spi.h"
 #include "utils/hsearch.h"
-#include "utils/memutils.h"
 #include "utils/lsyscache.h"
+#include "utils/memutils.h"
 
 #include <assert.h>
 
@@ -30,7 +30,7 @@ static PC_CONSTANTS *pc_constants = NULL;
 
 static void
 #if PGSQL_VERSION < 120
-pointcloud_initialize_cache(FunctionCallInfoData* fcinfo)
+pointcloud_initialize_cache(FunctionCallInfoData *fcinfo)
 #else
 pointcloud_initialize_cache(FunctionCallInfo fcinfo)
 #endif
@@ -38,7 +38,7 @@ pointcloud_initialize_cache(FunctionCallInfo fcinfo)
   Oid nsp_oid;
   char *nsp_name;
 
-  if ( pc_constants )
+  if (pc_constants)
     return;
 
   pc_constants = MemoryContextAlloc(CacheMemoryContext, sizeof(PC_CONSTANTS));
@@ -47,9 +47,11 @@ pointcloud_initialize_cache(FunctionCallInfo fcinfo)
   nsp_name = get_namespace_name(nsp_oid);
   pc_constants->schema = MemoryContextStrdup(CacheMemoryContext, nsp_name);
 
-  pc_constants->formats = MemoryContextStrdup(CacheMemoryContext, "pointcloud_formats");
+  pc_constants->formats =
+      MemoryContextStrdup(CacheMemoryContext, "pointcloud_formats");
   pc_constants->formats_srid = MemoryContextStrdup(CacheMemoryContext, "srid");
-  pc_constants->formats_schema = MemoryContextStrdup(CacheMemoryContext, "schema");
+  pc_constants->formats_schema =
+      MemoryContextStrdup(CacheMemoryContext, "schema");
 }
 
 /**********************************************************************************
@@ -262,16 +264,18 @@ PCSCHEMA *pc_schema_from_pcid_uncached(uint32 pcid)
     return NULL;
   }
 
-  if ( ! pc_constants )
+  if (!pc_constants)
   {
     SPI_finish();
     elog(ERROR, "%s: constants are not initialized", __func__);
     return NULL;
   }
 
-  formats = quote_qualified_identifier(pc_constants->schema, pc_constants->formats);
-  sprintf(sql, "select %s, %s from %s where pcid = %d", pc_constants->formats_schema,
-          pc_constants->formats_srid, formats, pcid);
+  formats =
+      quote_qualified_identifier(pc_constants->schema, pc_constants->formats);
+  sprintf(sql, "select %s, %s from %s where pcid = %d",
+          pc_constants->formats_schema, pc_constants->formats_srid, formats,
+          pcid);
   err = SPI_exec(sql, 1);
 
   if (err < 0)
