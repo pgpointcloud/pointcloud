@@ -250,7 +250,7 @@ uint32 pcid_from_datum(Datum d)
 PCSCHEMA *pc_schema_from_pcid_uncached(uint32 pcid)
 {
   char sql[256];
-  char *xml, *xml_spi, *srid_spi;
+  char *xml, *xml_spi, *srid_spi, *formats;
   int err, srid;
   size_t size;
   PCSCHEMA *schema;
@@ -262,9 +262,16 @@ PCSCHEMA *pc_schema_from_pcid_uncached(uint32 pcid)
     return NULL;
   }
 
-  // char *formats = quote_qualified_identifier(POINTCLOUD_SCHEMA, POINTCLOUD_FORMATS);
-  sprintf(sql, "select %s, %s from %s where pcid = %d", POINTCLOUD_FORMATS_XML,
-          POINTCLOUD_FORMATS_SRID, POINTCLOUD_FORMATS, pcid);
+  if ( ! pc_constants )
+  {
+    SPI_finish();
+    elog(ERROR, "%s: constants are not initialized", __func__);
+    return NULL;
+  }
+
+  formats = quote_qualified_identifier(pc_constants->schema, pc_constants->formats);
+  sprintf(sql, "select %s, %s from %s where pcid = %d", pc_constants->formats_schema,
+          pc_constants->formats_srid, formats, pcid);
   err = SPI_exec(sql, 1);
 
   if (err < 0)
