@@ -20,7 +20,7 @@ Return the OGC "well-known binary" format for the point.
 
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-PC_EnveloppeAsBinary
+PC_EnvelopeAsBinary
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 :PC_EnvelopeAsBinary(p pcpatch) returns bytea:
