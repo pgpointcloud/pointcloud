@@ -138,8 +138,6 @@ and with various PostgreSQL/PostGIS releases:
 +---------------+-----------------------+------------------------+
 |               | PostGIS 2.5           | PostGIS 3.2            |
 +---------------+-----------------------+------------------------+
-| PostgreSQL 9.6| |96_25_bionic|        |                        |
-+---------------+-----------------------+------------------------+
 | PostgreSQL 10 | |10_25_bionic|        |                        |
 +---------------+-----------------------+------------------------+
 | PostgreSQL 11 | |11_25_bionic|        |                        |
@@ -152,8 +150,6 @@ and with various PostgreSQL/PostGIS releases:
 +---------------+-----------------------+------------------------+
 | PostgreSQL 14 |                       | |14_32_focal|          |
 +---------------+-----------------------+------------------------+
-
-.. |96_25_bionic| image:: https://img.shields.io/github/workflow/status/pgpointcloud/pointcloud/%5Bubuntu-18.04%5D%20PostgreSQL%209.6%20and%20PostGIS%202.5?label=Ubuntu%2018.04&logo=github&style=plastic :target: https://github.com/pgpointcloud/pointcloud/actions?query=workflow%3A%22%5Bubuntu-18.04%5D+PostgreSQL+9.6+and+PostGIS+2.5%22
 
 .. |10_25_bionic| image:: https://img.shields.io/github/workflow/status/pgpointcloud/pointcloud/%5Bubuntu-18.04%5D%20PostgreSQL%2010%20and%20PostGIS%202.5?label=Ubuntu%2018.04&logo=github&style=plastic :target: https://github.com/pgpointcloud/pointcloud/actions?query=workflow%3A%22%5Bubuntu-18.04%5D+PostgreSQL+10+and+PostGIS+2.5%22
 
