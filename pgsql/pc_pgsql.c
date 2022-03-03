@@ -11,12 +11,48 @@
  ***********************************************************************/
 
 #include "pc_pgsql.h"
+
 #include "access/hash.h"
 #include "executor/spi.h"
 #include "utils/hsearch.h"
+#include "utils/lsyscache.h"
+#include "utils/memutils.h"
+
 #include <assert.h>
 
 PG_MODULE_MAGIC;
+
+/**********************************************************************************
+ * Pointcloud constants
+ */
+
+static PC_CONSTANTS *pc_constants = NULL;
+
+static void
+#if PGSQL_VERSION < 120
+pointcloud_initialize_cache(FunctionCallInfoData *fcinfo)
+#else
+pointcloud_initialize_cache(FunctionCallInfo fcinfo)
+#endif
+{
+  Oid nsp_oid;
+  char *nsp_name;
+
+  if (pc_constants)
+    return;
+
+  pc_constants = MemoryContextAlloc(CacheMemoryContext, sizeof(PC_CONSTANTS));
+
+  nsp_oid = get_func_namespace(fcinfo->flinfo->fn_oid);
+  nsp_name = get_namespace_name(nsp_oid);
+  pc_constants->schema = MemoryContextStrdup(CacheMemoryContext, nsp_name);
+
+  pc_constants->formats =
+      MemoryContextStrdup(CacheMemoryContext, "pointcloud_formats");
+  pc_constants->formats_srid = MemoryContextStrdup(CacheMemoryContext, "srid");
+  pc_constants->formats_schema =
+      MemoryContextStrdup(CacheMemoryContext, "schema");
+}
 
 /**********************************************************************************
  * POSTGRESQL MEMORY MANAGEMENT HOOKS
@@ -216,7 +252,7 @@ uint32 pcid_from_datum(Datum d)
 PCSCHEMA *pc_schema_from_pcid_uncached(uint32 pcid)
 {
   char sql[256];
-  char *xml, *xml_spi, *srid_spi;
+  char *xml, *xml_spi, *srid_spi, *formats;
   int err, srid;
   size_t size;
   PCSCHEMA *schema;
@@ -228,8 +264,18 @@ PCSCHEMA *pc_schema_from_pcid_uncached(uint32 pcid)
     return NULL;
   }
 
-  sprintf(sql, "select %s, %s from %s where pcid = %d", POINTCLOUD_FORMATS_XML,
-          POINTCLOUD_FORMATS_SRID, POINTCLOUD_FORMATS, pcid);
+  if (!pc_constants)
+  {
+    SPI_finish();
+    elog(ERROR, "%s: constants are not initialized", __func__);
+    return NULL;
+  }
+
+  formats =
+      quote_qualified_identifier(pc_constants->schema, pc_constants->formats);
+  sprintf(sql, "select %s, %s from %s where pcid = %d",
+          pc_constants->formats_schema, pc_constants->formats_srid, formats,
+          pcid);
   err = SPI_exec(sql, 1);
 
   if (err < 0)
@@ -243,7 +289,7 @@ PCSCHEMA *pc_schema_from_pcid_uncached(uint32 pcid)
   if (SPI_processed <= 0)
   {
     SPI_finish();
-    elog(ERROR, "no entry in \"%s\" for pcid = %d", POINTCLOUD_FORMATS, pcid);
+    elog(ERROR, "no entry in \"%s\" for pcid = %d", formats, pcid);
     return NULL;
   }
 
@@ -255,8 +301,7 @@ PCSCHEMA *pc_schema_from_pcid_uncached(uint32 pcid)
   if (!(xml_spi && srid_spi))
   {
     SPI_finish();
-    elog(ERROR, "unable to read row from \"%s\" for pcid = %d",
-         POINTCLOUD_FORMATS, pcid);
+    elog(ERROR, "unable to read row from \"%s\" for pcid = %d", formats, pcid);
     return NULL;
   }
 
@@ -278,7 +323,7 @@ PCSCHEMA *pc_schema_from_pcid_uncached(uint32 pcid)
   {
     ereport(ERROR, (errcode(ERRCODE_NOT_AN_XML_DOCUMENT),
                     errmsg("unable to parse XML for pcid = %d in \"%s\"", pcid,
-                           POINTCLOUD_FORMATS)));
+                           formats)));
   }
 
   schema->pcid = pcid;
@@ -356,6 +401,7 @@ pc_schema_from_pcid(uint32 pcid, FunctionCallInfo fcinfo)
 
   /* Not in there, load one the old-fashioned way. */
   oldcontext = MemoryContextSwitchTo(fcinfo->flinfo->fn_mcxt);
+  pointcloud_initialize_cache(fcinfo);
   schema = pc_schema_from_pcid_uncached(pcid);
   MemoryContextSwitchTo(oldcontext);
 

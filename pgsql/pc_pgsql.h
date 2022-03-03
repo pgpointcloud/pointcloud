@@ -20,10 +20,6 @@
 #include "utils/array.h"
 #include "utils/builtins.h" /* for pg_atoi */
 
-#define POINTCLOUD_FORMATS "pointcloud_formats"
-#define POINTCLOUD_FORMATS_XML "schema"
-#define POINTCLOUD_FORMATS_SRID "srid"
-
 #define PG_GETARG_SERPOINT_P(argnum)                                           \
   (SERIALIZED_POINT *)PG_DETOAST_DATUM(PG_GETARG_DATUM(argnum))
 #define PG_GETARG_SERPATCH_P(argnum)                                           \
@@ -45,6 +41,14 @@
 
 #define AUTOCOMPRESS_NO 0
 #define AUTOCOMPRESS_YES 1
+
+typedef struct
+{
+  char *schema;
+  char *formats;
+  char *formats_srid;
+  char *formats_schema;
+} PC_CONSTANTS;
 
 /**
  * Serialized point type for clouds. Variable length, because there can be

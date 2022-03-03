@@ -23,3 +23,5 @@ jobs:
       - name: Error
         if: ${{ failure() }}
         run: cat pgsql/regression.diffs
+      - name: Dump and restore tests
+        run: .github/scripts/test_dump_restore.sh
