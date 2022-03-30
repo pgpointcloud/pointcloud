@@ -581,7 +581,7 @@ Datum pcpatch_unnest(PG_FUNCTION_ARGS)
      */
     serpatch = PG_GETARG_SERPATCH_P(0);
     patch = pc_patch_deserialize(serpatch,
-                                 pc_schema_from_pcid_uncached(serpatch->pcid));
+                                 pc_schema_from_pcid(serpatch->pcid, fcinfo));
 
     /* allocate memory for user context */
     fctx = (pcpatch_unnest_fctx *)palloc(sizeof(pcpatch_unnest_fctx));
