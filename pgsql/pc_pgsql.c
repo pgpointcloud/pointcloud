@@ -259,14 +259,12 @@ PCSCHEMA *pc_schema_from_pcid_uncached(uint32 pcid)
 
   if (SPI_OK_CONNECT != SPI_connect())
   {
-    SPI_finish();
     elog(ERROR, "%s: could not connect to SPI manager", __func__);
     return NULL;
   }
 
   if (!pc_constants)
   {
-    SPI_finish();
     elog(ERROR, "%s: constants are not initialized", __func__);
     return NULL;
   }
@@ -280,7 +278,6 @@ PCSCHEMA *pc_schema_from_pcid_uncached(uint32 pcid)
 
   if (err < 0)
   {
-    SPI_finish();
     elog(ERROR, "%s: error (%d) executing query: %s", __func__, err, sql);
     return NULL;
   }
@@ -288,7 +285,6 @@ PCSCHEMA *pc_schema_from_pcid_uncached(uint32 pcid)
   /* No entry in POINTCLOUD_FORMATS */
   if (SPI_processed <= 0)
   {
-    SPI_finish();
     elog(ERROR, "no entry in \"%s\" for pcid = %d", formats, pcid);
     return NULL;
   }
@@ -300,7 +296,6 @@ PCSCHEMA *pc_schema_from_pcid_uncached(uint32 pcid)
   /* NULL result */
   if (!(xml_spi && srid_spi))
   {
-    SPI_finish();
     elog(ERROR, "unable to read row from \"%s\" for pcid = %d", formats, pcid);
     return NULL;
   }
