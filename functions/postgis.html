@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>PostGIS &mdash; pgpointcloud</title>
@@ -15,6 +15,7 @@
         <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../_static/doctools.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
@@ -107,7 +108,7 @@
            <div itemprop="articleBody">
              
   <section id="postgis">
-<span id="points"></span><h1>PostGIS<a class="headerlink" href="#postgis" title="Permalink to this headline"></a></h1>
+<span id="points"></span><h1>PostGIS<a class="headerlink" href="#postgis" title="Permalink to this heading"></a></h1>
 <p>The <code class="docutils literal notranslate"><span class="pre">pointcloud_postgis</span></code> extension adds functions that allow you to use
 PostgreSQL Pointcloud with PostGIS, converting <code class="docutils literal notranslate"><span class="pre">PcPoint</span></code> and <code class="docutils literal notranslate"><span class="pre">PcPatch</span></code> to
 Geometry and doing spatial filtering on point cloud data. The
@@ -119,11 +120,11 @@ Geometry and doing spatial filtering on point cloud data. The
 </pre></div>
 </div>
 <section id="pc-intersects">
-<h2>PC_Intersects<a class="headerlink" href="#pc-intersects" title="Permalink to this headline"></a></h2>
+<h2>PC_Intersects<a class="headerlink" href="#pc-intersects" title="Permalink to this heading"></a></h2>
 <dl class="field-list simple">
-<dt class="field-odd">PC_Intersects(p pcpatch, g geometry) returns boolean</dt>
+<dt class="field-odd">PC_Intersects(p pcpatch, g geometry) returns boolean<span class="colon">:</span></dt>
 <dd class="field-odd"><p></p></dd>
-<dt class="field-even">PC_Intersects(g geometry, p pcpatch) returns boolean</dt>
+<dt class="field-even">PC_Intersects(g geometry, p pcpatch) returns boolean<span class="colon">:</span></dt>
 <dd class="field-even"><p></p></dd>
 </dl>
 <p>Returns true if the bounds of the patch intersect the geometry.</p>
@@ -135,9 +136,9 @@ Geometry and doing spatial filtering on point cloud data. The
 </div>
 </section>
 <section id="pc-intersection">
-<h2>PC_Intersection<a class="headerlink" href="#pc-intersection" title="Permalink to this headline"></a></h2>
+<h2>PC_Intersection<a class="headerlink" href="#pc-intersection" title="Permalink to this heading"></a></h2>
 <dl class="field-list simple">
-<dt class="field-odd">PC_Intersection(pcpatch, geometry) returns pcpatch</dt>
+<dt class="field-odd">PC_Intersection(pcpatch, geometry) returns pcpatch<span class="colon">:</span></dt>
 <dd class="field-odd"><p></p></dd>
 </dl>
 <p>Returns a PcPatch which only contains points that intersected the geometry.</p>
@@ -157,11 +158,11 @@ Geometry and doing spatial filtering on point cloud data. The
 </div>
 </section>
 <section id="geometry">
-<h2>Geometry<a class="headerlink" href="#geometry" title="Permalink to this headline"></a></h2>
+<h2>Geometry<a class="headerlink" href="#geometry" title="Permalink to this heading"></a></h2>
 <dl class="field-list simple">
-<dt class="field-odd">Geometry(pcpoint) returns geometry</dt>
+<dt class="field-odd">Geometry(pcpoint) returns geometry<span class="colon">:</span></dt>
 <dd class="field-odd"><p></p></dd>
-<dt class="field-even">pcpoint::geometry returns geometry</dt>
+<dt class="field-even">pcpoint::geometry returns geometry<span class="colon">:</span></dt>
 <dd class="field-even"><p></p></dd>
 </dl>
 <p>Casts <code class="docutils literal notranslate"><span class="pre">PcPoint</span></code> to the PostGIS geometry equivalent, placing the x/y/z/m of the
@@ -173,9 +174,9 @@ Geometry and doing spatial filtering on point cloud data. The
 </div>
 </section>
 <section id="pc-envelopegeometry">
-<h2>PC_EnvelopeGeometry<a class="headerlink" href="#pc-envelopegeometry" title="Permalink to this headline"></a></h2>
+<h2>PC_EnvelopeGeometry<a class="headerlink" href="#pc-envelopegeometry" title="Permalink to this heading"></a></h2>
 <dl class="field-list simple">
-<dt class="field-odd">PC_EnvelopeGeometry(pcpatch) returns geometry</dt>
+<dt class="field-odd">PC_EnvelopeGeometry(pcpatch) returns geometry<span class="colon">:</span></dt>
 <dd class="field-odd"><p></p></dd>
 </dl>
 <p>Returns the 2D bounds of the patch as a PostGIS Polygon 2D. Useful for
@@ -191,9 +192,9 @@ performing 2D intersection tests with PostGIS geometries.</p>
 </div>
 </section>
 <section id="pc-boundingdiagonalgeometry">
-<h2>PC_BoundingDiagonalGeometry<a class="headerlink" href="#pc-boundingdiagonalgeometry" title="Permalink to this headline"></a></h2>
+<h2>PC_BoundingDiagonalGeometry<a class="headerlink" href="#pc-boundingdiagonalgeometry" title="Permalink to this heading"></a></h2>
 <dl class="field-list simple">
-<dt class="field-odd">PC_BoundingDiagonalGeometry(pcpatch) returns geometry</dt>
+<dt class="field-odd">PC_BoundingDiagonalGeometry(pcpatch) returns geometry<span class="colon">:</span></dt>
 <dd class="field-odd"><p></p></dd>
 </dl>
 <p>Returns the bounding diagonal of a patch. This is a LineString (2D), a

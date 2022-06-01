@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Getting Started &mdash; pgpointcloud</title>
@@ -15,6 +15,7 @@
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
@@ -99,9 +100,9 @@
            <div itemprop="articleBody">
              
   <section id="getting-started">
-<span id="quickstart"></span><h1>Getting Started<a class="headerlink" href="#getting-started" title="Permalink to this headline"></a></h1>
+<span id="quickstart"></span><h1>Getting Started<a class="headerlink" href="#getting-started" title="Permalink to this heading"></a></h1>
 <section id="introduction">
-<h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline"></a></h2>
+<h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this heading"></a></h2>
 <p>Once pgPointcloud installed, the first step is to load a point cloud in
 PostgreSQL to start playing with <code class="docutils literal notranslate"><span class="pre">PcPatch</span></code> and <code class="docutils literal notranslate"><span class="pre">PcPoint</span></code>.</p>
 <p>To do that you can write your own loader, using the uncompressed WKB format, or
@@ -109,13 +110,13 @@ more simply you can load existing LIDAR files using the <a class="reference exte
 format conversion library.</p>
 </section>
 <section id="install-pdal">
-<h2>Install PDAL<a class="headerlink" href="#install-pdal" title="Permalink to this headline"></a></h2>
+<h2>Install PDAL<a class="headerlink" href="#install-pdal" title="Permalink to this heading"></a></h2>
 <p>To install PDAL check out the PDAL <a class="reference external" href="https://pdal.io/development/">development documentation</a>.</p>
 <p>With PDAL installed you’re ready to run a PDAL import into PostgreSQL
 PointCloud thanks to the dedicated <a class="reference external" href="https://pdal.io/stages/writers.pgpointcloud.html#writers-pgpointcloud">pgPointcloud writer</a>.</p>
 </section>
 <section id="running-a-pipeline">
-<h2>Running a pipeline<a class="headerlink" href="#running-a-pipeline" title="Permalink to this headline"></a></h2>
+<h2>Running a pipeline<a class="headerlink" href="#running-a-pipeline" title="Permalink to this heading"></a></h2>
 <p>PDAL includes a <a class="reference external" href="https://pdal.io/apps/index.html">command line program</a> that allows both simple format
 translations and more complex “pipelines” of transformation. The pdal translate
 does simple format transformations. In order to load data into Pointcloud we
@@ -203,7 +204,7 @@ partial extracts from a table:</p>
 </div>
 </section>
 <section id="pgpointcloud-reader-writer">
-<h2>pgpointcloud reader/writer<a class="headerlink" href="#pgpointcloud-reader-writer" title="Permalink to this headline"></a></h2>
+<h2>pgpointcloud reader/writer<a class="headerlink" href="#pgpointcloud-reader-writer" title="Permalink to this heading"></a></h2>
 <p>The PDAL <a class="reference external" href="https://pdal.io/stages/writers.pgpointcloud.html">writers.pgpointcloud</a> for PostgreSQL Pointcloud takes the following
 options:</p>
 <ul class="simple">

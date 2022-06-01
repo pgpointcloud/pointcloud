@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Binary Formats &mdash; pgpointcloud</title>
@@ -15,6 +15,7 @@
         <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../_static/doctools.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
@@ -110,7 +111,7 @@
            <div itemprop="articleBody">
              
   <section id="binary-formats">
-<span id="id1"></span><h1>Binary Formats<a class="headerlink" href="#binary-formats" title="Permalink to this headline"></a></h1>
+<span id="id1"></span><h1>Binary Formats<a class="headerlink" href="#binary-formats" title="Permalink to this heading"></a></h1>
 <p>In order to preserve some compactness in dump files and network transmissions,
 the binary formats need to retain their native compression. All binary formats
 are hex-encoded before output.</p>
@@ -125,7 +126,7 @@ are hex-encoded before output.</p>
 <li><p>the number of points in the patch</p></li>
 </ul>
 <section id="point-binary">
-<h2>Point Binary<a class="headerlink" href="#point-binary" title="Permalink to this headline"></a></h2>
+<h2>Point Binary<a class="headerlink" href="#point-binary" title="Permalink to this heading"></a></h2>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">byte</span><span class="p">:</span>     <span class="n">endianness</span> <span class="p">(</span><span class="mi">1</span> <span class="o">=</span> <span class="n">NDR</span><span class="p">,</span> <span class="mi">0</span> <span class="o">=</span> <span class="n">XDR</span><span class="p">)</span>
 <span class="n">uint32</span><span class="p">:</span>   <span class="n">pcid</span> <span class="p">(</span><span class="n">key</span> <span class="n">to</span> <span class="n">POINTCLOUD_SCHEMAS</span><span class="p">)</span>
 <span class="n">uchar</span><span class="p">[]:</span>  <span class="n">pointdata</span> <span class="p">(</span><span class="n">interpret</span> <span class="n">relative</span> <span class="n">to</span> <span class="n">pcid</span><span class="p">)</span>
@@ -133,9 +134,9 @@ are hex-encoded before output.</p>
 </div>
 </section>
 <section id="patch-binary">
-<h2>Patch Binary<a class="headerlink" href="#patch-binary" title="Permalink to this headline"></a></h2>
+<h2>Patch Binary<a class="headerlink" href="#patch-binary" title="Permalink to this heading"></a></h2>
 <section id="uncompressed">
-<h3>Uncompressed<a class="headerlink" href="#uncompressed" title="Permalink to this headline"></a></h3>
+<h3>Uncompressed<a class="headerlink" href="#uncompressed" title="Permalink to this heading"></a></h3>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">byte</span><span class="p">:</span>         <span class="n">endianness</span> <span class="p">(</span><span class="mi">1</span> <span class="o">=</span> <span class="n">NDR</span><span class="p">,</span> <span class="mi">0</span> <span class="o">=</span> <span class="n">XDR</span><span class="p">)</span>
 <span class="n">uint32</span><span class="p">:</span>       <span class="n">pcid</span> <span class="p">(</span><span class="n">key</span> <span class="n">to</span> <span class="n">POINTCLOUD_SCHEMAS</span><span class="p">)</span>
 <span class="n">uint32</span><span class="p">:</span>       <span class="mi">0</span> <span class="o">=</span> <span class="n">no</span> <span class="n">compression</span>
@@ -145,7 +146,7 @@ are hex-encoded before output.</p>
 </div>
 </section>
 <section id="dimensional">
-<h3>Dimensional<a class="headerlink" href="#dimensional" title="Permalink to this headline"></a></h3>
+<h3>Dimensional<a class="headerlink" href="#dimensional" title="Permalink to this heading"></a></h3>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">byte</span><span class="p">:</span>          <span class="n">endianness</span> <span class="p">(</span><span class="mi">1</span> <span class="o">=</span> <span class="n">NDR</span><span class="p">,</span> <span class="mi">0</span> <span class="o">=</span> <span class="n">XDR</span><span class="p">)</span>
 <span class="n">uint32</span><span class="p">:</span>        <span class="n">pcid</span> <span class="p">(</span><span class="n">key</span> <span class="n">to</span> <span class="n">POINTCLOUD_SCHEMAS</span><span class="p">)</span>
 <span class="n">uint32</span><span class="p">:</span>        <span class="mi">2</span> <span class="o">=</span> <span class="n">dimensional</span> <span class="n">compression</span>
@@ -203,7 +204,7 @@ derived from the patch metadata by multiplying the dimension word size by the
 number of points in the patch.</p>
 </section>
 <section id="laz">
-<h3>LAZ<a class="headerlink" href="#laz" title="Permalink to this headline"></a></h3>
+<h3>LAZ<a class="headerlink" href="#laz" title="Permalink to this heading"></a></h3>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">byte</span><span class="p">:</span>          <span class="n">endianness</span> <span class="p">(</span><span class="mi">1</span> <span class="o">=</span> <span class="n">NDR</span><span class="p">,</span> <span class="mi">0</span> <span class="o">=</span> <span class="n">XDR</span><span class="p">)</span>
 <span class="n">uint32</span><span class="p">:</span>        <span class="n">pcid</span> <span class="p">(</span><span class="n">key</span> <span class="n">to</span> <span class="n">POINTCLOUD_SCHEMAS</span><span class="p">)</span>
 <span class="n">uint32</span><span class="p">:</span>        <span class="mi">2</span> <span class="o">=</span> <span class="n">LAZ</span> <span class="n">compression</span>

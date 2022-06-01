@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Compressions &mdash; pgpointcloud</title>
@@ -15,6 +15,7 @@
         <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../_static/doctools.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
@@ -104,7 +105,7 @@
            <div itemprop="articleBody">
              
   <section id="compressions">
-<span id="id1"></span><h1>Compressions<a class="headerlink" href="#compressions" title="Permalink to this headline"></a></h1>
+<span id="id1"></span><h1>Compressions<a class="headerlink" href="#compressions" title="Permalink to this heading"></a></h1>
 <p>One of the issues with LIDAR data is that there is a lot of it. To deal with
 data volumes, PostgreSQL Pointcloud allows schemas to declare their preferred
 compression method in the <code class="docutils literal notranslate"><span class="pre">&lt;pc:metadata&gt;</span></code> block of the schema document. In
@@ -127,7 +128,7 @@ use of the LAZ compression.  If no compression is declared in
 <code class="docutils literal notranslate"><span class="pre">&lt;pc:metadata&gt;</span></code>, then a compression of “none” is assumed.</p></li>
 </ul>
 <section id="dimensional-compression">
-<h2>Dimensional Compression<a class="headerlink" href="#dimensional-compression" title="Permalink to this headline"></a></h2>
+<h2>Dimensional Compression<a class="headerlink" href="#dimensional-compression" title="Permalink to this heading"></a></h2>
 <p>Dimensional compression first flips the patch representation from a list of N
 points containing M dimension values to a list of M dimensions each containing
 N values.</p>

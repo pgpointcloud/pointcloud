@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Storing points &mdash; pgpointcloud</title>
@@ -15,6 +15,7 @@
         <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../_static/doctools.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
@@ -103,11 +104,11 @@
            <div itemprop="articleBody">
              
   <section id="storing-points">
-<h1>Storing points<a class="headerlink" href="#storing-points" title="Permalink to this headline"></a></h1>
+<h1>Storing points<a class="headerlink" href="#storing-points" title="Permalink to this heading"></a></h1>
 <p>This tutorial is a basic introduction to pgPointcloud to store points in a
 PostgreSQL database hosted on a Docker container.</p>
 <section id="start-docker-container">
-<h2>Start Docker container<a class="headerlink" href="#start-docker-container" title="Permalink to this headline"></a></h2>
+<h2>Start Docker container<a class="headerlink" href="#start-docker-container" title="Permalink to this heading"></a></h2>
 <p>First we download the latest tag of the pgPoincloud Docker image:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ docker pull pgpointcloud/pointcloud
 </pre></div>
@@ -140,7 +141,7 @@ documentation is available <a class="reference external" href="https://hub.docke
 </div>
 </section>
 <section id="run-pdal-pipeline">
-<h2>Run PDAL pipeline<a class="headerlink" href="#run-pdal-pipeline" title="Permalink to this headline"></a></h2>
+<h2>Run PDAL pipeline<a class="headerlink" href="#run-pdal-pipeline" title="Permalink to this heading"></a></h2>
 <p>For the need of the tutorial, we can download sample data from the <a class="reference external" href="https://github.com/PDAL">PDAL</a>
 organization:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ wget https://github.com/PDAL/data/raw/master/liblas/LAS12_Sample_withRGB_Quick_Terrain_Modeler_fixed.laz -P /tmp
@@ -184,7 +185,7 @@ adress on which the PostgreSQL database is running is necessary:</p>
 and an <code class="docutils literal notranslate"><span class="pre">airport</span></code> table is created.</p>
 </section>
 <section id="configure-connection-service-file">
-<h2>Configure connection service file<a class="headerlink" href="#configure-connection-service-file" title="Permalink to this headline"></a></h2>
+<h2>Configure connection service file<a class="headerlink" href="#configure-connection-service-file" title="Permalink to this heading"></a></h2>
 <p>To facilitate the access to the database hosted on the Docker container, we can
 configure the PostgreSQL connection service file:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="o">[</span>pgpointcloud<span class="o">]</span>

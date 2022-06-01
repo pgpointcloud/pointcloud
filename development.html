@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Development &mdash; pgpointcloud</title>
@@ -15,6 +15,7 @@
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
@@ -103,11 +104,11 @@
            <div itemprop="articleBody">
              
   <section id="development">
-<span id="development-index"></span><h1>Development<a class="headerlink" href="#development" title="Permalink to this headline"></a></h1>
+<span id="development-index"></span><h1>Development<a class="headerlink" href="#development" title="Permalink to this heading"></a></h1>
 <p>Developer documentation with dependancies, build instructions, how to build a
 Docker image, update the documentation and run unit tests.</p>
 <section id="requirements">
-<h2>Requirements<a class="headerlink" href="#requirements" title="Permalink to this headline"></a></h2>
+<h2>Requirements<a class="headerlink" href="#requirements" title="Permalink to this heading"></a></h2>
 <ul class="simple">
 <li><p>PostgreSQL and PostgreSQL development packages must be installed (pg_config
 and server headers). For Red Hat and Ubuntu, the package names are usually
@@ -120,7 +121,7 @@ and server headers). For Red Hat and Ubuntu, the package names are usually
 </ul>
 </section>
 <section id="build-install">
-<h2>Build/Install<a class="headerlink" href="#build-install" title="Permalink to this headline"></a></h2>
+<h2>Build/Install<a class="headerlink" href="#build-install" title="Permalink to this heading"></a></h2>
 <p>After generating the configure script with <code class="docutils literal notranslate"><span class="pre">autogen.sh</span></code>, you can use
 <code class="docutils literal notranslate"><span class="pre">./configure</span> <span class="pre">--help</span></code> to get a complete listing of configuration options.</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ ./autogen.sh
@@ -148,7 +149,7 @@ implementation instead thanks to the next directive:</p>
 </div>
 </section>
 <section id="tests">
-<h2>Tests<a class="headerlink" href="#tests" title="Permalink to this headline"></a></h2>
+<h2>Tests<a class="headerlink" href="#tests" title="Permalink to this heading"></a></h2>
 <p><strong>Unit tests</strong></p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ make check
 </pre></div>
@@ -164,7 +165,7 @@ $ <span class="nv">PGUSER</span><span class="o">=</span>a_user <span class="nv">
 the SQL scripts located in <code class="docutils literal notranslate"><span class="pre">pgsql/sql</span></code> in this database.</p>
 </section>
 <section id="write-a-loading-system">
-<h2>Write a loading system<a class="headerlink" href="#write-a-loading-system" title="Permalink to this headline"></a></h2>
+<h2>Write a loading system<a class="headerlink" href="#write-a-loading-system" title="Permalink to this heading"></a></h2>
 <p>If you are writing your own loading system and want to write into Pointcloud
 types, create well-known binary inputs, in uncompressed format. If your schema
 indicates that your patch storage is compressed, Pointcloud will automatically
@@ -177,7 +178,7 @@ ensuring that the endianness of the data matches the declared endianness of the
 patch.</p>
 </section>
 <section id="documentation">
-<h2>Documentation<a class="headerlink" href="#documentation" title="Permalink to this headline"></a></h2>
+<h2>Documentation<a class="headerlink" href="#documentation" title="Permalink to this heading"></a></h2>
 <p>Sphinx is used to build the documentation. For that, you have to install the
 next Python packages:</p>
 <ul class="simple">
@@ -195,7 +196,7 @@ You can use <code class="docutils literal notranslate"><span class="pre">make</s
 </div>
 </section>
 <section id="docker-image">
-<h2>Docker Image<a class="headerlink" href="#docker-image" title="Permalink to this headline"></a></h2>
+<h2>Docker Image<a class="headerlink" href="#docker-image" title="Permalink to this heading"></a></h2>
 <p>A <code class="docutils literal notranslate"><span class="pre">Dockerfile</span></code> is provided in the <code class="docutils literal notranslate"><span class="pre">docker</span></code> directory and based on the
 official PostgreSQL docker image available <a class="reference external" href="https://hub.docker.com/_/postgres">DockerHub</a>. The image generated
 is based on PostgreSQL 12, PostGIS 3 and the laz-perf support is activated.</p>
@@ -204,15 +205,10 @@ is based on PostgreSQL 12, PostGIS 3 and the laz-perf support is activated.</p>
 </div>
 </section>
 <section id="continuous-integration">
-<h2>Continuous Integration<a class="headerlink" href="#continuous-integration" title="Permalink to this headline"></a></h2>
+<h2>Continuous Integration<a class="headerlink" href="#continuous-integration" title="Permalink to this heading"></a></h2>
 <p>pgPointcloud tests are run with <a class="reference external" href="https://github.com/pgpointcloud/pointcloud/actions">Github Actions</a> on several Ubuntu versions
 and with various PostgreSQL/PostGIS releases:</p>
 <table class="docutils align-default">
-<colgroup>
-<col style="width: 24%" />
-<col style="width: 37%" />
-<col style="width: 39%" />
-</colgroup>
 <tbody>
 <tr class="row-odd"><td></td>
 <td><p>PostGIS 2.5</p></td>
@@ -244,7 +240,7 @@ and with various PostgreSQL/PostGIS releases:</p>
 </table>
 </section>
 <section id="release">
-<h2>Release<a class="headerlink" href="#release" title="Permalink to this headline"></a></h2>
+<h2>Release<a class="headerlink" href="#release" title="Permalink to this heading"></a></h2>
 <p>Steps for releasing a new version of Pointcloud:</p>
 <ol class="arabic simple">
 <li><p>Add a new section to the <code class="docutils literal notranslate"><span class="pre">NEWS</span></code> file, listing all the changes associated

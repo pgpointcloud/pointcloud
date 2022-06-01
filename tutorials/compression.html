@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Schema and compression &mdash; pgpointcloud</title>
@@ -15,6 +15,7 @@
         <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../_static/doctools.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
@@ -103,11 +104,11 @@
            <div itemprop="articleBody">
              
   <section id="schema-and-compression">
-<h1>Schema and compression<a class="headerlink" href="#schema-and-compression" title="Permalink to this headline"></a></h1>
+<h1>Schema and compression<a class="headerlink" href="#schema-and-compression" title="Permalink to this heading"></a></h1>
 <p>This tutorial is an introduction for investigating XML schemas and playing with
 compression of patches.</p>
 <section id="compression-type">
-<h2>Compression type<a class="headerlink" href="#compression-type" title="Permalink to this headline"></a></h2>
+<h2>Compression type<a class="headerlink" href="#compression-type" title="Permalink to this heading"></a></h2>
 <p>The compression of a patch may be retrieved through its XML schema but it’s
 also stored in the patch itself. Of course, both needs to be consistent so
 updating an existing schema is hardly discouraged and may lead to errors.</p>
@@ -142,7 +143,7 @@ JSON summary of the patch:</p>
 </div>
 </section>
 <section id="create-a-new-schema">
-<h2>Create a new schema<a class="headerlink" href="#create-a-new-schema" title="Permalink to this headline"></a></h2>
+<h2>Create a new schema<a class="headerlink" href="#create-a-new-schema" title="Permalink to this heading"></a></h2>
 <p>A schema is just a XML document and may be manually inserted into the
 <code class="docutils literal notranslate"><span class="pre">pointcloud_formats</span></code> table directly from a file. We can also duplicate an
 existing schema and tweak some parameters.</p>
@@ -156,7 +157,7 @@ schema <code class="docutils literal notranslate"><span class="pre">pcid=1</span
 </div>
 </section>
 <section id="transform-a-patch">
-<h2>Transform a patch<a class="headerlink" href="#transform-a-patch" title="Permalink to this headline"></a></h2>
+<h2>Transform a patch<a class="headerlink" href="#transform-a-patch" title="Permalink to this heading"></a></h2>
 <p>Thanks to the <code class="docutils literal notranslate"><span class="pre">pc_transform</span></code> function, we can transform the underlying data
 of a patch to match a specific schema. So if we want to remove the dimensional
 compression from an existing patch, we can use the schema with <code class="docutils literal notranslate"><span class="pre">pcid=2</span></code>

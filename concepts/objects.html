@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Point Cloud Objects &mdash; pgpointcloud</title>
@@ -15,6 +15,7 @@
         <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../_static/doctools.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
@@ -105,9 +106,9 @@
            <div itemprop="articleBody">
              
   <section id="point-cloud-objects">
-<span id="objects"></span><h1>Point Cloud Objects<a class="headerlink" href="#point-cloud-objects" title="Permalink to this headline"></a></h1>
+<span id="objects"></span><h1>Point Cloud Objects<a class="headerlink" href="#point-cloud-objects" title="Permalink to this heading"></a></h1>
 <section id="pcpoint">
-<h2>PcPoint<a class="headerlink" href="#pcpoint" title="Permalink to this headline"></a></h2>
+<h2>PcPoint<a class="headerlink" href="#pcpoint" title="Permalink to this heading"></a></h2>
 <p>The basic point cloud type is a <code class="docutils literal notranslate"><span class="pre">PcPoint</span></code>. Every point has a (large?) number of
 dimensions, but at a minimum an X and Y coordinate that place it in space.</p>
 <p>Points can be rendered in a human-readable JSON form using the
@@ -124,7 +125,7 @@ representable as doubles.</p>
 </div>
 </section>
 <section id="pcpatch">
-<h2>PcPatch<a class="headerlink" href="#pcpatch" title="Permalink to this headline"></a></h2>
+<h2>PcPatch<a class="headerlink" href="#pcpatch" title="Permalink to this heading"></a></h2>
 <p>The structure of database storage is such that storing billions of points as
 individual records in a table is not an efficient use of resources. Instead, we
 collect a group of <code class="docutils literal notranslate"><span class="pre">PcPoint</span></code> into a <code class="docutils literal notranslate"><span class="pre">PcPatch</span></code>. Each patch should hopefully
