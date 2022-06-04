@@ -18,7 +18,8 @@
 #include "catalog/pg_type.h" /* for CSTRINGOID */
 #include "lib/stringinfo.h"  /* For binary input */
 #include "utils/array.h"
-#include "utils/builtins.h" /* for pg_atoi */
+
+#include "utils/builtins.h" /* for pg_atoi pre-pg15, and text_to_cstring for all */
 
 #define PG_GETARG_SERPOINT_P(argnum)                                           \
   (SERIALIZED_POINT *)PG_DETOAST_DATUM(PG_GETARG_DATUM(argnum))
