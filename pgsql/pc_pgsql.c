@@ -989,11 +989,10 @@ uint8_t *pc_patch_to_geometry_wkb_envelope(const SERIALIZED_PATCH *pa,
  * Unlike plain atoi(), this will throw elog() upon bad input format or
  * overflow.
  */
-int32
-pg_atoi(const char *s, int size, int c)
+int32 pg_atoi(const char *s, int size, int c)
 {
-  long    l;
-  char     *badp;
+  long l;
+  char *badp;
 
   /*
    * Some versions of strtol treat the empty string as an error, but some
@@ -1013,37 +1012,37 @@ pg_atoi(const char *s, int size, int c)
 
   switch (size)
   {
-    case sizeof(int32):
-      if (errno == ERANGE
+  case sizeof(int32):
+    if (errno == ERANGE
 #if defined(HAVE_LONG_INT_64)
-      /* won't get ERANGE on these with 64-bit longs... */
+        /* won't get ERANGE on these with 64-bit longs... */
         || l < INT_MIN || l > INT_MAX
 #endif
         )
-        elog(ERROR, "value \"%s\" is out of range for type %s", s, "integer");
-      break;
-    case sizeof(int16):
-      if (errno == ERANGE || l < SHRT_MIN || l > SHRT_MAX)
-        elog(ERROR, "value \"%s\" is out of range for type %s", s, "smallint");
-      break;
-    case sizeof(int8):
-      if (errno == ERANGE || l < SCHAR_MIN || l > SCHAR_MAX)
-        elog(ERROR, "value \"%s\" is out of range for 8-bit integer", s);
-      break;
-    default:
-      elog(ERROR, "unsupported result size: %d", size);
+      elog(ERROR, "value \"%s\" is out of range for type %s", s, "integer");
+    break;
+  case sizeof(int16):
+    if (errno == ERANGE || l < SHRT_MIN || l > SHRT_MAX)
+      elog(ERROR, "value \"%s\" is out of range for type %s", s, "smallint");
+    break;
+  case sizeof(int8):
+    if (errno == ERANGE || l < SCHAR_MIN || l > SCHAR_MAX)
+      elog(ERROR, "value \"%s\" is out of range for 8-bit integer", s);
+    break;
+  default:
+    elog(ERROR, "unsupported result size: %d", size);
   }
 
   /*
    * Skip any trailing whitespace; if anything but whitespace remains before
    * the terminating character, bail out
    */
-  while (*badp && *badp != c && isspace((unsigned char) *badp))
+  while (*badp && *badp != c && isspace((unsigned char)*badp))
     badp++;
 
   if (*badp && *badp != c)
     elog(ERROR, "invalid input syntax for type %s: \"%s\"", "integer", s);
 
-  return (int32) l;
+  return (int32)l;
 }
 #endif

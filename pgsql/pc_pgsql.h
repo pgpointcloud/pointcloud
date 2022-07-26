@@ -22,23 +22,23 @@
 #include "utils/builtins.h" /* for pg_atoi pre-pg15, and text_to_cstring for all */
 
 #define PG_GETARG_SERPOINT_P(argnum)                                           \
-  (SERIALIZED_POINT *)PG_DETOAST_DATUM(PG_GETARG_DATUM(argnum))
+  (SERIALIZED_POINT *) PG_DETOAST_DATUM(PG_GETARG_DATUM(argnum))
 #define PG_GETARG_SERPATCH_P(argnum)                                           \
-  (SERIALIZED_PATCH *)PG_DETOAST_DATUM(PG_GETARG_DATUM(argnum))
+  (SERIALIZED_PATCH *) PG_DETOAST_DATUM(PG_GETARG_DATUM(argnum))
 
 #define PG_GETHEADER_SERPATCH_P(argnum)                                        \
-  (SERIALIZED_PATCH *)PG_DETOAST_DATUM_SLICE(PG_GETARG_DATUM(argnum), 0,       \
-                                             sizeof(SERIALIZED_PATCH))
+  (SERIALIZED_PATCH *) PG_DETOAST_DATUM_SLICE(PG_GETARG_DATUM(argnum), 0,      \
+                                              sizeof(SERIALIZED_PATCH))
 
 #define PG_GETHEADERX_SERPATCH_P(argnum, extra)                                \
-  (SERIALIZED_PATCH *)PG_DETOAST_DATUM_SLICE(PG_GETARG_DATUM(argnum), 0,       \
-                                             sizeof(SERIALIZED_PATCH) + extra)
+  (SERIALIZED_PATCH *) PG_DETOAST_DATUM_SLICE(                                 \
+      PG_GETARG_DATUM(argnum), 0, sizeof(SERIALIZED_PATCH) + extra)
 
 #define PG_GETHEADER_STATS_P(argnum, statsize)                                 \
-  (uint8_t *)(((SERIALIZED_PATCH *)PG_DETOAST_DATUM_SLICE(                     \
-                   PG_GETARG_DATUM(argnum), 0,                                 \
-                   sizeof(SERIALIZED_PATCH) + statsize))                       \
-                  ->data)
+  (uint8_t *)(                                                                 \
+      ((SERIALIZED_PATCH *)PG_DETOAST_DATUM_SLICE(                             \
+           PG_GETARG_DATUM(argnum), 0, sizeof(SERIALIZED_PATCH) + statsize))   \
+          ->data)
 
 #define AUTOCOMPRESS_NO 0
 #define AUTOCOMPRESS_YES 1
