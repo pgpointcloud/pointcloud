@@ -1018,7 +1018,7 @@ int32 pg_atoi(const char *s, int size, int c)
         /* won't get ERANGE on these with 64-bit longs... */
         || l < INT_MIN || l > INT_MAX
 #endif
-        )
+    )
       elog(ERROR, "value \"%s\" is out of range for type %s", s, "integer");
     break;
   case sizeof(int16):
