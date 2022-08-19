@@ -398,9 +398,6 @@ Datum pc_typmod_in(PG_FUNCTION_ARGS)
   {
     if (i == 0) /* PCID */
     {
-      // char *s = DatumGetCString(elem_values[i]);
-      // typmod = pg_atoi(s, sizeof(int32), '\0');
-
       char *s = DatumGetCString(elem_values[i]);
       char *endp;
 
