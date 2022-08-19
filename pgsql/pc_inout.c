@@ -412,7 +412,7 @@ Datum pc_typmod_in(PG_FUNCTION_ARGS)
                 (errcode(ERRCODE_INVALID_TEXT_REPRESENTATION),
                  errmsg("invalid input syntax for type uint32: \"%s\"", s)));
 
-      if (errno == ERANGE || typmod < INT_MIN || typmod > INT_MAX)
+      if (errno == ERANGE || typmod < 0 || typmod > UINT_MAX)
         ereport(ERROR,
                 (errcode(ERRCODE_NUMERIC_VALUE_OUT_OF_RANGE),
                  errmsg("value \"%s\" is out of range for type uint32", s)));
