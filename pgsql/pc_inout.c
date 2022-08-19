@@ -405,22 +405,22 @@ Datum pc_typmod_in(PG_FUNCTION_ARGS)
       char *endp;
 
       errno = 0;
-      typmod = (uint32) strtol(s, &endp, 10);
+      typmod = (uint32)strtol(s, &endp, 10);
 
       if (s == endp)
-        ereport(ERROR, (errcode(ERRCODE_INVALID_TEXT_REPRESENTATION),
-                        errmsg("invalid input syntax for type uint32: \"%s\"",
-                                s)));
+        ereport(ERROR,
+                (errcode(ERRCODE_INVALID_TEXT_REPRESENTATION),
+                 errmsg("invalid input syntax for type uint32: \"%s\"", s)));
 
       if (errno == ERANGE || typmod < INT_MIN || typmod > INT_MAX)
-        ereport(ERROR, (errcode(ERRCODE_NUMERIC_VALUE_OUT_OF_RANGE),
-                        errmsg("value \"%s\" is out of range for type uint32",
-                               s)));
+        ereport(ERROR,
+                (errcode(ERRCODE_NUMERIC_VALUE_OUT_OF_RANGE),
+                 errmsg("value \"%s\" is out of range for type uint32", s)));
 
       if (*endp != '\0')
-        ereport(ERROR, (errcode(ERRCODE_INVALID_TEXT_REPRESENTATION),
-                        errmsg("invalid input syntax for type uint32: \"%s\"",
-                               s)));
+        ereport(ERROR,
+                (errcode(ERRCODE_INVALID_TEXT_REPRESENTATION),
+                 errmsg("invalid input syntax for type uint32: \"%s\"", s)));
     }
   }
 
