@@ -14,6 +14,7 @@
 
 #include "access/hash.h"
 #include "access/heapam.h"
+#include "access/sysattr.h"
 #include "catalog/indexing.h"
 #include "catalog/namespace.h"
 #include "catalog/pg_extension.h"
