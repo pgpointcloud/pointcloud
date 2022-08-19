@@ -14,16 +14,16 @@
 
 #include "access/hash.h"
 #include "access/table.h"
+#include "catalog/indexing.h"
+#include "catalog/namespace.h"
+#include "catalog/pg_extension.h"
+#include "commands/extension.h"
 #include "executor/spi.h"
-#include "utils/regproc.h"
+#include "utils/fmgroids.h"
 #include "utils/hsearch.h"
 #include "utils/lsyscache.h"
 #include "utils/memutils.h"
-#include "utils/fmgroids.h"
-#include "catalog/indexing.h"
-#include "catalog/namespace.h"
-#include "commands/extension.h"
-#include "catalog/pg_extension.h"
+#include "utils/regproc.h"
 
 #include <assert.h>
 
@@ -124,11 +124,13 @@ void pointcloud_init_constants_cache(void)
    * statement */
   pc_constants_cache = MemoryContextAlloc(context, sizeof(PC_CONSTANTS));
 
-  pc_constants_cache->schema = MemoryContextStrdup(CacheMemoryContext, nsp_name);
+  pc_constants_cache->schema =
+      MemoryContextStrdup(CacheMemoryContext, nsp_name);
 
   pc_constants_cache->formats =
       MemoryContextStrdup(CacheMemoryContext, "pointcloud_formats");
-  pc_constants_cache->formats_srid = MemoryContextStrdup(CacheMemoryContext, "srid");
+  pc_constants_cache->formats_srid =
+      MemoryContextStrdup(CacheMemoryContext, "srid");
   pc_constants_cache->formats_schema =
       MemoryContextStrdup(CacheMemoryContext, "schema");
 }
@@ -348,11 +350,11 @@ PCSCHEMA *pc_schema_from_pcid_uncached(uint32 pcid)
     return NULL;
   }
 
-  formats =
-      quote_qualified_identifier(pc_constants_cache->schema, pc_constants_cache->formats);
+  formats = quote_qualified_identifier(pc_constants_cache->schema,
+                                       pc_constants_cache->formats);
   sprintf(sql, "select %s, %s from %s where pcid = %d",
-          pc_constants_cache->formats_schema, pc_constants_cache->formats_srid, formats,
-          pcid);
+          pc_constants_cache->formats_schema, pc_constants_cache->formats_srid,
+          formats, pcid);
   err = SPI_exec(sql, 1);
 
   if (err < 0)
