@@ -15,11 +15,16 @@
 #include "access/hash.h"
 #include "access/heapam.h"
 #include "access/sysattr.h"
+#include "access/htup_details.h"
+
 #include "catalog/indexing.h"
 #include "catalog/namespace.h"
 #include "catalog/pg_extension.h"
+
 #include "commands/extension.h"
+
 #include "executor/spi.h"
+
 #include "utils/fmgroids.h"
 #include "utils/hsearch.h"
 #include "utils/lsyscache.h"
