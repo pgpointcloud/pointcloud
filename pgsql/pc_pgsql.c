@@ -13,44 +13,122 @@
 #include "pc_pgsql.h"
 
 #include "access/hash.h"
+#include "access/table.h"
 #include "executor/spi.h"
+#include "utils/regproc.h"
 #include "utils/hsearch.h"
 #include "utils/lsyscache.h"
 #include "utils/memutils.h"
+#include "utils/fmgroids.h"
+#include "catalog/namespace.h"
+#include "commands/extension.h"
+#include "catalog/pg_extension.h"
 
 #include <assert.h>
 
 PG_MODULE_MAGIC;
 
 /**********************************************************************************
- * Pointcloud constants
+ * Pointcloud constants cache (mainly based on PostGIS source code)
  */
 
-static PC_CONSTANTS *pc_constants = NULL;
+static PC_CONSTANTS *pc_constants_cache = NULL;
 
-static void
-#if PGSQL_VERSION < 120
-pointcloud_initialize_cache(FunctionCallInfoData *fcinfo)
-#else
-pointcloud_initialize_cache(FunctionCallInfo fcinfo)
-#endif
+static Oid pointcloud_get_full_version_schema()
 {
-  Oid nsp_oid;
-  char *nsp_name;
+  const char *proname = "pointcloud_full_version";
+  List *names = stringToQualifiedNameList(proname);
+#if PGSQL_VERSION < 140
+  FuncCandidateList clist =
+      FuncnameGetCandidates(names, -1, NIL, false, false, false);
+#else
+  FuncCandidateList clist =
+      FuncnameGetCandidates(names, -1, NIL, false, false, false, false);
+#endif
+  if (!clist)
+    return InvalidOid;
 
-  if (pc_constants)
+  return get_func_namespace(clist->oid);
+}
+
+static Oid pointcloud_get_extension_schema(Oid ext_oid)
+{
+  Oid result;
+  SysScanDesc scandesc;
+  HeapTuple tuple;
+  ScanKeyData entry[1];
+
+#if PGSQL_VERSION < 120
+  Relation rel = heap_open(ExtensionRelationId, AccessShareLock);
+  ScanKeyInit(&entry[0], ObjectIdAttributeNumber, BTEqualStrategyNumber,
+              F_OIDEQ, ObjectIdGetDatum(ext_oid));
+#else
+  Relation rel = table_open(ExtensionRelationId, AccessShareLock);
+  ScanKeyInit(&entry[0], Anum_pg_extension_oid, BTEqualStrategyNumber, F_OIDEQ,
+              ObjectIdGetDatum(ext_oid));
+#endif
+
+  scandesc = systable_beginscan(rel, ExtensionOidIndexId, true, NULL, 1, entry);
+
+  tuple = systable_getnext(scandesc);
+
+  /* We assume that there can be at most one matching tuple */
+  if (HeapTupleIsValid(tuple))
+    result = ((Form_pg_extension)GETSTRUCT(tuple))->extnamespace;
+  else
+    result = InvalidOid;
+
+  systable_endscan(scandesc);
+
+#if PGSQL_VERSION < 120
+  heap_close(rel, AccessShareLock);
+#else
+  table_close(rel, AccessShareLock);
+#endif
+
+  return result;
+}
+
+void pointcloud_init_constants_cache(void)
+{
+  char *nsp_name;
+  Oid ext_oid;
+  Oid nsp_oid = InvalidOid;
+  MemoryContext context;
+
+  if (pc_constants_cache)
     return;
 
-  pc_constants = MemoryContextAlloc(CacheMemoryContext, sizeof(PC_CONSTANTS));
+  ext_oid = get_extension_oid("pointcloud", true);
+  if (ext_oid != InvalidOid)
+  {
+    nsp_oid = pointcloud_get_extension_schema(ext_oid);
+  }
+  else
+  {
+    nsp_oid = pointcloud_get_full_version_schema();
+  }
 
-  nsp_oid = get_func_namespace(fcinfo->flinfo->fn_oid);
+  /* early exit if we cannot lookup nsp_name */
+  if (nsp_oid == InvalidOid)
+    elog(ERROR, "Unable to determine 'pointcloud' install schema");
+
   nsp_name = get_namespace_name(nsp_oid);
-  pc_constants->schema = MemoryContextStrdup(CacheMemoryContext, nsp_name);
 
-  pc_constants->formats =
+  /* Put constants cache in a child of the CacheContext */
+  context = AllocSetContextCreate(
+      CacheMemoryContext, "Pointcloud Constants Context", ALLOCSET_SMALL_SIZES);
+
+  /* Allocate in the CacheContext so we don't lose this at the end of the
+   * statement */
+  pc_constants_cache = MemoryContextAlloc(context, sizeof(PC_CONSTANTS));
+
+  pc_constants_cache->schema = MemoryContextStrdup(CacheMemoryContext, nsp_name);
+
+  pc_constants_cache->formats =
       MemoryContextStrdup(CacheMemoryContext, "pointcloud_formats");
-  pc_constants->formats_srid = MemoryContextStrdup(CacheMemoryContext, "srid");
-  pc_constants->formats_schema =
+  pc_constants_cache->formats_srid = MemoryContextStrdup(CacheMemoryContext, "srid");
+  pc_constants_cache->formats_schema =
       MemoryContextStrdup(CacheMemoryContext, "schema");
 }
 
@@ -263,16 +341,16 @@ PCSCHEMA *pc_schema_from_pcid_uncached(uint32 pcid)
     return NULL;
   }
 
-  if (!pc_constants)
+  if (!pc_constants_cache)
   {
-    elog(ERROR, "%s: constants are not initialized", __func__);
+    elog(ERROR, "%s: constants cache is not initialized", __func__);
     return NULL;
   }
 
   formats =
-      quote_qualified_identifier(pc_constants->schema, pc_constants->formats);
+      quote_qualified_identifier(pc_constants_cache->schema, pc_constants_cache->formats);
   sprintf(sql, "select %s, %s from %s where pcid = %d",
-          pc_constants->formats_schema, pc_constants->formats_srid, formats,
+          pc_constants_cache->formats_schema, pc_constants_cache->formats_srid, formats,
           pcid);
   err = SPI_exec(sql, 1);
 
@@ -396,7 +474,7 @@ pc_schema_from_pcid(uint32 pcid, FunctionCallInfo fcinfo)
 
   /* Not in there, load one the old-fashioned way. */
   oldcontext = MemoryContextSwitchTo(fcinfo->flinfo->fn_mcxt);
-  pointcloud_initialize_cache(fcinfo);
+  pointcloud_init_constants_cache();
   schema = pc_schema_from_pcid_uncached(pcid);
   MemoryContextSwitchTo(oldcontext);
 

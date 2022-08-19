@@ -152,3 +152,5 @@ uint8_t *pc_patch_to_geometry_wkb_envelope(const SERIALIZED_PATCH *pa,
 uint32 pcid_from_datum(Datum d);
 
 PCSTATS *pc_patch_stats_deserialize(const PCSCHEMA *schema, const uint8_t *buf);
+
+void pointcloud_init_constants_cache(void);
