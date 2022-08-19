@@ -79,6 +79,39 @@ This command will create a database named ``contrib_regression`` and will execut
 the SQL scripts located in ``pgsql/sql`` in this database.
 
 ------------------------------------------------------------------------------
+Debug memory issues
+------------------------------------------------------------------------------
+
+For checking the memory management of pgPointcloud extension, ``Valgrind`` can
+be used with ``PostgreSQL`` in single-user mode.
+
+But first, it's necessary to compile the extension with debug symbols and
+without compiler optimizations:
+
+.. code-block:: bash
+
+  $ ./configure CFLAGS="-Wall -Werror -O0 -g"
+  $ make
+  $ sudo make install
+
+Debug symbols may also be installed for PostgreSQL and PostGIS. For example
+for Debian based distributions with PostgreSQL 13 and PostGIS 3:
+
+.. code-block:: bash
+
+  $ sudo apt-get install postgresql-13-dbgsym postgresql-13-postgis-3-dbgsym
+
+And finally:
+
+.. code-block:: bash
+
+  $ echo "select pc_transform(patch, 1) from patchs limit 1" | \
+  valgrind -s --track-origins=yes --leak-check=yes \
+  --show-leak-kinds=all --read-var-info=yes --log-file=/tmp/valgrindlog \
+  /usr/lib/postgresql/13/bin/postgres --single -D /var/lib/postgresql/13/main \
+  -c config_file=/etc/postgresql/13/main/postgresql.conf mydatabase
+
+------------------------------------------------------------------------------
 Write a loading system
 ------------------------------------------------------------------------------
 
