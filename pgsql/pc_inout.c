@@ -9,6 +9,8 @@
  *
  ***********************************************************************/
 
+#include "limits.h"
+
 #include "pc_pgsql.h" /* Common PgSQL support for our type */
 
 /* In/out functions */
@@ -396,8 +398,29 @@ Datum pc_typmod_in(PG_FUNCTION_ARGS)
   {
     if (i == 0) /* PCID */
     {
+      // char *s = DatumGetCString(elem_values[i]);
+      // typmod = pg_atoi(s, sizeof(int32), '\0');
+
       char *s = DatumGetCString(elem_values[i]);
-      typmod = pg_atoi(s, sizeof(int32), '\0');
+      char *endp;
+
+      errno = 0;
+      typmod = (uint32) strtol(s, &endp, 10);
+
+      if (s == endp)
+        ereport(ERROR, (errcode(ERRCODE_INVALID_TEXT_REPRESENTATION),
+                        errmsg("invalid input syntax for type uint32: \"%s\"",
+                                s)));
+
+      if (errno == ERANGE || typmod < INT_MIN || typmod > INT_MAX)
+        ereport(ERROR, (errcode(ERRCODE_NUMERIC_VALUE_OUT_OF_RANGE),
+                        errmsg("value \"%s\" is out of range for type uint32",
+                               s)));
+
+      if (*endp != '\0')
+        ereport(ERROR, (errcode(ERRCODE_INVALID_TEXT_REPRESENTATION),
+                        errmsg("invalid input syntax for type uint32: \"%s\"",
+                               s)));
     }
   }
 
