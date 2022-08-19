@@ -13,7 +13,7 @@
 #include "pc_pgsql.h"
 
 #include "access/hash.h"
-#include "access/table.h"
+#include "access/heapam.h"
 #include "catalog/indexing.h"
 #include "catalog/namespace.h"
 #include "catalog/pg_extension.h"
