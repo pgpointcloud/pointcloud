@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Development &mdash; pgpointcloud</title>
@@ -66,6 +66,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#requirements">Requirements</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#build-install">Build/Install</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#tests">Tests</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#debug-memory-issues">Debug memory issues</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#write-a-loading-system">Write a loading system</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#documentation">Documentation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#docker-image">Docker Image</a></li>
@@ -163,6 +164,31 @@ $ <span class="nv">PGUSER</span><span class="o">=</span>a_user <span class="nv">
 </div>
 <p>This command will create a database named <code class="docutils literal notranslate"><span class="pre">contrib_regression</span></code> and will execute
 the SQL scripts located in <code class="docutils literal notranslate"><span class="pre">pgsql/sql</span></code> in this database.</p>
+</section>
+<section id="debug-memory-issues">
+<h2>Debug memory issues<a class="headerlink" href="#debug-memory-issues" title="Permalink to this heading"></a></h2>
+<p>For checking the memory management of pgPointcloud extension, <code class="docutils literal notranslate"><span class="pre">Valgrind</span></code> can
+be used with <code class="docutils literal notranslate"><span class="pre">PostgreSQL</span></code> in single-user mode.</p>
+<p>But first, it’s necessary to compile the extension with debug symbols and
+without compiler optimizations:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ ./configure <span class="nv">CFLAGS</span><span class="o">=</span><span class="s2">&quot;-Wall -Werror -O0 -g&quot;</span>
+$ make
+$ sudo make install
+</pre></div>
+</div>
+<p>Debug symbols may also be installed for PostgreSQL and PostGIS. For example
+for Debian based distributions with PostgreSQL 13 and PostGIS 3:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ sudo apt-get install postgresql-13-dbgsym postgresql-13-postgis-3-dbgsym
+</pre></div>
+</div>
+<p>And finally:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ <span class="nb">echo</span> <span class="s2">&quot;select pc_transform(patch, 1) from patchs limit 1&quot;</span> <span class="p">|</span> <span class="se">\</span>
+valgrind -s --track-origins<span class="o">=</span>yes --leak-check<span class="o">=</span>yes <span class="se">\</span>
+--show-leak-kinds<span class="o">=</span>all --read-var-info<span class="o">=</span>yes --log-file<span class="o">=</span>/tmp/valgrindlog <span class="se">\</span>
+/usr/lib/postgresql/13/bin/postgres --single -D /var/lib/postgresql/13/main <span class="se">\</span>
+-c <span class="nv">config_file</span><span class="o">=</span>/etc/postgresql/13/main/postgresql.conf mydatabase
+</pre></div>
+</div>
 </section>
 <section id="write-a-loading-system">
 <h2>Write a loading system<a class="headerlink" href="#write-a-loading-system" title="Permalink to this heading"></a></h2>
