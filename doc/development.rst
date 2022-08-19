@@ -168,21 +168,23 @@ Continuous Integration
 pgPointcloud tests are run with `Github Actions`_ on several Ubuntu versions
 and with various PostgreSQL/PostGIS releases:
 
-+---------------+-----------------------+------------------------+
-|               | PostGIS 2.5           | PostGIS 3.2            |
-+---------------+-----------------------+------------------------+
-| PostgreSQL 10 | |10_25_bionic|        |                        |
-+---------------+-----------------------+------------------------+
-| PostgreSQL 11 | |11_25_bionic|        |                        |
-+---------------+-----------------------+------------------------+
-| PostgreSQL 12 | |12_25_bionic|        | |12_32_bionic|         |
-|               |                       |                        |
-|               |                       | |12_32_focal|          |
-+---------------+-----------------------+------------------------+
-| PostgreSQL 13 |                       | |13_32_focal|          |
-+---------------+-----------------------+------------------------+
-| PostgreSQL 14 |                       | |14_32_focal|          |
-+---------------+-----------------------+------------------------+
++--------------------+-----------------------+------------------------+
+|                    | PostGIS 2.5           | PostGIS 3.2            |
++--------------------+-----------------------+------------------------+
+| PostgreSQL 10      | |10_25_bionic|        |                        |
++--------------------+-----------------------+------------------------+
+| PostgreSQL 11      | |11_25_bionic|        |                        |
++--------------------+-----------------------+------------------------+
+| PostgreSQL 12      | |12_25_bionic|        | |12_32_bionic|         |
+|                    |                       |                        |
+|                    |                       | |12_32_focal|          |
++--------------------+-----------------------+------------------------+
+| PostgreSQL 13      |                       | |13_32_focal|          |
++--------------------+-----------------------+------------------------+
+| PostgreSQL 14      |                       | |14_32_focal|          |
++--------------------+-----------------------+------------------------+
+| PostgreSQL 15 Beta |                       | |15_32_focal|          |
++--------------------+-----------------------+------------------------+
 
 .. |10_25_bionic| image:: https://img.shields.io/github/workflow/status/pgpointcloud/pointcloud/%5Bubuntu-18.04%5D%20PostgreSQL%2010%20and%20PostGIS%202.5?label=Ubuntu%2018.04&logo=github&style=plastic :target: https://github.com/pgpointcloud/pointcloud/actions?query=workflow%3A%22%5Bubuntu-18.04%5D+PostgreSQL+10+and+PostGIS+2.5%22
 
@@ -197,6 +199,8 @@ and with various PostgreSQL/PostGIS releases:
 .. |13_32_focal| image:: https://img.shields.io/github/workflow/status/pgpointcloud/pointcloud/%5Bubuntu-20.04%5D%20PostgreSQL%2013%20and%20PostGIS%203.2?label=Ubuntu%2020.04&logo=github&style=plastic :target: https://github.com/pgpointcloud/pointcloud/actions?query=workflow%3A%22%5Bubuntu-20.04%5D+PostgreSQL+13+and+PostGIS+3.2%22
 
 .. |14_32_focal| image:: https://img.shields.io/github/workflow/status/pgpointcloud/pointcloud/%5Bubuntu-20.04%5D%20PostgreSQL%2014%20and%20PostGIS%203.2?label=Ubuntu%2020.04&logo=github&style=plastic :target: https://github.com/pgpointcloud/pointcloud/actions?query=workflow%3A%22%5Bubuntu-20.04%5D+PostgreSQL+14+and+PostGIS+3.2%22
+
+.. |15_32_focal| image:: https://img.shields.io/github/workflow/status/pgpointcloud/pointcloud/%5Bubuntu-20.04%5D%20PostgreSQL%2015%20and%20PostGIS%203.2?label=Ubuntu%2020.04&logo=github&style=plastic :target: https://github.com/pgpointcloud/pointcloud/actions?query=workflow%3A%22%5Bubuntu-20.04%5D+PostgreSQL+15+and+PostGIS+3.2%22
 
 .. _`source`: https://github.com/hobu/laz-perf
 .. _`DockerHub`: https://hub.docker.com/_/postgres
