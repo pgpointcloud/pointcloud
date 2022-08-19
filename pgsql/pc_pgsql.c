@@ -20,6 +20,7 @@
 #include "utils/lsyscache.h"
 #include "utils/memutils.h"
 #include "utils/fmgroids.h"
+#include "catalog/indexing.h"
 #include "catalog/namespace.h"
 #include "commands/extension.h"
 #include "catalog/pg_extension.h"
