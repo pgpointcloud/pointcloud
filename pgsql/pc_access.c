@@ -580,8 +580,13 @@ Datum pcpatch_unnest(PG_FUNCTION_ARGS)
      * passed array will stick around till then.)
      */
     serpatch = PG_GETARG_SERPATCH_P(0);
+
+    /* The schema cache is not initialized at that time but we need the
+     * constants cache
+     */
+    pointcloud_init_constants_cache();
     patch = pc_patch_deserialize(serpatch,
-                                 pc_schema_from_pcid(serpatch->pcid, fcinfo));
+                                 pc_schema_from_pcid_uncached(serpatch->pcid));
 
     /* allocate memory for user context */
     fctx = (pcpatch_unnest_fctx *)palloc(sizeof(pcpatch_unnest_fctx));
