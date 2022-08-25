@@ -103,12 +103,14 @@ pc_patch_dimensional_compress(const PCPATCH_DIMENSIONAL *pdl,
                               PCDIMSTATS *pds_in)
 {
   int i;
-  int ndims = pdl->schema->ndims;
+  int ndims;
   PCPATCH_DIMENSIONAL *pdl_compressed;
   PCDIMSTATS *pds = pds_in;
 
   assert(pdl);
   assert(pdl->schema);
+
+  ndims = pdl->schema->ndims;
 
   if (!pds)
     pds = pc_dimstats_make(pdl->schema);

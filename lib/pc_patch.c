@@ -127,6 +127,11 @@ PCPATCH *pc_patch_compress(const PCPATCH *patch, void *userdata)
       /* Dimensionalize, dimensionally compress, return */
       PCPATCH_DIMENSIONAL *pcdu =
           pc_patch_dimensional_from_uncompressed((PCPATCH_UNCOMPRESSED *)patch);
+      if (!pcdu)
+      {
+        pcerror("%s: dimensional compression failed", __func__);
+      }
+
       PCPATCH_DIMENSIONAL *pcdd =
           pc_patch_dimensional_compress(pcdu, (PCDIMSTATS *)userdata);
       pc_patch_dimensional_free(pcdu);
