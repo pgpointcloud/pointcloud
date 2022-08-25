@@ -79,39 +79,6 @@ This command will create a database named ``contrib_regression`` and will execut
 the SQL scripts located in ``pgsql/sql`` in this database.
 
 ------------------------------------------------------------------------------
-Debug memory issues
-------------------------------------------------------------------------------
-
-For checking the memory management of pgPointcloud extension, ``Valgrind`` can
-be used with ``PostgreSQL`` in single-user mode.
-
-But first, it's necessary to compile the extension with debug symbols and
-without compiler optimizations:
-
-.. code-block:: bash
-
-  $ ./configure CFLAGS="-Wall -Werror -O0 -g"
-  $ make
-  $ sudo make install
-
-Debug symbols may also be installed for PostgreSQL and PostGIS. For example
-for Debian based distributions with PostgreSQL 13 and PostGIS 3:
-
-.. code-block:: bash
-
-  $ sudo apt-get install postgresql-13-dbgsym postgresql-13-postgis-3-dbgsym
-
-And finally:
-
-.. code-block:: bash
-
-  $ echo "select pc_transform(patch, 1) from patchs limit 1" | \
-  valgrind -s --track-origins=yes --leak-check=yes \
-  --show-leak-kinds=all --read-var-info=yes --log-file=/tmp/valgrindlog \
-  /usr/lib/postgresql/13/bin/postgres --single -D /var/lib/postgresql/13/main \
-  -c config_file=/etc/postgresql/13/main/postgresql.conf mydatabase
-
-------------------------------------------------------------------------------
 Write a loading system
 ------------------------------------------------------------------------------
 
@@ -135,6 +102,7 @@ Sphinx is used to build the documentation. For that, you have to install the
 next Python packages:
 
 - ``sphinx``
+- ``sphinx_rtd_theme``
 
 Then:
 
@@ -227,3 +195,67 @@ Steps for releasing a new version of Pointcloud:
 
   $ git tag -a vx.y.z -m 'version x.y.z'
   $ git push origin vx.y.z
+
+------------------------------------------------------------------------------
+Valgrind memcheck
+------------------------------------------------------------------------------
+
+For checking the memory management of pgPointcloud extension, ``Valgrind`` can
+be used with ``PostgreSQL`` in single-user mode.
+
+But first, it's necessary to compile the extension with debug symbols and
+without compiler optimizations:
+
+.. code-block:: console
+
+  $ ./configure CFLAGS="-O0 -g"
+  $ make
+  $ sudo make install
+
+Debug symbols may also be installed for PostgreSQL and PostGIS. For example
+for Debian based distributions with PostgreSQL 13 and PostGIS 3:
+
+.. code-block:: console
+
+  $ sudo apt-get install postgresql-13-dbgsym postgresql-13-postgis-3-dbgsym
+
+And finally:
+
+.. code-block:: console
+
+  $ echo "select pc_transform(patch, 1) from patchs limit 1" | \
+    valgrind -s --track-origins=yes --leak-check=yes \
+      --show-leak-kinds=all --read-var-info=yes --log-file=/tmp/valgrind.log \
+      /usr/lib/postgresql/13/bin/postgres --single -D /var/lib/postgresql/13/main \
+      -c config_file=/etc/postgresql/13/main/postgresql.conf \
+      mydatabase
+
+Then Valgrind's report is available in ``/tmp/valgrind.log``.
+
+------------------------------------------------------------------------------
+GDB interactive mode
+------------------------------------------------------------------------------
+
+GDB may be attached to a running session for debugging purpose:
+
+.. code-block:: console
+
+  $ psql mydatabase
+  psql (14.5)
+  Type "help" for help.
+
+  mydatabase=# select pid from pg_stat_activity where usename = 'pblottiere' and state = 'active';
+    pid
+  -------
+   34699
+  (1 row)
+
+
+.. code-block:: console
+
+  $ sudo gdb -p 34699
+  GNU gdb (GDB) 12.1
+  (gdb)
+
+Then you can execute a SQL request in the corresponding session and use GDB as
+usual (step by step, backtrace, ...).
