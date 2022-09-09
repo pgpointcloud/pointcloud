@@ -85,6 +85,7 @@ Datum pcpatch_setpcid(PG_FUNCTION_ARGS)
 PG_FUNCTION_INFO_V1(pcpatch_transform);
 Datum pcpatch_transform(PG_FUNCTION_ARGS)
 {
+  PCPATCH *patch, *paout;
   SERIALIZED_PATCH *serpatch;
   SERIALIZED_PATCH *serpa = PG_GETARG_SERPATCH_P(0);
   int32 pcid = PG_GETARG_INT32(1);
@@ -92,33 +93,19 @@ Datum pcpatch_transform(PG_FUNCTION_ARGS)
   PCSCHEMA *oschema = pc_schema_from_pcid(serpa->pcid, fcinfo);
   PCSCHEMA *nschema = pc_schema_from_pcid(pcid, fcinfo);
 
-  // fast path to setpcid if no data transformation is required
+  patch = pc_patch_deserialize(serpa, oschema);
+  if (!patch)
+    PG_RETURN_NULL();
 
-  if (pc_schema_same_interpretations(oschema, nschema))
-  {
-    serpatch = pcpatch_set_schema(serpa, oschema, nschema, def);
-    if (!serpatch)
-      PG_RETURN_NULL();
-    PG_RETURN_POINTER(serpatch);
-  }
-  else
-  {
-    PCPATCH *patch, *paout;
+  paout = pc_patch_transform(patch, nschema, def);
 
-    patch = pc_patch_deserialize(serpa, oschema);
-    if (!patch)
-      PG_RETURN_NULL();
+  pc_patch_free(patch);
 
-    paout = pc_patch_transform(patch, nschema, def);
+  if (!paout)
+    PG_RETURN_NULL();
 
-    pc_patch_free(patch);
+  serpatch = pc_patch_serialize(paout, NULL);
+  pc_patch_free(paout);
 
-    if (!paout)
-      PG_RETURN_NULL();
-
-    serpatch = pc_patch_serialize(paout, NULL);
-    pc_patch_free(paout);
-
-    PG_RETURN_POINTER(serpatch);
-  }
+  PG_RETURN_POINTER(serpatch);
 }
