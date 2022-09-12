@@ -13,14 +13,15 @@ Download
 Current Release(s)
 ------------------------------------------------------------------------------
 
-* **10-05-2022** `pointcloud-1.2.2.tar.gz`_ (`Release Notes`_)
+* **12-09-2022** `pointcloud-1.2.3.tar.gz`_ (`Release Notes`_)
 
-.. _`Release Notes`: https://github.com/pgpointcloud/pointcloud/blob/v1.2.2/NEWS
+.. _`Release Notes`: https://github.com/pgpointcloud/pointcloud/blob/v1.2.3/NEWS
 
 
 Past Releases
 ------------------------------------------------------------------------------
 
+* **10-05-2022** `pointcloud-1.2.2.tar.gz`_
 * **01-07-2020** `pointcloud-1.2.1.tar.gz`_
 * **22-08-2018** `pointcloud-1.2.0.tar.gz`_
 * **18-06-2018** `pointcloud-1.1.1.tar.gz`_
@@ -28,6 +29,7 @@ Past Releases
 * **30-04-2018** `pointcloud-1.0.1.tar.gz`_
 * **23-10-2013** `pointcloud-0.1.0.tar.gz`_
 
+.. _`pointcloud-1.2.3.tar.gz`: https://github.com/pgpointcloud/pointcloud/archive/v1.2.3.tar.gz
 .. _`pointcloud-1.2.2.tar.gz`: https://github.com/pgpointcloud/pointcloud/archive/v1.2.2.tar.gz
 .. _`pointcloud-1.2.1.tar.gz`: https://github.com/pgpointcloud/pointcloud/archive/v1.2.1.tar.gz
 .. _`pointcloud-1.2.0.tar.gz`: https://github.com/pgpointcloud/pointcloud/archive/v1.2.0.tar.gz
