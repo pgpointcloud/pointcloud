@@ -8,7 +8,7 @@ SED = sed
 EXTENSION = pointcloud_postgis
 EXTVERSION=$(shell cat ../Version.config)
 
-UPGRADABLE = 1.1.0 1.1.1 1.2.0 1.2.1 1.2.2
+UPGRADABLE = 1.1.0 1.1.1 1.2.0 1.2.1 1.2.2 1.2.3
 UPGRADES = \
   $(shell echo $(UPGRADABLE) | \
      $(SED) 's/^/$(EXTENSION)--/' | \
