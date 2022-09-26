@@ -34,7 +34,7 @@
             <a href="index.html" class="icon icon-home"> pgPointcloud
           </a>
               <div class="version">
-                1.2.3
+                1.2.4
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -253,11 +253,11 @@ and with various PostgreSQL/PostGIS releases:</p>
 <ol class="arabic simple">
 <li><p>Add a new section to the <code class="docutils literal notranslate"><span class="pre">NEWS</span></code> file, listing all the changes associated
 with the new release.</p></li>
-<li><p>Change the version number in the <code class="docutils literal notranslate"><span class="pre">Version.config</span></code> and
+<li><p>Change the version number in the <code class="docutils literal notranslate"><span class="pre">README</span></code>, <code class="docutils literal notranslate"><span class="pre">Version.config</span></code> and
 <code class="docutils literal notranslate"><span class="pre">pgsql/expected/pointcloud.out</span></code> files.</p></li>
-<li><p>Update the value of <code class="docutils literal notranslate"><span class="pre">UPGRADABLE</span></code> in <code class="docutils literal notranslate"><span class="pre">pgsql/Makefile.in</span></code>. This variable
-defines the versions from which a database can be upgraded to the new
-Pointcloud version.</p></li>
+<li><p>Update the value of <code class="docutils literal notranslate"><span class="pre">UPGRADABLE</span></code> in <code class="docutils literal notranslate"><span class="pre">pgsql/Makefile.in</span></code> and
+<code class="docutils literal notranslate"><span class="pre">pgsql_postgis/Makefile</span></code>. This variable defines the versions from which a
+database can be upgraded to the new Pointcloud version.</p></li>
 <li><p>Create a PR with these changes.</p></li>
 <li><p>When the PR is merged create a tag for the new release and push it to
 GitHub:</p></li>
