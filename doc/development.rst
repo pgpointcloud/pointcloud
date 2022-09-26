@@ -151,7 +151,7 @@ and with various PostgreSQL/PostGIS releases:
 +--------------------+-----------------------+------------------------+
 | PostgreSQL 14      |                       | |14_32_focal|          |
 +--------------------+-----------------------+------------------------+
-| PostgreSQL 15 Beta |                       | |15_32_focal|          |
+| PostgreSQL 15      |                       | |15_32_focal|          |
 +--------------------+-----------------------+------------------------+
 
 .. |10_25_bionic| image:: https://img.shields.io/github/workflow/status/pgpointcloud/pointcloud/%5Bubuntu-18.04%5D%20PostgreSQL%2010%20and%20PostGIS%202.5?label=Ubuntu%2018.04&logo=github&style=plastic :target: https://github.com/pgpointcloud/pointcloud/actions?query=workflow%3A%22%5Bubuntu-18.04%5D+PostgreSQL+10+and+PostGIS+2.5%22
