@@ -183,12 +183,12 @@ Steps for releasing a new version of Pointcloud:
 1. Add a new section to the ``NEWS`` file, listing all the changes associated
    with the new release.
 
-2. Change the version number in the ``Version.config`` and
+2. Change the version number in the ``README``, ``Version.config`` and
    ``pgsql/expected/pointcloud.out`` files.
 
-3. Update the value of ``UPGRADABLE`` in ``pgsql/Makefile.in``. This variable
-   defines the versions from which a database can be upgraded to the new
-   Pointcloud version.
+3. Update the value of ``UPGRADABLE`` in ``pgsql/Makefile.in`` and
+   ``pgsql_postgis/Makefile``. This variable defines the versions from which a
+   database can be upgraded to the new Pointcloud version.
 
 4. Create a PR with these changes.
 

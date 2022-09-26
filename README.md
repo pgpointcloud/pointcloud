@@ -2,7 +2,7 @@
 
 [![Release][release-image]][releases]
 
-[release-image]: https://img.shields.io/badge/release-1.2.3-green.svg?style=plastic
+[release-image]: https://img.shields.io/badge/release-1.2.4-green.svg?style=plastic
 [releases]: https://github.com/pgpointcloud/pointcloud/releases
 
 A PostgreSQL extension for storing point cloud (LIDAR) data. See
