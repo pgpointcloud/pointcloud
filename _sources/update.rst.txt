@@ -21,8 +21,14 @@ the version currently used with versions actually available on your system:
    --> 1.2.1
 
 
-Then you can update to the latest version with ``ALTER EXTENSION pointcloud
-UPDATE`` or target a specific version:
+Then you can update to the latest version:
+
+.. code-block:: sql
+
+   ALTER EXTENSION pointcloud;
+   ALTER EXTENSION pointcloud_postgis;
+
+or target a specific version:
 
 .. code-block:: sql
 

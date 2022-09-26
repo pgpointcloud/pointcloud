@@ -112,8 +112,12 @@ the version currently used with versions actually available on your system:</p>
 <span class="c1">--&gt; 1.2.1</span>
 </pre></div>
 </div>
-<p>Then you can update to the latest version with <code class="docutils literal notranslate"><span class="pre">ALTER</span> <span class="pre">EXTENSION</span> <span class="pre">pointcloud</span>
-<span class="pre">UPDATE</span></code> or target a specific version:</p>
+<p>Then you can update to the latest version:</p>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">ALTER</span><span class="w"> </span><span class="n">EXTENSION</span><span class="w"> </span><span class="n">pointcloud</span><span class="p">;</span><span class="w"></span>
+<span class="k">ALTER</span><span class="w"> </span><span class="n">EXTENSION</span><span class="w"> </span><span class="n">pointcloud_postgis</span><span class="p">;</span><span class="w"></span>
+</pre></div>
+</div>
+<p>or target a specific version:</p>
 <div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">ALTER</span><span class="w"> </span><span class="n">EXTENSION</span><span class="w"> </span><span class="n">pointcloud</span><span class="w"> </span><span class="k">UPDATE</span><span class="w"> </span><span class="k">TO</span><span class="w"> </span><span class="s1">&#39;1.2.1&#39;</span><span class="p">;</span><span class="w"></span>
 
 <span class="k">SELECT</span><span class="w"> </span><span class="n">pc_version</span><span class="p">();</span><span class="w"></span>
