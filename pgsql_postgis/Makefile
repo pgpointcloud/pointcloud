@@ -7,10 +7,20 @@ include ../config.mk
 SED = sed
 EXTENSION = pointcloud_postgis
 EXTVERSION=$(shell cat ../Version.config)
+
+UPGRADABLE = 1.1.0 1.1.1 1.2.0 1.2.1 1.2.2 1.2.3
+UPGRADES = \
+  $(shell echo $(UPGRADABLE) | \
+     $(SED) 's/^/$(EXTENSION)--/' | \
+     $(SED) 's/$$/--$(EXTVERSION).sql/' | \
+     $(SED) 's/ /--$(EXTVERSION).sql $(EXTENSION)--/g') \
+  $(EXTENSION)--$(EXTVERSION)--$(EXTVERSION)next.sql \
+  $(EXTENSION)--$(EXTVERSION)next--$(EXTVERSION).sql
+
 DATA_built = \
   $(EXTENSION).control \
-  $(EXTENSION)--$(EXTVERSION).sql
-
+  $(EXTENSION)--$(EXTVERSION).sql \
+  $(UPGRADES)
 #REGRESS = pointcloud
 
 # Add in build/link flags for lib
@@ -25,3 +35,10 @@ $(EXTENSION).control: $(EXTENSION).control.in Makefile
 
 $(EXTENSION)--$(EXTVERSION).sql: $(EXTENSION).sql.in Makefile
 	$(SED) -e 's/@POINTCLOUD_VERSION@/$(EXTVERSION)/' $< > $@
+
+# NOTE: relies on PERL being defined by PGXS
+$(EXTENSION)--%--$(EXTVERSION).sql: $(EXTENSION)--$(EXTVERSION).sql ../util/proc_upgrade.pl
+	cat $< | ../util/proc_upgrade.pl > $@
+
+$(EXTENSION)--%--$(EXTVERSION)next.sql: $(EXTENSION)--$(EXTVERSION)next--$(EXTVERSION).sql
+	ln -f $< $@

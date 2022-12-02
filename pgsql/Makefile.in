@@ -15,7 +15,7 @@ EXTENSION = pointcloud
 EXTVERSION=$(shell cat ../Version.config)
 EXTVERSION_MAJOR=$(shell cut -d. -f1,2 ../Version.config)
 MODULE_big = $(EXTENSION)-$(EXTVERSION_MAJOR)
-UPGRADABLE = 1.1.0 1.1.1 1.2.0
+UPGRADABLE = 1.1.0 1.1.1 1.2.0 1.2.1 1.2.2 1.2.3
 
 UPGRADES = \
   $(shell echo $(UPGRADABLE) | \
@@ -30,7 +30,7 @@ DATA_built = \
   $(EXTENSION)--$(EXTVERSION).sql \
   $(UPGRADES)
 
-REGRESS = 
+REGRESS =
 
 ifeq ("$(PGSQL_MAJOR_VERSION)", "9")
 REGRESS += pointcloud_pg9

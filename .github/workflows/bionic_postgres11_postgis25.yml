@@ -1,4 +1,4 @@
-name: "[ubuntu-18.04] PostgreSQL 12 and PostGIS 2.5"
+name: "[ubuntu-18.04] PostgreSQL 11 and PostGIS 2.5"
 
 on:
   push:
@@ -15,7 +15,7 @@ jobs:
         uses: actions/checkout@v2
       - name: Install PostgreSQL and PostGIS
         env:
-          POSTGRESQL_VERSION: 12
+          POSTGRESQL_VERSION: 11
           POSTGIS_VERSION: 2.5
         run: .github/scripts/postgresql_postgis.sh
       - name: Install and check PgPointCloud

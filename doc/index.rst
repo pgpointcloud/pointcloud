@@ -16,10 +16,10 @@ problems and allows a good integration with other geo-spatial data
 News
 --------------------------------------------------------------------------------
 
-**01-07-2020**
+**12-09-2022**
 ................................................................................
 
-pgPointcloud 1.2.1 has been released.
+pgPointcloud 1.2.3 has been released.
 
 
 Concepts
@@ -53,6 +53,14 @@ Functions
    :maxdepth: 2
 
    functions/index
+
+Update
+--------------------------------------------------------------------------------
+
+.. toctree::
+   :maxdepth: 2
+
+   update
 
 Tutorials
 --------------------------------------------------------------------------------

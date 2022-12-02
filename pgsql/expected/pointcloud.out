@@ -4,7 +4,7 @@ CREATE EXTENSION pointcloud;
 SELECT PC_Version();
  pc_version 
 ------------
- 1.2.1
+ 1.2.4
 (1 row)
 
 INSERT INTO pointcloud_formats (pcid, srid, schema)
@@ -246,7 +246,7 @@ CREATE TABLE IF NOT EXISTS pt_test (
 
 DELETE FROM pt_test;
 INSERT INTO pt_test (pt) VALUES ('00000000020000000100000002000000030004');
-ERROR:  no entry in "pointcloud_formats" for pcid = 2
+ERROR:  no entry in "public.pointcloud_formats" for pcid = 2
 LINE 1: INSERT INTO pt_test (pt) VALUES ('00000000020000000100000002...
                                          ^
 INSERT INTO pt_test (pt) VALUES ('00000000010000000100000002000000030004');
@@ -313,7 +313,7 @@ CREATE TABLE IF NOT EXISTS pa_test (
 
 DELETE FROM pa_test;
 INSERT INTO pa_test (pa) VALUES ('0000000002000000000000000200000002000000030000000500060000000200000003000000050008');
-ERROR:  no entry in "pointcloud_formats" for pcid = 2
+ERROR:  no entry in "public.pointcloud_formats" for pcid = 2
 LINE 1: INSERT INTO pa_test (pa) VALUES ('00000000020000000000000002...
                                          ^
 INSERT INTO pa_test (pa) VALUES ('0000000001000000000000000200000002000000030000000500060000000200000003000000050008');

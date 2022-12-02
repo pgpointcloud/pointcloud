@@ -1,24 +1,27 @@
-name: "[ubuntu-16.04] PostgreSQL 9.6 and PostGIS 2.5"
+name: "[ubuntu-18.04] PostgreSQL 10 and PostGIS 2.5"
 
-on: [push, pull_request]
+on:
+  push:
+    branches:
+      - master
+  pull_request:
 
 jobs:
   build:
     name: Building and testing
-    runs-on: ubuntu-16.04
+    runs-on: ubuntu-18.04
     steps:
       - name: Check out repository code
         uses: actions/checkout@v2
       - name: Install PostgreSQL and PostGIS
         env:
-          POSTGRESQL_VERSION: 9.6
+          POSTGRESQL_VERSION: 10
           POSTGIS_VERSION: 2.5
         run: .github/scripts/postgresql_postgis.sh
       - name: Install and check PgPointCloud
-        env:
-          POSTGRESQL_VERSION: 9.6
-          POSTGIS_VERSION: 2.5
         run: .github/scripts/pgpointcloud.sh
       - name: Error
         if: ${{ failure() }}
         run: cat pgsql/regression.diffs
+      - name: Dump and restore tests
+        run: .github/scripts/test_dump_restore.sh

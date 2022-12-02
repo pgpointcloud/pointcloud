@@ -25,7 +25,7 @@ CREATE TABLE IF NOT EXISTS pointcloud_formats (
 );
 
 -- Register pointcloud_formats table so the contents are included in pg_dump output
-SELECT pg_catalog.pg_extension_config_dump('pointcloud_formats', '');
+SELECT pg_catalog.pg_extension_config_dump('@extschema@.pointcloud_formats', '');
 
 CREATE OR REPLACE FUNCTION PC_SchemaGetNDims(pcid integer)
 	RETURNS integer
@@ -98,9 +98,9 @@ DECLARE
 	scrver TEXT;
 	version TEXT;
 BEGIN
-	libver := pc_lib_version();
-	scrver := pc_script_version();
-	version := _pc_version_no_commit(libver, scrver);
+	libver := @extschema@.pc_lib_version();
+	scrver := @extschema@.pc_script_version();
+	version := @extschema@._pc_version_no_commit(libver, scrver);
 	RETURN version;
 END;
 $$
@@ -118,12 +118,12 @@ DECLARE
 	libxml2ver TEXT;
 	lazperfenabled BOOLEAN;
 BEGIN
-	pclibver := pc_lib_version();
-	pcscrver := pc_script_version();
-	pcver := _pc_version_no_commit(pclibver, pcscrver);
-	pgsqlver := pc_pgsql_version();
-	libxml2ver := pc_libxml2_version();
-	lazperfenabled := pc_lazperf_enabled();
+	pclibver := @extschema@.pc_lib_version();
+	pcscrver := @extschema@.pc_script_version();
+	pcver := @extschema@._pc_version_no_commit(pclibver, pcscrver);
+	pgsqlver := @extschema@.pc_pgsql_version();
+	libxml2ver := @extschema@.pc_libxml2_version();
+	lazperfenabled := @extschema@.pc_lazperf_enabled();
 	RETURN 'POINTCLOUD="' || pclibver || '" PGSQL="' || pgsqlver || '" LIBXML2="' || libxml2ver ||
 		' LAZPERF enabled=' || lazperfenabled;
 END;
@@ -168,7 +168,7 @@ BEGIN
 		END IF;
 	END IF;
 
-	RETURN pc_version();
+	RETURN @extschema@.pc_version();
 END;
 $$ LANGUAGE 'plpgsql' VOLATILE;
 
