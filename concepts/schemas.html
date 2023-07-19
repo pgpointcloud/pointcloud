@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Schemas &mdash; pgpointcloud</title>
@@ -12,10 +12,9 @@
     <script src="../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/jquery.js"></script>
-        <script src="../_static/underscore.js"></script>
         <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/doctools.js"></script>
         <script src="../_static/sphinx_highlight.js"></script>
     <script src="../_static/js/theme.js"></script>
@@ -31,14 +30,18 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="../index.html" class="icon icon-home"> pgPointcloud
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            pgPointcloud
           </a>
               <div class="version">
                 1.2.4
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -91,9 +94,9 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
-          <li><a href="index.html">Concepts</a> &raquo;</li>
-      <li>Schemas</li>
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Concepts</a></li>
+      <li class="breadcrumb-item active">Schemas</li>
       <li class="wy-breadcrumbs-aside">
       </li>
   </ul>
@@ -120,54 +123,54 @@ value stored in the database. The schema document format used by PostgreSQL
 Pointcloud is the same one used by the <a class="reference external" href="https://pdal.io/">PDAL</a> library.</p>
 <p>Here is a simple 4-dimensional schema document you can insert into
 <code class="docutils literal notranslate"><span class="pre">pointcloud_formats</span></code> to work with the examples below:</p>
-<div class="highlight-xml notranslate"><div class="highlight"><pre><span></span>INSERT INTO pointcloud_formats (pcid, srid, schema) VALUES (1, 4326,
+<div class="highlight-xml notranslate"><div class="highlight"><pre><span></span>INSERT<span class="w"> </span>INTO<span class="w"> </span>pointcloud_formats<span class="w"> </span>(pcid,<span class="w"> </span>srid,<span class="w"> </span>schema)<span class="w"> </span>VALUES<span class="w"> </span>(1,<span class="w"> </span>4326,
 &#39;<span class="cp">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span>
-<span class="nt">&lt;pc:PointCloudSchema</span> <span class="na">xmlns:pc=</span><span class="s">&quot;http://pointcloud.org/schemas/PC/1.1&quot;</span>
-    <span class="na">xmlns:xsi=</span><span class="s">&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</span><span class="nt">&gt;</span>
-  <span class="nt">&lt;pc:dimension&gt;</span>
-    <span class="nt">&lt;pc:position&gt;</span>1<span class="nt">&lt;/pc:position&gt;</span>
-    <span class="nt">&lt;pc:size&gt;</span>4<span class="nt">&lt;/pc:size&gt;</span>
-    <span class="nt">&lt;pc:description&gt;</span>X coordinate as a long integer. You must use the
-                    scale and offset information of the header to
-                    determine the double value.<span class="nt">&lt;/pc:description&gt;</span>
-    <span class="nt">&lt;pc:name&gt;</span>X<span class="nt">&lt;/pc:name&gt;</span>
-    <span class="nt">&lt;pc:interpretation&gt;</span>int32_t<span class="nt">&lt;/pc:interpretation&gt;</span>
-    <span class="nt">&lt;pc:scale&gt;</span>0.01<span class="nt">&lt;/pc:scale&gt;</span>
-  <span class="nt">&lt;/pc:dimension&gt;</span>
-  <span class="nt">&lt;pc:dimension&gt;</span>
-    <span class="nt">&lt;pc:position&gt;</span>2<span class="nt">&lt;/pc:position&gt;</span>
-    <span class="nt">&lt;pc:size&gt;</span>4<span class="nt">&lt;/pc:size&gt;</span>
-    <span class="nt">&lt;pc:description&gt;</span>Y coordinate as a long integer. You must use the
-                    scale and offset information of the header to
-                    determine the double value.<span class="nt">&lt;/pc:description&gt;</span>
-    <span class="nt">&lt;pc:name&gt;</span>Y<span class="nt">&lt;/pc:name&gt;</span>
-    <span class="nt">&lt;pc:interpretation&gt;</span>int32_t<span class="nt">&lt;/pc:interpretation&gt;</span>
-    <span class="nt">&lt;pc:scale&gt;</span>0.01<span class="nt">&lt;/pc:scale&gt;</span>
-  <span class="nt">&lt;/pc:dimension&gt;</span>
-  <span class="nt">&lt;pc:dimension&gt;</span>
-    <span class="nt">&lt;pc:position&gt;</span>3<span class="nt">&lt;/pc:position&gt;</span>
-    <span class="nt">&lt;pc:size&gt;</span>4<span class="nt">&lt;/pc:size&gt;</span>
-    <span class="nt">&lt;pc:description&gt;</span>Z coordinate as a long integer. You must use the
-                    scale and offset information of the header to
-                    determine the double value.<span class="nt">&lt;/pc:description&gt;</span>
-    <span class="nt">&lt;pc:name&gt;</span>Z<span class="nt">&lt;/pc:name&gt;</span>
-    <span class="nt">&lt;pc:interpretation&gt;</span>int32_t<span class="nt">&lt;/pc:interpretation&gt;</span>
-    <span class="nt">&lt;pc:scale&gt;</span>0.01<span class="nt">&lt;/pc:scale&gt;</span>
-  <span class="nt">&lt;/pc:dimension&gt;</span>
-  <span class="nt">&lt;pc:dimension&gt;</span>
-    <span class="nt">&lt;pc:position&gt;</span>4<span class="nt">&lt;/pc:position&gt;</span>
-    <span class="nt">&lt;pc:size&gt;</span>2<span class="nt">&lt;/pc:size&gt;</span>
-    <span class="nt">&lt;pc:description&gt;</span>The intensity value is the integer representation
-                    of the pulse return magnitude. This value is optional
-                    and system specific. However, it should always be
-                    included if available.<span class="nt">&lt;/pc:description&gt;</span>
-    <span class="nt">&lt;pc:name&gt;</span>Intensity<span class="nt">&lt;/pc:name&gt;</span>
-    <span class="nt">&lt;pc:interpretation&gt;</span>uint16_t<span class="nt">&lt;/pc:interpretation&gt;</span>
-    <span class="nt">&lt;pc:scale&gt;</span>1<span class="nt">&lt;/pc:scale&gt;</span>
-  <span class="nt">&lt;/pc:dimension&gt;</span>
-  <span class="nt">&lt;pc:metadata&gt;</span>
-    <span class="nt">&lt;Metadata</span> <span class="na">name=</span><span class="s">&quot;compression&quot;</span><span class="nt">&gt;</span>dimensional<span class="nt">&lt;/Metadata&gt;</span>
-  <span class="nt">&lt;/pc:metadata&gt;</span>
+<span class="nt">&lt;pc:PointCloudSchema</span><span class="w"> </span><span class="na">xmlns:pc=</span><span class="s">&quot;http://pointcloud.org/schemas/PC/1.1&quot;</span>
+<span class="w">    </span><span class="na">xmlns:xsi=</span><span class="s">&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</span><span class="nt">&gt;</span>
+<span class="w">  </span><span class="nt">&lt;pc:dimension&gt;</span>
+<span class="w">    </span><span class="nt">&lt;pc:position&gt;</span>1<span class="nt">&lt;/pc:position&gt;</span>
+<span class="w">    </span><span class="nt">&lt;pc:size&gt;</span>4<span class="nt">&lt;/pc:size&gt;</span>
+<span class="w">    </span><span class="nt">&lt;pc:description&gt;</span>X<span class="w"> </span>coordinate<span class="w"> </span>as<span class="w"> </span>a<span class="w"> </span>long<span class="w"> </span>integer.<span class="w"> </span>You<span class="w"> </span>must<span class="w"> </span>use<span class="w"> </span>the
+<span class="w">                    </span>scale<span class="w"> </span>and<span class="w"> </span>offset<span class="w"> </span>information<span class="w"> </span>of<span class="w"> </span>the<span class="w"> </span>header<span class="w"> </span>to
+<span class="w">                    </span>determine<span class="w"> </span>the<span class="w"> </span>double<span class="w"> </span>value.<span class="nt">&lt;/pc:description&gt;</span>
+<span class="w">    </span><span class="nt">&lt;pc:name&gt;</span>X<span class="nt">&lt;/pc:name&gt;</span>
+<span class="w">    </span><span class="nt">&lt;pc:interpretation&gt;</span>int32_t<span class="nt">&lt;/pc:interpretation&gt;</span>
+<span class="w">    </span><span class="nt">&lt;pc:scale&gt;</span>0.01<span class="nt">&lt;/pc:scale&gt;</span>
+<span class="w">  </span><span class="nt">&lt;/pc:dimension&gt;</span>
+<span class="w">  </span><span class="nt">&lt;pc:dimension&gt;</span>
+<span class="w">    </span><span class="nt">&lt;pc:position&gt;</span>2<span class="nt">&lt;/pc:position&gt;</span>
+<span class="w">    </span><span class="nt">&lt;pc:size&gt;</span>4<span class="nt">&lt;/pc:size&gt;</span>
+<span class="w">    </span><span class="nt">&lt;pc:description&gt;</span>Y<span class="w"> </span>coordinate<span class="w"> </span>as<span class="w"> </span>a<span class="w"> </span>long<span class="w"> </span>integer.<span class="w"> </span>You<span class="w"> </span>must<span class="w"> </span>use<span class="w"> </span>the
+<span class="w">                    </span>scale<span class="w"> </span>and<span class="w"> </span>offset<span class="w"> </span>information<span class="w"> </span>of<span class="w"> </span>the<span class="w"> </span>header<span class="w"> </span>to
+<span class="w">                    </span>determine<span class="w"> </span>the<span class="w"> </span>double<span class="w"> </span>value.<span class="nt">&lt;/pc:description&gt;</span>
+<span class="w">    </span><span class="nt">&lt;pc:name&gt;</span>Y<span class="nt">&lt;/pc:name&gt;</span>
+<span class="w">    </span><span class="nt">&lt;pc:interpretation&gt;</span>int32_t<span class="nt">&lt;/pc:interpretation&gt;</span>
+<span class="w">    </span><span class="nt">&lt;pc:scale&gt;</span>0.01<span class="nt">&lt;/pc:scale&gt;</span>
+<span class="w">  </span><span class="nt">&lt;/pc:dimension&gt;</span>
+<span class="w">  </span><span class="nt">&lt;pc:dimension&gt;</span>
+<span class="w">    </span><span class="nt">&lt;pc:position&gt;</span>3<span class="nt">&lt;/pc:position&gt;</span>
+<span class="w">    </span><span class="nt">&lt;pc:size&gt;</span>4<span class="nt">&lt;/pc:size&gt;</span>
+<span class="w">    </span><span class="nt">&lt;pc:description&gt;</span>Z<span class="w"> </span>coordinate<span class="w"> </span>as<span class="w"> </span>a<span class="w"> </span>long<span class="w"> </span>integer.<span class="w"> </span>You<span class="w"> </span>must<span class="w"> </span>use<span class="w"> </span>the
+<span class="w">                    </span>scale<span class="w"> </span>and<span class="w"> </span>offset<span class="w"> </span>information<span class="w"> </span>of<span class="w"> </span>the<span class="w"> </span>header<span class="w"> </span>to
+<span class="w">                    </span>determine<span class="w"> </span>the<span class="w"> </span>double<span class="w"> </span>value.<span class="nt">&lt;/pc:description&gt;</span>
+<span class="w">    </span><span class="nt">&lt;pc:name&gt;</span>Z<span class="nt">&lt;/pc:name&gt;</span>
+<span class="w">    </span><span class="nt">&lt;pc:interpretation&gt;</span>int32_t<span class="nt">&lt;/pc:interpretation&gt;</span>
+<span class="w">    </span><span class="nt">&lt;pc:scale&gt;</span>0.01<span class="nt">&lt;/pc:scale&gt;</span>
+<span class="w">  </span><span class="nt">&lt;/pc:dimension&gt;</span>
+<span class="w">  </span><span class="nt">&lt;pc:dimension&gt;</span>
+<span class="w">    </span><span class="nt">&lt;pc:position&gt;</span>4<span class="nt">&lt;/pc:position&gt;</span>
+<span class="w">    </span><span class="nt">&lt;pc:size&gt;</span>2<span class="nt">&lt;/pc:size&gt;</span>
+<span class="w">    </span><span class="nt">&lt;pc:description&gt;</span>The<span class="w"> </span>intensity<span class="w"> </span>value<span class="w"> </span>is<span class="w"> </span>the<span class="w"> </span>integer<span class="w"> </span>representation
+<span class="w">                    </span>of<span class="w"> </span>the<span class="w"> </span>pulse<span class="w"> </span>return<span class="w"> </span>magnitude.<span class="w"> </span>This<span class="w"> </span>value<span class="w"> </span>is<span class="w"> </span>optional
+<span class="w">                    </span>and<span class="w"> </span>system<span class="w"> </span>specific.<span class="w"> </span>However,<span class="w"> </span>it<span class="w"> </span>should<span class="w"> </span>always<span class="w"> </span>be
+<span class="w">                    </span>included<span class="w"> </span>if<span class="w"> </span>available.<span class="nt">&lt;/pc:description&gt;</span>
+<span class="w">    </span><span class="nt">&lt;pc:name&gt;</span>Intensity<span class="nt">&lt;/pc:name&gt;</span>
+<span class="w">    </span><span class="nt">&lt;pc:interpretation&gt;</span>uint16_t<span class="nt">&lt;/pc:interpretation&gt;</span>
+<span class="w">    </span><span class="nt">&lt;pc:scale&gt;</span>1<span class="nt">&lt;/pc:scale&gt;</span>
+<span class="w">  </span><span class="nt">&lt;/pc:dimension&gt;</span>
+<span class="w">  </span><span class="nt">&lt;pc:metadata&gt;</span>
+<span class="w">    </span><span class="nt">&lt;Metadata</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;compression&quot;</span><span class="nt">&gt;</span>dimensional<span class="nt">&lt;/Metadata&gt;</span>
+<span class="w">  </span><span class="nt">&lt;/pc:metadata&gt;</span>
 <span class="nt">&lt;/pc:PointCloudSchema&gt;</span>&#39;);
 </pre></div>
 </div>
@@ -200,7 +203,7 @@ document in the <code class="docutils literal notranslate"><span class="pre">poi
   
     <div class="footer">
         <div class="container">
-            &copy;  2022
+            &copy;  2023
             <a href="https://github.com/pramsey">Paul Ramsey</a>,
             <a href="http://github.com/pblottiere">Paul Blottiere</a>,
             <a href="http://github.com/mbredif">Mathieu Brédif</a>,

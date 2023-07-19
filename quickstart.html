@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Getting Started &mdash; pgpointcloud</title>
@@ -12,10 +12,9 @@
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
-        <script src="_static/underscore.js"></script>
         <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/doctools.js"></script>
         <script src="_static/sphinx_highlight.js"></script>
     <script src="_static/js/theme.js"></script>
@@ -31,14 +30,18 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="index.html" class="icon icon-home"> pgPointcloud
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            pgPointcloud
           </a>
               <div class="version">
                 1.2.4
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -90,8 +93,8 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
-      <li>Getting Started</li>
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Getting Started</li>
       <li class="wy-breadcrumbs-aside">
       </li>
   </ul>
@@ -127,31 +130,31 @@ together.</p>
 <p>PDAL pipelines are JSON files, which declare readers, filters, and writers
 forming a processing chain that will be applied to the LIDAR data.</p>
 <p>To execute a pipeline file, run it through the pdal pipeline command:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ pdal pipeline --input pipelinefile.json
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>pdal<span class="w"> </span>pipeline<span class="w"> </span>--input<span class="w"> </span>pipelinefile.json
 </pre></div>
 </div>
 <p>Here is a simple example pipeline that reads a LAS file and writes into a
 PostgreSQL Pointcloud database.</p>
-<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="w"></span>
-<span class="w">  </span><span class="nt">&quot;pipeline&quot;</span><span class="p">:[</span><span class="w"></span>
-<span class="w">    </span><span class="p">{</span><span class="w"></span>
-<span class="w">      </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="s2">&quot;readers.las&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">      </span><span class="nt">&quot;filename&quot;</span><span class="p">:</span><span class="s2">&quot;/home/lidar/st-helens-small.las&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">      </span><span class="nt">&quot;spatialreference&quot;</span><span class="p">:</span><span class="s2">&quot;EPSG:26910&quot;</span><span class="w"></span>
-<span class="w">    </span><span class="p">},</span><span class="w"></span>
-<span class="w">    </span><span class="p">{</span><span class="w"></span>
-<span class="w">      </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="s2">&quot;filters.chipper&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">      </span><span class="nt">&quot;capacity&quot;</span><span class="p">:</span><span class="mi">400</span><span class="w"></span>
-<span class="w">    </span><span class="p">},</span><span class="w"></span>
-<span class="w">    </span><span class="p">{</span><span class="w"></span>
-<span class="w">      </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="s2">&quot;writers.pgpointcloud&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">      </span><span class="nt">&quot;connection&quot;</span><span class="p">:</span><span class="s2">&quot;host=&#39;localhost&#39; dbname=&#39;pc&#39; user=&#39;lidar&#39; password=&#39;lidar&#39; port=&#39;5432&#39;&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">      </span><span class="nt">&quot;table&quot;</span><span class="p">:</span><span class="s2">&quot;sthsm&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">      </span><span class="nt">&quot;compression&quot;</span><span class="p">:</span><span class="s2">&quot;dimensional&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">      </span><span class="nt">&quot;srid&quot;</span><span class="p">:</span><span class="s2">&quot;26910&quot;</span><span class="w"></span>
-<span class="w">    </span><span class="p">}</span><span class="w"></span>
-<span class="w">  </span><span class="p">]</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;pipeline&quot;</span><span class="p">:[</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="s2">&quot;readers.las&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;filename&quot;</span><span class="p">:</span><span class="s2">&quot;/home/lidar/st-helens-small.las&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;spatialreference&quot;</span><span class="p">:</span><span class="s2">&quot;EPSG:26910&quot;</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="s2">&quot;filters.chipper&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;capacity&quot;</span><span class="p">:</span><span class="mi">400</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="s2">&quot;writers.pgpointcloud&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;connection&quot;</span><span class="p">:</span><span class="s2">&quot;host=&#39;localhost&#39; dbname=&#39;pc&#39; user=&#39;lidar&#39; password=&#39;lidar&#39; port=&#39;5432&#39;&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;table&quot;</span><span class="p">:</span><span class="s2">&quot;sthsm&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;compression&quot;</span><span class="p">:</span><span class="s2">&quot;dimensional&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;srid&quot;</span><span class="p">:</span><span class="s2">&quot;26910&quot;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">]</span>
+<span class="p">}</span>
 </pre></div>
 </div>
 <p>PostgreSQL Pointcloud storage of LIDAR works best when each “patch” of points
@@ -163,21 +166,21 @@ need to apply to the data while loading.</p>
 <p>Similarly, reading data from a PostgreSQL Pointcloud uses a Pointcloud reader
 and a file writer of some sort. This example reads from the database and writes
 to a CSV text file:</p>
-<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="w"></span>
-<span class="w">  </span><span class="nt">&quot;pipeline&quot;</span><span class="p">:[</span><span class="w"></span>
-<span class="w">    </span><span class="p">{</span><span class="w"></span>
-<span class="w">      </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="s2">&quot;readers.pgpointcloud&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">      </span><span class="nt">&quot;connection&quot;</span><span class="p">:</span><span class="s2">&quot;host=&#39;localhost&#39; dbname=&#39;pc&#39; user=&#39;lidar&#39; password=&#39;lidar&#39; port=&#39;5432&#39;&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">      </span><span class="nt">&quot;table&quot;</span><span class="p">:</span><span class="s2">&quot;sthsm&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">      </span><span class="nt">&quot;column&quot;</span><span class="p">:</span><span class="s2">&quot;pa&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">      </span><span class="nt">&quot;spatialreference&quot;</span><span class="p">:</span><span class="s2">&quot;EPSG:26910&quot;</span><span class="w"></span>
-<span class="w">    </span><span class="p">},</span><span class="w"></span>
-<span class="w">    </span><span class="p">{</span><span class="w"></span>
-<span class="w">      </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="s2">&quot;writers.text&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">      </span><span class="nt">&quot;filename&quot;</span><span class="p">:</span><span class="s2">&quot;/home/lidar/st-helens-small-out.txt&quot;</span><span class="w"></span>
-<span class="w">    </span><span class="p">}</span><span class="w"></span>
-<span class="w">  </span><span class="p">]</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;pipeline&quot;</span><span class="p">:[</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="s2">&quot;readers.pgpointcloud&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;connection&quot;</span><span class="p">:</span><span class="s2">&quot;host=&#39;localhost&#39; dbname=&#39;pc&#39; user=&#39;lidar&#39; password=&#39;lidar&#39; port=&#39;5432&#39;&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;table&quot;</span><span class="p">:</span><span class="s2">&quot;sthsm&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;column&quot;</span><span class="p">:</span><span class="s2">&quot;pa&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;spatialreference&quot;</span><span class="p">:</span><span class="s2">&quot;EPSG:26910&quot;</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="s2">&quot;writers.text&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;filename&quot;</span><span class="p">:</span><span class="s2">&quot;/home/lidar/st-helens-small-out.txt&quot;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">]</span>
+<span class="p">}</span>
 </pre></div>
 </div>
 <p>Note that we do not need to chip the data stream when reading from the
@@ -185,22 +188,22 @@ database, as the writer does not care if the points are blocked into patches or
 not.</p>
 <p>You can use the “where” option to restrict a read to just an envelope, allowing
 partial extracts from a table:</p>
-<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="w"></span>
-<span class="w">  </span><span class="nt">&quot;pipeline&quot;</span><span class="p">:[</span><span class="w"></span>
-<span class="w">    </span><span class="p">{</span><span class="w"></span>
-<span class="w">      </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="s2">&quot;readers.pgpointcloud&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">      </span><span class="nt">&quot;connection&quot;</span><span class="p">:</span><span class="s2">&quot;host=&#39;localhost&#39; dbname=&#39;pc&#39; user=&#39;lidar&#39; password=&#39;lidar&#39; port=&#39;5432&#39;&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">      </span><span class="nt">&quot;table&quot;</span><span class="p">:</span><span class="s2">&quot;sthsm&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">      </span><span class="nt">&quot;column&quot;</span><span class="p">:</span><span class="s2">&quot;pa&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">      </span><span class="nt">&quot;spatialreference&quot;</span><span class="p">:</span><span class="s2">&quot;EPSG:26910&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">      </span><span class="nt">&quot;where&quot;</span><span class="p">:</span><span class="s2">&quot;PC_Intersects(pa, ST_MakeEnvelope(560037.36, 5114846.45, 562667.31, 5118943.24, 26910))&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="p">},</span><span class="w"></span>
-<span class="w">    </span><span class="p">{</span><span class="w"></span>
-<span class="w">      </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="s2">&quot;writers.text&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">      </span><span class="nt">&quot;filename&quot;</span><span class="p">:</span><span class="s2">&quot;/home/lidar/st-helens-small-out.txt&quot;</span><span class="w"></span>
-<span class="w">    </span><span class="p">}</span><span class="w"></span>
-<span class="w">  </span><span class="p">]</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;pipeline&quot;</span><span class="p">:[</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="s2">&quot;readers.pgpointcloud&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;connection&quot;</span><span class="p">:</span><span class="s2">&quot;host=&#39;localhost&#39; dbname=&#39;pc&#39; user=&#39;lidar&#39; password=&#39;lidar&#39; port=&#39;5432&#39;&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;table&quot;</span><span class="p">:</span><span class="s2">&quot;sthsm&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;column&quot;</span><span class="p">:</span><span class="s2">&quot;pa&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;spatialreference&quot;</span><span class="p">:</span><span class="s2">&quot;EPSG:26910&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;where&quot;</span><span class="p">:</span><span class="s2">&quot;PC_Intersects(pa, ST_MakeEnvelope(560037.36, 5114846.45, 562667.31, 5118943.24, 26910))&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="s2">&quot;writers.text&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;filename&quot;</span><span class="p">:</span><span class="s2">&quot;/home/lidar/st-helens-small-out.txt&quot;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">]</span>
+<span class="p">}</span>
 </pre></div>
 </div>
 </section>
@@ -250,7 +253,7 @@ options:</p>
   
     <div class="footer">
         <div class="container">
-            &copy;  2022
+            &copy;  2023
             <a href="https://github.com/pramsey">Paul Ramsey</a>,
             <a href="http://github.com/pblottiere">Paul Blottiere</a>,
             <a href="http://github.com/mbredif">Mathieu Brédif</a>,

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Tables &mdash; pgpointcloud</title>
@@ -12,10 +12,9 @@
     <script src="../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/jquery.js"></script>
-        <script src="../_static/underscore.js"></script>
         <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/doctools.js"></script>
         <script src="../_static/sphinx_highlight.js"></script>
     <script src="../_static/js/theme.js"></script>
@@ -31,14 +30,18 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="../index.html" class="icon icon-home"> pgPointcloud
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            pgPointcloud
           </a>
               <div class="version">
                 1.2.4
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -91,9 +94,9 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
-          <li><a href="index.html">Concepts</a> &raquo;</li>
-      <li>Tables</li>
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Concepts</a></li>
+      <li class="breadcrumb-item active">Tables</li>
       <li class="wy-breadcrumbs-aside">
       </li>
   </ul>
@@ -113,16 +116,16 @@ the column.</p>
 <span class="c1">-- section to be loaded so that pcid==1 exists.</span>
 
 <span class="c1">-- A table of points</span>
-<span class="k">CREATE</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">points</span><span class="w"> </span><span class="p">(</span><span class="w"></span>
-<span class="w">    </span><span class="n">id</span><span class="w"> </span><span class="nb">SERIAL</span><span class="w"> </span><span class="k">PRIMARY</span><span class="w"> </span><span class="k">KEY</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="n">pt</span><span class="w"> </span><span class="n">PCPOINT</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"></span>
-<span class="p">);</span><span class="w"></span>
+<span class="k">CREATE</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">points</span><span class="w"> </span><span class="p">(</span>
+<span class="w">    </span><span class="n">id</span><span class="w"> </span><span class="nb">SERIAL</span><span class="w"> </span><span class="k">PRIMARY</span><span class="w"> </span><span class="k">KEY</span><span class="p">,</span>
+<span class="w">    </span><span class="n">pt</span><span class="w"> </span><span class="n">PCPOINT</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="p">);</span>
 
 <span class="c1">-- A table of patches</span>
-<span class="k">CREATE</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">patches</span><span class="w"> </span><span class="p">(</span><span class="w"></span>
-<span class="w">    </span><span class="n">id</span><span class="w"> </span><span class="nb">SERIAL</span><span class="w"> </span><span class="k">PRIMARY</span><span class="w"> </span><span class="k">KEY</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="n">pa</span><span class="w"> </span><span class="n">PCPATCH</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"></span>
-<span class="p">);</span><span class="w"></span>
+<span class="k">CREATE</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">patches</span><span class="w"> </span><span class="p">(</span>
+<span class="w">    </span><span class="n">id</span><span class="w"> </span><span class="nb">SERIAL</span><span class="w"> </span><span class="k">PRIMARY</span><span class="w"> </span><span class="k">KEY</span><span class="p">,</span>
+<span class="w">    </span><span class="n">pa</span><span class="w"> </span><span class="n">PCPATCH</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="p">);</span>
 </pre></div>
 </div>
 <p>In addition to any tables you create, you will find two other system-provided
@@ -135,12 +138,12 @@ database that contain point cloud objects</p></li>
 </ul>
 <p>Now that you have created two tables, you’ll see entries for them in the
 <code class="docutils literal notranslate"><span class="pre">pointcloud_columns</span></code> view:</p>
-<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">SELECT</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">pointcloud_columns</span><span class="p">;</span><span class="w"></span>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">SELECT</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">pointcloud_columns</span><span class="p">;</span>
 
-<span class="w"> </span><span class="k">schema</span><span class="w"> </span><span class="o">|</span><span class="w">    </span><span class="k">table</span><span class="w">    </span><span class="o">|</span><span class="w"> </span><span class="k">column</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">pcid</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">srid</span><span class="w"> </span><span class="o">|</span><span class="w">  </span><span class="k">type</span><span class="w"></span>
+<span class="w"> </span><span class="k">schema</span><span class="w"> </span><span class="o">|</span><span class="w">    </span><span class="k">table</span><span class="w">    </span><span class="o">|</span><span class="w"> </span><span class="k">column</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">pcid</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">srid</span><span class="w"> </span><span class="o">|</span><span class="w">  </span><span class="k">type</span>
 <span class="c1">--------+-------------+--------+------+------+---------</span>
-<span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">points</span><span class="w">      </span><span class="o">|</span><span class="w"> </span><span class="n">pt</span><span class="w">     </span><span class="o">|</span><span class="w">    </span><span class="mi">1</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="mi">4326</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">pcpoint</span><span class="w"></span>
-<span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">patches</span><span class="w">     </span><span class="o">|</span><span class="w"> </span><span class="n">pa</span><span class="w">     </span><span class="o">|</span><span class="w">    </span><span class="mi">1</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="mi">4326</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">pcpatch</span><span class="w"></span>
+<span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">points</span><span class="w">      </span><span class="o">|</span><span class="w"> </span><span class="n">pt</span><span class="w">     </span><span class="o">|</span><span class="w">    </span><span class="mi">1</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="mi">4326</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">pcpoint</span>
+<span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">patches</span><span class="w">     </span><span class="o">|</span><span class="w"> </span><span class="n">pa</span><span class="w">     </span><span class="o">|</span><span class="w">    </span><span class="mi">1</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="mi">4326</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">pcpatch</span>
 </pre></div>
 </div>
 </section>
@@ -162,7 +165,7 @@ database that contain point cloud objects</p></li>
   
     <div class="footer">
         <div class="container">
-            &copy;  2022
+            &copy;  2023
             <a href="https://github.com/pramsey">Paul Ramsey</a>,
             <a href="http://github.com/pblottiere">Paul Blottiere</a>,
             <a href="http://github.com/mbredif">Mathieu Brédif</a>,

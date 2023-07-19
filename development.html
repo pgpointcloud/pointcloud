@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Development &mdash; pgpointcloud</title>
@@ -12,10 +12,9 @@
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
-        <script src="_static/underscore.js"></script>
         <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/doctools.js"></script>
         <script src="_static/sphinx_highlight.js"></script>
     <script src="_static/js/theme.js"></script>
@@ -31,14 +30,18 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="index.html" class="icon icon-home"> pgPointcloud
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            pgPointcloud
           </a>
               <div class="version">
                 1.2.4
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -96,8 +99,8 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
-      <li>Development</li>
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Development</li>
       <li class="wy-breadcrumbs-aside">
       </li>
   </ul>
@@ -127,10 +130,10 @@ and server headers). For Red Hat and Ubuntu, the package names are usually
 <h2>Build/Install<a class="headerlink" href="#build-install" title="Permalink to this heading"></a></h2>
 <p>After generating the configure script with <code class="docutils literal notranslate"><span class="pre">autogen.sh</span></code>, you can use
 <code class="docutils literal notranslate"><span class="pre">./configure</span> <span class="pre">--help</span></code> to get a complete listing of configuration options.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ ./autogen.sh
-$ ./configure
-$ make
-$ sudo make install
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>./autogen.sh
+$<span class="w"> </span>./configure
+$<span class="w"> </span>make
+$<span class="w"> </span>sudo<span class="w"> </span>make<span class="w"> </span>install
 </pre></div>
 </div>
 <div class="admonition note">
@@ -138,7 +141,7 @@ $ sudo make install
 <p>You can use <code class="docutils literal notranslate"><span class="pre">--with-pgconfig</span></code> on the <code class="docutils literal notranslate"><span class="pre">./configure</span></code> command line if
 you have multiple PostgreSQL installations on your system and want to target a
 specific one. For example:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ ./configure --with-pgconfig<span class="o">=</span>/usr/lib/postgresql/12/bin/pg_config
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>./configure<span class="w"> </span>--with-pgconfig<span class="o">=</span>/usr/lib/postgresql/12/bin/pg_config
 </pre></div>
 </div>
 </div>
@@ -146,7 +149,7 @@ specific one. For example:</p>
 <p class="admonition-title">Note</p>
 <p>If <code class="docutils literal notranslate"><span class="pre">qsort_r</span></code> is not available on your system, then you can use the embedded
 implementation instead thanks to the next directive:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ ./configure <span class="nv">CFLAGS</span><span class="o">=</span><span class="s2">&quot;-DNESTED_QSORT=1&quot;</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>./configure<span class="w"> </span><span class="nv">CFLAGS</span><span class="o">=</span><span class="s2">&quot;-DNESTED_QSORT=1&quot;</span>
 </pre></div>
 </div>
 </div>
@@ -154,14 +157,14 @@ implementation instead thanks to the next directive:</p>
 <section id="tests">
 <h2>Tests<a class="headerlink" href="#tests" title="Permalink to this heading"></a></h2>
 <p><strong>Unit tests</strong></p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ make check
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>make<span class="w"> </span>check
 </pre></div>
 </div>
 <p><strong>Regressions tests</strong></p>
 <p>pgPointcloud includes SQL tests to run against an existing installation. To run
 the SQL tests:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ sudo make install
-$ <span class="nv">PGUSER</span><span class="o">=</span>a_user <span class="nv">PGPASSWORD</span><span class="o">=</span>a_password <span class="nv">PGHOST</span><span class="o">=</span>localhost make installcheck
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>sudo<span class="w"> </span>make<span class="w"> </span>install
+$<span class="w"> </span><span class="nv">PGUSER</span><span class="o">=</span>a_user<span class="w"> </span><span class="nv">PGPASSWORD</span><span class="o">=</span>a_password<span class="w"> </span><span class="nv">PGHOST</span><span class="o">=</span>localhost<span class="w"> </span>make<span class="w"> </span>installcheck
 </pre></div>
 </div>
 <p>This command will create a database named <code class="docutils literal notranslate"><span class="pre">contrib_regression</span></code> and will execute
@@ -189,7 +192,7 @@ next Python packages:</p>
 <li><p><code class="docutils literal notranslate"><span class="pre">sphinx_rtd_theme</span></code></p></li>
 </ul>
 <p>Then:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ <span class="nb">cd</span> doc <span class="o">&amp;&amp;</span> make html
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span><span class="nb">cd</span><span class="w"> </span>doc<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>make<span class="w"> </span>html
 </pre></div>
 </div>
 <p>The HTML documentation is available in <code class="docutils literal notranslate"><span class="pre">doc/build/html</span></code>.</p>
@@ -204,7 +207,7 @@ You can use <code class="docutils literal notranslate"><span class="pre">make</s
 <p>A <code class="docutils literal notranslate"><span class="pre">Dockerfile</span></code> is provided in the <code class="docutils literal notranslate"><span class="pre">docker</span></code> directory and based on the
 official PostgreSQL docker image available <a class="reference external" href="https://hub.docker.com/_/postgres">DockerHub</a>. The image generated
 is based on PostgreSQL 12, PostGIS 3 and the laz-perf support is activated.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ docker build --rm -t pgpointcloud docker/
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>docker<span class="w"> </span>build<span class="w"> </span>--rm<span class="w"> </span>-t<span class="w"> </span>pgpointcloud<span class="w"> </span>docker/
 </pre></div>
 </div>
 </section>
@@ -216,33 +219,31 @@ and with various PostgreSQL/PostGIS releases:</p>
 <tbody>
 <tr class="row-odd"><td></td>
 <td><p>PostGIS 2.5</p></td>
-<td><p>PostGIS 3.2</p></td>
-</tr>
-<tr class="row-even"><td><p>PostgreSQL 10</p></td>
-<td><p><img alt="10_25_bionic" src="https://img.shields.io/github/workflow/status/pgpointcloud/pointcloud/%5Bubuntu-18.04%5D%20PostgreSQL%2010%20and%20PostGIS%202.5?label=Ubuntu%2018.04&amp;logo=github&amp;style=plastic:target:https://github.com/pgpointcloud/pointcloud/actions?query=workflow%3A%22%5Bubuntu-18.04%5D+PostgreSQL+10+and+PostGIS+2.5%22" /></p></td>
-<td></td>
-</tr>
-<tr class="row-odd"><td><p>PostgreSQL 11</p></td>
-<td><p><img alt="11_25_bionic" src="https://img.shields.io/github/workflow/status/pgpointcloud/pointcloud/%5Bubuntu-18.04%5D%20PostgreSQL%2011%20and%20PostGIS%202.5?label=Ubuntu%2018.04&amp;logo=github&amp;style=plastic:target:https://github.com/pgpointcloud/pointcloud/actions?query=workflow%3A%22%5Bubuntu-18.04%5D+PostgreSQL+11+and+PostGIS+2.5%22" /></p></td>
-<td></td>
+<td><p>PostGIS 3.3</p></td>
 </tr>
 <tr class="row-even"><td><p>PostgreSQL 12</p></td>
-<td><p><img alt="12_25_bionic" src="https://img.shields.io/github/workflow/status/pgpointcloud/pointcloud/%5Bubuntu-18.04%5D%20PostgreSQL%2012%20and%20PostGIS%202.5?label=Ubuntu%2018.04&amp;logo=github&amp;style=plastic:target:https://github.com/pgpointcloud/pointcloud/actions?query=workflow%3A%22%5Bubuntu-18.04%5D+PostgreSQL+12+and+PostGIS+2.5%22" /></p></td>
-<td><p><img alt="12_32_bionic" src="https://img.shields.io/github/workflow/status/pgpointcloud/pointcloud/%5Bubuntu-18.04%5D%20PostgreSQL%2012%20and%20PostGIS%203.2?label=Ubuntu%2018.04&amp;logo=github&amp;style=plastic:target:https://github.com/pgpointcloud/pointcloud/actions?query=workflow%3A%22%5Bubuntu-18.04%5D+PostgreSQL+12+and+PostGIS+3.2%22" /></p>
-<p><img alt="12_32_focal" src="https://img.shields.io/github/workflow/status/pgpointcloud/pointcloud/%5Bubuntu-20.04%5D%20PostgreSQL%2012%20and%20PostGIS%203.2?label=Ubuntu%2020.04&amp;logo=github&amp;style=plastic:target:https://github.com/pgpointcloud/pointcloud/actions?query=workflow%3A%22%5Bubuntu-20.04%5D+PostgreSQL+12+and+PostGIS+3.2%22" /></p>
+<td><p><img alt="12_25_focal" src="https://img.shields.io/github/actions/workflow/status/pgpointcloud/pointcloud/focal_postgres12_postgis25.yml?branch=master&amp;label=Ubuntu%2020.04&amp;logo=github&amp;style=plastic:target:https://github.com/pgpointcloud/pointcloud/actions?query=workflow%3A%22%5Bubuntu-20.04%5D+PostgreSQL+12+and+PostGIS+2.5%22" /></p></td>
+<td><p><img alt="12_33_focal" src="https://img.shields.io/github/actions/workflow/status/pgpointcloud/pointcloud/focal_postgres12_postgis33.yml?branch=master&amp;label=Ubuntu%2020.04&amp;logo=github&amp;style=plastic:target:https://github.com/pgpointcloud/pointcloud/actions?query=workflow%3A%22%5Bubuntu-20.04%5D+PostgreSQL+12+and+PostGIS+3.3%22" /></p>
+<p><img alt="12_33_jammy" src="https://img.shields.io/github/actions/workflow/status/pgpointcloud/pointcloud/jammy_postgres12_postgis33.yml?branch=master&amp;label=Ubuntu%2022.04&amp;logo=github&amp;style=plastic:target:https://github.com/pgpointcloud/pointcloud/actions?query=workflow%3A%22%5Bubuntu-22.04%5D+PostgreSQL+12+and+PostGIS+3.3%22" /></p>
 </td>
 </tr>
 <tr class="row-odd"><td><p>PostgreSQL 13</p></td>
 <td></td>
-<td><p><img alt="13_32_focal" src="https://img.shields.io/github/workflow/status/pgpointcloud/pointcloud/%5Bubuntu-20.04%5D%20PostgreSQL%2013%20and%20PostGIS%203.2?label=Ubuntu%2020.04&amp;logo=github&amp;style=plastic:target:https://github.com/pgpointcloud/pointcloud/actions?query=workflow%3A%22%5Bubuntu-20.04%5D+PostgreSQL+13+and+PostGIS+3.2%22" /></p></td>
+<td><p><img alt="13_33_focal" src="https://img.shields.io/github/actions/workflow/status/pgpointcloud/pointcloud/focal_postgres13_postgis33.yml?branch=master&amp;label=Ubuntu%2020.04&amp;logo=github&amp;style=plastic:target:https://github.com/pgpointcloud/pointcloud/actions?query=workflow%3A%22%5Bubuntu-20.04%5D+PostgreSQL+13+and+PostGIS+3.3%22" /></p>
+<p><img alt="13_33_jammy" src="https://img.shields.io/github/actions/workflow/status/pgpointcloud/pointcloud/jammy_postgres13_postgis33.yml?branch=master&amp;label=Ubuntu%2022.04&amp;logo=github&amp;style=plastic:target:https://github.com/pgpointcloud/pointcloud/actions?query=workflow%3A%22%5Bubuntu-22.04%5D+PostgreSQL+13+and+PostGIS+3.3%22" /></p>
+</td>
 </tr>
 <tr class="row-even"><td><p>PostgreSQL 14</p></td>
 <td></td>
-<td><p><img alt="14_32_focal" src="https://img.shields.io/github/workflow/status/pgpointcloud/pointcloud/%5Bubuntu-20.04%5D%20PostgreSQL%2014%20and%20PostGIS%203.2?label=Ubuntu%2020.04&amp;logo=github&amp;style=plastic:target:https://github.com/pgpointcloud/pointcloud/actions?query=workflow%3A%22%5Bubuntu-20.04%5D+PostgreSQL+14+and+PostGIS+3.2%22" /></p></td>
+<td><p><img alt="14_33_focal" src="https://img.shields.io/github/actions/workflow/status/pgpointcloud/pointcloud/focal_postgres14_postgis33.yml?branch=master&amp;label=Ubuntu%2020.04&amp;logo=github&amp;style=plastic:target:https://github.com/pgpointcloud/pointcloud/actions?query=workflow%3A%22%5Bubuntu-20.04%5D+PostgreSQL+14+and+PostGIS+3.3%22" /></p>
+<p><img alt="14_33_jammy" src="https://img.shields.io/github/actions/workflow/status/pgpointcloud/pointcloud/jammy_postgres14_postgis33.yml?branch=master&amp;label=Ubuntu%2022.04&amp;logo=github&amp;style=plastic:target:https://github.com/pgpointcloud/pointcloud/actions?query=workflow%3A%22%5Bubuntu-22.04%5D+PostgreSQL+14+and+PostGIS+3.3%22" /></p>
+</td>
 </tr>
 <tr class="row-odd"><td><p>PostgreSQL 15</p></td>
 <td></td>
-<td><p><img alt="15_32_focal" src="https://img.shields.io/github/workflow/status/pgpointcloud/pointcloud/%5Bubuntu-20.04%5D%20PostgreSQL%2015%20and%20PostGIS%203.2?label=Ubuntu%2020.04&amp;logo=github&amp;style=plastic:target:https://github.com/pgpointcloud/pointcloud/actions?query=workflow%3A%22%5Bubuntu-20.04%5D+PostgreSQL+15+and+PostGIS+3.2%22" /></p></td>
+<td><p><img alt="15_33_focal" src="https://img.shields.io/github/actions/workflow/status/pgpointcloud/pointcloud/focal_postgres15_postgis33.yml?branch=master&amp;label=Ubuntu%2020.04&amp;logo=github&amp;style=plastic:target:https://github.com/pgpointcloud/pointcloud/actions?query=workflow%3A%22%5Bubuntu-20.04%5D+PostgreSQL+15+and+PostGIS+3.3%22" /></p>
+<p><img alt="15_33_jammy" src="(https://img.shields.io/github/actions/workflow/status/pgpointcloud/pointcloud/jammy_postgres15_postgis33.yml?branch=master&amp;label=Ubuntu%2022.04&amp;logo=github&amp;style=plastic:target:https://github.com/pgpointcloud/pointcloud/actions?query=workflow%3A%22%5Bubuntu-22.04%5D+PostgreSQL+15+and+PostGIS+3.3%22" /></p>
+</td>
 </tr>
 </tbody>
 </table>
@@ -262,8 +263,8 @@ database can be upgraded to the new Pointcloud version.</p></li>
 <li><p>When the PR is merged create a tag for the new release and push it to
 GitHub:</p></li>
 </ol>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ git tag -a vx.y.z -m <span class="s1">&#39;version x.y.z&#39;</span>
-$ git push origin vx.y.z
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>git<span class="w"> </span>tag<span class="w"> </span>-a<span class="w"> </span>vx.y.z<span class="w"> </span>-m<span class="w"> </span><span class="s1">&#39;version x.y.z&#39;</span>
+$<span class="w"> </span>git<span class="w"> </span>push<span class="w"> </span>origin<span class="w"> </span>vx.y.z
 </pre></div>
 </div>
 </section>
@@ -273,23 +274,23 @@ $ git push origin vx.y.z
 be used with <code class="docutils literal notranslate"><span class="pre">PostgreSQL</span></code> in single-user mode.</p>
 <p>But first, it’s necessary to compile the extension with debug symbols and
 without compiler optimizations:</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>./configure <span class="nv">CFLAGS</span><span class="o">=</span><span class="s2">&quot;-O0 -g&quot;</span>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>./configure<span class="w"> </span><span class="nv">CFLAGS</span><span class="o">=</span><span class="s2">&quot;-O0 -g&quot;</span>
 <span class="gp">$ </span>make
-<span class="gp">$ </span>sudo make install
+<span class="gp">$ </span>sudo<span class="w"> </span>make<span class="w"> </span>install
 </pre></div>
 </div>
 <p>Debug symbols may also be installed for PostgreSQL and PostGIS. For example
 for Debian based distributions with PostgreSQL 13 and PostGIS 3:</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>sudo apt-get install postgresql-13-dbgsym postgresql-13-postgis-3-dbgsym
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>sudo<span class="w"> </span>apt-get<span class="w"> </span>install<span class="w"> </span>postgresql-13-dbgsym<span class="w"> </span>postgresql-13-postgis-3-dbgsym
 </pre></div>
 </div>
 <p>And finally:</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span><span class="nb">echo</span> <span class="s2">&quot;select pc_transform(patch, 1) from patchs limit 1&quot;</span> <span class="p">|</span> <span class="se">\</span>
-  valgrind -s --track-origins<span class="o">=</span>yes --leak-check<span class="o">=</span>yes <span class="se">\</span>
-    --show-leak-kinds<span class="o">=</span>all --read-var-info<span class="o">=</span>yes --log-file<span class="o">=</span>/tmp/valgrind.log <span class="se">\</span>
-    /usr/lib/postgresql/13/bin/postgres --single -D /var/lib/postgresql/13/main <span class="se">\</span>
-    -c <span class="nv">config_file</span><span class="o">=</span>/etc/postgresql/13/main/postgresql.conf <span class="se">\</span>
-    mydatabase
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;select pc_transform(patch, 1) from patchs limit 1&quot;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>valgrind<span class="w"> </span>-s<span class="w"> </span>--track-origins<span class="o">=</span>yes<span class="w"> </span>--leak-check<span class="o">=</span>yes<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--show-leak-kinds<span class="o">=</span>all<span class="w"> </span>--read-var-info<span class="o">=</span>yes<span class="w"> </span>--log-file<span class="o">=</span>/tmp/valgrind.log<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>/usr/lib/postgresql/13/bin/postgres<span class="w"> </span>--single<span class="w"> </span>-D<span class="w"> </span>/var/lib/postgresql/13/main<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-c<span class="w"> </span><span class="nv">config_file</span><span class="o">=</span>/etc/postgresql/13/main/postgresql.conf<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>mydatabase
 </pre></div>
 </div>
 <p>Then Valgrind’s report is available in <code class="docutils literal notranslate"><span class="pre">/tmp/valgrind.log</span></code>.</p>
@@ -297,7 +298,7 @@ for Debian based distributions with PostgreSQL 13 and PostGIS 3:</p>
 <section id="gdb-interactive-mode">
 <h2>GDB interactive mode<a class="headerlink" href="#gdb-interactive-mode" title="Permalink to this heading"></a></h2>
 <p>GDB may be attached to a running session for debugging purpose:</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>psql mydatabase
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>psql<span class="w"> </span>mydatabase
 <span class="go">psql (14.5)</span>
 <span class="go">Type &quot;help&quot; for help.</span>
 
@@ -308,7 +309,7 @@ for Debian based distributions with PostgreSQL 13 and PostGIS 3:</p>
 <span class="gp gp-VirtualEnv">(1 row)</span>
 </pre></div>
 </div>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>sudo gdb -p <span class="m">34699</span>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>sudo<span class="w"> </span>gdb<span class="w"> </span>-p<span class="w"> </span><span class="m">34699</span>
 <span class="go">GNU gdb (GDB) 12.1</span>
 <span class="gp gp-VirtualEnv">(gdb)</span>
 </pre></div>
@@ -335,7 +336,7 @@ usual (step by step, backtrace, …).</p>
   
     <div class="footer">
         <div class="container">
-            &copy;  2022
+            &copy;  2023
             <a href="https://github.com/pramsey">Paul Ramsey</a>,
             <a href="http://github.com/pblottiere">Paul Blottiere</a>,
             <a href="http://github.com/mbredif">Mathieu Brédif</a>,

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Schema and compression &mdash; pgpointcloud</title>
@@ -12,10 +12,9 @@
     <script src="../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/jquery.js"></script>
-        <script src="../_static/underscore.js"></script>
         <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/doctools.js"></script>
         <script src="../_static/sphinx_highlight.js"></script>
     <script src="../_static/js/theme.js"></script>
@@ -31,14 +30,18 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="../index.html" class="icon icon-home"> pgPointcloud
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            pgPointcloud
           </a>
               <div class="version">
                 1.2.4
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -93,9 +96,9 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
-          <li><a href="index.html">Tutorials</a> &raquo;</li>
-      <li>Schema and compression</li>
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Tutorials</a></li>
+      <li class="breadcrumb-item active">Schema and compression</li>
       <li class="wy-breadcrumbs-aside">
       </li>
   </ul>
@@ -115,30 +118,30 @@ also stored in the patch itself. Of course, both needs to be consistent so
 updating an existing schema is hardly discouraged and may lead to errors.</p>
 <p>In the first case, the XML schema needs to be parsed with <code class="docutils literal notranslate"><span class="pre">xpath</span></code> function to
 retrieve the <code class="docutils literal notranslate"><span class="pre">pc:metadata</span></code> tag of a specific patch:</p>
-<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">WITH</span><span class="w"> </span><span class="n">tmp</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="p">(</span><span class="w"></span>
-<span class="w">    </span><span class="k">SELECT</span><span class="w"> </span><span class="n">pc_pcid</span><span class="p">(</span><span class="n">pa</span><span class="p">)</span><span class="w"></span>
-<span class="w">    </span><span class="k">AS</span><span class="w"> </span><span class="n">_pcid</span><span class="w"></span>
-<span class="w">    </span><span class="k">FROM</span><span class="w"> </span><span class="n">airport</span><span class="w"></span>
-<span class="w">    </span><span class="k">LIMIT</span><span class="w"> </span><span class="mi">1</span><span class="w"></span>
-<span class="p">)</span><span class="w"></span>
-<span class="k">SELECT</span><span class="w"> </span><span class="k">unnest</span><span class="p">(</span><span class="w"></span>
-<span class="w">    </span><span class="n">xpath</span><span class="p">(</span><span class="w"></span>
-<span class="w">        </span><span class="s1">&#39;/pc:PointCloudSchema/pc:metadata/Metadata/text()&#39;</span><span class="p">,</span><span class="w"></span>
-<span class="w">        </span><span class="k">schema</span><span class="p">::</span><span class="n">xml</span><span class="p">,</span><span class="w"></span>
-<span class="w">        </span><span class="nb">array</span><span class="p">[</span><span class="w"></span>
-<span class="w">            </span><span class="p">[</span><span class="s1">&#39;pc&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;http://pointcloud.org/schemas/PC/&#39;</span><span class="p">],</span><span class="w"></span>
-<span class="w">            </span><span class="p">[</span><span class="s1">&#39;xsi&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;http://www.w3.org/2001/XMLSchema-instance&#39;</span><span class="p">]</span><span class="w"></span>
-<span class="w">        </span><span class="p">]</span><span class="w"></span>
-<span class="w">    </span><span class="p">)</span><span class="w"></span>
-<span class="p">)</span><span class="w"></span>
-<span class="k">FROM</span><span class="w"> </span><span class="n">tmp</span><span class="p">,</span><span class="n">pointcloud_formats</span><span class="w"></span>
-<span class="k">WHERE</span><span class="w"> </span><span class="n">pcid</span><span class="o">=</span><span class="n">tmp</span><span class="p">.</span><span class="n">_pcid</span><span class="p">;</span><span class="w"></span>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">WITH</span><span class="w"> </span><span class="n">tmp</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="p">(</span>
+<span class="w">    </span><span class="k">SELECT</span><span class="w"> </span><span class="n">pc_pcid</span><span class="p">(</span><span class="n">pa</span><span class="p">)</span>
+<span class="w">    </span><span class="k">AS</span><span class="w"> </span><span class="n">_pcid</span>
+<span class="w">    </span><span class="k">FROM</span><span class="w"> </span><span class="n">airport</span>
+<span class="w">    </span><span class="k">LIMIT</span><span class="w"> </span><span class="mi">1</span>
+<span class="p">)</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="k">unnest</span><span class="p">(</span>
+<span class="w">    </span><span class="n">xpath</span><span class="p">(</span>
+<span class="w">        </span><span class="s1">&#39;/pc:PointCloudSchema/pc:metadata/Metadata/text()&#39;</span><span class="p">,</span>
+<span class="w">        </span><span class="k">schema</span><span class="p">::</span><span class="n">xml</span><span class="p">,</span>
+<span class="w">        </span><span class="nb">array</span><span class="p">[</span>
+<span class="w">            </span><span class="p">[</span><span class="s1">&#39;pc&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;http://pointcloud.org/schemas/PC/&#39;</span><span class="p">],</span>
+<span class="w">            </span><span class="p">[</span><span class="s1">&#39;xsi&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;http://www.w3.org/2001/XMLSchema-instance&#39;</span><span class="p">]</span>
+<span class="w">        </span><span class="p">]</span>
+<span class="w">    </span><span class="p">)</span>
+<span class="p">)</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">tmp</span><span class="p">,</span><span class="n">pointcloud_formats</span>
+<span class="k">WHERE</span><span class="w"> </span><span class="n">pcid</span><span class="o">=</span><span class="n">tmp</span><span class="p">.</span><span class="n">_pcid</span><span class="p">;</span>
 <span class="c1">--&gt; dimensional</span>
 </pre></div>
 </div>
 <p>A much easier way to retrieve the compression type is to take a look to the
 JSON summary of the patch:</p>
-<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">SELECT</span><span class="w"> </span><span class="n">pc_summary</span><span class="p">(</span><span class="n">pa</span><span class="p">)::</span><span class="n">json</span><span class="o">-&gt;</span><span class="s1">&#39;compr&#39;</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">airport</span><span class="w"> </span><span class="k">LIMIT</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"></span>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">SELECT</span><span class="w"> </span><span class="n">pc_summary</span><span class="p">(</span><span class="n">pa</span><span class="p">)::</span><span class="n">json</span><span class="o">-&gt;</span><span class="s1">&#39;compr&#39;</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">airport</span><span class="w"> </span><span class="k">LIMIT</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
 <span class="c1">--&gt; dimensional</span>
 </pre></div>
 </div>
@@ -150,10 +153,10 @@ JSON summary of the patch:</p>
 existing schema and tweak some parameters.</p>
 <p>For example, we can create a new schema without compression and based on the
 schema <code class="docutils literal notranslate"><span class="pre">pcid=1</span></code>:</p>
-<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">INSERT</span><span class="w"> </span><span class="k">INTO</span><span class="w"> </span><span class="n">pointcloud_formats</span><span class="w"> </span><span class="p">(</span><span class="n">pcid</span><span class="p">,</span><span class="w"> </span><span class="n">srid</span><span class="p">,</span><span class="w"> </span><span class="k">schema</span><span class="p">)</span><span class="w"></span>
-<span class="k">SELECT</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="n">srid</span><span class="p">,</span><span class="w"> </span><span class="n">regexp_replace</span><span class="p">(</span><span class="k">schema</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;dimensional&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;none&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;g&#39;</span><span class="p">)</span><span class="w"></span>
-<span class="k">FROM</span><span class="w"> </span><span class="n">pointcloud_formats</span><span class="w"></span>
-<span class="k">WHERE</span><span class="w"> </span><span class="n">pcid</span><span class="o">=</span><span class="mi">1</span><span class="p">;</span><span class="w"></span>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">INSERT</span><span class="w"> </span><span class="k">INTO</span><span class="w"> </span><span class="n">pointcloud_formats</span><span class="w"> </span><span class="p">(</span><span class="n">pcid</span><span class="p">,</span><span class="w"> </span><span class="n">srid</span><span class="p">,</span><span class="w"> </span><span class="k">schema</span><span class="p">)</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="n">srid</span><span class="p">,</span><span class="w"> </span><span class="n">regexp_replace</span><span class="p">(</span><span class="k">schema</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;dimensional&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;none&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;g&#39;</span><span class="p">)</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">pointcloud_formats</span>
+<span class="k">WHERE</span><span class="w"> </span><span class="n">pcid</span><span class="o">=</span><span class="mi">1</span><span class="p">;</span>
 </pre></div>
 </div>
 </section>
@@ -165,20 +168,20 @@ compression from an existing patch, we can use the schema with <code class="docu
 previously created.</p>
 <p>In this particular case, the transformed patch doesn’t have compression
 anymore:</p>
-<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">SELECT</span><span class="w"> </span><span class="n">pc_summary</span><span class="p">(</span><span class="n">pc_transform</span><span class="p">(</span><span class="n">pa</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">))::</span><span class="n">json</span><span class="o">-&gt;</span><span class="s1">&#39;compr&#39;</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">airport</span><span class="w"> </span><span class="k">LIMIT</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"></span>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">SELECT</span><span class="w"> </span><span class="n">pc_summary</span><span class="p">(</span><span class="n">pc_transform</span><span class="p">(</span><span class="n">pa</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">))::</span><span class="n">json</span><span class="o">-&gt;</span><span class="s1">&#39;compr&#39;</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">airport</span><span class="w"> </span><span class="k">LIMIT</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
 <span class="c1">--&gt; none</span>
 </pre></div>
 </div>
 <p>So a new table of uncompressed patches may be easily created:</p>
-<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">CREATE</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">airport_uncompressed</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="k">SELECT</span><span class="w"> </span><span class="n">pc_transform</span><span class="p">(</span><span class="n">pa</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">pa</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">airport</span><span class="p">;</span><span class="w"></span>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">CREATE</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">airport_uncompressed</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="k">SELECT</span><span class="w"> </span><span class="n">pc_transform</span><span class="p">(</span><span class="n">pa</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">pa</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">airport</span><span class="p">;</span>
 
-<span class="k">SELECT</span><span class="w"> </span><span class="n">pc_summary</span><span class="p">(</span><span class="n">pa</span><span class="p">)::</span><span class="n">json</span><span class="o">-&gt;</span><span class="s1">&#39;compr&#39;</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">airport_uncompressed</span><span class="w"> </span><span class="k">LIMIT</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"></span>
+<span class="k">SELECT</span><span class="w"> </span><span class="n">pc_summary</span><span class="p">(</span><span class="n">pa</span><span class="p">)::</span><span class="n">json</span><span class="o">-&gt;</span><span class="s1">&#39;compr&#39;</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">airport_uncompressed</span><span class="w"> </span><span class="k">LIMIT</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
 <span class="c1">--&gt;  none</span>
 
-<span class="k">SELECT</span><span class="w"> </span><span class="n">pc_astext</span><span class="p">(</span><span class="n">pc_patchavg</span><span class="p">(</span><span class="n">pa</span><span class="p">))</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">airport</span><span class="w"> </span><span class="k">LIMIT</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"></span>
+<span class="k">SELECT</span><span class="w"> </span><span class="n">pc_astext</span><span class="p">(</span><span class="n">pc_patchavg</span><span class="p">(</span><span class="n">pa</span><span class="p">))</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">airport</span><span class="w"> </span><span class="k">LIMIT</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
 <span class="c1">--&gt; {&quot;pcid&quot;:1,&quot;pt&quot;:[65535,0,0,0,0,0,0,0,0,30744,25999,17189,728265,4.67644e+06,299.08]}</span>
 
-<span class="k">SELECT</span><span class="w"> </span><span class="n">pc_astext</span><span class="p">(</span><span class="n">pc_patchavg</span><span class="p">(</span><span class="n">pa</span><span class="p">))</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">airport_uncompressed</span><span class="w"> </span><span class="k">LIMIT</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"></span>
+<span class="k">SELECT</span><span class="w"> </span><span class="n">pc_astext</span><span class="p">(</span><span class="n">pc_patchavg</span><span class="p">(</span><span class="n">pa</span><span class="p">))</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">airport_uncompressed</span><span class="w"> </span><span class="k">LIMIT</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
 <span class="c1">--&gt; {&quot;pcid&quot;:2,&quot;pt&quot;:[65535,0,0,0,0,0,0,0,0,30744,25999,17189,728265,4.67644e+06,299.08]}</span>
 </pre></div>
 </div>
@@ -202,7 +205,7 @@ anymore:</p>
   
     <div class="footer">
         <div class="container">
-            &copy;  2022
+            &copy;  2023
             <a href="https://github.com/pramsey">Paul Ramsey</a>,
             <a href="http://github.com/pblottiere">Paul Blottiere</a>,
             <a href="http://github.com/mbredif">Mathieu Brédif</a>,
