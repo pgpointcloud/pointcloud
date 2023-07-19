@@ -83,9 +83,10 @@ pgPointcloud is directly included in the `PostGIS`_ bundle.
 
 Debian packages are now `available`_ on:
 
-   - Ubuntu
-   - Debian Unstable
+   - Ubuntu 20.04
+   - Ubuntu 22.04
    - Debian Testing
+   - Debian Unstable
    - Raspbian Testing
 
 .. _`available`: https://tracker.debian.org/pkg/pgpointcloud
