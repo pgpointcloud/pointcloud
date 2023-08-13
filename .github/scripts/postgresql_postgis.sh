@@ -4,11 +4,13 @@ set -e
 
 curl https://www.postgresql.org/media/keys/ACCC4CF8.asc | gpg --dearmor | sudo tee /etc/apt/trusted.gpg.d/apt.postgresql.org.gpg >/dev/null
 
-if ["$POSTGRESQL_VERSION" = "12"];
+if [[ $POSTGRESQL_VERSION == *12* ]];
 then
   echo "deb http://apt.postgresql.org/pub/repos/apt/ `lsb_release -cs`-pgdg main $POSTGRESQL_VERSION" |sudo tee /etc/apt/sources.list.d/pgdg.list
+  echo "Using main repo"
 else
   echo "deb http://apt.postgresql.org/pub/repos/apt/ `lsb_release -cs`-pgdg-snapshot main $POSTGRESQL_VERSION" |sudo tee /etc/apt/sources.list.d/pgdg.list
+  echo "Using snapshot report for$POSTGRESQL_VERSION" 
 fi
 
 # RAISE priority of pgdg
