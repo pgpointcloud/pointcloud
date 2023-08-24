@@ -44,7 +44,11 @@ static PC_CONSTANTS *pc_constants_cache = NULL;
 static Oid pointcloud_get_full_version_schema()
 {
   const char *proname = "pointcloud_full_version";
+#if PGSQL_VERSION < 160
   List *names = stringToQualifiedNameList(proname);
+#else
+  List *names = stringToQualifiedNameList(proname, NULL);
+#endif
 #if PGSQL_VERSION < 140
   FuncCandidateList clist =
       FuncnameGetCandidates(names, -1, NIL, false, false, false);
