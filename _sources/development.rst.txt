@@ -123,7 +123,7 @@ Docker Image
 
 A ``Dockerfile`` is provided in the ``docker`` directory and based on the
 official PostgreSQL docker image available DockerHub_. The image generated
-is based on PostgreSQL 12, PostGIS 3 and the laz-perf support is activated.
+is based on PostgreSQL 14, PostGIS 3 and the laz-perf support is activated.
 
 .. code-block:: bash
 
