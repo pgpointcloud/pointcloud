@@ -155,7 +155,7 @@ and with various PostgreSQL/PostGIS releases:
 |                    |                       |                        |                        |
 |                    |                       | |15_33_jammy|          | |15_33_jammy|          |
 +--------------------+-----------------------+------------------------+------------------------+
-| PostgreSQL 16      |                       |                        | |16_jammy|             |
+| PostgreSQL 16      |                       | |16_33_jammy|          | |16_33_jammy|          |
 +--------------------+-----------------------+------------------------+------------------------+
 
 .. |12_25_focal| image:: https://img.shields.io/github/actions/workflow/status/pgpointcloud/pointcloud/focal_postgres12_postgis25.yml?branch=master&label=Ubuntu%2020.04&logo=github&style=plastic :target: https://github.com/pgpointcloud/pointcloud/actions?query=workflow%3A%22%5Bubuntu-20.04%5D+PostgreSQL+12+and+PostGIS+2.5%22
@@ -176,7 +176,7 @@ and with various PostgreSQL/PostGIS releases:
 
 .. |15_33_jammy| image:: https://img.shields.io/github/actions/workflow/status/pgpointcloud/pointcloud/jammy_postgres15_postgis33.yml?branch=master&label=Ubuntu%2022.04&logo=github&style=plastic :target: https://github.com/pgpointcloud/pointcloud/actions?query=workflow%3A%22%5Bubuntu-22.04%5D+PostgreSQL+15+and+PostGIS+3.3%22
 
-.. |16_jammy| image:: https://img.shields.io/github/actions/workflow/status/pgpointcloud/pointcloud/jammy_postgres16.yml?branch=master&label=Ubuntu%2022.04&logo=github&style=plastic :target: https://github.com/pgpointcloud/pointcloud/actions?query=workflow%3A%22%5Bubuntu-22.04%5D+PostgreSQL+16%22
+.. |16_33_jammy| image:: https://img.shields.io/github/actions/workflow/status/pgpointcloud/pointcloud/jammy_postgres16_postgis33.yml?branch=master&label=Ubuntu%2022.04&logo=github&style=plastic :target: https://github.com/pgpointcloud/pointcloud/actions?query=workflow%3A%22%5Bubuntu-22.04%5D+PostgreSQL+16+and+PostGIS+3.3%22
 
 .. _`source`: https://github.com/hobu/laz-perf
 .. _`DockerHub`: https://hub.docker.com/_/postgres
