@@ -1,4 +1,4 @@
-name: "[ubuntu-22.04] PostgreSQL 16"
+name: "[ubuntu-22.04] PostgreSQL 16 and PostGIS 3.3"
 
 on:
   push:
@@ -17,7 +17,7 @@ jobs:
       - name: Install PostgreSQL
         env:
           POSTGRESQL_VERSION: 16
-          # POSTGIS_VERSION: 3
+          POSTGIS_VERSION: 3
         run: .github/scripts/postgresql_postgis.sh
       - name: Install and check PgPointCloud
         run: .github/scripts/pgpointcloud.sh
