@@ -16,10 +16,10 @@ problems and allows a good integration with other geo-spatial data
 News
 --------------------------------------------------------------------------------
 
-**26-09-2022**
+**19-09-2023**
 ................................................................................
 
-pgPointcloud 1.2.4 has been released.
+pgPointcloud 1.2.5 has been released.
 
 
 Concepts
