@@ -138,7 +138,7 @@ if test "x$CUNITDIR" != "x"; then
   CPPFLAGS="${CPPFLAGS_SAVE}"
 fi
 
-if test "$FOUND_CUNIT" = "YES"; then
+if test "$FOUND_CUNIT" = "YES" && test x${with_cunit} != "xno"; then
   AC_DEFINE([HAVE_CUNIT], [1], [Have CUnit])
   CUNIT_STATUS="enabled"
   if test $CUNITDIR; then
