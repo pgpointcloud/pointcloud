@@ -57,6 +57,10 @@ SHLIB_LINK += ../lib/$(LIB_A) ../lib/$(LIB_A_LAZPERF) -lstdc++ $(filter -lm, $(L
 # We are going to use PGXS for sure
 include $(PGXS)
 
+# Should be here to have an effect
+CC = @CC@
+CXX = @CXX@
+
 $(EXTENSION).control: $(EXTENSION).control.in Makefile
 	$(SED) -e 's/#POINTCLOUD_VERSION#/$(EXTVERSION)/' \
          -e 's/#POINTCLOUD_VERSION_MAJOR#/$(EXTVERSION_MAJOR)/' $< > $@
