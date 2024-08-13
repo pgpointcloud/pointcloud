@@ -9,7 +9,7 @@ on:
 jobs:
   c_code_layout:
     name: C linter
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
       - name: Check out repository code
         uses: actions/checkout@v2
@@ -19,7 +19,7 @@ jobs:
         run: clang-format --dry-run --Werror -style=file pgsql/*.c pgsql/*.h lib/*.c lib/*.cpp lib/*.hpp lib/*.h lib/cunit/*.c lib/cunit/*.h
   sql_code_layout:
     name: SQL linter
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
     steps:
       - name: Install nvm
         uses: actions/setup-node@v1

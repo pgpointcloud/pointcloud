@@ -1,7 +1,7 @@
-FROM postgres:12
+FROM postgres:14
 MAINTAINER Paul Blottiere <blottiere.paul@gmail.com>
 
-ENV POSTGRES_VERSION 12
+ENV POSTGRES_VERSION 14
 ENV POSTGIS_VERSION 3
 
 RUN apt-get update \
