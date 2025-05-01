@@ -18,7 +18,7 @@ jobs:
       - name: Build html documentation
         run: virtualenv -p /usr/bin/python3 venv && source venv/bin/activate && pip install sphinx sphinx_rtd_theme && cd doc && make html && cd -
       - name: Deploy
-        uses: peaceiris/actions-gh-pages@v4
+        uses: peaceiris/actions-gh-pages@v3
         with:
           deploy_key: ${{ secrets.ACTIONS_DEPLOY_KEY }}
           publish_branch: gh-pages
