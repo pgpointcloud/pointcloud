@@ -1,22 +1,22 @@
+
+
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="./">
 <head>
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Getting Started &mdash; pgpointcloud</title>
-      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-    <link rel="shortcut icon" href="_static/favicon.ico"/>
-  <!--[if lt IE 9]>
-    <script src="_static/js/html5shiv.min.js"></script>
-  <![endif]-->
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+
   
-        <script src="_static/jquery.js?v=5d32c60e"></script>
-        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=148feb7c"></script>
-        <script src="_static/doctools.js?v=888ff710"></script>
-        <script src="_static/sphinx_highlight.js?v=4825356b"></script>
+    <link rel="shortcut icon" href="_static/favicon.ico"/>
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=36f53d34"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -36,9 +36,6 @@
           <a href="index.html" class="icon icon-home">
             pgPointcloud
           </a>
-              <div class="version">
-                1.2.5
-              </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
@@ -104,9 +101,9 @@
            <div itemprop="articleBody">
              
   <section id="getting-started">
-<span id="quickstart"></span><h1>Getting Started<a class="headerlink" href="#getting-started" title="Permalink to this heading"></a></h1>
+<span id="quickstart"></span><h1>Getting Started<a class="headerlink" href="#getting-started" title="Link to this heading"></a></h1>
 <section id="introduction">
-<h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this heading"></a></h2>
+<h2>Introduction<a class="headerlink" href="#introduction" title="Link to this heading"></a></h2>
 <p>Once pgPointcloud installed, the first step is to load a point cloud in
 PostgreSQL to start playing with <code class="docutils literal notranslate"><span class="pre">PcPatch</span></code> and <code class="docutils literal notranslate"><span class="pre">PcPoint</span></code>.</p>
 <p>To do that you can write your own loader, using the uncompressed WKB format, or
@@ -114,13 +111,13 @@ more simply you can load existing LIDAR files using the <a class="reference exte
 format conversion library.</p>
 </section>
 <section id="install-pdal">
-<h2>Install PDAL<a class="headerlink" href="#install-pdal" title="Permalink to this heading"></a></h2>
+<h2>Install PDAL<a class="headerlink" href="#install-pdal" title="Link to this heading"></a></h2>
 <p>To install PDAL check out the PDAL <a class="reference external" href="https://pdal.io/development/">development documentation</a>.</p>
 <p>With PDAL installed you’re ready to run a PDAL import into PostgreSQL
 PointCloud thanks to the dedicated <a class="reference external" href="https://pdal.io/stages/writers.pgpointcloud.html#writers-pgpointcloud">pgPointcloud writer</a>.</p>
 </section>
 <section id="running-a-pipeline">
-<h2>Running a pipeline<a class="headerlink" href="#running-a-pipeline" title="Permalink to this heading"></a></h2>
+<h2>Running a pipeline<a class="headerlink" href="#running-a-pipeline" title="Link to this heading"></a></h2>
 <p>PDAL includes a <a class="reference external" href="https://pdal.io/apps/index.html">command line program</a> that allows both simple format
 translations and more complex “pipelines” of transformation. The pdal translate
 does simple format transformations. In order to load data into Pointcloud we
@@ -208,7 +205,7 @@ partial extracts from a table:</p>
 </div>
 </section>
 <section id="pgpointcloud-reader-writer">
-<h2>pgpointcloud reader/writer<a class="headerlink" href="#pgpointcloud-reader-writer" title="Permalink to this heading"></a></h2>
+<h2>pgpointcloud reader/writer<a class="headerlink" href="#pgpointcloud-reader-writer" title="Link to this heading"></a></h2>
 <p>The PDAL <a class="reference external" href="https://pdal.io/stages/writers.pgpointcloud.html">writers.pgpointcloud</a> for PostgreSQL Pointcloud takes the following
 options:</p>
 <ul class="simple">
@@ -253,7 +250,7 @@ options:</p>
   
     <div class="footer">
         <div class="container">
-            &copy;  2023
+            &copy;  2025
             <a href="https://github.com/pramsey">Paul Ramsey</a>,
             <a href="http://github.com/pblottiere">Paul Blottiere</a>,
             <a href="http://github.com/mbredif">Mathieu Brédif</a>,

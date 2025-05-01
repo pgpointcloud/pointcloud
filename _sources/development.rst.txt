@@ -136,43 +136,21 @@ Continuous Integration
 pgPointcloud tests are run with `Github Actions`_ on several Ubuntu versions
 and with various PostgreSQL/PostGIS releases:
 
-+--------------------+-----------------------+------------------------+------------------------+
-|                    | PostGIS 2.5           | PostGIS 3.3            | W/O PostGIS            |
-+--------------------+-----------------------+------------------------+------------------------+
-| PostgreSQL 12      | |12_25_focal|         | |12_33_focal|          | |12_33_focal|          |
-|                    |                       |                        |                        |
-|                    |                       | |12_33_jammy|          | |12_33_jammy|          |
-+--------------------+-----------------------+------------------------+------------------------+
-| PostgreSQL 13      |                       | |13_33_focal|          | |13_33_focal|          |
-|                    |                       |                        |                        |
-|                    |                       | |13_33_jammy|          | |13_33_jammy|          |
-+--------------------+-----------------------+------------------------+------------------------+
-| PostgreSQL 14      |                       | |14_33_focal|          | |14_33_focal|          |
-|                    |                       |                        |                        |
-|                    |                       | |14_33_jammy|          | |14_33_jammy|          |
-+--------------------+-----------------------+------------------------+------------------------+
-| PostgreSQL 15      |                       | |15_33_focal|          | |15_33_focal|          |
-|                    |                       |                        |                        |
-|                    |                       | |15_33_jammy|          | |15_33_jammy|          |
-+--------------------+-----------------------+------------------------+------------------------+
-| PostgreSQL 16      |                       | |16_33_jammy|          | |16_33_jammy|          |
-+--------------------+-----------------------+------------------------+------------------------+
-
-.. |12_25_focal| image:: https://img.shields.io/github/actions/workflow/status/pgpointcloud/pointcloud/focal_postgres12_postgis25.yml?branch=master&label=Ubuntu%2020.04&logo=github&style=plastic :target: https://github.com/pgpointcloud/pointcloud/actions?query=workflow%3A%22%5Bubuntu-20.04%5D+PostgreSQL+12+and+PostGIS+2.5%22
-
-.. |12_33_focal| image:: https://img.shields.io/github/actions/workflow/status/pgpointcloud/pointcloud/focal_postgres12_postgis33.yml?branch=master&label=Ubuntu%2020.04&logo=github&style=plastic :target: https://github.com/pgpointcloud/pointcloud/actions?query=workflow%3A%22%5Bubuntu-20.04%5D+PostgreSQL+12+and+PostGIS+3.3%22
-
-.. |12_33_jammy| image:: https://img.shields.io/github/actions/workflow/status/pgpointcloud/pointcloud/jammy_postgres12_postgis33.yml?branch=master&label=Ubuntu%2022.04&logo=github&style=plastic :target: https://github.com/pgpointcloud/pointcloud/actions?query=workflow%3A%22%5Bubuntu-22.04%5D+PostgreSQL+12+and+PostGIS+3.3%22
-
-.. |13_33_focal| image:: https://img.shields.io/github/actions/workflow/status/pgpointcloud/pointcloud/focal_postgres13_postgis33.yml?branch=master&label=Ubuntu%2020.04&logo=github&style=plastic :target: https://github.com/pgpointcloud/pointcloud/actions?query=workflow%3A%22%5Bubuntu-20.04%5D+PostgreSQL+13+and+PostGIS+3.3%22
++--------------------+-----------------------+-------------------------+
+|                    | PostGIS 3.3            | W/O PostGIS            |
++--------------------+------------------------+------------------------+
+| PostgreSQL 13      | |13_33_jammy|          | |13_33_jammy|          |
++--------------------+------------------------+------------------------+
+| PostgreSQL 14      | |14_33_jammy|          | |14_33_jammy|          |
++--------------------+------------------------+------------------------+
+| PostgreSQL 15      | |15_33_jammy|          | |15_33_jammy|          |
++--------------------+------------------------+------------------------+
+| PostgreSQL 16      | |16_33_jammy|          | |16_33_jammy|          |
++--------------------+-----------------------+-------------------------+
 
 .. |13_33_jammy| image:: https://img.shields.io/github/actions/workflow/status/pgpointcloud/pointcloud/jammy_postgres13_postgis33.yml?branch=master&label=Ubuntu%2022.04&logo=github&style=plastic :target: https://github.com/pgpointcloud/pointcloud/actions?query=workflow%3A%22%5Bubuntu-22.04%5D+PostgreSQL+13+and+PostGIS+3.3%22
 
-.. |14_33_focal| image:: https://img.shields.io/github/actions/workflow/status/pgpointcloud/pointcloud/focal_postgres14_postgis33.yml?branch=master&label=Ubuntu%2020.04&logo=github&style=plastic :target: https://github.com/pgpointcloud/pointcloud/actions?query=workflow%3A%22%5Bubuntu-20.04%5D+PostgreSQL+14+and+PostGIS+3.3%22
-
 .. |14_33_jammy| image:: https://img.shields.io/github/actions/workflow/status/pgpointcloud/pointcloud/jammy_postgres14_postgis33.yml?branch=master&label=Ubuntu%2022.04&logo=github&style=plastic :target: https://github.com/pgpointcloud/pointcloud/actions?query=workflow%3A%22%5Bubuntu-22.04%5D+PostgreSQL+14+and+PostGIS+3.3%22
-
-.. |15_33_focal| image:: https://img.shields.io/github/actions/workflow/status/pgpointcloud/pointcloud/focal_postgres15_postgis33.yml?branch=master&label=Ubuntu%2020.04&logo=github&style=plastic :target: https://github.com/pgpointcloud/pointcloud/actions?query=workflow%3A%22%5Bubuntu-20.04%5D+PostgreSQL+15+and+PostGIS+3.3%22
 
 .. |15_33_jammy| image:: https://img.shields.io/github/actions/workflow/status/pgpointcloud/pointcloud/jammy_postgres15_postgis33.yml?branch=master&label=Ubuntu%2022.04&logo=github&style=plastic :target: https://github.com/pgpointcloud/pointcloud/actions?query=workflow%3A%22%5Bubuntu-22.04%5D+PostgreSQL+15+and+PostGIS+3.3%22
 

@@ -1,22 +1,22 @@
+
+
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="../">
 <head>
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Storing points &mdash; pgpointcloud</title>
-      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
-    <link rel="shortcut icon" href="../_static/favicon.ico"/>
-  <!--[if lt IE 9]>
-    <script src="../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+
   
-        <script src="../_static/jquery.js?v=5d32c60e"></script>
-        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=148feb7c"></script>
-        <script src="../_static/doctools.js?v=888ff710"></script>
-        <script src="../_static/sphinx_highlight.js?v=4825356b"></script>
+    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=36f53d34"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -36,9 +36,6 @@
           <a href="../index.html" class="icon icon-home">
             pgPointcloud
           </a>
-              <div class="version">
-                1.2.5
-              </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
@@ -108,11 +105,11 @@
            <div itemprop="articleBody">
              
   <section id="storing-points">
-<h1>Storing points<a class="headerlink" href="#storing-points" title="Permalink to this heading"></a></h1>
+<h1>Storing points<a class="headerlink" href="#storing-points" title="Link to this heading"></a></h1>
 <p>This tutorial is a basic introduction to pgPointcloud to store points in a
 PostgreSQL database hosted on a Docker container.</p>
 <section id="start-docker-container">
-<h2>Start Docker container<a class="headerlink" href="#start-docker-container" title="Permalink to this heading"></a></h2>
+<h2>Start Docker container<a class="headerlink" href="#start-docker-container" title="Link to this heading"></a></h2>
 <p>First we download the latest tag of the pgPoincloud Docker image:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>docker<span class="w"> </span>pull<span class="w"> </span>pgpointcloud/pointcloud
 </pre></div>
@@ -145,7 +142,7 @@ documentation is available <a class="reference external" href="https://hub.docke
 </div>
 </section>
 <section id="run-pdal-pipeline">
-<h2>Run PDAL pipeline<a class="headerlink" href="#run-pdal-pipeline" title="Permalink to this heading"></a></h2>
+<h2>Run PDAL pipeline<a class="headerlink" href="#run-pdal-pipeline" title="Link to this heading"></a></h2>
 <p>For the need of the tutorial, we can download sample data from the <a class="reference external" href="https://github.com/PDAL">PDAL</a>
 organization:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>wget<span class="w"> </span>https://github.com/PDAL/data/raw/master/liblas/LAS12_Sample_withRGB_Quick_Terrain_Modeler_fixed.laz<span class="w"> </span>-P<span class="w"> </span>/tmp
@@ -189,7 +186,7 @@ adress on which the PostgreSQL database is running is necessary:</p>
 and an <code class="docutils literal notranslate"><span class="pre">airport</span></code> table is created.</p>
 </section>
 <section id="configure-connection-service-file">
-<h2>Configure connection service file<a class="headerlink" href="#configure-connection-service-file" title="Permalink to this heading"></a></h2>
+<h2>Configure connection service file<a class="headerlink" href="#configure-connection-service-file" title="Link to this heading"></a></h2>
 <p>To facilitate the access to the database hosted on the Docker container, we can
 configure the PostgreSQL connection service file:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="o">[</span>pgpointcloud<span class="o">]</span>
@@ -235,7 +232,7 @@ fully filled.</p>
   
     <div class="footer">
         <div class="container">
-            &copy;  2023
+            &copy;  2025
             <a href="https://github.com/pramsey">Paul Ramsey</a>,
             <a href="http://github.com/pblottiere">Paul Blottiere</a>,
             <a href="http://github.com/mbredif">Mathieu Brédif</a>,

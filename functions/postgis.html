@@ -1,22 +1,22 @@
+
+
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="../">
 <head>
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>PostGIS &mdash; pgpointcloud</title>
-      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
-    <link rel="shortcut icon" href="../_static/favicon.ico"/>
-  <!--[if lt IE 9]>
-    <script src="../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+
   
-        <script src="../_static/jquery.js?v=5d32c60e"></script>
-        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=148feb7c"></script>
-        <script src="../_static/doctools.js?v=888ff710"></script>
-        <script src="../_static/sphinx_highlight.js?v=4825356b"></script>
+    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=36f53d34"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -36,9 +36,6 @@
           <a href="../index.html" class="icon icon-home">
             pgPointcloud
           </a>
-              <div class="version">
-                1.2.5
-              </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
@@ -112,7 +109,7 @@
            <div itemprop="articleBody">
              
   <section id="postgis">
-<span id="points"></span><h1>PostGIS<a class="headerlink" href="#postgis" title="Permalink to this heading"></a></h1>
+<span id="points"></span><h1>PostGIS<a class="headerlink" href="#postgis" title="Link to this heading"></a></h1>
 <p>The <code class="docutils literal notranslate"><span class="pre">pointcloud_postgis</span></code> extension adds functions that allow you to use
 PostgreSQL Pointcloud with PostGIS, converting <code class="docutils literal notranslate"><span class="pre">PcPoint</span></code> and <code class="docutils literal notranslate"><span class="pre">PcPatch</span></code> to
 Geometry and doing spatial filtering on point cloud data. The
@@ -124,7 +121,7 @@ Geometry and doing spatial filtering on point cloud data. The
 </pre></div>
 </div>
 <section id="pc-intersects">
-<h2>PC_Intersects<a class="headerlink" href="#pc-intersects" title="Permalink to this heading"></a></h2>
+<h2>PC_Intersects<a class="headerlink" href="#pc-intersects" title="Link to this heading"></a></h2>
 <dl class="field-list simple">
 <dt class="field-odd">PC_Intersects(p pcpatch, g geometry) returns boolean<span class="colon">:</span></dt>
 <dd class="field-odd"><p></p></dd>
@@ -140,7 +137,7 @@ Geometry and doing spatial filtering on point cloud data. The
 </div>
 </section>
 <section id="pc-intersection">
-<h2>PC_Intersection<a class="headerlink" href="#pc-intersection" title="Permalink to this heading"></a></h2>
+<h2>PC_Intersection<a class="headerlink" href="#pc-intersection" title="Link to this heading"></a></h2>
 <dl class="field-list simple">
 <dt class="field-odd">PC_Intersection(pcpatch, geometry) returns pcpatch<span class="colon">:</span></dt>
 <dd class="field-odd"><p></p></dd>
@@ -162,7 +159,7 @@ Geometry and doing spatial filtering on point cloud data. The
 </div>
 </section>
 <section id="geometry">
-<h2>Geometry<a class="headerlink" href="#geometry" title="Permalink to this heading"></a></h2>
+<h2>Geometry<a class="headerlink" href="#geometry" title="Link to this heading"></a></h2>
 <dl class="field-list simple">
 <dt class="field-odd">Geometry(pcpoint) returns geometry<span class="colon">:</span></dt>
 <dd class="field-odd"><p></p></dd>
@@ -178,7 +175,7 @@ Geometry and doing spatial filtering on point cloud data. The
 </div>
 </section>
 <section id="pc-envelopegeometry">
-<h2>PC_EnvelopeGeometry<a class="headerlink" href="#pc-envelopegeometry" title="Permalink to this heading"></a></h2>
+<h2>PC_EnvelopeGeometry<a class="headerlink" href="#pc-envelopegeometry" title="Link to this heading"></a></h2>
 <dl class="field-list simple">
 <dt class="field-odd">PC_EnvelopeGeometry(pcpatch) returns geometry<span class="colon">:</span></dt>
 <dd class="field-odd"><p></p></dd>
@@ -196,7 +193,7 @@ performing 2D intersection tests with PostGIS geometries.</p>
 </div>
 </section>
 <section id="pc-boundingdiagonalgeometry">
-<h2>PC_BoundingDiagonalGeometry<a class="headerlink" href="#pc-boundingdiagonalgeometry" title="Permalink to this heading"></a></h2>
+<h2>PC_BoundingDiagonalGeometry<a class="headerlink" href="#pc-boundingdiagonalgeometry" title="Link to this heading"></a></h2>
 <dl class="field-list simple">
 <dt class="field-odd">PC_BoundingDiagonalGeometry(pcpatch) returns geometry<span class="colon">:</span></dt>
 <dd class="field-odd"><p></p></dd>
@@ -245,7 +242,7 @@ index on a patch column.</p>
   
     <div class="footer">
         <div class="container">
-            &copy;  2023
+            &copy;  2025
             <a href="https://github.com/pramsey">Paul Ramsey</a>,
             <a href="http://github.com/pblottiere">Paul Blottiere</a>,
             <a href="http://github.com/mbredif">Mathieu Brédif</a>,

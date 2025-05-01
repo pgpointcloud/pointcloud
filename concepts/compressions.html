@@ -1,22 +1,22 @@
+
+
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="../">
 <head>
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Compressions &mdash; pgpointcloud</title>
-      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
-    <link rel="shortcut icon" href="../_static/favicon.ico"/>
-  <!--[if lt IE 9]>
-    <script src="../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+
   
-        <script src="../_static/jquery.js?v=5d32c60e"></script>
-        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=148feb7c"></script>
-        <script src="../_static/doctools.js?v=888ff710"></script>
-        <script src="../_static/sphinx_highlight.js?v=4825356b"></script>
+    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=36f53d34"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -36,9 +36,6 @@
           <a href="../index.html" class="icon icon-home">
             pgPointcloud
           </a>
-              <div class="version">
-                1.2.5
-              </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
@@ -109,7 +106,7 @@
            <div itemprop="articleBody">
              
   <section id="compressions">
-<span id="id1"></span><h1>Compressions<a class="headerlink" href="#compressions" title="Permalink to this heading"></a></h1>
+<span id="id1"></span><h1>Compressions<a class="headerlink" href="#compressions" title="Link to this heading"></a></h1>
 <p>One of the issues with LIDAR data is that there is a lot of it. To deal with
 data volumes, PostgreSQL Pointcloud allows schemas to declare their preferred
 compression method in the <code class="docutils literal notranslate"><span class="pre">&lt;pc:metadata&gt;</span></code> block of the schema document. In
@@ -132,23 +129,23 @@ use of the LAZ compression.  If no compression is declared in
 <code class="docutils literal notranslate"><span class="pre">&lt;pc:metadata&gt;</span></code>, then a compression of “none” is assumed.</p></li>
 </ul>
 <section id="dimensional-compression">
-<h2>Dimensional Compression<a class="headerlink" href="#dimensional-compression" title="Permalink to this heading"></a></h2>
+<h2>Dimensional Compression<a class="headerlink" href="#dimensional-compression" title="Link to this heading"></a></h2>
 <p>Dimensional compression first flips the patch representation from a list of N
 points containing M dimension values to a list of M dimensions each containing
 N values.</p>
-<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span>{&quot;pcid&quot;:1,&quot;pts&quot;:[
-      [-126.99,45.01,1,0],[-126.98,45.02,2,0],[-126.97,45.03,3,0],
-      [-126.96,45.04,4,0],[-126.95,45.05,5,0],[-126.94,45.06,6,0]
-     ]}
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="err">{</span><span class="ss">&quot;pcid&quot;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span><span class="ss">&quot;pts&quot;</span><span class="p">:[</span>
+<span class="w">      </span><span class="p">[</span><span class="o">-</span><span class="mi">126</span><span class="p">.</span><span class="mi">99</span><span class="p">,</span><span class="mi">45</span><span class="p">.</span><span class="mi">01</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">],[</span><span class="o">-</span><span class="mi">126</span><span class="p">.</span><span class="mi">98</span><span class="p">,</span><span class="mi">45</span><span class="p">.</span><span class="mi">02</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">0</span><span class="p">],[</span><span class="o">-</span><span class="mi">126</span><span class="p">.</span><span class="mi">97</span><span class="p">,</span><span class="mi">45</span><span class="p">.</span><span class="mi">03</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span>
+<span class="w">      </span><span class="p">[</span><span class="o">-</span><span class="mi">126</span><span class="p">.</span><span class="mi">96</span><span class="p">,</span><span class="mi">45</span><span class="p">.</span><span class="mi">04</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">0</span><span class="p">],[</span><span class="o">-</span><span class="mi">126</span><span class="p">.</span><span class="mi">95</span><span class="p">,</span><span class="mi">45</span><span class="p">.</span><span class="mi">05</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">0</span><span class="p">],[</span><span class="o">-</span><span class="mi">126</span><span class="p">.</span><span class="mi">94</span><span class="p">,</span><span class="mi">45</span><span class="p">.</span><span class="mi">06</span><span class="p">,</span><span class="mi">6</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span>
+<span class="w">     </span><span class="p">]</span><span class="err">}</span>
 </pre></div>
 </div>
 <p>Becomes, notionally:</p>
-<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span>{&quot;pcid&quot;:1,&quot;dims&quot;:[
-      [-126.99,-126.98,-126.97,-126.96,-126.95,-126.94],
-      [45.01,45.02,45.03,45.04,45.05,45.06],
-      [1,2,3,4,5,6],
-      [0,0,0,0,0,0]
-     ]}
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="err">{</span><span class="ss">&quot;pcid&quot;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span><span class="ss">&quot;dims&quot;</span><span class="p">:[</span>
+<span class="w">      </span><span class="p">[</span><span class="o">-</span><span class="mi">126</span><span class="p">.</span><span class="mi">99</span><span class="p">,</span><span class="o">-</span><span class="mi">126</span><span class="p">.</span><span class="mi">98</span><span class="p">,</span><span class="o">-</span><span class="mi">126</span><span class="p">.</span><span class="mi">97</span><span class="p">,</span><span class="o">-</span><span class="mi">126</span><span class="p">.</span><span class="mi">96</span><span class="p">,</span><span class="o">-</span><span class="mi">126</span><span class="p">.</span><span class="mi">95</span><span class="p">,</span><span class="o">-</span><span class="mi">126</span><span class="p">.</span><span class="mi">94</span><span class="p">],</span>
+<span class="w">      </span><span class="p">[</span><span class="mi">45</span><span class="p">.</span><span class="mi">01</span><span class="p">,</span><span class="mi">45</span><span class="p">.</span><span class="mi">02</span><span class="p">,</span><span class="mi">45</span><span class="p">.</span><span class="mi">03</span><span class="p">,</span><span class="mi">45</span><span class="p">.</span><span class="mi">04</span><span class="p">,</span><span class="mi">45</span><span class="p">.</span><span class="mi">05</span><span class="p">,</span><span class="mi">45</span><span class="p">.</span><span class="mi">06</span><span class="p">],</span>
+<span class="w">      </span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">6</span><span class="p">],</span>
+<span class="w">      </span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span>
+<span class="w">     </span><span class="p">]</span><span class="err">}</span>
 </pre></div>
 </div>
 <p>The potential benefit for compression is that each dimension has quite
@@ -186,7 +183,7 @@ dimensional scheme compresses at between 3:1 and 5:1 efficiency.</p>
   
     <div class="footer">
         <div class="container">
-            &copy;  2023
+            &copy;  2025
             <a href="https://github.com/pramsey">Paul Ramsey</a>,
             <a href="http://github.com/pblottiere">Paul Blottiere</a>,
             <a href="http://github.com/mbredif">Mathieu Brédif</a>,

@@ -178,39 +178,6 @@ each point in the patch.
 
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-PC_PatchAvg
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-:PC_PatchAvg(p pcpatch, dimname text) returns numeric:
-
-Reads the values of the requested dimension for all points in the patch and
-returns the average of those values. Dimension name must exist in the schema.
-
-.. code-block::
-
-    SELECT PC_PatchAvg(pa, 'intensity')
-    FROM patches WHERE id = 7;
-
-    5.0000000000000000
-
-
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-PC_PatchMax
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-:PC_PatchMax(p pcpatch, dimname text) returns numeric:
-
-Reads the values of the requested dimension for all points in the patch and
-returns the maximum of those values. Dimension name must exist in the schema.
-
-.. code-block::
-
-    SELECT PC_PatchMax(pa, 'x')
-    FROM patches WHERE id = 7;
-
-    -126.41
-
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 PC_PatchMin
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -241,6 +208,18 @@ Returns a PcPoint with the minimum values of each dimension in the patch.
 PC_PatchAvg
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+:PC_PatchAvg(p pcpatch, dimname text) returns numeric:
+
+Reads the values of the requested dimension for all points in the patch and
+returns the average of those values. Dimension name must exist in the schema.
+
+.. code-block::
+
+    SELECT PC_PatchAvg(pa, 'intensity')
+    FROM patches WHERE id = 7;
+
+    5.0000000000000000
+
 :PC_PatchAvg(p pcpatch) returns pcpoint:
 
 Returns a PcPoint with the average values of each dimension in the patch.
@@ -256,6 +235,18 @@ Returns a PcPoint with the average values of each dimension in the patch.
 PC_PatchMax
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+:PC_PatchMax(p pcpatch, dimname text) returns numeric:
+
+Reads the values of the requested dimension for all points in the patch and
+returns the maximum of those values. Dimension name must exist in the schema.
+
+.. code-block::
+
+    SELECT PC_PatchMax(pa, 'x')
+    FROM patches WHERE id = 7;
+
+    -126.41
+
 :PC_PatchMax(p pcpatch) returns pcpoint:
 
 Returns a PcPoint with the maximum values of each dimension in the patch.
@@ -266,7 +257,6 @@ Returns a PcPoint with the maximum values of each dimension in the patch.
     FROM patches WHERE id = 7;
 
     {"pcid":1,"pt":[-126.41,45.59,59,5]}
-
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 PC_FilterGreaterThan
@@ -283,7 +273,6 @@ value for the requested dimension.
     FROM patches WHERE id = 7;
 
      {"pcid":1,"pts":[[-126.42,45.58,58,5],[-126.41,45.59,59,5]]}
-
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 PC_FilterLessThan

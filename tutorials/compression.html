@@ -1,22 +1,22 @@
+
+
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="../">
 <head>
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Schema and compression &mdash; pgpointcloud</title>
-      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
-    <link rel="shortcut icon" href="../_static/favicon.ico"/>
-  <!--[if lt IE 9]>
-    <script src="../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+
   
-        <script src="../_static/jquery.js?v=5d32c60e"></script>
-        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=148feb7c"></script>
-        <script src="../_static/doctools.js?v=888ff710"></script>
-        <script src="../_static/sphinx_highlight.js?v=4825356b"></script>
+    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=36f53d34"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -36,9 +36,6 @@
           <a href="../index.html" class="icon icon-home">
             pgPointcloud
           </a>
-              <div class="version">
-                1.2.5
-              </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
@@ -108,11 +105,11 @@
            <div itemprop="articleBody">
              
   <section id="schema-and-compression">
-<h1>Schema and compression<a class="headerlink" href="#schema-and-compression" title="Permalink to this heading"></a></h1>
+<h1>Schema and compression<a class="headerlink" href="#schema-and-compression" title="Link to this heading"></a></h1>
 <p>This tutorial is an introduction for investigating XML schemas and playing with
 compression of patches.</p>
 <section id="compression-type">
-<h2>Compression type<a class="headerlink" href="#compression-type" title="Permalink to this heading"></a></h2>
+<h2>Compression type<a class="headerlink" href="#compression-type" title="Link to this heading"></a></h2>
 <p>The compression of a patch may be retrieved through its XML schema but it’s
 also stored in the patch itself. Of course, both needs to be consistent so
 updating an existing schema is hardly discouraged and may lead to errors.</p>
@@ -147,7 +144,7 @@ JSON summary of the patch:</p>
 </div>
 </section>
 <section id="create-a-new-schema">
-<h2>Create a new schema<a class="headerlink" href="#create-a-new-schema" title="Permalink to this heading"></a></h2>
+<h2>Create a new schema<a class="headerlink" href="#create-a-new-schema" title="Link to this heading"></a></h2>
 <p>A schema is just a XML document and may be manually inserted into the
 <code class="docutils literal notranslate"><span class="pre">pointcloud_formats</span></code> table directly from a file. We can also duplicate an
 existing schema and tweak some parameters.</p>
@@ -161,7 +158,7 @@ schema <code class="docutils literal notranslate"><span class="pre">pcid=1</span
 </div>
 </section>
 <section id="transform-a-patch">
-<h2>Transform a patch<a class="headerlink" href="#transform-a-patch" title="Permalink to this heading"></a></h2>
+<h2>Transform a patch<a class="headerlink" href="#transform-a-patch" title="Link to this heading"></a></h2>
 <p>Thanks to the <code class="docutils literal notranslate"><span class="pre">pc_transform</span></code> function, we can transform the underlying data
 of a patch to match a specific schema. So if we want to remove the dimensional
 compression from an existing patch, we can use the schema with <code class="docutils literal notranslate"><span class="pre">pcid=2</span></code>
@@ -205,7 +202,7 @@ anymore:</p>
   
     <div class="footer">
         <div class="container">
-            &copy;  2023
+            &copy;  2025
             <a href="https://github.com/pramsey">Paul Ramsey</a>,
             <a href="http://github.com/pblottiere">Paul Blottiere</a>,
             <a href="http://github.com/mbredif">Mathieu Brédif</a>,

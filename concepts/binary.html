@@ -1,22 +1,22 @@
+
+
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="../">
 <head>
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Binary Formats &mdash; pgpointcloud</title>
-      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
-    <link rel="shortcut icon" href="../_static/favicon.ico"/>
-  <!--[if lt IE 9]>
-    <script src="../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+
   
-        <script src="../_static/jquery.js?v=5d32c60e"></script>
-        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=148feb7c"></script>
-        <script src="../_static/doctools.js?v=888ff710"></script>
-        <script src="../_static/sphinx_highlight.js?v=4825356b"></script>
+    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=36f53d34"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -36,9 +36,6 @@
           <a href="../index.html" class="icon icon-home">
             pgPointcloud
           </a>
-              <div class="version">
-                1.2.5
-              </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
@@ -115,7 +112,7 @@
            <div itemprop="articleBody">
              
   <section id="binary-formats">
-<span id="id1"></span><h1>Binary Formats<a class="headerlink" href="#binary-formats" title="Permalink to this heading"></a></h1>
+<span id="id1"></span><h1>Binary Formats<a class="headerlink" href="#binary-formats" title="Link to this heading"></a></h1>
 <p>In order to preserve some compactness in dump files and network transmissions,
 the binary formats need to retain their native compression. All binary formats
 are hex-encoded before output.</p>
@@ -130,7 +127,7 @@ are hex-encoded before output.</p>
 <li><p>the number of points in the patch</p></li>
 </ul>
 <section id="point-binary">
-<h2>Point Binary<a class="headerlink" href="#point-binary" title="Permalink to this heading"></a></h2>
+<h2>Point Binary<a class="headerlink" href="#point-binary" title="Link to this heading"></a></h2>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">byte</span><span class="p">:</span>     <span class="n">endianness</span> <span class="p">(</span><span class="mi">1</span> <span class="o">=</span> <span class="n">NDR</span><span class="p">,</span> <span class="mi">0</span> <span class="o">=</span> <span class="n">XDR</span><span class="p">)</span>
 <span class="n">uint32</span><span class="p">:</span>   <span class="n">pcid</span> <span class="p">(</span><span class="n">key</span> <span class="n">to</span> <span class="n">POINTCLOUD_SCHEMAS</span><span class="p">)</span>
 <span class="n">uchar</span><span class="p">[]:</span>  <span class="n">pointdata</span> <span class="p">(</span><span class="n">interpret</span> <span class="n">relative</span> <span class="n">to</span> <span class="n">pcid</span><span class="p">)</span>
@@ -138,9 +135,9 @@ are hex-encoded before output.</p>
 </div>
 </section>
 <section id="patch-binary">
-<h2>Patch Binary<a class="headerlink" href="#patch-binary" title="Permalink to this heading"></a></h2>
+<h2>Patch Binary<a class="headerlink" href="#patch-binary" title="Link to this heading"></a></h2>
 <section id="uncompressed">
-<h3>Uncompressed<a class="headerlink" href="#uncompressed" title="Permalink to this heading"></a></h3>
+<h3>Uncompressed<a class="headerlink" href="#uncompressed" title="Link to this heading"></a></h3>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">byte</span><span class="p">:</span>         <span class="n">endianness</span> <span class="p">(</span><span class="mi">1</span> <span class="o">=</span> <span class="n">NDR</span><span class="p">,</span> <span class="mi">0</span> <span class="o">=</span> <span class="n">XDR</span><span class="p">)</span>
 <span class="n">uint32</span><span class="p">:</span>       <span class="n">pcid</span> <span class="p">(</span><span class="n">key</span> <span class="n">to</span> <span class="n">POINTCLOUD_SCHEMAS</span><span class="p">)</span>
 <span class="n">uint32</span><span class="p">:</span>       <span class="mi">0</span> <span class="o">=</span> <span class="n">no</span> <span class="n">compression</span>
@@ -150,7 +147,7 @@ are hex-encoded before output.</p>
 </div>
 </section>
 <section id="dimensional">
-<h3>Dimensional<a class="headerlink" href="#dimensional" title="Permalink to this heading"></a></h3>
+<h3>Dimensional<a class="headerlink" href="#dimensional" title="Link to this heading"></a></h3>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">byte</span><span class="p">:</span>          <span class="n">endianness</span> <span class="p">(</span><span class="mi">1</span> <span class="o">=</span> <span class="n">NDR</span><span class="p">,</span> <span class="mi">0</span> <span class="o">=</span> <span class="n">XDR</span><span class="p">)</span>
 <span class="n">uint32</span><span class="p">:</span>        <span class="n">pcid</span> <span class="p">(</span><span class="n">key</span> <span class="n">to</span> <span class="n">POINTCLOUD_SCHEMAS</span><span class="p">)</span>
 <span class="n">uint32</span><span class="p">:</span>        <span class="mi">2</span> <span class="o">=</span> <span class="n">dimensional</span> <span class="n">compression</span>
@@ -208,7 +205,7 @@ derived from the patch metadata by multiplying the dimension word size by the
 number of points in the patch.</p>
 </section>
 <section id="laz">
-<h3>LAZ<a class="headerlink" href="#laz" title="Permalink to this heading"></a></h3>
+<h3>LAZ<a class="headerlink" href="#laz" title="Link to this heading"></a></h3>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">byte</span><span class="p">:</span>          <span class="n">endianness</span> <span class="p">(</span><span class="mi">1</span> <span class="o">=</span> <span class="n">NDR</span><span class="p">,</span> <span class="mi">0</span> <span class="o">=</span> <span class="n">XDR</span><span class="p">)</span>
 <span class="n">uint32</span><span class="p">:</span>        <span class="n">pcid</span> <span class="p">(</span><span class="n">key</span> <span class="n">to</span> <span class="n">POINTCLOUD_SCHEMAS</span><span class="p">)</span>
 <span class="n">uint32</span><span class="p">:</span>        <span class="mi">2</span> <span class="o">=</span> <span class="n">LAZ</span> <span class="n">compression</span>
@@ -239,7 +236,7 @@ number of points in the patch.</p>
   
     <div class="footer">
         <div class="container">
-            &copy;  2023
+            &copy;  2025
             <a href="https://github.com/pramsey">Paul Ramsey</a>,
             <a href="http://github.com/pblottiere">Paul Blottiere</a>,
             <a href="http://github.com/mbredif">Mathieu Brédif</a>,
