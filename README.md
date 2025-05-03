@@ -1,6 +1,6 @@
 # Pointcloud
 
-[![Release][release-image]][releases]
+[![Release][release-image]][releases] https://img.shields.io/docker/pulls/pgpointcloud/pointcloud?logo=docker&label=pulls
 
 [release-image]: https://img.shields.io/badge/release-1.2.5-green.svg?style=plastic
 [releases]: https://ubuntu.com/pgpointcloud/pointcloud/releases
