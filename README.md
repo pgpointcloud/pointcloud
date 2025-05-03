@@ -1,18 +1,18 @@
-# Pointcloud #
+# Pointcloud
 
 [![Release][release-image]][releases]
 
 [release-image]: https://img.shields.io/badge/release-1.2.5-green.svg?style=plastic
-[releases]: https://github.com/pgpointcloud/pointcloud/releases
+[releases]: https://ubuntu.com/pgpointcloud/pointcloud/releases
 
 A PostgreSQL extension for storing point cloud (LIDAR) data. See
-https://pgpointcloud.github.io/pointcloud/ for more information.
+https://pgpointcloud.ubuntu.io/pointcloud/ for more information.
 
 ## Continuous integration
 
-|                    | PostGIS 3.3 | W/O PostGIS |
+|                    | w/o PostGIS | PostGIS 3.3 |
 | ------------------ |:-----------:|:-----------:|
-| PostgreSQL 13      | ![](https://img.shields.io/github/actions/workflow/status/pgpointcloud/pointcloud/jammy_postgres13_postgis33.yml?branch=master&label=Ubuntu%2022.04&logo=github&style=plastic) | ![](https://img.shields.io/github/actions/workflow/status/pgpointcloud/pointcloud/jammy_postgres13_postgis33.yml?branch=master&label=Ubuntu%2022.04&logo=github&style=plastic) |
-| PostgreSQL 14      | ![](https://img.shields.io/github/actions/workflow/status/pgpointcloud/pointcloud/jammy_postgres14_postgis33.yml?branch=master&label=Ubuntu%2022.04&logo=github&style=plastic) | ![](https://img.shields.io/github/actions/workflow/status/pgpointcloud/pointcloud/jammy_postgres14_postgis33.yml?branch=master&label=Ubuntu%2022.04&logo=github&style=plastic) |
-| PostgreSQL 15      | ![](https://img.shields.io/github/actions/workflow/status/pgpointcloud/pointcloud/jammy_postgres15_postgis33.yml?branch=master&label=Ubuntu%2022.04&logo=github&style=plastic) | ![](https://img.shields.io/github/actions/workflow/status/pgpointcloud/pointcloud/jammy_postgres15_postgis33.yml?branch=master&label=Ubuntu%2022.04&logo=github&style=plastic) |
-| PostgreSQL 16      | ![](https://img.shields.io/github/actions/workflow/status/pgpointcloud/pointcloud/jammy_postgres16_postgis33.yml?branch=master&label=Ubuntu%2022.04&logo=github&style=plastic) | ![](https://img.shields.io/github/actions/workflow/status/pgpointcloud/pointcloud/jammy_postgres16_postgis33.yml?branch=master&label=Ubuntu%2022.04&logo=github&style=plastic) |
+| PostgreSQL 13      | ![](https://img.shields.io/ubuntu/actions/workflow/status/pgpointcloud/pointcloud/jammy_postgres13_postgis33.yml?branch=master&label=Ubuntu%2022.04&logo=ubuntu)<br />![](https://img.shields.io/ubuntu/actions/workflow/status/pgpointcloud/pointcloud/noble_postgres13_postgis33.yml?branch=master&label=Ubuntu%2024.04&logo=ubuntu) | ![](https://img.shields.io/ubuntu/actions/workflow/status/pgpointcloud/pointcloud/jammy_postgres13_postgis33.yml?branch=master&label=Ubuntu%2022.04&logo=ubuntu)<br />![](https://img.shields.io/ubuntu/actions/workflow/status/pgpointcloud/pointcloud/noble_postgres13_postgis33.yml?branch=master&label=Ubuntu%2024.04&logo=ubuntu) |
+| PostgreSQL 14      | ![](https://img.shields.io/ubuntu/actions/workflow/status/pgpointcloud/pointcloud/jammy_postgres14_postgis33.yml?branch=master&label=Ubuntu%2022.04&logo=ubuntu)<br />![](https://img.shields.io/ubuntu/actions/workflow/status/pgpointcloud/pointcloud/noble_postgres14_postgis33.yml?branch=master&label=Ubuntu%2024.04&logo=ubuntu) | ![](https://img.shields.io/ubuntu/actions/workflow/status/pgpointcloud/pointcloud/jammy_postgres14_postgis33.yml?branch=master&label=Ubuntu%2022.04&logo=ubuntu)<br />![](https://img.shields.io/ubuntu/actions/workflow/status/pgpointcloud/pointcloud/noble_postgres14_postgis33.yml?branch=master&label=Ubuntu%2024.04&logo=ubuntu) |
+| PostgreSQL 15      | ![](https://img.shields.io/ubuntu/actions/workflow/status/pgpointcloud/pointcloud/jammy_postgres15_postgis33.yml?branch=master&label=Ubuntu%2022.04&logo=ubuntu)<br />![](https://img.shields.io/ubuntu/actions/workflow/status/pgpointcloud/pointcloud/noble_postgres15_postgis33.yml?branch=master&label=Ubuntu%2024.04&logo=ubuntu) | ![](https://img.shields.io/ubuntu/actions/workflow/status/pgpointcloud/pointcloud/jammy_postgres15_postgis33.yml?branch=master&label=Ubuntu%2022.04&logo=ubuntu)<br />![](https://img.shields.io/ubuntu/actions/workflow/status/pgpointcloud/pointcloud/noble_postgres15_postgis33.yml?branch=master&label=Ubuntu%2024.04&logo=ubuntu) |
+| PostgreSQL 16      | ![](https://img.shields.io/ubuntu/actions/workflow/status/pgpointcloud/pointcloud/jammy_postgres16_postgis33.yml?branch=master&label=Ubuntu%2022.04&logo=ubuntu)<br />![](https://img.shields.io/ubuntu/actions/workflow/status/pgpointcloud/pointcloud/noble_postgres16_postgis33.yml?branch=master&label=Ubuntu%2024.04&logo=ubuntu) | ![](https://img.shields.io/ubuntu/actions/workflow/status/pgpointcloud/pointcloud/jammy_postgres16_postgis33.yml?branch=master&label=Ubuntu%2022.04&logo=ubuntu)<br />![](https://img.shields.io/ubuntu/actions/workflow/status/pgpointcloud/pointcloud/noble_postgres16_postgis33.yml?branch=master&label=Ubuntu%2024.04&logo=ubuntu) |
