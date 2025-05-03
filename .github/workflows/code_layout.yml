@@ -19,13 +19,18 @@ jobs:
         run: clang-format --dry-run --Werror -style=file pgsql/*.c pgsql/*.h lib/*.c lib/*.cpp lib/*.hpp lib/*.h lib/cunit/*.c lib/cunit/*.h
   sql_code_layout:
     name: SQL linter
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
-      - name: Install nvm
-        uses: actions/setup-node@v1
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v4
         with:
-          node-version: '8'
-      - name: Linter
+          python-version: '3.10'
+      - name: Install SQLFluff
         run: |
-          npm install -g eclint@1.1.5
-          eclint check * */* */cunit/*
+          pip install sqlfluff
+      - name: Run SQLFluff lint
+        run: |
+          sqlfluff lint ./pgsql/pointcloud.sql.in
+          sqlfluff lint ./pgsql_postgis/pointcloud_postgis.sql.in
