@@ -3,12 +3,13 @@ name: "Docker image latest"
 on:
   push:
     branches:
-    - master
+      - master
+  pull_request:
 
 jobs:
   build:
     name: Docker image latest
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
       - name: Check out repository code
         uses: actions/checkout@v2
