@@ -137,24 +137,40 @@ pgPointcloud tests are run with `Github Actions`_ on several Ubuntu versions
 and with various PostgreSQL/PostGIS releases:
 
 +--------------------+-----------------------+-------------------------+
-|                    | PostGIS 3.3            | W/O PostGIS            |
-+--------------------+------------------------+------------------------+
-| PostgreSQL 13      | |13_33_jammy|          | |13_33_jammy|          |
-+--------------------+------------------------+------------------------+
-| PostgreSQL 14      | |14_33_jammy|          | |14_33_jammy|          |
-+--------------------+------------------------+------------------------+
-| PostgreSQL 15      | |15_33_jammy|          | |15_33_jammy|          |
-+--------------------+------------------------+------------------------+
-| PostgreSQL 16      | |16_33_jammy|          | |16_33_jammy|          |
+|                    | w/o PostGIS           | PostGIS 3.3             |
++--------------------+-----------------------+-------------------------+
+| PostgreSQL 13      | |13_33_jammy|         | |13_33_jammy|           |
+|                    |                       |                         |
+|                    | |13_33_noble|         | |13_33_noble|           |
++--------------------+-----------------------+-------------------------+
+| PostgreSQL 14      | |14_33_jammy|         | |14_33_jammy|           |
+|                    |                       |                         |
+|                    | |14_33_noble|         | |14_33_noble|           |
++--------------------+-----------------------+-------------------------+
+| PostgreSQL 15      | |15_33_jammy|         | |15_33_jammy|           |
+|                    |                       |                         |
+|                    | |15_33_noble|         | |15_33_noble|           |
++--------------------+-----------------------+-------------------------+
+| PostgreSQL 16      | |16_33_jammy|         | |16_33_jammy|           |
+|                    |                       |                         |
+|                    | |16_33_noble|         | |16_33_noble|           |
 +--------------------+-----------------------+-------------------------+
 
-.. |13_33_jammy| image:: https://img.shields.io/github/actions/workflow/status/pgpointcloud/pointcloud/jammy_postgres13_postgis33.yml?branch=master&label=Ubuntu%2022.04&logo=github&style=plastic :target: https://github.com/pgpointcloud/pointcloud/actions?query=workflow%3A%22%5Bubuntu-22.04%5D+PostgreSQL+13+and+PostGIS+3.3%22
+.. |13_33_jammy| image:: https://img.shields.io/github/actions/workflow/status/pgpointcloud/pointcloud/jammy_postgres13_postgis33.yml?branch=master&label=Ubuntu%2022.04&logo=ubuntu :target: https://github.com/pgpointcloud/pointcloud/actions?query=workflow%3A%22%5Bubuntu-22.04%5D+PostgreSQL+13+and+PostGIS+3.3%22
 
-.. |14_33_jammy| image:: https://img.shields.io/github/actions/workflow/status/pgpointcloud/pointcloud/jammy_postgres14_postgis33.yml?branch=master&label=Ubuntu%2022.04&logo=github&style=plastic :target: https://github.com/pgpointcloud/pointcloud/actions?query=workflow%3A%22%5Bubuntu-22.04%5D+PostgreSQL+14+and+PostGIS+3.3%22
+.. |14_33_jammy| image:: https://img.shields.io/github/actions/workflow/status/pgpointcloud/pointcloud/jammy_postgres14_postgis33.yml?branch=master&label=Ubuntu%2022.04&logo=ubuntu :target: https://github.com/pgpointcloud/pointcloud/actions?query=workflow%3A%22%5Bubuntu-22.04%5D+PostgreSQL+14+and+PostGIS+3.3%22
 
-.. |15_33_jammy| image:: https://img.shields.io/github/actions/workflow/status/pgpointcloud/pointcloud/jammy_postgres15_postgis33.yml?branch=master&label=Ubuntu%2022.04&logo=github&style=plastic :target: https://github.com/pgpointcloud/pointcloud/actions?query=workflow%3A%22%5Bubuntu-22.04%5D+PostgreSQL+15+and+PostGIS+3.3%22
+.. |15_33_jammy| image:: https://img.shields.io/github/actions/workflow/status/pgpointcloud/pointcloud/jammy_postgres15_postgis33.yml?branch=master&label=Ubuntu%2022.04&logo=ubuntu :target: https://github.com/pgpointcloud/pointcloud/actions?query=workflow%3A%22%5Bubuntu-22.04%5D+PostgreSQL+15+and+PostGIS+3.3%22
 
-.. |16_33_jammy| image:: https://img.shields.io/github/actions/workflow/status/pgpointcloud/pointcloud/jammy_postgres16_postgis33.yml?branch=master&label=Ubuntu%2022.04&logo=github&style=plastic :target: https://github.com/pgpointcloud/pointcloud/actions?query=workflow%3A%22%5Bubuntu-22.04%5D+PostgreSQL+16+and+PostGIS+3.3%22
+.. |16_33_jammy| image:: https://img.shields.io/github/actions/workflow/status/pgpointcloud/pointcloud/jammy_postgres16_postgis33.yml?branch=master&label=Ubuntu%2022.04&logo=ubuntu :target: https://github.com/pgpointcloud/pointcloud/actions?query=workflow%3A%22%5Bubuntu-22.04%5D+PostgreSQL+16+and+PostGIS+3.3%22
+
+.. |13_33_noble| image:: https://img.shields.io/github/actions/workflow/status/pgpointcloud/pointcloud/noble_postgres13_postgis33.yml?branch=master&label=Ubuntu%2022.04&logo=ubuntu :target: https://github.com/pgpointcloud/pointcloud/actions?query=workflow%3A%22%5Bubuntu-24.04%5D+PostgreSQL+13+and+PostGIS+3.3%22
+
+.. |14_33_noble| image:: https://img.shields.io/github/actions/workflow/status/pgpointcloud/pointcloud/noble_postgres14_postgis33.yml?branch=master&label=Ubuntu%2022.04&logo=ubuntu :target: https://github.com/pgpointcloud/pointcloud/actions?query=workflow%3A%22%5Bubuntu-24.04%5D+PostgreSQL+14+and+PostGIS+3.3%22
+
+.. |15_33_noble| image:: https://img.shields.io/github/actions/workflow/status/pgpointcloud/pointcloud/noble_postgres15_postgis33.yml?branch=master&label=Ubuntu%2024.04&logo=ubuntu :target: https://github.com/pgpointcloud/pointcloud/actions?query=workflow%3A%22%5Bubuntu-24.04%5D+PostgreSQL+15+and+PostGIS+3.3%22
+
+.. |16_33_noble| image:: https://img.shields.io/github/actions/workflow/status/pgpointcloud/pointcloud/noble_postgres16_postgis33.yml?branch=master&label=Ubuntu%2024.04&logo=ubuntu :target: https://github.com/pgpointcloud/pointcloud/actions?query=workflow%3A%22%5Bubuntu-24.04%5D+PostgreSQL+16+and+PostGIS+3.3%22
 
 .. _`source`: https://github.com/hobu/laz-perf
 .. _`DockerHub`: https://hub.docker.com/_/postgres
