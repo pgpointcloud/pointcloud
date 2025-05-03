@@ -32,5 +32,5 @@ jobs:
           pip install sqlfluff
       - name: Run SQLFluff lint
         run: |
-          sqlfluff lint ./pgsql/pointcloud.sql.in
-          sqlfluff lint ./pgsql_postgis/pointcloud_postgis.sql.in
+          sqlfluff lint --dialect postgres ./pgsql/pointcloud.sql.in
+          sqlfluff lint --dialect postgres ./pgsql_postgis/pointcloud_postgis.sql.in
