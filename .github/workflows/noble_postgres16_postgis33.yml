@@ -1,21 +1,22 @@
-name: "[ubuntu-22.04] PostgreSQL 15 and PostGIS 3.3"
+name: "[ubuntu-24.04] PostgreSQL 16 and PostGIS 3.3"
 
 on:
   push:
     branches:
       - master
+
   pull_request:
 
 jobs:
   build:
     name: Building and testing
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - name: Check out repository code
         uses: actions/checkout@v2
-      - name: Install PostgreSQL and PostGIS
+      - name: Install PostgreSQL
         env:
-          POSTGRESQL_VERSION: 15
+          POSTGRESQL_VERSION: 16
           POSTGIS_VERSION: 3
         run: .github/scripts/postgresql_postgis.sh
       - name: Install and check PgPointCloud
