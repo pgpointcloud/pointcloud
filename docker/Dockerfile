@@ -3,6 +3,7 @@ MAINTAINER Paul Blottiere <blottiere.paul@gmail.com>
 
 ENV POSTGRES_VERSION 14
 ENV POSTGIS_VERSION 3
+ENV LAZPERF_VERSION 1.5.0
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
@@ -22,9 +23,10 @@ RUN apt-get update \
         postgresql-server-dev-all \
         libxml2-dev \
     && rm -rf /var/lib/apt/lists/* \
-    && git clone https://github.com/verma/laz-perf.git \
+    && git clone https://github.com/hobuinc/laz-perf.git \
     && cd laz-perf \
-    && cmake . \
+    && git checkout ${LAZPERF_VERSION} \
+    && cmake -DWITH_TESTS=FALSE . \
     && make \
     && make install \
     && cd .. \

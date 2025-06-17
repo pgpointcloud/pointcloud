@@ -2,7 +2,7 @@
 
 set -e
 
-if [[ -f config.mk ]]; then
+if [ -f config.mk ]; then
     make clean maintainer-clean
 fi
 
