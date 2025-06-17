@@ -9,7 +9,7 @@
 [dockerhub]: https://hub.docker.com/r/pgpointcloud/pointcloud
 
 A PostgreSQL extension for storing point cloud (LIDAR) data. See
-https://pgpointcloud.ubuntu.io/pointcloud/ for more information.
+https://pgpointcloud.github.io/pointcloud/ for more information.
 
 ## Continuous integration
 
