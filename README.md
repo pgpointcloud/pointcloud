@@ -1,6 +1,6 @@
 # Pointcloud
 
-[![Release][release-image]][releases] [![Dockerhub][dockerhub-image]][dockerhub]
+[![Release][release-image]][releases] [![Dockerhub][dockerhub-image]][dockerhub] [![macOS](https://img.shields.io/badge/mac%20os-000000?style=for-the-badge&logo=macos&logoColor=F0F0F0)]
 
 [release-image]: https://img.shields.io/badge/release-1.2.5-green.svg?style=plastic
 [releases]: https://github.com/pgpointcloud/pointcloud/releases

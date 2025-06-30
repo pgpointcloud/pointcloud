@@ -81,6 +81,12 @@ pgPointcloud is directly included in the `PostGIS`_ bundle.
 .. _`PostGIS`: https://postgis.net/windows_downloads/
 
 
+**MacOS**
+
+pgpointcloud is available on macOS via `MacPorts`_.
+
+.. _`MacPorts`: https://ports.macports.org/port/pgpointcloud/
+
 **Debian**
 
 Debian packages are now `available`_ on:
