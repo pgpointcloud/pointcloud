@@ -9,7 +9,7 @@ dnl *  Copyright (c) 2013 Natural Resources Canada
 dnl *
 dnl ***********************************************************************/
 
-AC_INIT()
+AC_INIT
 AC_CONFIG_MACRO_DIR([macros])
 AC_CONFIG_HEADERS([lib/pc_config.h pgsql/sqldefines.h])
 AC_LANG([C++])
@@ -363,10 +363,11 @@ dnl ===========================================================================
 dnl Output the relevant files
 dnl ===========================================================================
 
-AC_OUTPUT([
+AC_CONFIG_FILES([
    config.mk
    pgsql/Makefile
 ])
+AC_OUTPUT
 
 dnl ===========================================================================
 dnl Display the configuration status information
