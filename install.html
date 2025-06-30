@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Download &mdash; pgpointcloud</title>
+  <title>Install &mdash; pgpointcloud</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
 
@@ -48,12 +48,13 @@
 <li class="toctree-l1"><a class="reference internal" href="concepts/index.html">Concepts</a></li>
 </ul>
 <ul class="current">
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Download</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#current-release-s">Current Release(s)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#past-releases">Past Releases</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#development-source">Development Source</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#docker-hub">Docker Hub</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#binaries">Binaries</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Install</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#docker-image">Docker image</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#gnu-linux">GNU/Linux</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#windows">Windows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#macos">MacOS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#releases-tarballs">Releases tarballs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#sources">Sources</a></li>
 </ul>
 </li>
 </ul>
@@ -92,7 +93,7 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
-      <li class="breadcrumb-item active">Download</li>
+      <li class="breadcrumb-item active">Install</li>
       <li class="wy-breadcrumbs-aside">
       </li>
   </ul>
@@ -101,62 +102,33 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="download">
-<span id="id1"></span><h1>Download<a class="headerlink" href="#download" title="Link to this heading"></a></h1>
+  <section id="install">
+<span id="id1"></span><h1>Install<a class="headerlink" href="#install" title="Link to this heading"></a></h1>
 <nav class="contents" id="contents">
 <p class="topic-title">Contents</p>
 <ul class="simple">
-<li><p><a class="reference internal" href="#download" id="id3">Download</a></p>
+<li><p><a class="reference internal" href="#install" id="id2">Install</a></p>
 <ul>
-<li><p><a class="reference internal" href="#current-release-s" id="id4">Current Release(s)</a></p></li>
-<li><p><a class="reference internal" href="#past-releases" id="id5">Past Releases</a></p></li>
-<li><p><a class="reference internal" href="#development-source" id="id6">Development Source</a></p></li>
-<li><p><a class="reference internal" href="#docker-hub" id="id7">Docker Hub</a></p></li>
-<li><p><a class="reference internal" href="#binaries" id="id8">Binaries</a></p></li>
+<li><p><a class="reference internal" href="#docker-image" id="id3">Docker image</a></p></li>
+<li><p><a class="reference internal" href="#gnu-linux" id="id4">GNU/Linux</a></p></li>
+<li><p><a class="reference internal" href="#windows" id="id5">Windows</a></p></li>
+<li><p><a class="reference internal" href="#macos" id="id6">MacOS</a></p></li>
+<li><p><a class="reference internal" href="#releases-tarballs" id="id7">Releases tarballs</a></p></li>
+<li><p><a class="reference internal" href="#sources" id="id8">Sources</a></p></li>
 </ul>
 </li>
 </ul>
 </nav>
-<section id="current-release-s">
-<h2>Current Release(s)<a class="headerlink" href="#current-release-s" title="Link to this heading"></a></h2>
-<ul class="simple">
-<li><p><strong>19-09-2023</strong> <a class="reference external" href="https://github.com/pgpointcloud/pointcloud/archive/v1.2.5.tar.gz">pointcloud-1.2.5.tar.gz</a> (<a class="reference external" href="https://github.com/pgpointcloud/pointcloud/blob/v1.2.5/NEWS">Release Notes</a>)</p></li>
-</ul>
-</section>
-<section id="past-releases">
-<h2>Past Releases<a class="headerlink" href="#past-releases" title="Link to this heading"></a></h2>
-<ul class="simple">
-<li><p><strong>26-09-2022</strong> <a class="reference external" href="https://github.com/pgpointcloud/pointcloud/archive/v1.2.4.tar.gz">pointcloud-1.2.4.tar.gz</a></p></li>
-<li><p><strong>12-09-2022</strong> <a class="reference external" href="https://github.com/pgpointcloud/pointcloud/archive/v1.2.3.tar.gz">pointcloud-1.2.3.tar.gz</a></p></li>
-<li><p><strong>10-05-2022</strong> <a class="reference external" href="https://github.com/pgpointcloud/pointcloud/archive/v1.2.2.tar.gz">pointcloud-1.2.2.tar.gz</a></p></li>
-<li><p><strong>01-07-2020</strong> <a class="reference external" href="https://github.com/pgpointcloud/pointcloud/archive/v1.2.1.tar.gz">pointcloud-1.2.1.tar.gz</a></p></li>
-<li><p><strong>22-08-2018</strong> <a class="reference external" href="https://github.com/pgpointcloud/pointcloud/archive/v1.2.0.tar.gz">pointcloud-1.2.0.tar.gz</a></p></li>
-<li><p><strong>18-06-2018</strong> <a class="reference external" href="https://github.com/pgpointcloud/pointcloud/archive/v1.1.1.tar.gz">pointcloud-1.1.1.tar.gz</a></p></li>
-<li><p><strong>30-04-2018</strong> <a class="reference external" href="https://github.com/pgpointcloud/pointcloud/archive/v1.1.0.tar.gz">pointcloud-1.1.0.tar.gz</a></p></li>
-<li><p><strong>30-04-2018</strong> <a class="reference external" href="https://github.com/pgpointcloud/pointcloud/archive/v1.0.1.tar.gz">pointcloud-1.0.1.tar.gz</a></p></li>
-<li><p><strong>23-10-2013</strong> <a class="reference external" href="https://github.com/pgpointcloud/pointcloud/archive/v0.1.0.tar.gz">pointcloud-0.1.0.tar.gz</a></p></li>
-</ul>
-</section>
-<section id="development-source">
-<span id="source"></span><h2>Development Source<a class="headerlink" href="#development-source" title="Link to this heading"></a></h2>
-<p>The source code repository for pgPointcloud is on <a class="reference external" href="https://github.com/pgpointcloud/pointcloud/">GitHub</a>. You can retrieve
-the development version with <code class="docutils literal notranslate"><span class="pre">git</span></code>:</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/pgpointcloud/pointcloud/
-</pre></div>
-</div>
-</section>
-<section id="docker-hub">
-<h2>Docker Hub<a class="headerlink" href="#docker-hub" title="Link to this heading"></a></h2>
+<section id="docker-image">
+<h2>Docker image<a class="headerlink" href="#docker-image" title="Link to this heading"></a></h2>
 <p>An official Docker image is available on <a class="reference external" href="https://hub.docker.com/r/pgpointcloud/pointcloud">Docker Hub</a>. To retrieve the
 development version:</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>docker<span class="w"> </span>pull<span class="w"> </span>pgpointcloud/pointcloud
 </pre></div>
 </div>
 </section>
-<section id="binaries">
-<h2>Binaries<a class="headerlink" href="#binaries" title="Link to this heading"></a></h2>
-<p><strong>Windows</strong></p>
-<p>pgPointcloud is directly included in the <a class="reference external" href="https://postgis.net/windows_downloads/">PostGIS</a> bundle.</p>
+<section id="gnu-linux">
+<h2>GNU/Linux<a class="headerlink" href="#gnu-linux" title="Link to this heading"></a></h2>
 <p><strong>Debian</strong></p>
 <p>Debian packages are now <a class="reference external" href="https://tracker.debian.org/pkg/pgpointcloud">available</a> on:</p>
 <blockquote>
@@ -169,6 +141,41 @@ development version:</p>
 </div></blockquote>
 <p><strong>AUR</strong></p>
 <p>pgPointcloud is available on Arch Linux through the <a class="reference external" href="https://aur.archlinux.org/packages/pgpointcloud">user repository</a>.</p>
+</section>
+<section id="windows">
+<h2>Windows<a class="headerlink" href="#windows" title="Link to this heading"></a></h2>
+<p>pgPointcloud is directly included in the <a class="reference external" href="https://postgis.net/windows_downloads/">PostGIS</a> bundle.</p>
+</section>
+<section id="macos">
+<h2>MacOS<a class="headerlink" href="#macos" title="Link to this heading"></a></h2>
+<p>pgpointcloud is available on macOS via <a class="reference external" href="https://ports.macports.org/port/pgpointcloud/">MacPorts</a>.</p>
+</section>
+<section id="releases-tarballs">
+<h2>Releases tarballs<a class="headerlink" href="#releases-tarballs" title="Link to this heading"></a></h2>
+<p><strong>Current Release</strong></p>
+<ul class="simple">
+<li><p><strong>19-09-2023</strong> <a class="reference external" href="https://github.com/pgpointcloud/pointcloud/archive/v1.2.5.tar.gz">pointcloud-1.2.5.tar.gz</a> (<a class="reference external" href="https://github.com/pgpointcloud/pointcloud/blob/v1.2.5/NEWS">Release Notes</a>)</p></li>
+</ul>
+<p><strong>Past Releases</strong></p>
+<ul class="simple">
+<li><p><strong>26-09-2022</strong> <a class="reference external" href="https://github.com/pgpointcloud/pointcloud/archive/v1.2.4.tar.gz">pointcloud-1.2.4.tar.gz</a></p></li>
+<li><p><strong>12-09-2022</strong> <a class="reference external" href="https://github.com/pgpointcloud/pointcloud/archive/v1.2.3.tar.gz">pointcloud-1.2.3.tar.gz</a></p></li>
+<li><p><strong>10-05-2022</strong> <a class="reference external" href="https://github.com/pgpointcloud/pointcloud/archive/v1.2.2.tar.gz">pointcloud-1.2.2.tar.gz</a></p></li>
+<li><p><strong>01-07-2020</strong> <a class="reference external" href="https://github.com/pgpointcloud/pointcloud/archive/v1.2.1.tar.gz">pointcloud-1.2.1.tar.gz</a></p></li>
+<li><p><strong>22-08-2018</strong> <a class="reference external" href="https://github.com/pgpointcloud/pointcloud/archive/v1.2.0.tar.gz">pointcloud-1.2.0.tar.gz</a></p></li>
+<li><p><strong>18-06-2018</strong> <a class="reference external" href="https://github.com/pgpointcloud/pointcloud/archive/v1.1.1.tar.gz">pointcloud-1.1.1.tar.gz</a></p></li>
+<li><p><strong>30-04-2018</strong> <a class="reference external" href="https://github.com/pgpointcloud/pointcloud/archive/v1.1.0.tar.gz">pointcloud-1.1.0.tar.gz</a></p></li>
+<li><p><strong>30-04-2018</strong> <a class="reference external" href="https://github.com/pgpointcloud/pointcloud/archive/v1.0.1.tar.gz">pointcloud-1.0.1.tar.gz</a></p></li>
+<li><p><strong>23-10-2013</strong> <a class="reference external" href="https://github.com/pgpointcloud/pointcloud/archive/v0.1.0.tar.gz">pointcloud-0.1.0.tar.gz</a></p></li>
+</ul>
+</section>
+<section id="sources">
+<span id="source"></span><h2>Sources<a class="headerlink" href="#sources" title="Link to this heading"></a></h2>
+<p>The source code repository for pgPointcloud is on <a class="reference external" href="https://github.com/pgpointcloud/pointcloud/">GitHub</a>. You can retrieve
+the development version with <code class="docutils literal notranslate"><span class="pre">git</span></code>:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/pgpointcloud/pointcloud/
+</pre></div>
+</div>
 </section>
 </section>
 
