@@ -1,7 +1,7 @@
-.. _download:
+.. _install:
 
 ******************************************************************************
-Download
+Install
 ******************************************************************************
 
 
@@ -10,16 +10,68 @@ Download
    :backlinks: none
 
 
-Current Release(s)
+Docker image
+-----------------------------------------------------------------------------
+
+An official Docker image is available on `Docker Hub`_. To retrieve the
+development version:
+
+.. code-block:: console
+
+   $ docker pull pgpointcloud/pointcloud
+
+.. _`Docker Hub`: https://hub.docker.com/r/pgpointcloud/pointcloud
+
+
+GNU/Linux
 ------------------------------------------------------------------------------
+
+**Debian**
+
+Debian packages are now `available`_ on:
+
+   - Ubuntu 22.04
+   - Debian Testing
+   - Debian Unstable
+   - Raspbian Testing
+
+.. _`available`: https://tracker.debian.org/pkg/pgpointcloud
+
+
+**AUR**
+
+pgPointcloud is available on Arch Linux through the `user repository`_.
+
+.. _`user repository`: https://aur.archlinux.org/packages/pgpointcloud
+
+
+Windows
+------------------------------------------------------------------------------
+
+pgPointcloud is directly included in the `PostGIS`_ bundle.
+
+.. _`PostGIS`: https://postgis.net/windows_downloads/
+
+
+MacOS
+------------------------------------------------------------------------------
+
+pgpointcloud is available on macOS via `MacPorts`_.
+
+.. _`MacPorts`: https://ports.macports.org/port/pgpointcloud/
+
+
+Releases tarballs
+------------------------------------------------------------------------------
+
+**Current Release**
 
 * **19-09-2023** `pointcloud-1.2.5.tar.gz`_ (`Release Notes`_)
 
 .. _`Release Notes`: https://github.com/pgpointcloud/pointcloud/blob/v1.2.5/NEWS
 
 
-Past Releases
-------------------------------------------------------------------------------
+**Past Releases**
 
 * **26-09-2022** `pointcloud-1.2.4.tar.gz`_
 * **12-09-2022** `pointcloud-1.2.3.tar.gz`_
@@ -45,7 +97,7 @@ Past Releases
 
 .. _source:
 
-Development Source
+Sources
 ------------------------------------------------------------------------------
 
 The source code repository for pgPointcloud is on `GitHub`_. You can retrieve
@@ -56,46 +108,3 @@ the development version with ``git``:
    $ git clone https://github.com/pgpointcloud/pointcloud/
 
 .. _`github`: https://github.com/pgpointcloud/pointcloud/
-
-
-Docker Hub
------------------------------------------------------------------------------
-
-An official Docker image is available on `Docker Hub`_. To retrieve the
-development version:
-
-.. code-block:: console
-
-   $ docker pull pgpointcloud/pointcloud
-
-.. _`Docker Hub`: https://hub.docker.com/r/pgpointcloud/pointcloud
-
-
-Binaries
-------------------------------------------------------------------------------
-
-**Windows**
-
-pgPointcloud is directly included in the `PostGIS`_ bundle.
-
-.. _`PostGIS`: https://postgis.net/windows_downloads/
-
-
-**Debian**
-
-Debian packages are now `available`_ on:
-
-   - Ubuntu 22.04
-   - Debian Testing
-   - Debian Unstable
-   - Raspbian Testing
-
-.. _`available`: https://tracker.debian.org/pkg/pgpointcloud
-
-
-**AUR**
-
-pgPointcloud is available on Arch Linux through the `user repository`_.
-
-.. _`user repository`: https://aur.archlinux.org/packages/pgpointcloud
-

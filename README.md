@@ -2,6 +2,8 @@
 
 [![Release][release-image]][releases] [![Dockerhub][dockerhub-image]][dockerhub]
 
+![Linux](https://img.shields.io/badge/Linux-FCC624?logo=linux&logoColor=black) ![FreeBSD](https://img.shields.io/badge/FreeBSD-AB2B28?logo=freebsd&logoColor=fff) ![macOS](https://img.shields.io/badge/macOS-000000?logo=apple&logoColor=F0F0F0) ![Windows](https://custom-icon-badges.demolab.com/badge/Windows-0078D6?logo=windows11&logoColor=white)
+
 [release-image]: https://img.shields.io/badge/release-1.2.5-green.svg?style=plastic
 [releases]: https://github.com/pgpointcloud/pointcloud/releases
 
