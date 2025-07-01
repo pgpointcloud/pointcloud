@@ -10,6 +10,7 @@ Install
    :backlinks: none
 
 
+------------------------------------------------------------------------------
 Docker image
 -----------------------------------------------------------------------------
 
@@ -23,6 +24,7 @@ development version:
 .. _`Docker Hub`: https://hub.docker.com/r/pgpointcloud/pointcloud
 
 
+------------------------------------------------------------------------------
 GNU/Linux
 ------------------------------------------------------------------------------
 
@@ -45,6 +47,7 @@ pgPointcloud is available on Arch Linux through the `user repository`_.
 .. _`user repository`: https://aur.archlinux.org/packages/pgpointcloud
 
 
+------------------------------------------------------------------------------
 Windows
 ------------------------------------------------------------------------------
 
@@ -53,6 +56,7 @@ pgPointcloud is directly included in the `PostGIS`_ bundle.
 .. _`PostGIS`: https://postgis.net/windows_downloads/
 
 
+------------------------------------------------------------------------------
 MacOS
 ------------------------------------------------------------------------------
 
@@ -61,6 +65,7 @@ pgpointcloud is available on macOS via `MacPorts`_.
 .. _`MacPorts`: https://ports.macports.org/port/pgpointcloud/
 
 
+------------------------------------------------------------------------------
 Releases tarballs
 ------------------------------------------------------------------------------
 
@@ -97,11 +102,13 @@ Releases tarballs
 
 .. _source:
 
+------------------------------------------------------------------------------
 Sources
 ------------------------------------------------------------------------------
 
 The source code repository for pgPointcloud is on `GitHub`_. You can retrieve
-the development version with ``git``:
+the development version with ``git``. See :ref:`build_sources` for
+instructions.
 
 .. code-block:: console
 
