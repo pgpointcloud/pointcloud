@@ -18,10 +18,12 @@ Requirements
   ``libxml2-devel``
 - CUnit packages must be installed
 - [Optional] ``laz-perf`` library may be installed for LAZ compression support
-  (built from source_)
+  (see :ref:`build_sources` instructions)
+
+.. _build_sources:
 
 ------------------------------------------------------------------------------
-Build/Install
+Build from sources
 ------------------------------------------------------------------------------
 
 After generating the configure script with ``autogen.sh``, you can use
@@ -53,6 +55,50 @@ After generating the configure script with ``autogen.sh``, you can use
   .. code-block:: bash
 
     $ ./configure CFLAGS="-DNESTED_QSORT=1"
+
+
+**LAZ support**
+
+If you want to enable LAZ compression, you first need to build the ``1.5.0``
+laz-perf library from sources:
+
+.. code-block:: bash
+
+    $ git clone https://github.com/hobuinc/laz-perf
+    $ cd laz-perf
+    $ git checkout 1.5.0
+    $ cmake .
+    $ make
+    $ make install
+
+
+And then enable LAZ compression with ``--with-lazperf`` option on PgPointcloud side:
+
+.. code-block::
+
+   $ ./configure --with-lazperf=/usr/local
+
+    PointCloud is now configured for
+
+   -------------- Compiler Info -------------
+    C compiler:           gcc -g -O2
+    CXX compiler:         g++ -g -O2
+    SQL preprocessor:     /usr/bin/cpp -traditional-cpp -w -P
+
+   -------------- Dependencies --------------
+    PostgreSQL config:    /usr/bin/pg_config
+    PostgreSQL version:   PostgreSQL 17.5 (170)
+    Libxml2 config:       /usr/bin/xml2-config
+    Libxml2 version:      2.14.3
+    LazPerf status:       /usr/local/include/laz-perf
+    CUnit status:         enabled
+
+
+.. warning::
+
+   Laz-perf ``1.5.0`` is outdated and some work is necessary to upgrade to
+   ``3.X`` version.
+
 
 ------------------------------------------------------------------------------
 Tests
