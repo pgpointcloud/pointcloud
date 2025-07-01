@@ -65,7 +65,7 @@
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Development</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#requirements">Requirements</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#build-install">Build/Install</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#build-from-sources">Build from sources</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#tests">Tests</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#write-a-loading-system">Write a loading system</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#documentation">Documentation</a></li>
@@ -120,11 +120,11 @@ and server headers). For Red Hat and Ubuntu, the package names are usually
 <code class="docutils literal notranslate"><span class="pre">libxml2-devel</span></code></p></li>
 <li><p>CUnit packages must be installed</p></li>
 <li><p>[Optional] <code class="docutils literal notranslate"><span class="pre">laz-perf</span></code> library may be installed for LAZ compression support
-(built from <a class="reference external" href="https://github.com/hobu/laz-perf">source</a>)</p></li>
+(see <a class="reference internal" href="#build-sources"><span class="std std-ref">Build from sources</span></a> instructions)</p></li>
 </ul>
 </section>
-<section id="build-install">
-<h2>Build/Install<a class="headerlink" href="#build-install" title="Link to this heading"></a></h2>
+<section id="build-from-sources">
+<span id="build-sources"></span><h2>Build from sources<a class="headerlink" href="#build-from-sources" title="Link to this heading"></a></h2>
 <p>After generating the configure script with <code class="docutils literal notranslate"><span class="pre">autogen.sh</span></code>, you can use
 <code class="docutils literal notranslate"><span class="pre">./configure</span> <span class="pre">--help</span></code> to get a complete listing of configuration options.</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>./autogen.sh
@@ -149,6 +149,41 @@ implementation instead thanks to the next directive:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>./configure<span class="w"> </span><span class="nv">CFLAGS</span><span class="o">=</span><span class="s2">&quot;-DNESTED_QSORT=1&quot;</span>
 </pre></div>
 </div>
+</div>
+<p><strong>LAZ support</strong></p>
+<p>If you want to enable LAZ compression, you first need to build the <code class="docutils literal notranslate"><span class="pre">1.5.0</span></code>
+laz-perf library from sources:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/hobuinc/laz-perf
+$<span class="w"> </span><span class="nb">cd</span><span class="w"> </span>laz-perf
+$<span class="w"> </span>git<span class="w"> </span>checkout<span class="w"> </span><span class="m">1</span>.5.0
+$<span class="w"> </span>cmake<span class="w"> </span>.
+$<span class="w"> </span>make
+$<span class="w"> </span>make<span class="w"> </span>install
+</pre></div>
+</div>
+<p>And then enable LAZ compression with <code class="docutils literal notranslate"><span class="pre">--with-lazperf</span></code> option on PgPointcloud side:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ ./configure --with-lazperf=/usr/local
+
+ PointCloud is now configured for
+
+-------------- Compiler Info -------------
+ C compiler:           gcc -g -O2
+ CXX compiler:         g++ -g -O2
+ SQL preprocessor:     /usr/bin/cpp -traditional-cpp -w -P
+
+-------------- Dependencies --------------
+ PostgreSQL config:    /usr/bin/pg_config
+ PostgreSQL version:   PostgreSQL 17.5 (170)
+ Libxml2 config:       /usr/bin/xml2-config
+ Libxml2 version:      2.14.3
+ LazPerf status:       /usr/local/include/laz-perf
+ CUnit status:         enabled
+</pre></div>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Laz-perf <code class="docutils literal notranslate"><span class="pre">1.5.0</span></code> is outdated and some work is necessary to upgrade to
+<code class="docutils literal notranslate"><span class="pre">3.X</span></code> version.</p>
 </div>
 </section>
 <section id="tests">
