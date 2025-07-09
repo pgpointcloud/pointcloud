@@ -322,11 +322,19 @@ SELECT PC_Get(PC_PatchAvg(pa)) FROM pa_test_dim order by 1 limit 1;
 
 SELECT PC_Summary(pa) summary FROM pa_test_dim order by 1 limit 1;
 
+-- test binary
+COPY pa_test TO '/tmp/__pgpointcloud_pa_test_file__' WITH BINARY;
+CREATE TABLE IF NOT EXISTS pa_test_in (
+    pa PCPATCH(1)
+);
+COPY pa_test_in FROM '/tmp/__pgpointcloud_pa_test_file__' WITH BINARY;
+SELECT 'patch', count(*) FROM pa_test i, pa_test_in o WHERE PC_AsText(i.pa) = PC_AsText(o.pa);
 
 --DROP TABLE pts_collection;
 DROP TABLE pt_test;
 DROP TABLE pa_test;
 DROP TABLE pa_test_dim;
+DROP TABLE pa_test_in;
 
 -- See https://github.com/pgpointcloud/pointcloud/issues/44
 SELECT PC_AsText(PC_Patch(ARRAY[PC_MakePoint(3, ARRAY[-127, 45, 124.0, 4.0])]::pcpoint[]));
