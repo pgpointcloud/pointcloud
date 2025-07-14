@@ -57,7 +57,7 @@ organization:
 
 .. code-block:: bash
 
-  $ wget https://github.com/PDAL/data/raw/master/liblas/LAS12_Sample_withRGB_Quick_Terrain_Modeler_fixed.laz -P /tmp
+  $ wget https://github.com/PDAL/data/blob/main/liblas/LAS12_Sample_withRGB_Quick_Terrain_Modeler_fixed.laz -P /tmp
 
 Thanks to the ``pdal info`` command, we can obtain some information on the dataset:
 
