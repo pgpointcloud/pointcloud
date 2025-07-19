@@ -9,7 +9,7 @@ data volumes, PostgreSQL Pointcloud allows schemas to declare their preferred
 compression method in the ``<pc:metadata>`` block of the schema document. In
 the example schema, we declared our compression as follows:
 
-.. code-block:: sql
+.. code-block:: xml
 
     <pc:metadata>
       <Metadata name="compression">dimensional</Metadata>
@@ -35,7 +35,7 @@ Dimensional compression first flips the patch representation from a list of N
 points containing M dimension values to a list of M dimensions each containing
 N values.
 
-.. code-block:: sql
+.. code-block:: json
 
     {"pcid":1,"pts":[
           [-126.99,45.01,1,0],[-126.98,45.02,2,0],[-126.97,45.03,3,0],
@@ -44,7 +44,7 @@ N values.
 
 Becomes, notionally:
 
-.. code-block:: sql
+.. code-block:: json
 
     {"pcid":1,"dims":[
           [-126.99,-126.98,-126.97,-126.96,-126.95,-126.94],

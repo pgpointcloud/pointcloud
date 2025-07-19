@@ -5,71 +5,12 @@ PcPatch
 ********************************************************************************
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-PC_Patch
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-:PC_Patch(pts pcpoint[]) returns pcpatch:
-
-Aggregate function that collects a result set of pcpoint values into a pcpatch.
-
-.. code-block::
-
-    INSERT INTO patches (pa)
-    SELECT PC_Patch(pt) FROM points GROUP BY id/10;
-
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-PC_MakePatch
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-:PC_MakePatch(pcid integer, vals float8[]) returns pcpatch:
-
-Given a valid pcid schema number and an array of doubles that matches the
-schema, construct a new pcpatch. Array size must be a multiple of the number of
-dimensions.
-
-.. code-block::
-
-    SELECT PC_AsText(PC_MakePatch(1, ARRAY[-126.99,45.01,1,0, -126.98,45.02,2,0, -126.97,45.03,3,0]));
-
-    {"pcid":1,"pts":[
-     [-126.99,45.01,1,0],[-126.98,45.02,2,0],[-126.97,45.03,3,0]
-    ]}
-
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-PC_NumPoints
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-:PC_NumPoints(p pcpatch) returns integer:
-
-Return the number of points in this patch.
-
-.. code-block::
-
-    SELECT PC_NumPoints(pa) FROM patches LIMIT 1;
-
-    9
-
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-PC_PCId
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-:PC_PCId(p pcpatch) returns integer:
-
-Return the pcid schema number of points in this patch.
-
-.. code-block::
-
-    SELECT PC_PCId(pa) FROM patches LIMIT 1;
-
-    1
-
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 PC_AsText
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 :PC_AsText(p pcpatch) returns text:
 
-Return a JSON version of the data in that patch.
+Returns a JSON version of the data in that patch.
 
 .. code-block::
 
@@ -82,72 +23,23 @@ Return a JSON version of the data in that patch.
     ]}
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-PC_Summary
+PC_Compress
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-:PC_Summary(p pcpatch) returns text (from 1.1.0):
+:PC_Compress(p pcpatch,global_compression_scheme text,compression_config text) returns pcpatch:
 
-Return a JSON formatted summary of the data in that point.
+Compress a patch with a manually specified scheme. The compression_config
+semantic depends on the global compression scheme. Allowed global compression
+schemes are:
 
-.. code-block::
+- auto: determined by pcid
+- laz: no compression config supported
+- dimensional: configuration is a comma-separated list of per-dimension compressions from this list
 
-    SELECT PC_Summary(pa) FROM patches LIMIT 1;
-
-    {"pcid":1, "npts":9, "srid":4326, "compr":"dimensional","dims":[{"pos":0,"name":"X","size":4,"type":"int32_t","compr":"sigbits","stats":{"min":-126.99,"max":-126.91,"avg":-126.95}},{"pos":1,"name":"Y","size":4,"type":"int32_t","compr":"sigbits","stats":{"min":45.01,"max":45.09,"avg":45.05}},{"pos":2,"name":"Z","size":4,"type":"int32_t","compr":"sigbits","stats":{"min":1,"max":9,"avg":5}},{"pos":3,"name":"Intensity","size":2,"type":"uint16_t","compr":"rle","stats":{"min":0,"max":0,"avg":0}}]}
-
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-PC_Uncompress
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-:PC_Uncompress(p pcpatch) returns pcpatch:
-
-Returns an uncompressed version of the patch (compression type ``none``). In
-order to return an uncompressed patch on the wire, this must be the outer
-function with return type pcpatch in your SQL query. All other functions that
-return pcpatch will compress output to the schema-specified compression before
-returning.
-
-.. code-block::
-
-    SELECT PC_Uncompress(pa) FROM patches
-    WHERE PC_NumPoints(pa) = 1;
-
-    01010000000000000001000000C8CEFFFFF8110000102700000A00
-
-
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-PC_Union
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-:PC_Union(p pcpatch[]) returns pcpatch:
-
-Aggregate function merges a result set of pcpatch entries into a single pcpatch.
-
-.. code-block::
-
-    -- Compare npoints(sum(patches)) to sum(npoints(patches))
-    SELECT PC_NumPoints(PC_Union(pa)) FROM patches;
-    SELECT Sum(PC_NumPoints(pa)) FROM patches;
-
-    100
-
-
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-PC_Intersects
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-:PC_Intersects(p1 pcpatch, p2 pcpatch) returns boolean:
-
-Returns true if the bounds of p1 intersect the bounds of p2.
-
-.. code-block::
-
-    -- Patch should intersect itself
-    SELECT PC_Intersects(
-             '01010000000000000001000000C8CEFFFFF8110000102700000A00'::pcpatch,
-             '01010000000000000001000000C8CEFFFFF8110000102700000A00'::pcpatch);
-
-    t
+    - auto: determined automatically from values stats
+    - zlib: deflate compression
+    - sigbits: significant bits removal
+    - rle: run-length encoding
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 PC_Explode
@@ -176,33 +68,148 @@ each point in the patch.
      {"pcid":1,"pt":[-126.42,45.58,58,5]} |  7
      {"pcid":1,"pt":[-126.41,45.59,59,5]} |  7
 
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+PC_FilterBetween
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+:PC_FilterBetween(p pcpatch, dimname text, float8 value1, float8 value2) returns pcpatch:
+
+Returns a patch with only points whose values are between (excluding) the
+supplied values for the requested dimension.
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-PC_PatchMin
+PC_FilterEquals
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-:PC_PatchMin(p pcpatch, dimname text) returns numeric:
+:PC_FilterEquals(p pcpatch, dimname text, float8 value) returns pcpatch:
 
-Reads the values of the requested dimension for all points in the patch and
-returns the minimum of those values. Dimension name must exist in the schema.
+Returns a patch with only points whose values are the same as the supplied
+values for the requested dimension.
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+PC_FilterGreaterThan
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+:PC_FilterGreaterThan(p pcpatch, dimname text, float8 value) returns pcpatch:
+
+Returns a patch with only points whose values are greater than the supplied
+value for the requested dimension.
 
 .. code-block::
 
-    SELECT PC_PatchMin(pa, 'y')
+    SELECT PC_AsText(PC_FilterGreaterThan(pa, 'y', 45.57))
     FROM patches WHERE id = 7;
 
-    45.5
+     {"pcid":1,"pts":[[-126.42,45.58,58,5],[-126.41,45.59,59,5]]}
 
-:PC_PatchMin(p pcpatch) returns pcpoint:
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+PC_FilterLessThan
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Returns a PcPoint with the minimum values of each dimension in the patch.
+:PC_FilterLessThan(p pcpatch, dimname text, float8 value) returns pcpatch:
+
+Returns a patch with only points whose values are less than the supplied value
+for the requested dimension.
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+PC_Intersects
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+:PC_Intersects(p1 pcpatch, p2 pcpatch) returns boolean:
+
+Returns true if the bounds of p1 intersect the bounds of p2.
 
 .. code-block::
 
-    SELECT PC_PatchMin(pa)
-    FROM patches WHERE id = 7;
+    -- Patch should intersect itself
+    SELECT PC_Intersects(
+             '01010000000000000001000000C8CEFFFFF8110000102700000A00'::pcpatch,
+             '01010000000000000001000000C8CEFFFFF8110000102700000A00'::pcpatch);
 
-    {"pcid":1,"pt":[-126.5,45.5,50,5]}
+    t
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+PC_IsSorted
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+:PC_IsSorted(p pcpatch, dimnames text[], strict boolean default true) returns boolean:
+
+Checks whether a pcpatch is sorted lexicographically along the given
+dimensions. The ``strict`` option further checks that the ordering is strict
+(no duplicates).
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+PC_MakePatch
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+:PC_MakePatch(pcid integer, vals float8[]) returns pcpatch:
+
+Given a valid pcid schema number and an array of doubles that matches the
+schema, construct a new pcpatch. Array size must be a multiple of the number of
+dimensions.
+
+.. code-block::
+
+    SELECT PC_AsText(PC_MakePatch(1, ARRAY[-126.99,45.01,1,0, -126.98,45.02,2,0, -126.97,45.03,3,0]));
+
+    {"pcid":1,"pts":[
+     [-126.99,45.01,1,0],[-126.98,45.02,2,0],[-126.97,45.03,3,0]
+    ]}
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+PC_MemSize
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+:PC_MemSize(p pcpatch) returns int4:
+
+Returns the memory size of a pcpatch.
+
+.. code-block::
+
+    SELECT PC_MemSize(PC_Patch(PC_MakePoint(1, ARRAY[-127, 45, 124.0, 4.0])));
+
+    161
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+PC_NumPoints
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+:PC_NumPoints(p pcpatch) returns integer:
+
+Returns the number of points in this patch.
+
+.. code-block::
+
+    SELECT PC_NumPoints(pa) FROM patches LIMIT 1;
+
+    9
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+PC_PCId
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+:PC_PCId(p pcpatch) returns integer:
+
+Returns the pcid schema number of points in this patch.
+
+.. code-block::
+
+    SELECT PC_PCId(pa) FROM patches LIMIT 1;
+
+    1
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+PC_Patch
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+:PC_Patch(pts pcpoint[]) returns pcpatch:
+
+Aggregate function that collects a result set of pcpoint values into a pcpatch.
+
+.. code-block::
+
+    INSERT INTO patches (pa)
+    SELECT PC_Patch(pt) FROM points GROUP BY id/10;
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 PC_PatchAvg
@@ -259,66 +266,31 @@ Returns a PcPoint with the maximum values of each dimension in the patch.
     {"pcid":1,"pt":[-126.41,45.59,59,5]}
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-PC_FilterGreaterThan
+PC_PatchMin
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-:PC_FilterGreaterThan(p pcpatch, dimname text, float8 value) returns pcpatch:
+:PC_PatchMin(p pcpatch, dimname text) returns numeric:
 
-Returns a patch with only points whose values are greater than the supplied
-value for the requested dimension.
+Reads the values of the requested dimension for all points in the patch and
+returns the minimum of those values. Dimension name must exist in the schema.
 
 .. code-block::
 
-    SELECT PC_AsText(PC_FilterGreaterThan(pa, 'y', 45.57))
+    SELECT PC_PatchMin(pa, 'y')
     FROM patches WHERE id = 7;
 
-     {"pcid":1,"pts":[[-126.42,45.58,58,5],[-126.41,45.59,59,5]]}
+    45.5
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-PC_FilterLessThan
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+:PC_PatchMin(p pcpatch) returns pcpoint:
 
-:PC_FilterLessThan(p pcpatch, dimname text, float8 value) returns pcpatch:
+Returns a PcPoint with the minimum values of each dimension in the patch.
 
-Returns a patch with only points whose values are less than the supplied value
-for the requested dimension.
+.. code-block::
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-PC_FilterBetween
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    SELECT PC_PatchMin(pa)
+    FROM patches WHERE id = 7;
 
-:PC_FilterBetween(p pcpatch, dimname text, float8 value1, float8 value2) returns pcpatch:
-
-Returns a patch with only points whose values are between (excluding) the
-supplied values for the requested dimension.
-
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-PC_FilterEquals
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-:PC_FilterEquals(p pcpatch, dimname text, float8 value) returns pcpatch:
-
-Returns a patch with only points whose values are the same as the supplied
-values for the requested dimension.
-
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-PC_Compress
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-:PC_Compress(p pcpatch,global_compression_scheme text,compression_config text) returns pcpatch:
-
-Compress a patch with a manually specified scheme. The compression_config
-semantic depends on the global compression scheme. Allowed global compression
-schemes are:
-
-- auto: determined by pcid
-- laz: no compression config supported
-- dimensional: configuration is a comma-separated list of per-dimension compressions from this list
-
-    - auto: determined automatically from values stats
-    - zlib: deflate compression
-    - sigbits: significant bits removal
-    - rle: run-length encoding
+    {"pcid":1,"pt":[-126.5,45.5,50,5]}
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 PC_PointN
@@ -328,25 +300,6 @@ PC_PointN
 
 Returns the n-th point of the patch with 1-based indexing. Negative n counts
 point from the end.
-
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-PC_IsSorted
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-:PC_IsSorted(p pcpatch, dimnames text[], strict boolean default true) returns boolean:
-
-Checks whether a pcpatch is sorted lexicographically along the given
-dimensions. The ``strict`` option further checks that the ordering is strict
-(no duplicates).
-
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-PC_Sort
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-:PC_Sort(p pcpatch, dimnames text[]) returns pcpatch:
-
-Returns a copy of the input patch lexicographically sorted along the given
-dimensions.
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 PC_Range
@@ -370,6 +323,29 @@ value ``def`` is set in the points of the output patch. ``def`` is optional,
 its default value is ``0.0``.
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+PC_Sort
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+:PC_Sort(p pcpatch, dimnames text[]) returns pcpatch:
+
+Returns a copy of the input patch lexicographically sorted along the given
+dimensions.
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+PC_Summary
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+:PC_Summary(p pcpatch) returns text (from 1.1.0):
+
+Returns a JSON formatted summary of the data in that point.
+
+.. code-block::
+
+    SELECT PC_Summary(pa) FROM patches LIMIT 1;
+
+    {"pcid":1, "npts":9, "srid":4326, "compr":"dimensional","dims":[{"pos":0,"name":"X","size":4,"type":"int32_t","compr":"sigbits","stats":{"min":-126.99,"max":-126.91,"avg":-126.95}},{"pos":1,"name":"Y","size":4,"type":"int32_t","compr":"sigbits","stats":{"min":45.01,"max":45.09,"avg":45.05}},{"pos":2,"name":"Z","size":4,"type":"int32_t","compr":"sigbits","stats":{"min":1,"max":9,"avg":5}},{"pos":3,"name":"Intensity","size":2,"type":"uint16_t","compr":"rle","stats":{"min":0,"max":0,"avg":0}}]}
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 PC_Transform
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -387,15 +363,37 @@ data if dimension interpretations, scales or offsets are different in the new
 schema.
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-PC_MemSize
+PC_Uncompress
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-:PC_MemSize(p pcpatch) returns int4:
+:PC_Uncompress(p pcpatch) returns pcpatch:
 
-Return the memory size of a pcpatch.
+Returns an uncompressed version of the patch (compression type ``none``). In
+order to return an uncompressed patch on the wire, this must be the outer
+function with return type pcpatch in your SQL query. All other functions that
+return pcpatch will compress output to the schema-specified compression before
+returning.
 
 .. code-block::
 
-    SELECT PC_MemSize(PC_Patch(PC_MakePoint(1, ARRAY[-127, 45, 124.0, 4.0])));
+    SELECT PC_Uncompress(pa) FROM patches
+    WHERE PC_NumPoints(pa) = 1;
 
-    161
+    01010000000000000001000000C8CEFFFFF8110000102700000A00
+
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+PC_Union
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+:PC_Union(p pcpatch[]) returns pcpatch:
+
+Aggregate function merges a result set of pcpatch entries into a single pcpatch.
+
+.. code-block::
+
+    -- Compare npoints(sum(patches)) to sum(npoints(patches))
+    SELECT PC_NumPoints(PC_Union(pa)) FROM patches;
+    SELECT Sum(PC_NumPoints(pa)) FROM patches;
+
+    100
