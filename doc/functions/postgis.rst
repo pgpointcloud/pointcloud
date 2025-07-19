@@ -1,4 +1,4 @@
-.. _points:
+.. _postgis:
 
 ********************************************************************************
 PostGIS
@@ -17,46 +17,6 @@ Geometry and doing spatial filtering on point cloud data. The
     CREATE EXTENSION pointcloud_postgis;
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-PC_Intersects
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-:PC_Intersects(p pcpatch, g geometry) returns boolean:
-
-:PC_Intersects(g geometry, p pcpatch) returns boolean:
-
-Returns true if the bounds of the patch intersect the geometry.
-
-.. code-block::
-
-    SELECT PC_Intersects('SRID=4326;POINT(-126.451 45.552)'::geometry, pa)
-    FROM patches WHERE id = 7;
-
-    t
-
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-PC_Intersection
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-:PC_Intersection(pcpatch, geometry) returns pcpatch:
-
-Returns a PcPatch which only contains points that intersected the geometry.
-
-.. code-block::
-
-    SELECT PC_AsText(PC_Explode(PC_Intersection(
-          pa,
-          'SRID=4326;POLYGON((-126.451 45.552, -126.42 47.55, -126.40 45.552, -126.451 45.552))'::geometry
-    )))
-    FROM patches WHERE id = 7;
-
-                 pc_astext
-    --------------------------------------
-     {"pcid":1,"pt":[-126.44,45.56,56,5]}
-     {"pcid":1,"pt":[-126.43,45.57,57,5]}
-     {"pcid":1,"pt":[-126.42,45.58,58,5]}
-     {"pcid":1,"pt":[-126.41,45.59,59,5]}
-
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Geometry
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -72,28 +32,6 @@ Casts ``PcPoint`` to the PostGIS geometry equivalent, placing the x/y/z/m of the
     SELECT ST_AsText(PC_MakePoint(1, ARRAY[-127, 45, 124.0, 4.0])::geometry);
 
     POINT Z (-127 45 124)
-
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-PC_EnvelopeGeometry
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-:PC_EnvelopeGeometry(pcpatch) returns geometry:
-
-Returns the 2D bounds of the patch as a PostGIS Polygon 2D. Useful for
-performing 2D intersection tests with PostGIS geometries.
-
-.. code-block::
-
-    SELECT ST_AsText(PC_EnvelopeGeometry(pa)) FROM patches LIMIT 1;
-
-    POLYGON((-126.99 45.01,-126.99 45.09,-126.91 45.09,-126.91 45.01,-126.99 45.01))
-
-For example, this is how one may want to create an index:
-
-.. code-block::
-
-    CREATE INDEX ON patches USING GIST(PC_EnvelopeGeometry(patch));
-
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 PC_BoundingDiagonalGeometry
@@ -128,3 +66,64 @@ For example, this is how one may want to create an index:
 .. code-block::
 
     CREATE INDEX ON patches USING GIST(PC_BoundingDiagonalGeometry(patch) gist_geometry_ops_nd);
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+PC_EnvelopeGeometry
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+:PC_EnvelopeGeometry(pcpatch) returns geometry:
+
+Returns the 2D bounds of the patch as a PostGIS Polygon 2D. Useful for
+performing 2D intersection tests with PostGIS geometries.
+
+.. code-block::
+
+    SELECT ST_AsText(PC_EnvelopeGeometry(pa)) FROM patches LIMIT 1;
+
+    POLYGON((-126.99 45.01,-126.99 45.09,-126.91 45.09,-126.91 45.01,-126.99 45.01))
+
+For example, this is how one may want to create an index:
+
+.. code-block::
+
+    CREATE INDEX ON patches USING GIST(PC_EnvelopeGeometry(patch));
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+PC_Intersection
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+:PC_Intersection(pcpatch, geometry) returns pcpatch:
+
+Returns a PcPatch which only contains points that intersected the geometry.
+
+.. code-block::
+
+    SELECT PC_AsText(PC_Explode(PC_Intersection(
+          pa,
+          'SRID=4326;POLYGON((-126.451 45.552, -126.42 47.55, -126.40 45.552, -126.451 45.552))'::geometry
+    )))
+    FROM patches WHERE id = 7;
+
+                 pc_astext
+    --------------------------------------
+     {"pcid":1,"pt":[-126.44,45.56,56,5]}
+     {"pcid":1,"pt":[-126.43,45.57,57,5]}
+     {"pcid":1,"pt":[-126.42,45.58,58,5]}
+     {"pcid":1,"pt":[-126.41,45.59,59,5]}
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+PC_Intersects
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+:PC_Intersects(p pcpatch, g geometry) returns boolean:
+
+:PC_Intersects(g geometry, p pcpatch) returns boolean:
+
+Returns true if the bounds of the patch intersect the geometry.
+
+.. code-block::
+
+    SELECT PC_Intersects('SRID=4326;POINT(-126.451 45.552)'::geometry, pa)
+    FROM patches WHERE id = 7;
+
+    t
