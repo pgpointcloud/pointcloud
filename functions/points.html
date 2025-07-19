@@ -22,7 +22,7 @@
     <link rel="search" title="Search" href="../search.html" />
     <link rel="copyright" title="Copyright" href="../copyright.html" />
     <link rel="next" title="PcPatch" href="patchs.html" />
-    <link rel="prev" title="Functions" href="index.html" /> 
+    <link rel="prev" title="Schema" href="schema.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -55,17 +55,19 @@
 </ul>
 <ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">Functions</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="schema.html">Schema</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">PcPoint</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#pc-makepoint">PC_MakePoint</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#pc-astext">PC_AsText</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#pc-pcid">PC_PCId</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#pc-get">PC_Get</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pc-makepoint">PC_MakePoint</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#pc-memsize">PC_MemSize</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pc-pcid">PC_PCId</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="patchs.html">PcPatch</a></li>
 <li class="toctree-l2"><a class="reference internal" href="wkb.html">WKB</a></li>
 <li class="toctree-l2"><a class="reference internal" href="postgis.html">PostGIS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="utils.html">Utils</a></li>
 </ul>
 </li>
 </ul>
@@ -110,6 +112,43 @@
              
   <section id="pcpoint">
 <span id="points"></span><h1>PcPoint<a class="headerlink" href="#pcpoint" title="Link to this heading"></a></h1>
+<section id="pc-astext">
+<h2>PC_AsText<a class="headerlink" href="#pc-astext" title="Link to this heading"></a></h2>
+<dl class="field-list simple">
+<dt class="field-odd">PC_AsText(p pcpoint) returns text<span class="colon">:</span></dt>
+<dd class="field-odd"><p></p></dd>
+</dl>
+<p>Returns a JSON version of the data in that point.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">SELECT</span> <span class="n">PC_AsText</span><span class="p">(</span><span class="s1">&#39;010100000064CEFFFF94110000703000000400&#39;</span><span class="p">::</span><span class="n">pcpoint</span><span class="p">);</span>
+
+<span class="p">{</span><span class="s2">&quot;pcid&quot;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span><span class="s2">&quot;pt&quot;</span><span class="p">:[</span><span class="o">-</span><span class="mi">127</span><span class="p">,</span><span class="mi">45</span><span class="p">,</span><span class="mi">124</span><span class="p">,</span><span class="mi">4</span><span class="p">]}</span>
+</pre></div>
+</div>
+</section>
+<section id="pc-get">
+<h2>PC_Get<a class="headerlink" href="#pc-get" title="Link to this heading"></a></h2>
+<dl class="field-list simple">
+<dt class="field-odd">PC_Get(pt pcpoint) returns float8[]<span class="colon">:</span></dt>
+<dd class="field-odd"><p></p></dd>
+</dl>
+<p>Returns values of all dimensions in an array.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">SELECT</span> <span class="n">PC_Get</span><span class="p">(</span><span class="s1">&#39;010100000064CEFFFF94110000703000000400&#39;</span><span class="p">::</span><span class="n">pcpoint</span><span class="p">);</span>
+
+<span class="p">{</span><span class="o">-</span><span class="mi">127</span><span class="p">,</span><span class="mi">45</span><span class="p">,</span><span class="mi">124</span><span class="p">,</span><span class="mi">4</span><span class="p">}</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">PC_Get(pt pcpoint, dimname text) returns numeric<span class="colon">:</span></dt>
+<dd class="field-odd"><p></p></dd>
+</dl>
+<p>Returns the numeric value of the named dimension. The dimension name must exist
+in the schema.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">SELECT</span> <span class="n">PC_Get</span><span class="p">(</span><span class="s1">&#39;010100000064CEFFFF94110000703000000400&#39;</span><span class="p">::</span><span class="n">pcpoint</span><span class="p">,</span> <span class="s1">&#39;Intensity&#39;</span><span class="p">);</span>
+
+<span class="mi">4</span>
+</pre></div>
+</div>
+</section>
 <section id="pc-makepoint">
 <h2>PC_MakePoint<a class="headerlink" href="#pc-makepoint" title="Link to this heading"></a></h2>
 <dl class="field-list simple">
@@ -137,16 +176,16 @@ schema, construct a new pcpoint.</p>
 </pre></div>
 </div>
 </section>
-<section id="pc-astext">
-<h2>PC_AsText<a class="headerlink" href="#pc-astext" title="Link to this heading"></a></h2>
+<section id="pc-memsize">
+<h2>PC_MemSize<a class="headerlink" href="#pc-memsize" title="Link to this heading"></a></h2>
 <dl class="field-list simple">
-<dt class="field-odd">PC_AsText(p pcpoint) returns text<span class="colon">:</span></dt>
+<dt class="field-odd">PC_MemSize(pt pcpoint) returns int4<span class="colon">:</span></dt>
 <dd class="field-odd"><p></p></dd>
 </dl>
-<p>Return a JSON version of the data in that point.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">SELECT</span> <span class="n">PC_AsText</span><span class="p">(</span><span class="s1">&#39;010100000064CEFFFF94110000703000000400&#39;</span><span class="p">::</span><span class="n">pcpoint</span><span class="p">);</span>
+<p>Returns the memory size of a pcpoint.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">SELECT</span> <span class="n">PC_MemSize</span><span class="p">(</span><span class="n">PC_MakePoint</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">ARRAY</span><span class="p">[</span><span class="o">-</span><span class="mi">127</span><span class="p">,</span> <span class="mi">45</span><span class="p">,</span> <span class="mf">124.0</span><span class="p">,</span> <span class="mf">4.0</span><span class="p">]));</span>
 
-<span class="p">{</span><span class="s2">&quot;pcid&quot;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span><span class="s2">&quot;pt&quot;</span><span class="p">:[</span><span class="o">-</span><span class="mi">127</span><span class="p">,</span><span class="mi">45</span><span class="p">,</span><span class="mi">124</span><span class="p">,</span><span class="mi">4</span><span class="p">]}</span>
+<span class="mi">25</span>
 </pre></div>
 </div>
 </section>
@@ -156,47 +195,10 @@ schema, construct a new pcpoint.</p>
 <dt class="field-odd">PC_PCId(p pcpoint) returns integer (from 1.1.0)<span class="colon">:</span></dt>
 <dd class="field-odd"><p></p></dd>
 </dl>
-<p>Return the pcid schema number of this point.</p>
+<p>Returns the pcid schema number of this point.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">SELECT</span> <span class="n">PC_PCId</span><span class="p">(</span><span class="s1">&#39;010100000064CEFFFF94110000703000000400&#39;</span><span class="p">::</span><span class="n">pcpoint</span><span class="p">);</span>
 
 <span class="mi">1</span>
-</pre></div>
-</div>
-</section>
-<section id="pc-get">
-<h2>PC_Get<a class="headerlink" href="#pc-get" title="Link to this heading"></a></h2>
-<dl class="field-list simple">
-<dt class="field-odd">PC_Get(pt pcpoint) returns float8[]<span class="colon">:</span></dt>
-<dd class="field-odd"><p></p></dd>
-</dl>
-<p>Return values of all dimensions in an array.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">SELECT</span> <span class="n">PC_Get</span><span class="p">(</span><span class="s1">&#39;010100000064CEFFFF94110000703000000400&#39;</span><span class="p">::</span><span class="n">pcpoint</span><span class="p">);</span>
-
-<span class="p">{</span><span class="o">-</span><span class="mi">127</span><span class="p">,</span><span class="mi">45</span><span class="p">,</span><span class="mi">124</span><span class="p">,</span><span class="mi">4</span><span class="p">}</span>
-</pre></div>
-</div>
-<dl class="field-list simple">
-<dt class="field-odd">PC_Get(pt pcpoint, dimname text) returns numeric<span class="colon">:</span></dt>
-<dd class="field-odd"><p></p></dd>
-</dl>
-<p>Return the numeric value of the named dimension. The dimension name must exist
-in the schema.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">SELECT</span> <span class="n">PC_Get</span><span class="p">(</span><span class="s1">&#39;010100000064CEFFFF94110000703000000400&#39;</span><span class="p">::</span><span class="n">pcpoint</span><span class="p">,</span> <span class="s1">&#39;Intensity&#39;</span><span class="p">);</span>
-
-<span class="mi">4</span>
-</pre></div>
-</div>
-</section>
-<section id="pc-memsize">
-<h2>PC_MemSize<a class="headerlink" href="#pc-memsize" title="Link to this heading"></a></h2>
-<dl class="field-list simple">
-<dt class="field-odd">PC_MemSize(pt pcpoint) returns int4<span class="colon">:</span></dt>
-<dd class="field-odd"><p></p></dd>
-</dl>
-<p>Return the memory size of a pcpoint.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">SELECT</span> <span class="n">PC_MemSize</span><span class="p">(</span><span class="n">PC_MakePoint</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">ARRAY</span><span class="p">[</span><span class="o">-</span><span class="mi">127</span><span class="p">,</span> <span class="mi">45</span><span class="p">,</span> <span class="mf">124.0</span><span class="p">,</span> <span class="mf">4.0</span><span class="p">]));</span>
-
-<span class="mi">25</span>
 </pre></div>
 </div>
 </section>
@@ -206,7 +208,7 @@ in the schema.</p>
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="index.html" class="btn btn-neutral float-left" title="Functions" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="schema.html" class="btn btn-neutral float-left" title="Schema" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="patchs.html" class="btn btn-neutral float-right" title="PcPatch" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 

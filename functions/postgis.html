@@ -21,7 +21,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="copyright" title="Copyright" href="../copyright.html" />
-    <link rel="next" title="Update" href="../update.html" />
+    <link rel="next" title="Utils" href="utils.html" />
     <link rel="prev" title="WKB" href="wkb.html" /> 
 </head>
 
@@ -55,17 +55,19 @@
 </ul>
 <ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">Functions</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="schema.html">Schema</a></li>
 <li class="toctree-l2"><a class="reference internal" href="points.html">PcPoint</a></li>
 <li class="toctree-l2"><a class="reference internal" href="patchs.html">PcPatch</a></li>
 <li class="toctree-l2"><a class="reference internal" href="wkb.html">WKB</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">PostGIS</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#pc-intersects">PC_Intersects</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#pc-intersection">PC_Intersection</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#geometry">Geometry</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#pc-envelopegeometry">PC_EnvelopeGeometry</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#pc-boundingdiagonalgeometry">PC_BoundingDiagonalGeometry</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pc-envelopegeometry">PC_EnvelopeGeometry</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pc-intersection">PC_Intersection</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pc-intersects">PC_Intersects</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="utils.html">Utils</a></li>
 </ul>
 </li>
 </ul>
@@ -109,7 +111,7 @@
            <div itemprop="articleBody">
              
   <section id="postgis">
-<span id="points"></span><h1>PostGIS<a class="headerlink" href="#postgis" title="Link to this heading"></a></h1>
+<span id="id1"></span><h1>PostGIS<a class="headerlink" href="#postgis" title="Link to this heading"></a></h1>
 <p>The <code class="docutils literal notranslate"><span class="pre">pointcloud_postgis</span></code> extension adds functions that allow you to use
 PostgreSQL Pointcloud with PostGIS, converting <code class="docutils literal notranslate"><span class="pre">PcPoint</span></code> and <code class="docutils literal notranslate"><span class="pre">PcPatch</span></code> to
 Geometry and doing spatial filtering on point cloud data. The
@@ -120,44 +122,6 @@ Geometry and doing spatial filtering on point cloud data. The
 <span class="k">CREATE</span><span class="w"> </span><span class="n">EXTENSION</span><span class="w"> </span><span class="n">pointcloud_postgis</span><span class="p">;</span>
 </pre></div>
 </div>
-<section id="pc-intersects">
-<h2>PC_Intersects<a class="headerlink" href="#pc-intersects" title="Link to this heading"></a></h2>
-<dl class="field-list simple">
-<dt class="field-odd">PC_Intersects(p pcpatch, g geometry) returns boolean<span class="colon">:</span></dt>
-<dd class="field-odd"><p></p></dd>
-<dt class="field-even">PC_Intersects(g geometry, p pcpatch) returns boolean<span class="colon">:</span></dt>
-<dd class="field-even"><p></p></dd>
-</dl>
-<p>Returns true if the bounds of the patch intersect the geometry.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">SELECT</span> <span class="n">PC_Intersects</span><span class="p">(</span><span class="s1">&#39;SRID=4326;POINT(-126.451 45.552)&#39;</span><span class="p">::</span><span class="n">geometry</span><span class="p">,</span> <span class="n">pa</span><span class="p">)</span>
-<span class="n">FROM</span> <span class="n">patches</span> <span class="n">WHERE</span> <span class="nb">id</span> <span class="o">=</span> <span class="mi">7</span><span class="p">;</span>
-
-<span class="n">t</span>
-</pre></div>
-</div>
-</section>
-<section id="pc-intersection">
-<h2>PC_Intersection<a class="headerlink" href="#pc-intersection" title="Link to this heading"></a></h2>
-<dl class="field-list simple">
-<dt class="field-odd">PC_Intersection(pcpatch, geometry) returns pcpatch<span class="colon">:</span></dt>
-<dd class="field-odd"><p></p></dd>
-</dl>
-<p>Returns a PcPatch which only contains points that intersected the geometry.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">SELECT</span> <span class="n">PC_AsText</span><span class="p">(</span><span class="n">PC_Explode</span><span class="p">(</span><span class="n">PC_Intersection</span><span class="p">(</span>
-      <span class="n">pa</span><span class="p">,</span>
-      <span class="s1">&#39;SRID=4326;POLYGON((-126.451 45.552, -126.42 47.55, -126.40 45.552, -126.451 45.552))&#39;</span><span class="p">::</span><span class="n">geometry</span>
-<span class="p">)))</span>
-<span class="n">FROM</span> <span class="n">patches</span> <span class="n">WHERE</span> <span class="nb">id</span> <span class="o">=</span> <span class="mi">7</span><span class="p">;</span>
-
-             <span class="n">pc_astext</span>
-<span class="o">--------------------------------------</span>
- <span class="p">{</span><span class="s2">&quot;pcid&quot;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span><span class="s2">&quot;pt&quot;</span><span class="p">:[</span><span class="o">-</span><span class="mf">126.44</span><span class="p">,</span><span class="mf">45.56</span><span class="p">,</span><span class="mi">56</span><span class="p">,</span><span class="mi">5</span><span class="p">]}</span>
- <span class="p">{</span><span class="s2">&quot;pcid&quot;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span><span class="s2">&quot;pt&quot;</span><span class="p">:[</span><span class="o">-</span><span class="mf">126.43</span><span class="p">,</span><span class="mf">45.57</span><span class="p">,</span><span class="mi">57</span><span class="p">,</span><span class="mi">5</span><span class="p">]}</span>
- <span class="p">{</span><span class="s2">&quot;pcid&quot;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span><span class="s2">&quot;pt&quot;</span><span class="p">:[</span><span class="o">-</span><span class="mf">126.42</span><span class="p">,</span><span class="mf">45.58</span><span class="p">,</span><span class="mi">58</span><span class="p">,</span><span class="mi">5</span><span class="p">]}</span>
- <span class="p">{</span><span class="s2">&quot;pcid&quot;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span><span class="s2">&quot;pt&quot;</span><span class="p">:[</span><span class="o">-</span><span class="mf">126.41</span><span class="p">,</span><span class="mf">45.59</span><span class="p">,</span><span class="mi">59</span><span class="p">,</span><span class="mi">5</span><span class="p">]}</span>
-</pre></div>
-</div>
-</section>
 <section id="geometry">
 <h2>Geometry<a class="headerlink" href="#geometry" title="Link to this heading"></a></h2>
 <dl class="field-list simple">
@@ -171,24 +135,6 @@ Geometry and doing spatial filtering on point cloud data. The
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">SELECT</span> <span class="n">ST_AsText</span><span class="p">(</span><span class="n">PC_MakePoint</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">ARRAY</span><span class="p">[</span><span class="o">-</span><span class="mi">127</span><span class="p">,</span> <span class="mi">45</span><span class="p">,</span> <span class="mf">124.0</span><span class="p">,</span> <span class="mf">4.0</span><span class="p">])::</span><span class="n">geometry</span><span class="p">);</span>
 
 <span class="n">POINT</span> <span class="n">Z</span> <span class="p">(</span><span class="o">-</span><span class="mi">127</span> <span class="mi">45</span> <span class="mi">124</span><span class="p">)</span>
-</pre></div>
-</div>
-</section>
-<section id="pc-envelopegeometry">
-<h2>PC_EnvelopeGeometry<a class="headerlink" href="#pc-envelopegeometry" title="Link to this heading"></a></h2>
-<dl class="field-list simple">
-<dt class="field-odd">PC_EnvelopeGeometry(pcpatch) returns geometry<span class="colon">:</span></dt>
-<dd class="field-odd"><p></p></dd>
-</dl>
-<p>Returns the 2D bounds of the patch as a PostGIS Polygon 2D. Useful for
-performing 2D intersection tests with PostGIS geometries.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">SELECT</span> <span class="n">ST_AsText</span><span class="p">(</span><span class="n">PC_EnvelopeGeometry</span><span class="p">(</span><span class="n">pa</span><span class="p">))</span> <span class="n">FROM</span> <span class="n">patches</span> <span class="n">LIMIT</span> <span class="mi">1</span><span class="p">;</span>
-
-<span class="n">POLYGON</span><span class="p">((</span><span class="o">-</span><span class="mf">126.99</span> <span class="mf">45.01</span><span class="p">,</span><span class="o">-</span><span class="mf">126.99</span> <span class="mf">45.09</span><span class="p">,</span><span class="o">-</span><span class="mf">126.91</span> <span class="mf">45.09</span><span class="p">,</span><span class="o">-</span><span class="mf">126.91</span> <span class="mf">45.01</span><span class="p">,</span><span class="o">-</span><span class="mf">126.99</span> <span class="mf">45.01</span><span class="p">))</span>
-</pre></div>
-</div>
-<p>For example, this is how one may want to create an index:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">CREATE</span> <span class="n">INDEX</span> <span class="n">ON</span> <span class="n">patches</span> <span class="n">USING</span> <span class="n">GIST</span><span class="p">(</span><span class="n">PC_EnvelopeGeometry</span><span class="p">(</span><span class="n">patch</span><span class="p">));</span>
 </pre></div>
 </div>
 </section>
@@ -223,6 +169,62 @@ index on a patch column.</p>
 </pre></div>
 </div>
 </section>
+<section id="pc-envelopegeometry">
+<h2>PC_EnvelopeGeometry<a class="headerlink" href="#pc-envelopegeometry" title="Link to this heading"></a></h2>
+<dl class="field-list simple">
+<dt class="field-odd">PC_EnvelopeGeometry(pcpatch) returns geometry<span class="colon">:</span></dt>
+<dd class="field-odd"><p></p></dd>
+</dl>
+<p>Returns the 2D bounds of the patch as a PostGIS Polygon 2D. Useful for
+performing 2D intersection tests with PostGIS geometries.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">SELECT</span> <span class="n">ST_AsText</span><span class="p">(</span><span class="n">PC_EnvelopeGeometry</span><span class="p">(</span><span class="n">pa</span><span class="p">))</span> <span class="n">FROM</span> <span class="n">patches</span> <span class="n">LIMIT</span> <span class="mi">1</span><span class="p">;</span>
+
+<span class="n">POLYGON</span><span class="p">((</span><span class="o">-</span><span class="mf">126.99</span> <span class="mf">45.01</span><span class="p">,</span><span class="o">-</span><span class="mf">126.99</span> <span class="mf">45.09</span><span class="p">,</span><span class="o">-</span><span class="mf">126.91</span> <span class="mf">45.09</span><span class="p">,</span><span class="o">-</span><span class="mf">126.91</span> <span class="mf">45.01</span><span class="p">,</span><span class="o">-</span><span class="mf">126.99</span> <span class="mf">45.01</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>For example, this is how one may want to create an index:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">CREATE</span> <span class="n">INDEX</span> <span class="n">ON</span> <span class="n">patches</span> <span class="n">USING</span> <span class="n">GIST</span><span class="p">(</span><span class="n">PC_EnvelopeGeometry</span><span class="p">(</span><span class="n">patch</span><span class="p">));</span>
+</pre></div>
+</div>
+</section>
+<section id="pc-intersection">
+<h2>PC_Intersection<a class="headerlink" href="#pc-intersection" title="Link to this heading"></a></h2>
+<dl class="field-list simple">
+<dt class="field-odd">PC_Intersection(pcpatch, geometry) returns pcpatch<span class="colon">:</span></dt>
+<dd class="field-odd"><p></p></dd>
+</dl>
+<p>Returns a PcPatch which only contains points that intersected the geometry.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">SELECT</span> <span class="n">PC_AsText</span><span class="p">(</span><span class="n">PC_Explode</span><span class="p">(</span><span class="n">PC_Intersection</span><span class="p">(</span>
+      <span class="n">pa</span><span class="p">,</span>
+      <span class="s1">&#39;SRID=4326;POLYGON((-126.451 45.552, -126.42 47.55, -126.40 45.552, -126.451 45.552))&#39;</span><span class="p">::</span><span class="n">geometry</span>
+<span class="p">)))</span>
+<span class="n">FROM</span> <span class="n">patches</span> <span class="n">WHERE</span> <span class="nb">id</span> <span class="o">=</span> <span class="mi">7</span><span class="p">;</span>
+
+             <span class="n">pc_astext</span>
+<span class="o">--------------------------------------</span>
+ <span class="p">{</span><span class="s2">&quot;pcid&quot;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span><span class="s2">&quot;pt&quot;</span><span class="p">:[</span><span class="o">-</span><span class="mf">126.44</span><span class="p">,</span><span class="mf">45.56</span><span class="p">,</span><span class="mi">56</span><span class="p">,</span><span class="mi">5</span><span class="p">]}</span>
+ <span class="p">{</span><span class="s2">&quot;pcid&quot;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span><span class="s2">&quot;pt&quot;</span><span class="p">:[</span><span class="o">-</span><span class="mf">126.43</span><span class="p">,</span><span class="mf">45.57</span><span class="p">,</span><span class="mi">57</span><span class="p">,</span><span class="mi">5</span><span class="p">]}</span>
+ <span class="p">{</span><span class="s2">&quot;pcid&quot;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span><span class="s2">&quot;pt&quot;</span><span class="p">:[</span><span class="o">-</span><span class="mf">126.42</span><span class="p">,</span><span class="mf">45.58</span><span class="p">,</span><span class="mi">58</span><span class="p">,</span><span class="mi">5</span><span class="p">]}</span>
+ <span class="p">{</span><span class="s2">&quot;pcid&quot;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span><span class="s2">&quot;pt&quot;</span><span class="p">:[</span><span class="o">-</span><span class="mf">126.41</span><span class="p">,</span><span class="mf">45.59</span><span class="p">,</span><span class="mi">59</span><span class="p">,</span><span class="mi">5</span><span class="p">]}</span>
+</pre></div>
+</div>
+</section>
+<section id="pc-intersects">
+<h2>PC_Intersects<a class="headerlink" href="#pc-intersects" title="Link to this heading"></a></h2>
+<dl class="field-list simple">
+<dt class="field-odd">PC_Intersects(p pcpatch, g geometry) returns boolean<span class="colon">:</span></dt>
+<dd class="field-odd"><p></p></dd>
+<dt class="field-even">PC_Intersects(g geometry, p pcpatch) returns boolean<span class="colon">:</span></dt>
+<dd class="field-even"><p></p></dd>
+</dl>
+<p>Returns true if the bounds of the patch intersect the geometry.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">SELECT</span> <span class="n">PC_Intersects</span><span class="p">(</span><span class="s1">&#39;SRID=4326;POINT(-126.451 45.552)&#39;</span><span class="p">::</span><span class="n">geometry</span><span class="p">,</span> <span class="n">pa</span><span class="p">)</span>
+<span class="n">FROM</span> <span class="n">patches</span> <span class="n">WHERE</span> <span class="nb">id</span> <span class="o">=</span> <span class="mi">7</span><span class="p">;</span>
+
+<span class="n">t</span>
+</pre></div>
+</div>
+</section>
 </section>
 
 
@@ -230,7 +232,7 @@ index on a patch column.</p>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="wkb.html" class="btn btn-neutral float-left" title="WKB" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="../update.html" class="btn btn-neutral float-right" title="Update" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="utils.html" class="btn btn-neutral float-right" title="Utils" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

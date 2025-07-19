@@ -1,4 +1,4 @@
-.. _points:
+.. _wkb:
 
 ********************************************************************************
 WKB
@@ -18,6 +18,20 @@ Return the OGC "well-known binary" format for the point.
 
     \x01010000800000000000c05fc000000000008046400000000000005f40
 
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+PC_BoundingDiagonalAsBinary
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+:PC_BoundingDiagonalAsBinary(p pcpatch) returns bytea:
+
+Return the OGC "well-known binary" format for the bounding diagonal of the
+patch.
+
+.. code-block::
+
+    SELECT PC_BoundingDiagonalAsBinary( PC_Patch(ARRAY[ PC_MakePoint(1, ARRAY[0.,0.,0.,10.]), PC_MakePoint(1, ARRAY[1.,1.,1.,10.]), PC_MakePoint(1, ARRAY[10.,10.,10.,10.])]));
+
+    \x01020000a0e610000002000000000000000000000000000000000000000000000000000000000000000000244000000000000024400000000000002440
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 PC_EnvelopeAsBinary
@@ -40,18 +54,3 @@ Useful for performing 2D intersection tests with geometries.
 ``PC_Envelope`` is an alias to ``PC_EnvelopeAsBinary``. But ``PC_Envelope`` is
 deprecated and will be removed in a future version (2.0) of the extension.
 ``PC_EnvelopeAsBinary`` is to be used instead.
-
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-PC_BoundingDiagonalAsBinary
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-:PC_BoundingDiagonalAsBinary(p pcpatch) returns bytea:
-
-Return the OGC "well-known binary" format for the bounding diagonal of the
-patch.
-
-.. code-block::
-
-    SELECT PC_BoundingDiagonalAsBinary( PC_Patch(ARRAY[ PC_MakePoint(1, ARRAY[0.,0.,0.,10.]), PC_MakePoint(1, ARRAY[1.,1.,1.,10.]), PC_MakePoint(1, ARRAY[10.,10.,10.,10.])]));
-
-    \x01020000a0e610000002000000000000000000000000000000000000000000000000000000000000000000244000000000000024400000000000002440

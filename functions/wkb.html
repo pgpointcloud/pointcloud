@@ -55,15 +55,17 @@
 </ul>
 <ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">Functions</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="schema.html">Schema</a></li>
 <li class="toctree-l2"><a class="reference internal" href="points.html">PcPoint</a></li>
 <li class="toctree-l2"><a class="reference internal" href="patchs.html">PcPatch</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">WKB</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#pc-asbinary">PC_AsBinary</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#pc-envelopeasbinary">PC_EnvelopeAsBinary</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#pc-boundingdiagonalasbinary">PC_BoundingDiagonalAsBinary</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pc-envelopeasbinary">PC_EnvelopeAsBinary</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="postgis.html">PostGIS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="utils.html">Utils</a></li>
 </ul>
 </li>
 </ul>
@@ -107,7 +109,7 @@
            <div itemprop="articleBody">
              
   <section id="wkb">
-<span id="points"></span><h1>WKB<a class="headerlink" href="#wkb" title="Link to this heading"></a></h1>
+<span id="id1"></span><h1>WKB<a class="headerlink" href="#wkb" title="Link to this heading"></a></h1>
 <section id="pc-asbinary">
 <h2>PC_AsBinary<a class="headerlink" href="#pc-asbinary" title="Link to this heading"></a></h2>
 <dl class="field-list simple">
@@ -118,6 +120,20 @@
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">SELECT</span> <span class="n">PC_AsBinary</span><span class="p">(</span><span class="s1">&#39;010100000064CEFFFF94110000703000000400&#39;</span><span class="p">::</span><span class="n">pcpoint</span><span class="p">);</span>
 
 \<span class="n">x01010000800000000000c05fc000000000008046400000000000005f40</span>
+</pre></div>
+</div>
+</section>
+<section id="pc-boundingdiagonalasbinary">
+<h2>PC_BoundingDiagonalAsBinary<a class="headerlink" href="#pc-boundingdiagonalasbinary" title="Link to this heading"></a></h2>
+<dl class="field-list simple">
+<dt class="field-odd">PC_BoundingDiagonalAsBinary(p pcpatch) returns bytea<span class="colon">:</span></dt>
+<dd class="field-odd"><p></p></dd>
+</dl>
+<p>Return the OGC “well-known binary” format for the bounding diagonal of the
+patch.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">SELECT</span> <span class="n">PC_BoundingDiagonalAsBinary</span><span class="p">(</span> <span class="n">PC_Patch</span><span class="p">(</span><span class="n">ARRAY</span><span class="p">[</span> <span class="n">PC_MakePoint</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">ARRAY</span><span class="p">[</span><span class="mf">0.</span><span class="p">,</span><span class="mf">0.</span><span class="p">,</span><span class="mf">0.</span><span class="p">,</span><span class="mf">10.</span><span class="p">]),</span> <span class="n">PC_MakePoint</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">ARRAY</span><span class="p">[</span><span class="mf">1.</span><span class="p">,</span><span class="mf">1.</span><span class="p">,</span><span class="mf">1.</span><span class="p">,</span><span class="mf">10.</span><span class="p">]),</span> <span class="n">PC_MakePoint</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">ARRAY</span><span class="p">[</span><span class="mf">10.</span><span class="p">,</span><span class="mf">10.</span><span class="p">,</span><span class="mf">10.</span><span class="p">,</span><span class="mf">10.</span><span class="p">])]));</span>
+
+\<span class="n">x01020000a0e610000002000000000000000000000000000000000000000000000000000000000000000000244000000000000024400000000000002440</span>
 </pre></div>
 </div>
 </section>
@@ -140,20 +156,6 @@ Useful for performing 2D intersection tests with geometries.</p>
 <p><code class="docutils literal notranslate"><span class="pre">PC_Envelope</span></code> is an alias to <code class="docutils literal notranslate"><span class="pre">PC_EnvelopeAsBinary</span></code>. But <code class="docutils literal notranslate"><span class="pre">PC_Envelope</span></code> is
 deprecated and will be removed in a future version (2.0) of the extension.
 <code class="docutils literal notranslate"><span class="pre">PC_EnvelopeAsBinary</span></code> is to be used instead.</p>
-</section>
-<section id="pc-boundingdiagonalasbinary">
-<h2>PC_BoundingDiagonalAsBinary<a class="headerlink" href="#pc-boundingdiagonalasbinary" title="Link to this heading"></a></h2>
-<dl class="field-list simple">
-<dt class="field-odd">PC_BoundingDiagonalAsBinary(p pcpatch) returns bytea<span class="colon">:</span></dt>
-<dd class="field-odd"><p></p></dd>
-</dl>
-<p>Return the OGC “well-known binary” format for the bounding diagonal of the
-patch.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">SELECT</span> <span class="n">PC_BoundingDiagonalAsBinary</span><span class="p">(</span> <span class="n">PC_Patch</span><span class="p">(</span><span class="n">ARRAY</span><span class="p">[</span> <span class="n">PC_MakePoint</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">ARRAY</span><span class="p">[</span><span class="mf">0.</span><span class="p">,</span><span class="mf">0.</span><span class="p">,</span><span class="mf">0.</span><span class="p">,</span><span class="mf">10.</span><span class="p">]),</span> <span class="n">PC_MakePoint</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">ARRAY</span><span class="p">[</span><span class="mf">1.</span><span class="p">,</span><span class="mf">1.</span><span class="p">,</span><span class="mf">1.</span><span class="p">,</span><span class="mf">10.</span><span class="p">]),</span> <span class="n">PC_MakePoint</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">ARRAY</span><span class="p">[</span><span class="mf">10.</span><span class="p">,</span><span class="mf">10.</span><span class="p">,</span><span class="mf">10.</span><span class="p">,</span><span class="mf">10.</span><span class="p">])]));</span>
-
-\<span class="n">x01020000a0e610000002000000000000000000000000000000000000000000000000000000000000000000244000000000000024400000000000002440</span>
-</pre></div>
-</div>
 </section>
 </section>
 

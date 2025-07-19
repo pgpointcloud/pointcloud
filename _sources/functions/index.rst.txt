@@ -7,7 +7,9 @@ Functions
 .. toctree::
    :maxdepth: 2
 
+   schema
    points
    patchs
    wkb
    postgis
+   utils
