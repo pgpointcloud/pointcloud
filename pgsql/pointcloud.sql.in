@@ -199,7 +199,8 @@ CREATE TYPE pcpoint (
 );
 
 CREATE OR REPLACE FUNCTION PC_Get(pt pcpoint, dimname text)
-	RETURNS numeric AS 'MODULE_PATHNAME', 'pcpoint_get_value'
+	RETURNS float8 AS 'MODULE_PATHNAME', 'pcpoint_get_value'
+	-- RETURNS numeric AS 'MODULE_PATHNAME', 'pcpoint_get_value'
 	LANGUAGE 'c' IMMUTABLE STRICT _PARALLEL;
 
 -- Availability: 1.1.0

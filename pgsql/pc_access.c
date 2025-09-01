@@ -88,8 +88,9 @@ Datum pcpoint_get_value(PG_FUNCTION_ARGS)
   }
   pfree(dim_str);
   pc_point_free(pt);
-  PG_RETURN_DATUM(
-      DirectFunctionCall1(float8_numeric, Float8GetDatum(double_result)));
+  // PG_RETURN_DATUM(
+  //     DirectFunctionCall1(float8_numeric, Float8GetDatum(double_result)));
+  PG_RETURN_FLOAT8(double_result);
 }
 
 /**
