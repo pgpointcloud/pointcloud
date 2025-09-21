@@ -24,6 +24,8 @@
 #include <float.h>
 #include <stdarg.h>
 
+#include <lz4.h>
+
 void pc_bytes_free(PCBYTES pcb)
 {
   if (!pcb.readonly)
@@ -81,6 +83,11 @@ pc_bytes_encode(PCBYTES pcb, int compression)
     epcb = pc_bytes_zlib_encode(pcb);
     break;
   }
+  case PC_DIM_LZ4:
+  {
+    epcb = pc_bytes_lz4_encode(pcb);
+    break;
+  }
   case PC_DIM_NONE:
   {
     epcb = pc_bytes_clone(pcb);
@@ -113,6 +120,11 @@ pc_bytes_decode(PCBYTES epcb)
   case PC_DIM_ZLIB:
   {
     pcb = pc_bytes_zlib_decode(epcb);
+    break;
+  }
+  case PC_DIM_LZ4:
+  {
+    pcb = pc_bytes_lz4_decode(epcb);
     break;
   }
   case PC_DIM_NONE:
@@ -1211,6 +1223,61 @@ static voidpf pc_zlib_alloc(voidpf opaque, uInt nitems, uInt sz)
 }
 
 static void pc_zlib_free(voidpf opaque, voidpf ptr) { pcfree(ptr); }
+
+PCBYTES
+pc_bytes_lz4_encode(const PCBYTES pcb)
+{
+  PCBYTES pcbout = pcb;
+  const int max_dst_size = LZ4_compressBound(pcb.size);
+
+  char* compressed_data = (char*)malloc((size_t)max_dst_size);
+  const int compressed_data_size = LZ4_compress_default(pcb.bytes, compressed_data, pcb.size, max_dst_size);
+
+  compressed_data = (char *)realloc(compressed_data, (size_t)compressed_data_size);
+  if (compressed_data == NULL)
+    printf("ERROR LZ4!!!!!\n");
+
+  // char* const regen_buffer = (char*)malloc(pcb.size);
+  // const int decompressed_size = LZ4_decompress_safe(compressed_data, regen_buffer, compressed_data_size, pcb.size);
+
+  pcbout.size = compressed_data_size;
+  pcbout.bytes = pcalloc(pcbout.size);
+  pcbout.readonly = PC_FALSE;
+  pcbout.compression = PC_DIM_LZ4;
+  memcpy(pcbout.bytes, compressed_data, pcbout.size);
+  // pcfree(buf);
+
+  // if (memcmp(pcb.bytes, regen_buffer, pcb.size) != 0)
+  //   printf("Error IN LZ4 decompress\n");
+  // else
+  //   printf("DECOMPRESS SUCCESS\n");
+
+  // for(int i = 0; i<pcb.size; i++)
+  //   printf("%02x ", pcb.bytes[i]);
+  // printf("\n");
+
+  return pcbout;
+}
+
+PCBYTES
+pc_bytes_lz4_decode(const PCBYTES pcb)
+{
+  int ret;
+  PCBYTES pcbout = pcb;
+
+  pcbout.size = pc_interpretation_size(pcb.interpretation) * pcb.npoints;
+
+  /* Set up output memory */
+  pcbout.bytes = pcalloc(pcbout.size);
+  pcbout.readonly = PC_FALSE;
+
+  char* const regen_buffer = (char*)malloc(pcbout.size);
+  const int decompressed_size = LZ4_decompress_safe(pcb.bytes, regen_buffer, pcb.size, pcbout.size);
+
+  pcbout.compression = PC_DIM_NONE;
+  memcpy(pcbout.bytes, regen_buffer, pcbout.size);
+  return pcbout;
+}
 
 /* TO DO look for Z_STREAM_END on the write */
 

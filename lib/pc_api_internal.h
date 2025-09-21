@@ -66,7 +66,8 @@ enum DIMCOMPRESSIONS
   PC_DIM_NONE = 0,
   PC_DIM_RLE = 1,
   PC_DIM_SIGBITS = 2,
-  PC_DIM_ZLIB = 3
+  PC_DIM_ZLIB = 3,
+  PC_DIM_LZ4 = 4
 };
 
 /* PCDOUBLESTAT are members of PCDOUBLESTATS */
@@ -256,6 +257,8 @@ PCBYTES pc_bytes_sigbits_encode(const PCBYTES pcb);
 PCBYTES pc_bytes_sigbits_decode(const PCBYTES pcb);
 /** Compress bytes using zlib */
 PCBYTES pc_bytes_zlib_encode(const PCBYTES pcb);
+PCBYTES pc_bytes_lz4_encode(const PCBYTES pcb);
+PCBYTES pc_bytes_lz4_decode(const PCBYTES pcb);
 /** De-compress bytes using zlib */
 PCBYTES pc_bytes_zlib_decode(const PCBYTES pcb);
 

@@ -858,6 +858,9 @@ Datum pcpatch_summary(PG_FUNCTION_ARGS)
       bytes = ((PCPATCH_DIMENSIONAL *)patch)->bytes[i];
       switch (bytes.compression)
       {
+      case PC_DIM_LZ4:
+        appendStringInfoString(&strdata, ",\"compr\":\"lz4\"");
+        break;
       case PC_DIM_RLE:
         appendStringInfoString(&strdata, ",\"compr\":\"rle\"");
         break;

@@ -115,7 +115,7 @@ int pc_dimstats_update(PCDIMSTATS *pds, const PCPATCH_DIMENSIONAL *pdl)
     double sigbits_size = pds->total_patches * 2 * dim->size +
                           pds->total_points * avg_uniquebits_per_patch / 8;
     /* Default to ZLib */
-    pds->stats[i].recommended_compression = PC_DIM_ZLIB;
+    pds->stats[i].recommended_compression = PC_DIM_LZ4;
     /* Only use rle and sigbits compression on integer values */
     /* If we can do better than 4:1 we might beat zlib */
     if (dim->interpretation != PC_DOUBLE)
