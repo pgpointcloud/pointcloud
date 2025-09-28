@@ -16,6 +16,7 @@
 #include "access/heapam.h"
 #include "access/htup_details.h"
 #include "access/sysattr.h"
+#include "utils/timestamp.h"
 
 #include "catalog/indexing.h"
 #include "catalog/namespace.h"
@@ -40,6 +41,9 @@ PG_MODULE_MAGIC;
  */
 
 static PC_CONSTANTS *pc_constants_cache = NULL;
+
+static SRFSchemaCache *SRF_SCHEMA_CACHE = NULL;
+
 
 static Oid pointcloud_get_full_version_schema()
 {
@@ -143,6 +147,102 @@ void pointcloud_init_constants_cache(void)
       MemoryContextStrdup(CacheMemoryContext, "srid");
   pc_constants_cache->formats_schema =
       MemoryContextStrdup(CacheMemoryContext, "schema");
+}
+
+static void
+SRFSchemaCacheDestroy(void *cache)
+{
+  elog(LOG, "SRF SCHEMA CACHE DESTROY");
+  SRFSchemaCache* schema_cache = (SRFSchemaCache*)cache;
+  schema_cache->Schema = NULL;
+  SRF_SCHEMA_CACHE = NULL;
+  // PROJSRSCache* cache = (PROJSRSCache*)portalCache;
+  // for (uint32_t i = 0; i < cache->PROJSRSCacheCount; i++)
+  // {
+  //   if (cache->PROJSRSCache[i].projection)
+  //     PROJSRSDestroyPJ(cache->PROJSRSCache[i].projection);
+  // }
+}
+
+SRFSchemaCache *
+GetSRFSchemaTransactionCache()
+{
+  SRFSchemaCache* cache = SRF_SCHEMA_CACHE;
+  if (!cache)
+  {
+    elog(LOG, "CREATE NEW SRF TRANSACTION CACHE");
+
+    /* Put proj cache in a child of the CacheContext */
+    MemoryContext context = AllocSetContextCreate(
+        CurTransactionContext,
+        "SRF Context",
+        ALLOCSET_SMALL_SIZES);
+
+    /* Allocate in the upper context */
+    cache = MemoryContextAllocZero(context, sizeof(SRFSchemaCache));
+
+    if (!cache)
+      elog(ERROR, "Unable to allocate space for SFFSchemaCache in context %p", (void *)context);
+
+    cache->Value = 42;
+    cache->Schema = NULL;
+    cache->CacheContext = context;
+
+    /* Use this to clean up PROJSRSCache in event of MemoryContext reset */
+    MemoryContextCallback* callback = MemoryContextAlloc(context, sizeof(MemoryContextCallback));
+    callback->func = SRFSchemaCacheDestroy;
+    callback->arg = (void *)cache;
+    MemoryContextRegisterResetCallback(CurTransactionContext, callback);
+
+    SRF_SCHEMA_CACHE = cache;
+  }
+
+  return cache;
+}
+
+SRFSchemaCache *
+GetSRFSchemaCache()
+{
+  TimestampTz ts = GetCurrentStatementStartTimestamp();
+
+  if (SRF_SCHEMA_CACHE && SRF_SCHEMA_CACHE->StatementTs != ts)
+  {
+    SRF_SCHEMA_CACHE = NULL;
+    elog(LOG, "RESET CACHE!!!!!!!");
+  }
+
+  SRFSchemaCache* cache = SRF_SCHEMA_CACHE;
+  if (!cache)
+  {
+    elog(LOG, "CREATE NEW SRF CACHE");
+
+    /* Put proj cache in a child of the CacheContext */
+    MemoryContext context = AllocSetContextCreate(
+        CacheMemoryContext,
+        "SRF Context",
+        ALLOCSET_SMALL_SIZES);
+
+    /* Allocate in the upper context */
+    cache = MemoryContextAllocZero(context, sizeof(SRFSchemaCache));
+
+    if (!cache)
+      elog(ERROR, "Unable to allocate space for SFFSchemaCache in context %p", (void *)context);
+
+    cache->Value = 42;
+    cache->Schema = NULL;
+    cache->StatementTs = ts;
+    cache->CacheContext = context;
+
+    /* Use this to clean up PROJSRSCache in event of MemoryContext reset */
+    // MemoryContextCallback* callback = MemoryContextAlloc(context, sizeof(MemoryContextCallback));
+    // callback->func = SRFSchemaCacheDestroy;
+    // callback->arg = (void *)cache;
+    // MemoryContextRegisterResetCallback(CurrentMemoryContext, callback);
+
+    SRF_SCHEMA_CACHE = cache;
+  }
+
+  return cache;
 }
 
 /**********************************************************************************
@@ -423,7 +523,7 @@ PCSCHEMA *pc_schema_from_pcid_uncached(uint32 pcid)
  * We'll just search them linearly, because
  * usually we'll have only one per statement
  */
-#define SchemaCacheSize 16
+#define SchemaCacheSize 1
 
 typedef struct
 {
@@ -444,14 +544,28 @@ GetSchemaCache(FunctionCallInfoData *fcinfo)
 GetSchemaCache(FunctionCallInfo fcinfo)
 #endif
 {
-  SchemaCache *cache = fcinfo->flinfo->fn_extra;
+  SchemaCache *cache = (SchemaCache*) fcinfo->flinfo->fn_extra;
   if (!cache)
   {
-    cache = MemoryContextAlloc(fcinfo->flinfo->fn_mcxt, sizeof(SchemaCache));
-    memset(cache, 0, sizeof(SchemaCache));
+    // elog(LOG, "GetSchemaCache NEW CACHE: %d!!!!!", sizeof(SchemaCache));
+    // cache = MemoryContextAlloc(fcinfo->flinfo->fn_mcxt, sizeof(SchemaCache));
+    cache = MemoryContextAllocZero(fcinfo->flinfo->fn_mcxt, sizeof(SchemaCache));
+    // memset(cache, 0, sizeof(SchemaCache));
+    cache->next_slot = 0;
+    for (int i = 0; i < SchemaCacheSize; i++)
+    {
+      cache->pcids[i] = -1;
+      cache->schemas[i] = NULL;
+    }
+
     fcinfo->flinfo->fn_extra = cache;
   }
   return cache;
+}
+
+static void my_callback_func(void *)
+{
+  // elog(LOG, "CALLBACK");
 }
 
 PCSCHEMA *
@@ -461,11 +575,14 @@ pc_schema_from_pcid(uint32 pcid, FunctionCallInfoData *fcinfo)
 pc_schema_from_pcid(uint32 pcid, FunctionCallInfo fcinfo)
 #endif
 {
-  SchemaCache *schema_cache = GetSchemaCache(fcinfo);
+  // SchemaCache *schema_cache = GetSchemaCache(fcinfo);
+  // SRFSchemaCache *schema_cache = GetSRFSchemaCache();
+  SRFSchemaCache *schema_cache = GetSRFSchemaTransactionCache();
   int i;
   PCSCHEMA *schema;
   MemoryContext oldcontext;
 
+  // elog(LOG, "pc_schema_from_pcid 0");
   /* Unable to find/make a schema cache? Odd. */
   if (!schema_cache)
   {
@@ -475,21 +592,35 @@ pc_schema_from_pcid(uint32 pcid, FunctionCallInfo fcinfo)
   }
 
   /* Find our PCID if it's in there (usually it will be first) */
-  for (i = 0; i < SchemaCacheSize; i++)
+  // elog(LOG, "pc_schema_from_pcid SchemaSize: %d", SchemaCacheSize);
+  // for (i = 0; i < SchemaCacheSize; i++)
+  // {
+  //   // elog(LOG, "!!!pc_schema_from_pcid pcid in cache: %d", schema_cache->pcids[i]);
+  //   if (schema_cache->pcids[i] == pcid)
+  //   {
+  //     return schema_cache->schemas[i];
+  //   }
+  // }
+
+  if(schema_cache->Schema != NULL)
   {
-    if (schema_cache->pcids[i] == pcid)
-    {
-      return schema_cache->schemas[i];
-    }
+    return schema_cache->Schema;
   }
 
-  elog(DEBUG1, "schema cache miss, use pc_schema_from_pcid_uncached");
+  // elog(LOG, "schema cache miss, use pc_schema_from_pcid_uncached: %d", schema_cache->next_slot);
+  elog(LOG, "schema cache miss");
 
   /* Not in there, load one the old-fashioned way. */
   oldcontext = MemoryContextSwitchTo(fcinfo->flinfo->fn_mcxt);
   pointcloud_init_constants_cache();
+  // elog(LOG, "pc_schema_from_pcid 1");
   schema = pc_schema_from_pcid_uncached(pcid);
   MemoryContextSwitchTo(oldcontext);
+
+  // MemoryContextCallback *callback = (MemoryContextCallback *) MemoryContextAllocZero(fcinfo->flinfo->fn_mcxt, sizeof(MemoryContextCallback));
+  // callback->func = my_callback_func;
+  // MemoryContextRegisterResetCallback(fcinfo->flinfo->fn_mcxt, callback);
+
 
   /* Failed to load the XML? Odd. */
   if (!schema)
@@ -499,9 +630,11 @@ pc_schema_from_pcid(uint32 pcid, FunctionCallInfo fcinfo)
   }
 
   /* Save the XML in the next unused slot */
-  schema_cache->schemas[schema_cache->next_slot] = schema;
-  schema_cache->pcids[schema_cache->next_slot] = pcid;
-  schema_cache->next_slot = (schema_cache->next_slot + 1) % SchemaCacheSize;
+  // elog(LOG, "!!!pc_schema_from_pcid SET pcid in cache: %d", pcid);
+  // schema_cache->schemas[schema_cache->next_slot] = schema;
+  // schema_cache->pcids[schema_cache->next_slot] = pcid;
+  // schema_cache->next_slot = (schema_cache->next_slot + 1) % SchemaCacheSize;
+  schema_cache->Schema = schema;
   return schema;
 }
 

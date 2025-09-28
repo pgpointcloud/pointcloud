@@ -545,6 +545,68 @@ Datum pcpatch_agg_final_pcpatch(PG_FUNCTION_ARGS)
   PG_RETURN_POINTER(serpa);
 }
 
+// static MemoryContext StatementCacheContext = NULL;
+// static int statement_cache_value = 0;
+// static TimestampTz statement_cache_stamp = 0;
+// static bool statement_cache_initialized = false;
+
+//typedef struct struct_SRFSchemaCache
+//{
+//  uint32_t Value;
+//  PCSCHEMA *Schema;
+//  MemoryContext CacheContext;
+//} SRFSchemaCache;
+//
+//SRFSchemaCache *SRF_SCHEMA_CACHE = NULL;
+
+// static void
+// SRFSchemaCacheDestroy(void *cache)
+// {
+//   elog(LOG, "SRF SCHEMA CACHE DESTROY");
+//   // PROJSRSCache* cache = (PROJSRSCache*)portalCache;
+//   // for (uint32_t i = 0; i < cache->PROJSRSCacheCount; i++)
+//   // {
+//   //   if (cache->PROJSRSCache[i].projection)
+//   //     PROJSRSDestroyPJ(cache->PROJSRSCache[i].projection);
+//   // }
+// }
+//
+//
+// SRFSchemaCache *
+// GetSRFSchemaCache()
+// {
+//   SRFSchemaCache* cache = SRF_SCHEMA_CACHE;
+//   if (!cache)
+//   {
+//     elog(LOG, "CREATE NEW SRF CACHE");
+//
+//     /* Put proj cache in a child of the CacheContext */
+//     MemoryContext context = AllocSetContextCreate(
+//         CacheMemoryContext,
+//         "SRF Context",
+//         ALLOCSET_SMALL_SIZES);
+//
+//     /* Allocate in the upper context */
+//     cache = MemoryContextAllocZero(context, sizeof(SRFSchemaCache));
+//
+//     if (!cache)
+//       elog(ERROR, "Unable to allocate space for SFFSchemaCache in context %p", (void *)context);
+//
+//     cache->Value = 42;
+//     cache->Schema = NULL;
+//     cache->CacheContext = context;
+//
+//     /* Use this to clean up PROJSRSCache in event of MemoryContext reset */
+//     MemoryContextCallback* callback = MemoryContextAlloc(context, sizeof(MemoryContextCallback));
+//     callback->func = SRFSchemaCacheDestroy;
+//     callback->arg = (void *)cache;
+//     MemoryContextRegisterResetCallback(CurrentMemoryContext, callback);
+//
+//     SRF_SCHEMA_CACHE = cache;
+//   }
+//   return cache;
+// }
+
 PG_FUNCTION_INFO_V1(pcpatch_unnest);
 Datum pcpatch_unnest(PG_FUNCTION_ARGS)
 {
@@ -558,10 +620,23 @@ Datum pcpatch_unnest(PG_FUNCTION_ARGS)
   FuncCallContext *funcctx;
   pcpatch_unnest_fctx *fctx;
   MemoryContext oldcontext;
+  // int *cached_value;
+
+  // SRFSchemaCache* schema_cache = GetSRFSchemaCache();
+
+  // elog(LOG, "pcpatch_unnest 0");
+
+  //  if (StatementCacheContext == NULL)
+  //   {
+  //       StatementCacheContext = AllocSetContextCreate(CurrentMemoryContext,
+  //                                                    "StatementCache",
+  //                                                    ALLOCSET_DEFAULT_SIZES);
+  //   }
 
   /* stuff done only on the first call of the function */
   if (SRF_IS_FIRSTCALL())
   {
+    // elog(LOG, "pcpatch_unnest FIRST CALL SRF");
     PCPATCH *patch;
     SERIALIZED_PATCH *serpatch;
 
@@ -573,6 +648,46 @@ Datum pcpatch_unnest(PG_FUNCTION_ARGS)
      */
     oldcontext = MemoryContextSwitchTo(funcctx->multi_call_memory_ctx);
 
+    //    if (!statement_cache_initialized )
+    // {
+    //     statement_cache_value = 42; /* calcul coûteux simulé */
+    //     statement_cache_initialized = true;
+    //     elog(NOTICE, "Cache initialized with value %d", statement_cache_value);
+    // }
+    // else
+    // {
+    //     elog(NOTICE, "Cache reused with value %d", statement_cache_value);
+    // }
+
+     /* Initialisation du cache statement-wide */
+    // if (StatementCacheContext->firstchild == NULL)
+    // {
+    //   cached_value = (int *) MemoryContextAlloc(StatementCacheContext, sizeof(int));
+    //   *cached_value = 42; /* calcul coûteux simulé */
+    //   elog(LOG, "Cache initialized with value %d", *cached_value);
+    // }
+    // else
+    // {
+    //   cached_value = (int *) MemoryContextAlloc(StatementCacheContext, sizeof(int));
+    //   elog(LOG, "Cache reused with value %d", *cached_value);
+    // }
+
+    /* Initialise ou réutilise le cache via fn_extra */
+    // int *cached_value;
+    // if (fcinfo->flinfo->fn_extra == NULL)
+    // {
+    //   cached_value = (int *) MemoryContextAlloc(fcinfo->flinfo->fn_mcxt,
+    //       sizeof(int));
+    //   *cached_value = 42; /* valeur calculée une seule fois par nœud */
+    //   fcinfo->flinfo->fn_extra = cached_value;
+    //   elog(LOG, "Cache initialized with value %d", *cached_value);
+    // }
+    // else
+    // {
+    //   cached_value = (int *) fcinfo->flinfo->fn_extra;
+    //   elog(LOG, "Cache reused with value %d", *cached_value);
+    // }
+
     /*
      * Get the patch value and detoast if needed.  We can't do this
      * earlier because if we have to detoast, we want the detoasted copy
@@ -582,12 +697,19 @@ Datum pcpatch_unnest(PG_FUNCTION_ARGS)
      */
     serpatch = PG_GETARG_SERPATCH_P(0);
 
+    pointcloud_init_constants_cache();
+    // if (schema_cache->Schema == NULL)
+    // {
+    //   elog(LOG, "SET NEW SCHEMA IN CACHE");
+    //   schema_cache->Schema = pc_schema_from_pcid(serpatch->pcid, fcinfo);
+    // }
+
     /* The schema cache is not initialized at that time but we need the
      * constants cache
      */
-    pointcloud_init_constants_cache();
     patch = pc_patch_deserialize(serpatch,
-                                 pc_schema_from_pcid_uncached(serpatch->pcid));
+                                 pc_schema_from_pcid(serpatch->pcid, fcinfo));
+                                 // pc_schema_from_pcid_uncached(serpatch->pcid));
 
     /* allocate memory for user context */
     fctx = (pcpatch_unnest_fctx *)palloc(sizeof(pcpatch_unnest_fctx));
@@ -606,8 +728,11 @@ Datum pcpatch_unnest(PG_FUNCTION_ARGS)
   funcctx = SRF_PERCALL_SETUP();
   fctx = funcctx->user_fctx;
 
+
   if (fctx->nextelem < fctx->numelems)
   {
+    // elog(LOG, "SCHEMA CACHE PCID: %d", schema_cache->Schema->pcid);
+    // elog(LOG, "pcpatch_unnest 2");
     Datum elem;
     PCPOINT *pt = pc_pointlist_get_point(fctx->pointlist, fctx->nextelem);
     SERIALIZED_POINT *serpt = pc_point_serialize(pt);

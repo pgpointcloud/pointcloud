@@ -13,6 +13,7 @@
 
 #include "postgres.h"
 #include "utils/elog.h"
+#include "utils/timestamp.h"
 
 /* Try to move these down */
 #include "catalog/pg_type.h" /* for CSTRINGOID */
@@ -49,6 +50,14 @@ typedef struct
   char *formats_srid;
   char *formats_schema;
 } PC_CONSTANTS;
+
+typedef struct
+{
+  uint32_t Value;
+  PCSCHEMA *Schema;
+  TimestampTz StatementTs;
+  MemoryContext CacheContext;
+} SRFSchemaCache;
 
 /**
  * Serialized point type for clouds. Variable length, because there can be
