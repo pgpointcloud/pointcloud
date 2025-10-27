@@ -58,7 +58,12 @@ dnl Version Information imported from Version.config and Git
 dnl ===========================================================================
 
 AC_CHECK_PROG([GITCMD], [git —version], [yes], [no])
-AC_CHECK_FILE([.git], [DOTGITDIR=yes], [DOTGITDIR=no])
+# Note: AC_CHECK_FILE doesn't work when cross-compiling
+if test -d .git; then
+  DOTGITDIR=yes
+else
+  DOTGITDIR=no
+fi
 if test "x${GITCMD}" = "xyes" -a "x${DOTGITDIR}" = "xyes"; then
     GIT_COMMIT_HASH=" $(git rev-parse --short HEAD)"
 else
