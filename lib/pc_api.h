@@ -204,6 +204,43 @@ typedef struct
 } PCPATCH_GHT;
 
 
+/**
+* Serialized point type for clouds. Variable length, because there can be
+* an arbitrary number of dimensions. The pcid is a foreign key
+* reference to the POINTCLOUD_SCHEMAS table, where
+* the underlying structure of the data is described in XML,
+* the spatial reference system is indicated, and the data
+* packing scheme is indicated.
+*/
+typedef struct
+{
+	uint32_t size;
+	uint32_t pcid;
+	uint8_t data[1];
+}
+SERIALIZED_POINT;
+
+/**
+* PgSQL patch type (collection of points) for clouds.
+* Variable length, because there can be
+* an arbitrary number of points encoded within.
+* The pcid is a foreign key reference to the
+* POINTCLOUD_SCHEMAS table, where
+* the underlying structure of the data is described in XML,
+* the spatial reference system is indicated, and the data
+* packing scheme is indicated.
+*/
+typedef struct
+{
+	uint32_t size;
+	uint32_t pcid;
+	uint32_t compression;
+	uint32_t npoints;
+	PCBOUNDS bounds;
+	uint8_t data[1];
+}
+SERIALIZED_PATCH;
+
 
 /* Global function signatures for memory/logging handlers. */
 typedef void* (*pc_allocator)(size_t size);
@@ -419,6 +456,37 @@ PCPATCH* pc_patch_filter_equal_by_name(const PCPATCH *pa, const char *name, doub
 
 /** Subset batch based on range condition on dimension */
 PCPATCH* pc_patch_filter_between_by_name(const PCPATCH *pa, const char *name, double val1, double val2);
+
+
+/**********************************************************************
+* SERIALIZATION / DESERIALIZATION
+*
+* Convert between in-memory PCPOINT/PCPATCH structs and their varlena
+* on-disk representations (SERIALIZED_POINT / SERIALIZED_PATCH).
+* These functions are in libpc so they can be used by non-PostgreSQL
+* consumers such as MEOS.
+*/
+
+/** Turn a PCPOINT into a byte buffer suitable for saving in PgSQL */
+SERIALIZED_POINT* pc_point_serialize(const PCPOINT *pcpt);
+
+/** Turn a byte buffer into a PCPOINT for processing */
+PCPOINT* pc_point_deserialize(const SERIALIZED_POINT *serpt, const PCSCHEMA *schema);
+
+/** How big will a PCPATCH be on disk? */
+size_t pc_patch_serialized_size(const PCPATCH *patch);
+
+/** Turn a PCPATCH into a byte buffer suitable for saving in PgSQL */
+SERIALIZED_PATCH* pc_patch_serialize(const PCPATCH *patch, void *userdata);
+
+/** Turn a PCPATCH into an uncompressed byte buffer */
+SERIALIZED_PATCH* pc_patch_serialize_to_uncompressed(const PCPATCH *patch);
+
+/** Turn a byte buffer into a PCPATCH for processing */
+PCPATCH* pc_patch_deserialize(const SERIALIZED_PATCH *serpatch, const PCSCHEMA *schema);
+
+/** Reconstruct a PCSTATS triplet from the leading bytes of a serialized patch */
+PCSTATS* pc_patch_stats_deserialize(const PCSCHEMA *schema, const uint8_t *buf);
 
 
 #endif /* _PC_API_H */

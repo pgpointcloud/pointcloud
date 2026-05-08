@@ -1,11 +1,11 @@
 
 set ( PC_SOURCES
-        hashtable.c 
-        stringbuffer.c      
-        pc_bytes.c       
-        pc_dimstats.c      
-        pc_filter.c    
-        pc_mem.c 
+        hashtable.c
+        stringbuffer.c
+        pc_bytes.c
+        pc_dimstats.c
+        pc_filter.c
+        pc_mem.c
         pc_patch.c
         pc_patch_dimensional.c
         pc_patch_ght.c
@@ -13,6 +13,7 @@ set ( PC_SOURCES
         pc_point.c
         pc_pointlist.c
         pc_schema.c
+        pc_serialize.c
         pc_stats.c
         pc_util.c
         pc_val.c
