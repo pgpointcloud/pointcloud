@@ -179,8 +179,9 @@ is based on PostgreSQL 14, PostGIS 3 and the laz-perf support is activated.
 Continuous Integration
 ------------------------------------------------------------------------------
 
-pgPointcloud tests are run with `Github Actions`_ on several Ubuntu versions
-and with various PostgreSQL/PostGIS releases:
+pgPointcloud tests are run with `Github Actions`_.
+
+The CI matrix below covers supported PostgreSQL and Ubuntu versions, with and without PostGIS. Each workflow builds the extension, runs the unit tests, generates the documentation, and performs C code formatting and SQL linting checks.
 
 +--------------------+-----------------------+-------------------------+
 |                    | w/o PostGIS           | PostGIS 3.3             |
@@ -205,6 +206,14 @@ and with various PostgreSQL/PostGIS releases:
 |                    |                       |                         |
 |                    | |17_33_noble|         | |17_33_noble|           |
 +--------------------+-----------------------+-------------------------+
+| PostgreSQL 18      | |18_33_jammy|         | |18_33_jammy|           |
+|                    |                       |                         |
+|                    | |18_33_noble|         | |18_33_noble|           |
++--------------------+-----------------------+-------------------------+
+| PostgreSQL 19      | |19_33_jammy|         | |19_33_jammy|           |
+|                    |                       |                         |
+|                    | |19_33_noble|         | |19_33_noble|           |
++--------------------+-----------------------+-------------------------+
 
 .. |13_33_jammy| image:: https://img.shields.io/github/actions/workflow/status/pgpointcloud/pointcloud/jammy_postgres13_postgis33.yml?branch=master&label=Ubuntu%2022.04&logo=ubuntu :target: https://github.com/pgpointcloud/pointcloud/actions?query=workflow%3A%22%5Bubuntu-22.04%5D+PostgreSQL+13+and+PostGIS+3.3%22
 
@@ -216,6 +225,10 @@ and with various PostgreSQL/PostGIS releases:
 
 .. |17_33_jammy| image:: https://img.shields.io/github/actions/workflow/status/pgpointcloud/pointcloud/jammy_postgres17_postgis33.yml?branch=master&label=Ubuntu%2022.04&logo=ubuntu :target: https://github.com/pgpointcloud/pointcloud/actions?query=workflow%3A%22%5Bubuntu-22.04%5D+PostgreSQL+17+and+PostGIS+3.3%22
 
+.. |18_33_jammy| image:: https://img.shields.io/github/actions/workflow/status/pgpointcloud/pointcloud/jammy_postgres18_postgis33.yml?branch=master&label=Ubuntu%2022.04&logo=ubuntu :target: https://github.com/pgpointcloud/pointcloud/actions?query=workflow%3A%22%5Bubuntu-22.04%5D+PostgreSQL+18+and+PostGIS+3.3%22
+
+.. |19_33_jammy| image:: https://img.shields.io/github/actions/workflow/status/pgpointcloud/pointcloud/jammy_postgres19_postgis33.yml?branch=master&label=Ubuntu%2022.04&logo=ubuntu :target: https://github.com/pgpointcloud/pointcloud/actions?query=workflow%3A%22%5Bubuntu-22.04%5D+PostgreSQL+19+and+PostGIS+3.3%22
+
 .. |13_33_noble| image:: https://img.shields.io/github/actions/workflow/status/pgpointcloud/pointcloud/noble_postgres13_postgis33.yml?branch=master&label=Ubuntu%2024.04&logo=ubuntu :target: https://github.com/pgpointcloud/pointcloud/actions?query=workflow%3A%22%5Bubuntu-24.04%5D+PostgreSQL+13+and+PostGIS+3.3%22
 
 .. |14_33_noble| image:: https://img.shields.io/github/actions/workflow/status/pgpointcloud/pointcloud/noble_postgres14_postgis33.yml?branch=master&label=Ubuntu%2024.04&logo=ubuntu :target: https://github.com/pgpointcloud/pointcloud/actions?query=workflow%3A%22%5Bubuntu-24.04%5D+PostgreSQL+14+and+PostGIS+3.3%22
@@ -225,6 +238,10 @@ and with various PostgreSQL/PostGIS releases:
 .. |16_33_noble| image:: https://img.shields.io/github/actions/workflow/status/pgpointcloud/pointcloud/noble_postgres16_postgis33.yml?branch=master&label=Ubuntu%2024.04&logo=ubuntu :target: https://github.com/pgpointcloud/pointcloud/actions?query=workflow%3A%22%5Bubuntu-24.04%5D+PostgreSQL+16+and+PostGIS+3.3%22
 
 .. |17_33_noble| image:: https://img.shields.io/github/actions/workflow/status/pgpointcloud/pointcloud/noble_postgres17_postgis33.yml?branch=master&label=Ubuntu%2024.04&logo=ubuntu :target: https://github.com/pgpointcloud/pointcloud/actions?query=workflow%3A%22%5Bubuntu-24.04%5D+PostgreSQL+17+and+PostGIS+3.3%22
+
+.. |18_33_noble| image:: https://img.shields.io/github/actions/workflow/status/pgpointcloud/pointcloud/noble_postgres18_postgis33.yml?branch=master&label=Ubuntu%2024.04&logo=ubuntu :target: https://github.com/pgpointcloud/pointcloud/actions?query=workflow%3A%22%5Bubuntu-24.04%5D+PostgreSQL+18+and+PostGIS+3.3%22
+
+.. |19_33_noble| image:: https://img.shields.io/github/actions/workflow/status/pgpointcloud/pointcloud/noble_postgres19_postgis33.yml?branch=master&label=Ubuntu%2024.04&logo=ubuntu :target: https://github.com/pgpointcloud/pointcloud/actions?query=workflow%3A%22%5Bubuntu-24.04%5D+PostgreSQL+19+and+PostGIS+3.3%22
 
 .. _`source`: https://github.com/hobu/laz-perf
 .. _`DockerHub`: https://hub.docker.com/_/postgres
