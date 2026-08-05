@@ -179,8 +179,9 @@ is based on PostgreSQL 14, PostGIS 3 and the laz-perf support is activated.
 Continuous Integration
 ------------------------------------------------------------------------------
 
-pgPointcloud tests are run with `Github Actions`_ on several Ubuntu versions
-and with various PostgreSQL/PostGIS releases:
+pgPointcloud tests are run with `Github Actions`_.
+
+The CI matrix below covers supported PostgreSQL and Ubuntu versions, with and without PostGIS. Each workflow builds the extension, runs the unit tests, generates the documentation, and performs C code formatting and SQL linting checks.
 
 +--------------------+-----------------------+-------------------------+
 |                    | w/o PostGIS           | PostGIS 3.3             |

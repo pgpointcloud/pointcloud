@@ -15,6 +15,8 @@ https://pgpointcloud.github.io/pointcloud/ for more information.
 
 ## Continuous integration
 
+The CI matrix below covers supported PostgreSQL and Ubuntu versions, with and without PostGIS. Each workflow builds the extension, runs the unit tests, generates the documentation, and performs C code formatting and SQL linting checks.
+
 |                    | w/o PostGIS | PostGIS 3.3 |
 | ------------------ |:-----------:|:-----------:|
 | PostgreSQL 13      | ![](https://img.shields.io/github/actions/workflow/status/pgpointcloud/pointcloud/jammy_postgres13_postgis33.yml?branch=master&label=22.04&logo=ubuntu&style=plastic)<br />![](https://img.shields.io/github/actions/workflow/status/pgpointcloud/pointcloud/noble_postgres13_postgis33.yml?branch=master&label=24.04&logo=ubuntu&style=plastic) | ![](https://img.shields.io/github/actions/workflow/status/pgpointcloud/pointcloud/jammy_postgres13_postgis33.yml?branch=master&label=22.04&logo=ubuntu&style=plastic)<br />![](https://img.shields.io/github/actions/workflow/status/pgpointcloud/pointcloud/noble_postgres13_postgis33.yml?branch=master&label=24.04&logo=ubuntu&style=plastic) |
