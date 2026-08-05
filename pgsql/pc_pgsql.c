@@ -57,9 +57,8 @@ static Oid pointcloud_get_full_version_schema()
       FuncnameGetCandidates(names, -1, NIL, false, false, false, false);
 #else
   int fgc_flags;
-  FuncCandidateList clist =
-      FuncnameGetCandidates(names, -1, NIL, false, false, false, false,
-                            &fgc_flags);
+  FuncCandidateList clist = FuncnameGetCandidates(names, -1, NIL, false, false,
+                                                  false, false, &fgc_flags);
 #endif
   if (!clist)
     return InvalidOid;

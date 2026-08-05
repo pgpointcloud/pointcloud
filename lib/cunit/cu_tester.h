@@ -14,7 +14,7 @@
 
 #define PC_TEST(test_func)                                                     \
   {                                                                            \
-#test_func, test_func                                                      \
+    #test_func, test_func                                                      \
   }
 #define MAX_CUNIT_MSG_LENGTH 512
 #define CU_ASSERT_SUCCESS(rv) CU_ASSERT((rv) == PC_SUCCESS)
