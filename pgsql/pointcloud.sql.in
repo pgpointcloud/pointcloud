@@ -180,6 +180,10 @@ CREATE OR REPLACE FUNCTION pcpoint_in(cstring)
 	RETURNS pcpoint AS 'MODULE_PATHNAME', 'pcpoint_in'
 	LANGUAGE 'c' IMMUTABLE STRICT _PARALLEL;
 
+CREATE OR REPLACE FUNCTION pcpoint_in(bytea)
+	RETURNS pcpoint AS 'MODULE_PATHNAME', 'pcpoint_in_bytea'
+	LANGUAGE 'c' IMMUTABLE STRICT;
+
 CREATE OR REPLACE FUNCTION pcpoint_out(pcpoint)
 	RETURNS cstring AS 'MODULE_PATHNAME', 'pcpoint_out'
 	LANGUAGE 'c' IMMUTABLE STRICT _PARALLEL;
@@ -218,6 +222,9 @@ CREATE OR REPLACE FUNCTION PC_AsText(p pcpoint)
 CREATE OR REPLACE FUNCTION PC_AsBinary(p pcpoint)
 	RETURNS bytea AS 'MODULE_PATHNAME', 'pcpoint_as_bytea'
 	LANGUAGE 'c' IMMUTABLE STRICT _PARALLEL;
+
+CREATE CAST (bytea as pcpoint) WITH FUNCTION pcpoint_in(bytea) AS ASSIGNMENT;
+
 
 -------------------------------------------------------------------
 --  PCPATCH

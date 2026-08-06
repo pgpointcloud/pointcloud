@@ -15,6 +15,7 @@
 
 /* In/out functions */
 Datum pcpoint_in(PG_FUNCTION_ARGS);
+Datum pcpoint_in_bytea(PG_FUNCTION_ARGS);
 Datum pcpoint_out(PG_FUNCTION_ARGS);
 Datum pcpatch_in(PG_FUNCTION_ARGS);
 Datum pcpatch_out(PG_FUNCTION_ARGS);
@@ -89,6 +90,33 @@ Datum pcpoint_in(PG_FUNCTION_ARGS)
     PG_RETURN_POINTER(serpt);
   else
     PG_RETURN_NULL();
+}
+
+
+PG_FUNCTION_INFO_V1(pcpoint_in_bytea);
+Datum pcpoint_in_bytea(PG_FUNCTION_ARGS)
+{
+	bytea *bytes = PG_GETARG_BYTEA_P(0);
+	size_t wkblen = VARSIZE(bytes) - VARHDRSZ;
+	uint8 *wkb = VARDATA(bytes);
+
+	SERIALIZED_POINT *serpt = NULL;
+
+	/* non-Hex-encoded binary */
+
+	PCPOINT *pt;
+	PCSCHEMA *schema;
+	uint32 pcid;
+	pcid = pc_wkb_get_pcid(wkb);
+	schema = pc_schema_from_pcid(pcid, fcinfo);
+	pt = pc_point_from_wkb(schema, wkb, wkblen);
+
+	pcid_consistent(pt->schema->pcid, pcid);
+	serpt = pc_point_serialize(pt);
+	pc_point_free(pt);
+
+	if ( serpt ) PG_RETURN_POINTER(serpt);
+	else PG_RETURN_NULL();
 }
 
 PG_FUNCTION_INFO_V1(pcpoint_out);
