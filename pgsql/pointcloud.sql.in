@@ -236,12 +236,22 @@ CREATE OR REPLACE FUNCTION pcpatch_out(pcpatch)
 	RETURNS cstring AS 'MODULE_PATHNAME', 'pcpatch_out'
 	LANGUAGE 'c' IMMUTABLE STRICT _PARALLEL;
 
+-- Availability: 1.2.0next
+CREATE OR REPLACE FUNCTION pcpatch_send(pcpatch)
+	RETURNS bytea AS 'MODULE_PATHNAME', 'pcpatch_send'
+	LANGUAGE 'c' IMMUTABLE STRICT _PARALLEL;
+
+-- Availability: 1.2.0next
+CREATE OR REPLACE FUNCTION pcpatch_recv(internal)
+	RETURNS pcpatch AS 'MODULE_PATHNAME', 'pcpatch_recv'
+	LANGUAGE 'c' IMMUTABLE STRICT _PARALLEL;
+
 CREATE TYPE pcpatch (
 	internallength = variable,
 	input = pcpatch_in,
 	output = pcpatch_out,
-	-- send = geometry_send,
-	-- receive = geometry_recv,
+	send = pcpatch_send,
+	receive = pcpatch_recv,
 	typmod_in = pc_typmod_in,
 	typmod_out = pc_typmod_out,
 	-- delimiter = ':',
@@ -249,6 +259,9 @@ CREATE TYPE pcpatch (
 	-- analyze = geometry_analyze,
 	storage = external
 );
+
+-- Availability: 1.2.0next
+UPDATE pg_type SET typsend = 'pcpatch_send', typreceive = 'pcpatch_recv' WHERE typname='pcpatch' AND (typsend::text != 'pcpatch_send' OR typreceive::text != 'pcpatch_recv');
 
 CREATE OR REPLACE FUNCTION PC_AsText(p pcpatch)
 	RETURNS text AS 'MODULE_PATHNAME', 'pcpatch_as_text'
