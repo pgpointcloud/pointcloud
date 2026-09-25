@@ -415,8 +415,9 @@ size_t pc_bytes_serialized_size(const PCBYTES *pcb);
 int pc_bytes_serialize(const PCBYTES *pcb, uint8_t *buf, size_t *size);
 
 /** Read a buffer up into a bytes structure */
-int pc_bytes_deserialize(const uint8_t *buf, const PCDIMENSION *dim,
-                         PCBYTES *pcb, int readonly, int flip_endian);
+int pc_bytes_deserialize(const uint8_t *buf, size_t bufsize,
+                         const PCDIMENSION *dim, PCBYTES *pcb, int readonly,
+                         int flip_endian);
 
 /** Wrap serialized stats in a new stats objects */
 PCSTATS *pc_stats_new_from_data(const PCSCHEMA *schema, const uint8_t *mindata,

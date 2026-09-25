@@ -516,12 +516,43 @@ static void test_uncompressed_filter()
   //    pc_bytes_free(epcb);
 }
 
+static void test_deserialize_bounds()
+{
+  uint8_t buf[13] = {0};
+  int32_t claimed = 65536;
+  PCBYTES pcb = {0};
+  PCDIMENSION dim = {0};
+  int rv;
+
+  memcpy(buf + 1, &claimed, sizeof(claimed));
+  memset(buf + 5, 0x41, 8);
+
+  rv = pc_bytes_deserialize(buf, sizeof(buf), &dim, &pcb, PC_FALSE, 0);
+
+  CU_ASSERT_EQUAL(rv, PC_FAILURE);
+  CU_ASSERT_EQUAL(pcb.bytes, NULL);
+}
+
+static void test_deserialize_short_header()
+{
+  uint8_t buf[4] = {0};
+  PCBYTES pcb = {0};
+  PCDIMENSION dim = {0};
+  int rv;
+
+  rv = pc_bytes_deserialize(buf, sizeof(buf), &dim, &pcb, PC_FALSE, 0);
+
+  CU_ASSERT_EQUAL(rv, PC_FAILURE);
+  CU_ASSERT_EQUAL(pcb.bytes, NULL);
+}
+
 /* REGISTER ***********************************************************/
 
 CU_TestInfo bytes_tests[] = {
     PC_TEST(test_run_length_encoding), PC_TEST(test_sigbits_encoding),
     PC_TEST(test_zlib_encoding),       PC_TEST(test_rle_filter),
-    PC_TEST(test_uncompressed_filter), CU_TEST_INFO_NULL};
+    PC_TEST(test_uncompressed_filter), PC_TEST(test_deserialize_bounds),
+    PC_TEST(test_deserialize_short_header), CU_TEST_INFO_NULL};
 
 CU_SuiteInfo bytes_suite = {.pName = "bytes",
                             .pInitFunc = init_suite,

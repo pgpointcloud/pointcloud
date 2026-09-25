@@ -1344,11 +1344,27 @@ int pc_bytes_serialize(const PCBYTES *pcb, uint8_t *buf, size_t *size)
   return PC_SUCCESS;
 }
 
-int pc_bytes_deserialize(const uint8_t *buf, const PCDIMENSION *dim,
-                         PCBYTES *pcb, int readonly, int flip_endian)
+int pc_bytes_deserialize(const uint8_t *buf, size_t bufsize,
+                         const PCDIMENSION *dim, PCBYTES *pcb, int readonly,
+                         int flip_endian)
 {
+  int32_t size;
+
+  if (bufsize < 5)
+  {
+    pcerror("%s: truncated dimension header", __func__);
+    return PC_FAILURE;
+  }
+
   pcb->compression = buf[0];
-  pcb->size = wkb_get_int32(buf + 1, flip_endian);
+  size = wkb_get_int32(buf + 1, flip_endian);
+  if (size < 0 || (size_t)size > bufsize - 5)
+  {
+    pcerror("%s: dimension size exceeds remaining WKB buffer", __func__);
+    return PC_FAILURE;
+  }
+
+  pcb->size = (size_t)size;
   pcb->readonly = readonly;
   if (readonly && flip_endian)
     pcerror("pc_bytes_deserialize: cannot create a read-only buffer on "

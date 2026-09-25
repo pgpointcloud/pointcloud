@@ -263,17 +263,26 @@ PCPATCH *pc_patch_dimensional_from_wkb(const PCSCHEMA *schema,
   /*
   byte:     endianness (1 = NDR, 0 = XDR)
   uint32:   pcid (key to POINTCLOUD_SCHEMAS)
-  uint32:   compression (0 = no compression, 1 = dimensional, 2 = lazperf)
+  uint32:   compression (0 = none, 1 = dimensional, 2 = lazperf)
   uint32:   npoints
   dimensions[]:  dims (interpret relative to pcid and compressions)
   */
   static size_t hdrsz =
       1 + 4 + 4 + 4; /* endian + pcid + compression + npoints */
   PCPATCH_DIMENSIONAL *patch;
-  uint8_t swap_endian = (wkb[0] != machine_endian());
+  uint8_t swap_endian;
   uint32_t npoints, ndims;
   const uint8_t *buf;
+  size_t remaining;
   int i;
+
+  if (wkbsize < hdrsz)
+  {
+    pcerror("%s: truncated WKB header", __func__);
+    return NULL;
+  }
+
+  swap_endian = (wkb[0] != machine_endian());
 
   if (wkb_get_compression(wkb) != PC_DIMENSIONAL)
   {
@@ -293,13 +302,32 @@ PCPATCH *pc_patch_dimensional_from_wkb(const PCSCHEMA *schema,
   patch->stats = NULL;
 
   buf = wkb + hdrsz;
+  remaining = wkbsize - hdrsz;
   for (i = 0; i < ndims; i++)
   {
     PCBYTES *pcb = &(patch->bytes[i]);
     PCDIMENSION *dim = schema->dims[i];
-    pc_bytes_deserialize(buf, dim, pcb, PC_FALSE /*readonly*/, swap_endian);
+    size_t serialized_size;
+
+    if (PC_FAILURE ==
+        pc_bytes_deserialize(buf, remaining, dim, pcb, PC_FALSE /*readonly*/,
+                             swap_endian))
+    {
+      pc_patch_dimensional_free(patch);
+      return NULL;
+    }
+
     pcb->npoints = npoints;
-    buf += pc_bytes_serialized_size(pcb);
+    serialized_size = pc_bytes_serialized_size(pcb);
+    buf += serialized_size;
+    remaining -= serialized_size;
+  }
+
+  if (remaining != 0)
+  {
+    pcerror("%s: unexpected trailing data in WKB", __func__);
+    pc_patch_dimensional_free(patch);
+    return NULL;
   }
 
   return (PCPATCH *)patch;

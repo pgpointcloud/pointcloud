@@ -1314,6 +1314,28 @@ static void test_patch_transform_compression_none()
   pc_pointlist_free(pl);
 }
 
+static void test_patch_dimensional_wkb_bounds()
+{
+  uint8_t wkb[18] = {0};
+  uint32_t pcid = 0;
+  uint32_t compression = PC_DIMENSIONAL;
+  uint32_t npoints = 1;
+  uint8_t dim_compression = PC_DIM_NONE;
+  int32_t claimed_size = 65536;
+  PCPATCH *patch;
+
+  wkb[0] = machine_endian();
+  memcpy(wkb + 1, &pcid, sizeof(pcid));
+  memcpy(wkb + 5, &compression, sizeof(compression));
+  memcpy(wkb + 9, &npoints, sizeof(npoints));
+  wkb[13] = dim_compression;
+  memcpy(wkb + 14, &claimed_size, sizeof(claimed_size));
+
+  patch = pc_patch_from_wkb(simpleschema, wkb, sizeof(wkb));
+
+  CU_ASSERT_EQUAL(patch, NULL);
+}
+
 /* REGISTER ***********************************************************/
 
 CU_TestInfo patch_tests[] = {
@@ -1359,7 +1381,7 @@ CU_TestInfo patch_tests[] = {
     PC_TEST(test_patch_set_schema_compression_lazperf),
 #endif
     PC_TEST(test_patch_transform_compression_none),
-    CU_TEST_INFO_NULL};
+    PC_TEST(test_patch_dimensional_wkb_bounds), CU_TEST_INFO_NULL};
 
 CU_SuiteInfo patch_suite = {.pName = "patch",
                             .pInitFunc = init_suite,

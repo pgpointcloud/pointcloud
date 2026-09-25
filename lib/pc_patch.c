@@ -258,10 +258,12 @@ PCPATCH *pc_patch_from_wkb(const PCSCHEMA *s, uint8_t *wkb, size_t wkbsize)
   */
   uint32_t compression, pcid;
   PCPATCH *patch;
+  static size_t hdrsz = 1 + 4 + 4 + 4;
 
-  if (!wkbsize)
+  if (wkbsize < hdrsz)
   {
-    pcerror("%s: zero length wkb", __func__);
+    pcerror("%s: truncated WKB header", __func__);
+    return NULL;
   }
 
   /*
@@ -302,6 +304,9 @@ PCPATCH *pc_patch_from_wkb(const PCSCHEMA *s, uint8_t *wkb, size_t wkbsize)
     return NULL;
   }
   }
+
+  if (!patch)
+    return NULL;
 
   if (PC_FAILURE == pc_patch_compute_extent(patch))
     pcerror("%s: pc_patch_compute_extent failed", __func__);
