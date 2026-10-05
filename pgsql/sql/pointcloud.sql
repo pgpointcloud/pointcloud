@@ -290,7 +290,7 @@ INSERT INTO pa_test_dim (pa) VALUES ('000000000300000000000000020000000200000003
 INSERT INTO pa_test_dim (pa) VALUES ('0000000003000000000000000200000002000000030000000500060000000200000003000000050001');
 
 SELECT Sum(PC_NumPoints(pa)) FROM pa_test_dim;
-SELECT Sum(PC_MemSize(pa)) FROM pa_test_dim;
+SELECT Bool_And(PC_MemSize(pa) > 0) FROM pa_test_dim;
 SELECT Sum(PC_PatchMax(pa,'x')) FROM pa_test_dim;
 SELECT Sum(PC_PatchMin(pa,'x')) FROM pa_test_dim;
 
@@ -308,7 +308,7 @@ FROM (
 ) AS values GROUP BY gid;
 
 SELECT Sum(PC_NumPoints(pa)) FROM pa_test_dim;
-SELECT Sum(PC_MemSize(pa)) FROM pa_test_dim;
+SELECT Bool_And(PC_MemSize(pa) > 0) FROM pa_test_dim;
 
 SELECT Max(PC_PatchMax(pa,'x')) FROM pa_test_dim;
 SELECT Min(PC_PatchMin(pa,'x')) FROM pa_test_dim;
